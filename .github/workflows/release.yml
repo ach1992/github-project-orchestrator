@@ -21,9 +21,22 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Validate Skill source
         run: python3 tools/validate_skill.py skill
+
+      - name: Verify immutable v1.0.0 baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          baseline_dir="$(mktemp -d)"
+          trap 'rm -rf "$baseline_dir"' EXIT
+          git archive --format=tar v1.0.0 skill | tar -xf - -C "$baseline_dir"
+          python3 tools/validate_skill.py "$baseline_dir/skill" \
+            --baseline-manifest "$GITHUB_WORKSPACE/tests/baseline/v1.0.0.sha256"
 
       - name: Verify clean runtime source
         shell: bash
@@ -82,11 +95,7 @@ jobs:
           TAG="v${VERSION}"
           if gh release view "$TAG" >/dev/null 2>&1; then
             EXISTING_SHA="$(gh api "repos/${GH_REPO}/git/ref/tags/${TAG}" --jq '.object.sha')"
-            if [[ "$EXISTING_SHA" != "$GITHUB_SHA" ]]; then
-              echo "$TAG already points to $EXISTING_SHA; bump VERSION before releasing $GITHUB_SHA" >&2
-              exit 1
-            fi
-            echo "Release $TAG already exists for $GITHUB_SHA; nothing to republish."
+            echo "Release $TAG already exists at $EXISTING_SHA; current main is $GITHUB_SHA. VERSION was not bumped, so nothing is published."
             exit 0
           fi
           gh release create "$TAG" skill.zip skill.zip.sha256 \
