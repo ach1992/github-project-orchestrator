@@ -62,6 +62,25 @@ Apply stricter repository/platform policy first. For multi-effect actions, apply
 | `DESTRUCTIVE_OR_IRREVERSIBLE` | Recommend | Human approval | Human approval |
 | `EXTERNAL_COMMITMENT` | Recommend | Human decision/approval | Human decision/approval |
 
+### `CAN_EXECUTE(action)`
+
+Use one canonical execution predicate instead of independently re-deriving the same authority/gate decision in each runtime domain:
+
+```text
+CAN_EXECUTE(action) =
+    AcceptedScopeAllows(action)
+    AND RoleAllows(action)
+    AND ProjectAuthorityAllows(action)
+    AND RepositoryAndPlatformPolicyAllow(action)
+    AND ApplicableEffectsAreKnown(action)
+    AND RequiredObligationsAreSatisfied(action)
+    AND AnyScopedAuthorizationUsedIsCurrentAndExact(action)
+    AND RequiredCapabilityIsAvailable(action)
+    AND MutableIdentityEvidenceIsFresh(action)
+```
+
+Interpret each term using this file's matrix plus the authoritative repository/platform state for the action. `CAN_EXECUTE=false` is not itself a terminal Master boundary: reconcile uncertainty, use an authorized equivalent path, or classify the actual canonical boundary while independent useful work continues. `ADVISORY` does not become mutation-capable through technical access; `ScopedAuthorization` satisfies only the exact gate it covers; uncertain `ApplicableEffects` or stale mutable identity must be reconciled before mutation.
+
 ### Classification decision flow
 
 Classify from actual and deterministic effects, not from command name, environment label, or technical permission. Then apply repository/platform policy, ProjectAuthority, any applicable ScopedAuthorization, RiskLevel, CoordinationBaseline, and AssuranceLevel as independent decisions.
@@ -127,10 +146,11 @@ Do not escalate merely because several reasonable implementation choices exist.
 
 `MasterBoundary.PROJECT_COMPLETE` is a successful terminal condition, not failure to find READY work. It is valid only when the active outcome's observable success criteria are satisfied, the required integration/delivery endpoint is reached, required verification passed, and authoritative project/release state is reconciled.
 
-In autonomous operation, stop only for `MasterBoundary.PROJECT_COMPLETE` or:
+In autonomous operation, the canonical Master boundaries are:
 
 | MasterBoundary | Meaning |
 |---|---|
+| `PROJECT_COMPLETE` | active outcome, required integration/delivery, verification, and reconciliation are complete |
 | `APPROVAL_REQUIRED` | next consequential action crosses matrix/platform gate |
 | `MATERIAL_DECISION_REQUIRED` | section 4 decision is not safely bounded |
 | `BLOCKED` | real external dependency/precondition prevents useful progress after independent work is exhausted |
@@ -140,13 +160,13 @@ In autonomous operation, stop only for `MasterBoundary.PROJECT_COMPLETE` or:
 | `WRITE_OUTCOME_UNKNOWN` | an action remains `WriteState.UNKNOWN` after bounded recovery and independent safe work is exhausted; stop with exact object/action/evidence required to determine the outcome safely |
 | `USER_STOP` | user explicitly pauses/stops/ends execution; changed requirements that still request work use requirement-change path, not USER_STOP |
 
-Except `MasterBoundary.USER_STOP`/`MasterBoundary.PROJECT_COMPLETE`, a boundary on one dependency chain is initially local: freeze only dependent actions; continue other safe authorized materially useful outcome work. Promote it to Master-level terminal handling only when no such work remains, the boundary is project-wide, or delaying required human decision/containment materially increases risk. After reconciliation, use the most specific current MasterBoundary that actually blocks the next action; keep `MasterBoundary.RISK_ESCALATION` only while the newly discovered risk still invalidates the plan and cannot yet be reduced to a more specific approval, material decision, blocker, or capability boundary. Never invent low-value cleanup to avoid a legitimate boundary.
+This section defines boundary meaning; `MASTER_STOP(...)` in `master-cycle.md` is the single owner of when a detected boundary becomes a terminal Master response. A local boundary does not terminate the project merely because its token exists.
 
 `MasterBoundary.MISSING_CAPABILITY` means required semantics cannot be performed by available authorized capabilities, not merely that a preferred route is unavailable. Use a known equivalent authoritative route after bounded verification; do not exhaustively probe speculative alternatives. Distinguish transient operation/service failure from missing capability. Re-check a failed route only when new evidence makes success plausible or explicitly transient failure semantics justify a bounded retry; a new turn/tool batch alone is not evidence.
 
 Before `MasterBoundary.NO_READY_WORK`, inspect the active outcome and unresolved candidates, refine what can be refined, unblock what can be unblocked, split/investigate uncertainty where useful, and search independent work. Lack of a pre-existing READY Issue is never sufficient by itself.
 
-A commit, completed subtask, green self-review, Worker stop/handoff, Issue/PR update, progress message, tool-batch boundary, unavailable delegation path, context-rotation preference, or response length is never a stop condition by itself. A terminal assistant response that yields control is itself a Master stop in chat runtimes. Unless a canonical Master-level boundary applies, execute the next safe authorized outcome-linked action rather than finalize or ask for `continue`. On `MasterBoundary.USER_STOP`, cease new consequential mutations immediately; no cleanup/sync/recoverability writes solely for cycle-close ceremony unless the user requested final sync.
+On `MasterBoundary.USER_STOP`, cease new consequential mutations immediately; no cleanup/sync/recoverability writes solely for cycle-close ceremony unless the user requested final sync.
 
 ## 6. `WriteState.UNKNOWN`
 
