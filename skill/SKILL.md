@@ -74,14 +74,15 @@ Prefer existing equivalent systems; otherwise use:
 | implementation identity | working tree, Git refs/commits, PR diff/history |
 | validation | current local checks and/or CI tied to relevant SHA |
 | production/release state | release/deployment system + immutable artifact/commit identity |
+| version-sensitive external contracts | current official primary docs/specifications/release notes/security advisories |
 
-Resolve conflict by question-specific authority + freshness; test SHA/environment/scope mismatch before assuming a source is wrong. Never create manager-memory/checkpoint/handoff archives solely for chat loss.
+Resolve conflict by question-specific authority + freshness; test SHA/environment/scope mismatch before assuming a source is wrong. When combining sources, cross-check repository/object/SHA/environment identity before relying on the result. Never create manager-memory/checkpoint/handoff archives solely for chat loss.
 
 ## 4. Capability preflight
 
 On a new Master/runtime or material access change, verify only capabilities needed for next work: GitHub read/write, filesystem/Git, commands/tests, CI, deployment controls, approved secret/config access, and current official sources for version-sensitive contracts.
 
-Use the least-fragile question-specific authoritative capability and preserve identity/semantics across fallbacks. One route failure is not missing capability; `authority-gates.md` owns the `MISSING_CAPABILITY` boundary and `CAN_EXECUTE(action)` capability/freshness requirement. Keep capability conclusions runtime-transient; bundled scripts are optional read-only accelerators, never mandatory gates. Incomplete helper evidence means unknown, not absent/clean; inspect authoritatively only when the missing evidence can affect next action.
+Use the source-of-truth model above and do not choose weaker evidence merely for convenience; preserve identity/semantics across fallbacks. One route failure is not missing capability; `authority-gates.md` owns the `MISSING_CAPABILITY` boundary and `CAN_EXECUTE(action)` capability/freshness requirement. Keep capability conclusions runtime-transient; bundled scripts are optional read-only accelerators, never mandatory gates. Incomplete helper evidence means unknown, not absent/clean; inspect authoritatively only when the missing evidence can affect next action.
 
 ## 5. Master control loop
 
