@@ -16,7 +16,9 @@ Before review, verify:
 - actual target-to-candidate diff + commits;
 - current pre-integration CI/checks; merge-queue/merge-group checks become authoritative only after enrollment creates merge-group identity;
 - applicable effective repository/platform integration rules for current target when decision-relevant;
-- profile/risk-required independent approvals.
+- `RiskLevel`/`AssuranceLevel`-required independent approvals/evidence.
+
+Keep the review evidence inside an explicit identity envelope: repository, Integration Target/base, candidate/HEAD, relevant Contract Revision, environment when applicable, and evidence freshness. Candidate/target/contract/effective-change drift invalidates affected approval rather than being normalized away by narrative.
 
 ### Integration path selection
 
@@ -32,7 +34,7 @@ INTEGRATION PATH
   |      +-- established repository workflow/policy/history supports it
   |      +-- exact reviewed candidate + Integration Target are identifiable
   |      +-- equivalent review/validation/freshness/audit evidence is possible
-  |      +-- active coordination/assurance controls remain satisfied
+  |      +-- active CoordinationBaseline/AssuranceLevel controls remain satisfied
   |      +-- no stricter rule requires PR
   |             |
   |             +-- all true ---> recognized non-PR path
@@ -48,9 +50,9 @@ INTEGRATION PATH
 | PR | PR HEAD / PR base / base-to-HEAD diff |
 | Recognized non-PR | exact reviewed candidate commit/HEAD / authoritative Integration Target / target-to-candidate diff |
 
-`LIGHTWEIGHT` uses PR when practical or required. `STANDARD` normally uses PR-based integration, but do not invent a parallel PR process when an established repository-normal non-PR workflow provides equivalent control and no stricter rule requires PR. `HIGH_ASSURANCE` is additive: retain the coordination path that would otherwise apply and add stronger independent evidence/review as justified. When PR-based, keep PR identity as the review envelope. On a recognized non-PR path, apply the same freshness, optimistic concurrency, validation, review, risk/profile, and action gates. Direct integration remains Master responsibility; Worker direct target push/merge remains prohibited.
+`CoordinationBaseline=LIGHTWEIGHT` uses PR when practical or required. `CoordinationBaseline=STANDARD` normally uses PR-based integration, but do not invent a parallel PR process when an established repository-normal non-PR workflow provides equivalent control and no stricter rule requires PR. `AssuranceLevel=HIGH_ASSURANCE` is additive: retain the coordination path that would otherwise apply and add stronger independent evidence/review as justified. When PR-based, keep PR identity as the review envelope. On a recognized non-PR path, apply the same freshness, optimistic concurrency, validation, review, RiskLevel/AssuranceLevel, and `ApplicableEffects` gates. Direct integration remains Master responsibility; Worker direct target push/merge remains prohibited.
 
-Refresh mutable review state immediately before each Master-controlled integration step. Unexpected change in candidate HEAD, target/base, Contract Revision, effective rules, required checks/approvals, existing queue/merge-group identity, or material target state -> stop and reconcile; approval never transfers automatically to a different effective change.
+Refresh mutable review state immediately before each Master-controlled integration step. Unexpected change in candidate HEAD, target/base, Contract Revision, effective rules, required checks/approvals, existing queue/merge-group identity, or material target state -> stop that integration action and reconcile; approval never transfers automatically to a different effective change.
 
 ## 2. Review standard
 
@@ -74,6 +76,8 @@ Do not turn style preference into mandatory scope when formatting/lint policy pa
 | `BLOCKER` | unsafe/incorrect; integration prohibited |
 | `REQUIRED` | acceptance/quality requirement must be fixed before integration |
 | `OPTIONAL` | useful but not required by contract |
+
+Finding labels are review severity only; a review `BLOCKER` does not become `TaskState.BLOCKED`, `WorkerStatus.BLOCKED`, or `MasterBoundary.BLOCKED` by token equality. Master reconciles the actual dependency/action state.
 
 ## 3. Evidence authority and freshness
 
@@ -116,13 +120,13 @@ Avoid unnecessary rebase/force-push; preserve repository history conventions.
 
 ## 6. Integration gate
 
-A substantive change is `MERGE_READY` only when all applicable pre-integration conditions hold. `MERGE_READY` is the compatibility name for the logical **integration-ready** state: on a recognized non-PR path it means ready for that exact Master-owned integration, not permission to bypass policy/profile controls. Merge-queue checks that can exist only after enrollment are platform-controlled post-enrollment conditions, not pre-enrollment evidence.
+A substantive change is `TaskState.INTEGRATION_READY` only when all applicable pre-integration conditions hold. Legacy `MERGE_READY` is the compatibility name for this state: on a recognized non-PR path it means ready for that exact Master-owned integration, not permission to bypass repository, CoordinationBaseline, AssuranceLevel, RiskLevel, or ApplicableEffects controls. Merge-queue checks that can exist only after enrollment are platform-controlled post-enrollment conditions, not pre-enrollment evidence.
 
 Before Master-controlled integration, require as applicable:
 
 - acceptance satisfied; explicit contract current;
 - current reviewed HEAD known;
-- no unresolved `BLOCKER`/`REQUIRED`;
+- no unresolved review `BLOCKER`/`REQUIRED`;
 - required tests/checks/CI that can and must pass before the Master-controlled integration action pass, or a deliberate exception is authorized and documented in the appropriate place;
 - required dependencies are integrated or the stacking model is intentional and safe;
 - target compatibility current;
@@ -130,7 +134,8 @@ Before Master-controlled integration, require as applicable:
 - required docs/config/release notes complete;
 - no unexplained scope expansion;
 - effective target rules respected: branch protection/rulesets, required checks/deployments, merge queue, allowed method/path; technical bypass capability alone does not authorize bypass;
-- risk/profile-required independent review + human approvals complete.
+- RiskLevel/AssuranceLevel-required independent review + human approvals complete;
+- every `ApplicableEffects` obligation for the exact integration action is satisfied under `authority-gates.md`.
 
 Immediately before next Master-controlled integration action, re-read candidate/target identity, mergeability/equivalent target-update preconditions, effective rules, required pre-action checks/approvals, and any Task Contract revision that could invalidate decision. Unexpected drift -> reconcile; never overwrite/integrate through it.
 
@@ -138,16 +143,16 @@ Immediately before next Master-controlled integration action, re-read candidate/
 
 | Stage | Rule |
 |---|---|
-| Before enrollment | Use normal queue path. If queue can later cause a consequential effect without another interceptable authorization decision, resolve **every** canonical gate that must precede that effect before enrollment. This includes required `INTEGRATION` approval/pre-authorization and, when deterministic, `PRODUCTION`; `DESTRUCTIVE_OR_IRREVERSIBLE` or `EXTERNAL_COMMITMENT` effects retain their current-human approval/decision requirement under the default matrix and are never waived merely by integration/production pre-authorization. Scope any permitted pre-authorization to queue-mediated integration of the reviewed candidate into the identified target subject to required queue checks. Never enroll while a required gate would become non-interceptable, and never require queue evidence that cannot exist yet. |
-| After enrollment | Verify created merge-group identity + required queue checks for current candidate/target. PR-head evidence does not substitute when platform evaluates distinct merge-group commit. |
-| Complete | Mark `INTEGRATED` only after platform reports target update and current target identity confirms intended change reached it. |
+| Before enrollment | Use normal queue path. If queue can later cause a consequential effect without another interceptable authorization decision, resolve **every** canonical gate that must precede that effect before enrollment. This includes required `INTEGRATION` approval/ScopedAuthorization and, when deterministic, `PRODUCTION`; `DESTRUCTIVE_OR_IRREVERSIBLE` or `EXTERNAL_COMMITMENT` effects retain their current-human approval/decision requirement under the default matrix and are never waived merely by integration/production authorization. Scope any permitted authorization to queue-mediated integration of the reviewed candidate into the identified target subject to required queue checks. Never enroll while a required gate would become non-interceptable, and never require queue evidence that cannot exist yet. |
+| After enrollment | Verify created merge-group identity + required queue checks for current candidate/target. PR-head evidence does not substitute when platform evaluates a distinct merge-group commit. |
+| Complete | Mark `TaskState.INTEGRATED` only after platform reports target update and current target identity confirms intended change reached it. |
 | Regroup / target drift | For each new merge-group identity, require the current queue checks that apply to that identity. Routine regroup that stays within the reviewed/authorized effective-change and risk envelope needs no new human gate. If regroup or target movement—whether operationally normal for the queue or not—materially changes assessed action, target, risk, effective change, or review/approval assumptions, reconcile and re-review/re-apply applicable gates before integration when an intercept remains; never treat the word `normal` as proof that material drift is already authorized. |
 
-Apply `authority-gates.md`: `HIGH`/`CRITICAL` integration needs defined approval unless exact action is validly pre-authorized with current evidence; integration that implicitly deploys production is `PRODUCTION`.
+Apply `authority-gates.md`: high/critical `ApplicableEffects.INTEGRATION` needs defined approval unless the exact action is validly authorized with current evidence. An integration action that deterministically deploys production has both `INTEGRATION` and `PRODUCTION`; both independent obligations must be satisfied.
 
 ## 7. Self-authored work
 
-Master must not label self-review independent. Use the same finding severity/gate as delegated work. If the change is high-risk or policy requires separation of duties, obtain another reviewer.
+Master must not label self-review independent. Use the same finding severity/gate as delegated work. If the change is high-risk or policy/AssuranceLevel requires separation of duties, obtain another reviewer.
 
 ## 8. Independent review handoff
 
@@ -156,7 +161,7 @@ When independent review is required and a genuinely independent reviewer must be
 - repository + PR/change identity;
 - exact target/base identity + exact candidate HEAD SHA;
 - accepted outcome/acceptance + current Contract Revision when present;
-- risk/effective profile + reason independent review is required;
+- RiskLevel + CoordinationBaseline/AssuranceLevel + reason independent review is required;
 - exact review boundary + material architecture/security/data/performance/operational constraints;
 - current validation/CI evidence identifiers tied to the reviewed change;
 - reviewer authority, read-only by default unless another bounded action is explicitly authorized;
@@ -170,10 +175,10 @@ After integration, in order:
 
 1. verify the intended candidate/change actually reached the authoritative Integration Target;
 2. verify target CI/checks when applicable/currently available;
-3. mark engineering work `INTEGRATED`; update/close Issue/parent/milestone/Project/dependencies/active risk only according to whether the active outcome or explicit contract also requires delivery;
+3. mark engineering work `TaskState.INTEGRATED`; update/close Issue/parent/milestone/Project/dependencies/active risk only according to whether the active outcome or explicit contract also has `DeliveryRequirement=DELIVERY_REQUIRED`;
 4. capture only actionable follow-up work;
 5. update durable docs/ADR only when a lasting rule/decision changed;
 6. clean branch/worktree only when no useful uncommitted/unpushed work can be lost;
 7. update release readiness when delivery is affected.
 
-Do not copy integrated-change history into manager documents.
+`TaskState.INTEGRATED` never implies `DeliveryState.DELIVERED`; delivery is proven separately for the explicit DeliveryTarget. Do not copy integrated-change history into manager documents.

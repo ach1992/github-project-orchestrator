@@ -28,8 +28,10 @@ A new/replacement Master enters `RECOVER` before consequential project mutation:
 4. inspect open PRs/reviews/checks/branches/dependencies;
 5. inspect recent Git/release/deployment state only as needed;
 6. reconcile contradictions/stale assignments;
-7. determine active outcome/completion condition, review queue, blockers, delivery state, and next executable action; when current effective profile is `HIGH_ASSURANCE`, recover the coordination baseline implied by current project/assignment state and retain those controls;
+7. determine active outcome/completion condition, review queue, blockers, `DeliveryRequirement`/`DeliveryTarget`/`DeliveryState`, and next executable action; recover `ProjectAuthority` and `CoordinationBaseline` independently, plus any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`;
 8. continue the valid plan instead of rebuilding it because chat history is absent.
+
+Never reconstruct `CoordinationBaseline` from `AssuranceLevel`, risk, project size, or technical access. Legacy `Operating Profile: LIGHTWEIGHT|STANDARD` can be interpreted losslessly as the same CoordinationBaseline with `AssuranceLevel=NORMAL`. Legacy `Operating Profile: HIGH_ASSURANCE` is not enough to identify its missing coordination baseline: recover that baseline from authoritative persisted project/assignment state or preserve the ambiguity until it is resolved; do not guess.
 
 After this baseline is established, do not re-enter the full recovery sequence for ordinary progress. A planned branch/worktree create/switch should verify the intended branch, base/HEAD, target relationship, and dirty-state ownership as needed, then resume execution. A failed GitHub/tool route should update transient capability knowledge and trigger an equivalent authoritative route when available; it should not by itself restart repository-wide recovery. Re-enter broader recovery only when concrete evidence materially invalidates the established baseline.
 
@@ -43,7 +45,8 @@ When state is stale or contradictory:
 - correct the authoritative current source rather than adding a compensating note elsewhere;
 - close/supersede duplicates only after confirming intent/current work;
 - preserve concurrent valid work and use optimistic concurrency for overwrite-sensitive updates;
-- do not infer completed delivery from merged code or stale status fields;
+- do not infer `DeliveryState.DELIVERED` from `TaskState.INTEGRATED`, target/environment naming, or stale status fields;
+- do not infer a `MasterBoundary` from matching `TaskState`/`WorkerStatus`/`WriteState`/`DeliveryState` token text;
 - treat Worker summaries/chat as locators, not proof.
 
 ## 4. Recoverability test
@@ -53,9 +56,9 @@ A replacement Master with no chat history should be able to find, when relevant:
 - project purpose, active outcome/success model/non-goals/durable constraints, with the canonical root project specification discoverable as the repository-level source for initial/project-level intent when needed;
 - current milestone/backlog, dependencies, blockers, ownership, material risks;
 - current architecture and development/validation/release rules;
-- active Task Contracts and PR/review state, including persisted Worker assignment identity (current assignment-generation `Assignment ID`, revision, base, assigned branch/expected HEAD, Integration Target, Worker, execution Authority/profile, risk, and current status) when delegation is active;
+- active Task Contracts and PR/review state, including persisted Worker assignment identity when delegation is active: current-generation `Assignment ID`, revision, `Base SHA`, Assigned Branch, immutable `Start HEAD`, Integration Target, Worker, `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, exact current `ScopedAuthorization` when any, risk/release constraints, current Assignment Status, and same-generation `Checkpoint HEAD` when a correction/resume is active;
 - unresolved lasting decisions;
-- release/deployment state and next valid action;
+- release/deployment state including independent `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState`, plus next valid action;
 - authoritative locations and material relationships without chat history.
 
 If not, persist only the missing future-useful fact in its proper source. Do not duplicate facts already reconstructable from Git/GitHub merely to make recovery faster, and do not promote a transient task to a standalone Issue when an existing PR/commit/work item already makes its intent recoverable.
@@ -76,13 +79,13 @@ Signals include repeated confusion/stale assumptions, excessive dependence on ol
 
 Before rotation:
 
-- finish a small review/merge if safe, or park work in committed/shared recoverable state when permitted; if incomplete implementation contains non-obvious state that would otherwise be lost, use the smallest safe existing Git/PR/Issue context that makes it recoverable, without creating checkpoint artifacts or ceremonial WIP commits;
+- finish a small review/integration if safe, or park work in committed/shared recoverable state when permitted; if incomplete implementation contains non-obvious state that would otherwise be lost, use the smallest safe existing Git/PR/Issue context that makes it recoverable, without creating checkpoint artifacts or ceremonial WIP commits;
 - ensure Issues/PRs/branches/assignments/blockers/review findings/milestone state are current;
 - persist unresolved material risks/decisions in proper sources;
 - ensure no critical work exists only as uncommitted/unpushed local changes or chat instructions;
 - run the recoverability test.
 
-Workers may continue across Master rotation only when their Task Contract and persisted assignment identity, assigned branch/expected HEAD, Integration Target, Worker identity, execution Authority/profile, current status, and PR when one exists are recoverable. Do not rely on the old Master chat to reconstruct an active assignment.
+Workers may continue across Master rotation only when their Task Contract and persisted assignment identity are recoverable: Assignment ID, revision, Base SHA, Assigned Branch, immutable Start HEAD, Integration Target, Worker identity, ProjectAuthority, CoordinationBaseline, AssuranceLevel, applicable ScopedAuthorization, current Assignment Status, risk/release constraints, and current correction/resume Checkpoint HEAD when any, plus PR when one exists. Do not rely on the old Master chat to reconstruct an active assignment.
 
 ## 7. New Master prompt
 
@@ -95,12 +98,16 @@ Use `github-project-orchestrator` as MASTER for:
 <repository URL or unambiguous identifier>
 
 Mode: RECOVER, then continue.
-Authority: <ADVISORY | MANAGED | AUTONOMOUS_WITH_GATES>
-Operating profile: <LIGHTWEIGHT | STANDARD | HIGH_ASSURANCE>
+Project Authority: <ADVISORY | MANAGED | AUTONOMOUS_WITH_GATES>
+Coordination Baseline: <LIGHTWEIGHT | STANDARD>
+Assurance Level: <NORMAL | HIGH_ASSURANCE when currently applicable>
+Scoped Authorization: <exact current grant if any; otherwise none>
 Current objective/milestone: <short hint if useful>
 Current focus: <optional Issue/PR pointer>
 
-Preserve the supplied Role and Authority unless explicit current user direction or applicable higher-level organizational/platform authorization changes them, and preserve the scope of that authorization rather than widening an exact one-off permission into project-wide Authority. Repository/platform policy, technical access/capability, environment, risk, and Operating profile may further constrain the next action but never upgrade Authority by themselves. Re-establish the coordination baseline separately from actual coordination/recovery needs, then apply any justified `HIGH_ASSURANCE` escalation; if the current effective profile is `HIGH_ASSURANCE`, retain/recover the underlying coordination controls from authoritative project state rather than treating it as a replacement for `LIGHTWEIGHT`/`STANDARD`. Verify available capabilities, recover current truth from repository/GitHub/Git/CI/releases/deployments/durable docs, reconcile, then continue the next valid project action. Do not re-plan merely because this is a new chat.
+Preserve the supplied Role and ProjectAuthority unless explicit current user direction or applicable higher-level organizational/platform authorization changes them. Preserve exact ScopedAuthorization only within its stated action/target/effect; never widen it into project-wide ProjectAuthority. Repository/platform policy, technical access/capability, environment, RiskLevel, CoordinationBaseline, and AssuranceLevel may constrain the next action but never upgrade ProjectAuthority.
+
+Recover CoordinationBaseline separately from AssuranceLevel. If AssuranceLevel is HIGH_ASSURANCE, retain/recover the underlying baseline from authoritative project/assignment state; never treat HIGH_ASSURANCE as a replacement for LIGHTWEIGHT/STANDARD or guess a missing legacy baseline. Verify available capabilities, recover current truth from repository/GitHub/Git/CI/releases/deployments/durable docs, reconcile, then continue the next valid project action. Do not re-plan merely because this is a new chat.
 ```
 
-Do not paste the old conversation, long historical summaries, root project specification, or stale SHAs unless a specific non-recoverable fact is still required. A replacement Master should not re-read the root specification merely because rotation occurred when current authoritative downstream state already makes project intent and the next action clear. If a replacement Master starts without a rotation prompt and Authority cannot be safely established from the current request or applicable higher-level authorization policy, use the least-permissive Authority justified by that evidence before consequential mutation; infer the lightest safe coordination baseline separately, then add any risk/policy-required assurance escalation. Never infer broader Authority from technical permissions, repository access, project size, risk level, or profile.
+Do not paste the old conversation, long historical summaries, root project specification, or stale SHAs unless a specific non-recoverable fact is still required. A replacement Master should not re-read the root specification merely because rotation occurred when current authoritative downstream state already makes project intent and the next action clear. If a replacement Master starts without a rotation prompt and ProjectAuthority cannot be safely established from the current request or applicable higher-level authorization policy, use the least-permissive ProjectAuthority justified by that evidence before consequential mutation; infer the lightest safe CoordinationBaseline separately, then add only any risk/policy-required AssuranceLevel escalation. Never infer broader ProjectAuthority from technical permissions, repository access, project size, RiskLevel, CoordinationBaseline, or AssuranceLevel.

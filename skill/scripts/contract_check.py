@@ -12,22 +12,23 @@ import sys
 from pathlib import Path
 
 REQUIRED_SECTIONS = ("Goal", "Scope", "Acceptance", "Validation", "Dependencies", "Risk / Release")
-WORKER_FIELDS = (
+WORKER_REQUIRED_FIELDS = (
     "Assignment ID",
     "Contract Revision",
     "Base SHA",
     "Assigned Branch",
-    "Expected Starting HEAD",
     "Integration Target",
     "Worker",
     "Assignment Status",
-    "Authority",
-    "Operating Profile",
     "Task Risk",
 )
 VALID_AUTHORITIES = {"MANAGED", "AUTONOMOUS_WITH_GATES"}
-VALID_PROFILES = {"LIGHTWEIGHT", "STANDARD", "HIGH_ASSURANCE"}
+VALID_COORDINATION_BASELINES = {"LIGHTWEIGHT", "STANDARD"}
+VALID_ASSURANCE_LEVELS = {"NORMAL", "HIGH_ASSURANCE"}
+VALID_LEGACY_PROFILES = {"LIGHTWEIGHT", "STANDARD", "HIGH_ASSURANCE"}
 VALID_RISKS = {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
+VALID_DELIVERY_REQUIREMENTS = {"INTEGRATION_ONLY", "DELIVERY_REQUIRED"}
+VALID_DELIVERY_STATES = {"NOT_STARTED", "PENDING", "DELIVERED", "FAILED_OR_UNKNOWN"}
 FULL_SHA_RE = re.compile(r"(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})")
 PLACEHOLDER_RE = re.compile(r"^\s*(?:<[^<>]+>|\{[^{}]+\}|\[replace[^\]]*\]|\.\.\.|tbd|tba|todo|unknown|none|null|n/?a)\s*$", re.IGNORECASE)
 FENCE_OPEN_RE = re.compile(r"^[ \t]{0,3}(`{3,}|~{3,})(?:[^\r\n]*)$")
@@ -129,6 +130,16 @@ def field_values(text: str, field: str) -> list[str]:
     return [match.group(1).strip() for match in pattern.finditer(text)]
 
 
+def unique_field(text: str, field: str, errors: list[str]) -> tuple[bool, str | None]:
+    values = field_values(text, field)
+    if len(values) > 1:
+        errors.append(f"Duplicate Worker assignment field: {field}")
+        return True, None
+    if not values:
+        return False, None
+    return True, values[0]
+
+
 def validate_local_branch_name(value: str, field: str) -> tuple[str | None, str | None]:
     """Return a deterministic local branch identity without repository-dependent shorthand expansion."""
     cleaned = value.strip()
@@ -152,8 +163,6 @@ def validate_local_branch_name(value: str, field: str) -> tuple[str | None, str 
     for key in list(env):
         if key.startswith("GIT_TRACE"):
             env.pop(key, None)
-    # Trace2 can also be enabled by global/system Git config; explicit environment
-    # overrides keep this deterministic validator from creating ambient trace output.
     env["GIT_TRACE2"] = "0"
     env["GIT_TRACE2_EVENT"] = "0"
     env["GIT_TRACE2_PERF"] = "0"
@@ -220,10 +229,88 @@ def section_is_placeholder_only(body: str, section: str) -> bool:
             return False
         if not is_placeholder(value):
             return False
-    # The caller already distinguishes a truly empty body. A non-empty body
-    # containing only list/checklist/label/formatting scaffolding is still an
-    # untouched template and must not pass the deterministic readiness check.
     return True
+
+
+def require_value(present: bool, value: str | None, field: str, errors: list[str]) -> None:
+    if not present or is_placeholder(value):
+        errors.append(f"Missing or placeholder Worker assignment field: {field}")
+
+
+def resolve_alias(
+    parsed: str,
+    canonical: str,
+    legacy: str,
+    errors: list[str],
+) -> tuple[str | None, bool]:
+    canonical_present, canonical_value = unique_field(parsed, canonical, errors)
+    legacy_present, legacy_value = unique_field(parsed, legacy, errors)
+    if canonical_present and legacy_present:
+        errors.append(f"Ambiguous Worker assignment fields: use {canonical} or legacy {legacy}, not both.")
+        return None, True
+    if canonical_present:
+        require_value(True, canonical_value, canonical, errors)
+        return canonical_value, False
+    if legacy_present:
+        require_value(True, legacy_value, legacy, errors)
+        return legacy_value, False
+    errors.append(f"Missing Worker assignment field: {canonical} (legacy {legacy} is accepted during migration).")
+    return None, False
+
+
+def resolve_coordination_and_assurance(parsed: str, errors: list[str]) -> tuple[str | None, str | None]:
+    baseline_present, baseline = unique_field(parsed, "Coordination Baseline", errors)
+    assurance_present, assurance = unique_field(parsed, "Assurance Level", errors)
+    profile_present, profile = unique_field(parsed, "Operating Profile", errors)
+
+    if baseline_present and assurance_present:
+        require_value(True, baseline, "Coordination Baseline", errors)
+        require_value(True, assurance, "Assurance Level", errors)
+        if profile_present:
+            errors.append(
+                "Ambiguous Worker assignment fields: canonical Coordination Baseline + Assurance Level must not be combined with legacy Operating Profile."
+            )
+        return baseline, assurance
+
+    if baseline_present and not assurance_present:
+        require_value(True, baseline, "Coordination Baseline", errors)
+        if not profile_present or is_placeholder(profile):
+            errors.append("Missing Worker assignment field: Assurance Level.")
+            return baseline, None
+        profile_upper = profile.upper()
+        if profile_upper == "HIGH_ASSURANCE":
+            return baseline, "HIGH_ASSURANCE"
+        errors.append(
+            "Legacy Operating Profile may accompany canonical Coordination Baseline only when it is HIGH_ASSURANCE; otherwise persist canonical Assurance Level."
+        )
+        return baseline, None
+
+    if assurance_present:
+        require_value(True, assurance, "Assurance Level", errors)
+        errors.append("Missing Worker assignment field: Coordination Baseline.")
+        if profile_present:
+            errors.append(
+                "Legacy Operating Profile cannot supply a missing baseline when canonical Assurance Level is already persisted; persist Coordination Baseline explicitly."
+            )
+        return None, assurance
+
+    if not profile_present or is_placeholder(profile):
+        errors.append(
+            "Missing Worker assignment fields: Coordination Baseline + Assurance Level (legacy Operating Profile is accepted when lossless)."
+        )
+        return None, None
+
+    profile_upper = profile.upper()
+    if profile_upper == "LIGHTWEIGHT":
+        return "LIGHTWEIGHT", "NORMAL"
+    if profile_upper == "STANDARD":
+        return "STANDARD", "NORMAL"
+    if profile_upper == "HIGH_ASSURANCE":
+        errors.append(
+            "Legacy Operating Profile HIGH_ASSURANCE is ambiguous without a persisted Coordination Baseline; do not guess LIGHTWEIGHT or STANDARD."
+        )
+        return None, "HIGH_ASSURANCE"
+    return None, None
 
 
 def validate(text: str, level: str, worker: bool, issue_identity: str | None = None) -> dict:
@@ -267,23 +354,31 @@ def validate(text: str, level: str, worker: bool, issue_identity: str | None = N
             errors.append("Missing Worker assignment Issue/work-item identity; include `Issue:` or pass --issue.")
 
         values: dict[str, str | None] = {}
-        for field in WORKER_FIELDS:
-            occurrences = field_values(parsed, field)
-            if len(occurrences) > 1:
-                errors.append(f"Duplicate Worker assignment field: {field}")
-                values[field] = None
-                continue
-            value = occurrences[0] if occurrences else None
+        for field in WORKER_REQUIRED_FIELDS:
+            present, value = unique_field(parsed, field, errors)
             values[field] = value
-            if is_placeholder(value):
-                errors.append(f"Missing or placeholder Worker assignment field: {field}")
+            require_value(present, value, field, errors)
+
+        start_head, _ = resolve_alias(parsed, "Start HEAD", "Expected Starting HEAD", errors)
+        project_authority, _ = resolve_alias(parsed, "Project Authority", "Authority", errors)
+        coordination_baseline, assurance_level = resolve_coordination_and_assurance(parsed, errors)
+
+        checkpoint_present, checkpoint_head = unique_field(parsed, "Checkpoint HEAD", errors)
+        if checkpoint_present and is_placeholder(checkpoint_head):
+            errors.append("Checkpoint HEAD must be omitted when not applicable; if present it must be a non-placeholder full commit SHA.")
+
+        scoped_auth_present, scoped_authorization = unique_field(parsed, "Scoped Authorization", errors)
+        if scoped_auth_present and is_placeholder(scoped_authorization) and (scoped_authorization or "").strip().lower() != "none":
+            errors.append("Scoped Authorization must be a concrete grant or `none` when the field is present.")
 
         revision = values["Contract Revision"]
         if revision and not is_placeholder(revision) and not re.fullmatch(r"[1-9]\d*", revision):
             errors.append("Contract Revision must be a positive integer for Worker assignments.")
 
-        for field in ("Base SHA", "Expected Starting HEAD"):
-            value = values[field]
+        sha_fields = (("Base SHA", values["Base SHA"]), ("Start HEAD", start_head))
+        if checkpoint_present:
+            sha_fields += (("Checkpoint HEAD", checkpoint_head),)
+        for field, value in sha_fields:
             if value and not is_placeholder(value) and not valid_full_sha(value):
                 errors.append(f"{field} must be a non-zero full Git commit SHA (40 or 64 hexadecimal characters).")
 
@@ -306,17 +401,36 @@ def validate(text: str, level: str, worker: bool, issue_identity: str | None = N
         if assignment_status and not is_placeholder(assignment_status) and assignment_status.upper() != "ACTIVE":
             errors.append("Assignment Status must be ACTIVE for a dispatch-ready Worker assignment.")
 
-        authority = values["Authority"]
-        if authority and not is_placeholder(authority) and authority.upper() not in VALID_AUTHORITIES:
-            errors.append("Authority for an implementation Worker must be MANAGED or AUTONOMOUS_WITH_GATES.")
+        if project_authority and not is_placeholder(project_authority) and project_authority.upper() not in VALID_AUTHORITIES:
+            errors.append("Project Authority for an implementation Worker must be MANAGED or AUTONOMOUS_WITH_GATES.")
 
-        profile = values["Operating Profile"]
-        if profile and not is_placeholder(profile) and profile.upper() not in VALID_PROFILES:
-            errors.append("Operating Profile must be LIGHTWEIGHT, STANDARD, or HIGH_ASSURANCE.")
+        if coordination_baseline and not is_placeholder(coordination_baseline) and coordination_baseline.upper() not in VALID_COORDINATION_BASELINES:
+            errors.append("Coordination Baseline must be LIGHTWEIGHT or STANDARD.")
+
+        if assurance_level and not is_placeholder(assurance_level) and assurance_level.upper() not in VALID_ASSURANCE_LEVELS:
+            errors.append("Assurance Level must be NORMAL or HIGH_ASSURANCE.")
+
+        profile_present, profile = unique_field(parsed, "Operating Profile", [])
+        if profile_present and profile and not is_placeholder(profile) and profile.upper() not in VALID_LEGACY_PROFILES:
+            errors.append("Legacy Operating Profile must be LIGHTWEIGHT, STANDARD, or HIGH_ASSURANCE.")
 
         risk = values["Task Risk"]
         if risk and not is_placeholder(risk) and risk.upper() not in VALID_RISKS:
             errors.append("Task Risk must be LOW, MEDIUM, HIGH, or CRITICAL.")
+
+        delivery_requirement_present, delivery_requirement = unique_field(parsed, "Delivery Requirement", errors)
+        if delivery_requirement_present and not is_placeholder(delivery_requirement):
+            if delivery_requirement.upper() not in VALID_DELIVERY_REQUIREMENTS:
+                errors.append("Delivery Requirement must be INTEGRATION_ONLY or DELIVERY_REQUIRED.")
+
+        delivery_target_present, delivery_target = unique_field(parsed, "Delivery Target", errors)
+        if delivery_target_present and is_placeholder(delivery_target):
+            errors.append("Delivery Target must be concrete when the field is present.")
+
+        delivery_state_present, delivery_state = unique_field(parsed, "Delivery State", errors)
+        if delivery_state_present and not is_placeholder(delivery_state):
+            if delivery_state.upper() not in VALID_DELIVERY_STATES:
+                errors.append("Delivery State must be NOT_STARTED, PENDING, DELIVERED, or FAILED_OR_UNKNOWN.")
 
     return {"ok": not errors, "level": level, "worker": worker, "errors": errors, "warnings": warnings}
 
