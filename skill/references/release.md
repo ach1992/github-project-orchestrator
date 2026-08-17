@@ -103,13 +103,13 @@ Use one predicate for delivery-required completion:
 ```text
 DELIVERY_PROVEN(artifact, target, evidence) =
     DeliveryRequirement == DELIVERY_REQUIRED
-    AND artifact == IntendedReviewedArtifact
-    AND target == RequiredDeliveryTarget
+    AND ArtifactMatchesApprovedReleaseIdentity(artifact, evidence)
+    AND TargetMatchesRequiredDeliveryTarget(target)
     AND ArtifactIdentityAtTargetIsCurrentAndVerified
     AND AllRequiredHealthAndAcceptanceEvidenceIsCurrentAndSatisfied
 ```
 
-Deployment transport success alone cannot satisfy `DELIVERY_PROVEN`. When required evidence is delayed or not yet observable, the predicate remains false without implying failure. `DeliveryRequirement=INTEGRATION_ONLY` completes through verified integration and does not require this predicate.
+`ArtifactMatchesApprovedReleaseIdentity` accepts the same reviewed/built immutable artifact, or a platform-required rebuild only when current evidence reproducibly ties it to the approved source commit and expected build inputs. Deployment transport success alone cannot satisfy `DELIVERY_PROVEN`. When required evidence is delayed or not yet observable, the predicate remains false without implying failure. `DeliveryRequirement=INTEGRATION_ONLY` completes through verified integration and does not require this predicate.
 
 Use this state decision:
 
