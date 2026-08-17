@@ -33,7 +33,7 @@ A new/replacement Master enters `RECOVER` before consequential project mutation:
 
 Keep cold recovery progressive and bounded:
 
-- **Orientation spine:** establish repository/repositories, current project outcome/completion, Project Map or equivalent truth-location index, current authority/profile, and the active critical path/workstream.
+- **Orientation spine:** establish repository/repositories, current project outcome/completion, Project Map or equivalent truth-location index, `ProjectAuthority`, `CoordinationBaseline`, any currently affected `AssuranceLevel`, and the active critical path/workstream.
 - **Active-path context:** enter only the repository/workstream sources needed for the next decision: current Issue/contract, PR/branch/CI, direct dependencies/interfaces, blockers/risks, and integration/delivery state.
 - **Triggered depth:** load broader architecture, other workstreams, root specification, historical decisions, or release history only when a contradiction, dependency, interface, risk, or project-level decision makes that context materially relevant.
 
