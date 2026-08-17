@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, subprocess
+import argparse, json, re, subprocess
 from collections import Counter
 from pathlib import Path
 
@@ -58,7 +58,7 @@ def analyze(scenario, trace):
         if e["type"] == "fresh_review":
             reviewed.add(e.get("candidate"))
         elif e["type"] == "candidate_change":
-            reviewed.discard(e.get("candidate"))
+            reviewed.clear()
         elif e["type"] == "integration_verified" and e.get("candidate") not in reviewed:
             violations.append("stale_integration")
     if scenario["delivery_required"] and counts["delivery_verified"] < 1:
@@ -84,19 +84,32 @@ def analyze(scenario, trace):
         "discovery_steps": counts["discover"],
     }
 
-def entrypoint_metrics(repo: Path, baseline_ref: str):
-    current = (repo / "skill" / "SKILL.md").read_text(encoding="utf-8")
+def read_git_text(repo: Path, ref: str, path: str) -> str:
     try:
-        baseline = subprocess.run(
-            ["git", "show", f"{baseline_ref}:skill/SKILL.md"],
+        return subprocess.run(
+            ["git", "show", f"{ref}:{path}"],
             cwd=repo,
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=True,
         ).stdout
-    except (OSError, subprocess.CalledProcessError):
-        return None
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError(f"unable to read pinned benchmark source {ref}:{path}") from exc
+
+def validate_source_refs(repo: Path, *trace_docs: dict) -> None:
+    for doc in trace_docs:
+        expected_ref = doc["version"]
+        for trace in doc["traces"]:
+            for basis in trace["source_basis"]:
+                ref, separator, path = basis.partition(":")
+                if not separator or ref != expected_ref or not path:
+                    raise ValueError(f"floating or malformed source_basis: {basis}")
+                read_git_text(repo, ref, path)
+
+def entrypoint_metrics(repo: Path, baseline_ref: str, current_ref: str):
+    baseline = read_git_text(repo, baseline_ref, "skill/SKILL.md")
+    current = read_git_text(repo, current_ref, "skill/SKILL.md")
     def metrics(text):
         return {
             "bytes": len(text.encode("utf-8")),
@@ -110,6 +123,9 @@ def evaluate(scenarios_doc, baseline_doc, current_doc):
         raise ValueError("unsupported benchmark schema_version")
     if baseline_doc.get("version") != "v1.0.0":
         raise ValueError("baseline benchmark must be pinned to v1.0.0")
+    current_version = current_doc.get("version", "")
+    if not re.fullmatch(r"[0-9a-f]{40}", current_version):
+        raise ValueError("current benchmark must be pinned to a full commit SHA")
     if baseline_doc.get("evidence_kind") != "source-grounded-policy-simulation" or current_doc.get("evidence_kind") != "source-grounded-policy-simulation":
         raise ValueError("benchmark traces must declare source-grounded-policy-simulation evidence kind")
     scenarios = index_by(scenarios_doc["scenarios"], "id")
@@ -167,7 +183,9 @@ def main():
     args = p.parse_args()
     result = evaluate(load(args.scenarios), load(args.baseline), load(args.current))
     if args.repo_root:
-        result["entrypoint_metrics"] = entrypoint_metrics(args.repo_root.resolve(), args.baseline_ref)
+        repo = args.repo_root.resolve()
+        validate_source_refs(repo, load(args.baseline), load(args.current))
+        result["entrypoint_metrics"] = entrypoint_metrics(repo, args.baseline_ref, load(args.current)["version"])
     print(json.dumps(result, indent=2, sort_keys=True))
     raise SystemExit(0 if result["ok"] else 1)
 if __name__ == "__main__":
