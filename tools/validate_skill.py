@@ -25,6 +25,9 @@ REQUIRED_RUNTIME_PATHS = (
     "scripts/contract_check.py",
     "scripts/repo_preflight.py",
 )
+REQUIRED_DIRECT_ROUTER_TARGETS = tuple(
+    path for path in REQUIRED_RUNTIME_PATHS if path.startswith("references/")
+)
 
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
 LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|mailto:|#)([^)]+)\)")
@@ -93,6 +96,14 @@ def validate_markdown_links(skill_dir: Path) -> None:
                 fail(f"Broken relative reference: {markdown.relative_to(skill_dir)} -> {target}")
 
 
+def validate_direct_router(skill_dir: Path) -> None:
+    text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
+    direct_targets = {target.split("#", 1)[0] for target in LINK_RE.findall(text)}
+    missing = sorted(set(REQUIRED_DIRECT_ROUTER_TARGETS) - direct_targets)
+    if missing:
+        fail(f"SKILL.md must directly route every required runtime reference; missing={missing}")
+
+
 def validate_python(skill_dir: Path) -> None:
     for script in skill_dir.rglob("*.py"):
         source = script.read_text(encoding="utf-8")
@@ -141,6 +152,8 @@ def main() -> int:
     validate_required_paths(skill_dir)
     frontmatter = parse_frontmatter(skill_dir / "SKILL.md")
     validate_markdown_links(skill_dir)
+    if args.baseline_manifest is None:
+        validate_direct_router(skill_dir)
     validate_python(skill_dir)
     if args.baseline_manifest is not None:
         validate_baseline(skill_dir, args.baseline_manifest.resolve())
