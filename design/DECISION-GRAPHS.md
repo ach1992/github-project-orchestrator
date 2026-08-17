@@ -1,6 +1,6 @@
 # Decision Graphs
 
-Status: Phase 1 design model. Graphs encode relationships already present in v1.0.0; they are not yet runtime instructions.
+Status: Phase 1 design model with Phase 3 runtime kernel ownership recorded. The graphs remain design/traceability artifacts; runtime definitions live in their canonical owners under `skill/`.
 
 ## 1. Master execution graph
 
@@ -53,6 +53,8 @@ AUTHORITY + GATES + CAPABILITY + FRESHNESS
 
 The graph removes chat-turn, commit, PR-update, Worker-handoff, and tool-batch boundaries from the control loop. They are events, not terminal states.
 
+Phase 3 runtime owner for action execution is `skill/references/authority-gates.md` via `CAN_EXECUTE(action)`.
+
 ## 2. Boundary propagation
 
 ```text
@@ -70,10 +72,10 @@ Boundary detected
             `-- no -------------------------------> STOP / relay exact need
 ```
 
-Candidate predicate for Phase 2:
+Phase 3 runtime owner: `skill/references/master-cycle.md`.
 
 ```text
-MASTER_STOP =
+MASTER_STOP(boundary, independent_work) =
     USER_STOP
     OR PROJECT_COMPLETE
     OR (
@@ -89,6 +91,8 @@ MASTER_STOP =
 `WorkerStatus.BLOCKED`, a queued external job, missing Worker dispatch capability, or absence of a pre-existing READY Issue cannot directly satisfy `MASTER_STOP`.
 
 ## 3. Authorization graph
+
+Phase 3 runtime owner: `skill/references/authority-gates.md`.
 
 ```text
 Accepted scope --------+
@@ -131,7 +135,23 @@ INTEGRATION PRODUCTION DESTRUCTIVE ...
 
 No single effect classification is allowed to suppress an independently applicable obligation.
 
-## 5. Work-control dimensions
+## 5. Review and delivery proof kernels
+
+Phase 3 records two additional canonical runtime predicates without moving their domain rules into this design artifact:
+
+```text
+REVIEW_VALID(envelope)
+    owner -> skill/references/review-integration.md
+    purpose -> determine whether existing review remains valid for the exact current effective change
+
+DELIVERY_PROVEN(artifact, target, evidence)
+    owner -> skill/references/release.md
+    purpose -> determine whether delivery-required completion is actually proven
+```
+
+These predicates do not absorb CI, integration-gate, production-gate, or incident semantics that remain separate inputs in their canonical runtime owners.
+
+## 6. Work-control dimensions
 
 ```text
 CoordinationBaseline ----> coordination / persistence / WIP controls
@@ -156,9 +176,9 @@ persisted contract -X-> FULL
 repository size -X-> STANDARD/HIGH_ASSURANCE by itself
 ```
 
-## 6. Event-to-rule activation
+## 7. Event-to-rule activation
 
-The later runtime should activate proof obligations by event rather than treating every invariant as equally active on every step.
+Phase 4, not Phase 3, owns progressive event routing. The later runtime should activate proof obligations by event rather than treating every invariant as equally active on every step.
 
 | Event | Required rule domains |
 |---|---|
@@ -174,7 +194,7 @@ The later runtime should activate proof obligations by event rather than treatin
 | before terminal response | synthesis, local-vs-project boundary, independent useful work, recoverability |
 | rotation consideration | continuity signals and safe rotation boundary only |
 
-## 7. Forbidden inference matrix
+## 8. Forbidden inference matrix
 
 | Observed fact | Must NOT infer | Correct relation |
 |---|---|---|
