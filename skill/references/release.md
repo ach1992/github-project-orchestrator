@@ -96,17 +96,32 @@ Exact approval requested: <action>
 
 After deployment, verify the release actually reached the explicit DeliveryTarget and assess applicable signals: deployment/version/commit identity; service/application health; critical user-path smoke test; error/log anomalies; migration/data correctness; performance/resource regression; and business/domain success signal where observable.
 
+### `DELIVERY_PROVEN(artifact, target, evidence)`
+
+Use one predicate for delivery-required completion:
+
+```text
+DELIVERY_PROVEN(artifact, target, evidence) =
+    DeliveryRequirement == DELIVERY_REQUIRED
+    AND ArtifactMatchesApprovedReleaseIdentity(artifact, evidence)
+    AND TargetMatchesRequiredDeliveryTarget(target)
+    AND ArtifactIdentityAtTargetIsCurrentAndVerified
+    AND AllRequiredHealthAndAcceptanceEvidenceIsCurrentAndSatisfied
+```
+
+`ArtifactMatchesApprovedReleaseIdentity` accepts the same reviewed/built immutable artifact, or a platform-required rebuild only when current evidence reproducibly ties it to the approved source commit and expected build inputs. Deployment transport success alone cannot satisfy `DELIVERY_PROVEN`. When required evidence is delayed or not yet observable, the predicate remains false without implying failure. `DeliveryRequirement=INTEGRATION_ONLY` completes through verified integration and does not require this predicate.
+
 Use this state decision:
 
 | Evidence | DeliveryState / action |
 |---|---|
 | delivery has not started | `DeliveryState.NOT_STARTED` |
-| intended artifact/commit did not reach the intended DeliveryTarget, or identity is unknown | `DeliveryState.FAILED_OR_UNKNOWN`; do not mark delivered; freeze further rollout and reconcile deployment identity/path. If unintended production artifact/state may be user-impacting, security-sensitive, or otherwise hazardous, enter incident/containment while reconciling. |
+| intended artifact/commit did not reach the intended DeliveryTarget, or identity is unknown | `DeliveryState.FAILED_OR_UNKNOWN`; freeze further rollout and reconcile deployment identity/path. If unintended production artifact/state may be user-impacting, security-sensitive, or otherwise hazardous, enter incident/containment while reconciling. |
 | intended artifact reached target but health/acceptance signal is unacceptable | `DeliveryState.FAILED_OR_UNKNOWN`; stop further rollout; execute the pre-agreed rollback/roll-forward/incident path |
 | immediate health is acceptable but required soak/delayed migration/reliability/business signal is not yet observable | `DeliveryState.PENDING`; persist the exact completion condition in the authoritative Issue/release source |
-| all required delivery acceptance/verification is current and satisfied | `DeliveryState.DELIVERED`; proceed to closeout |
+| `DELIVERY_PROVEN(...)` is true | `DeliveryState.DELIVERED`; proceed to closeout |
 
-Deployment transport success alone is never sufficient evidence for `DeliveryState.DELIVERED`. Legacy `PENDING_DELIVERY` maps to `DeliveryState.PENDING`; it is a lifecycle state, not a canonical Master stop condition. If delayed required delivery evidence becomes the sole remaining external dependency after independent useful work is exhausted, normally stop at `MasterBoundary.BLOCKED` with the exact evidence/object/resume condition unless another boundary more precisely describes the cause. Do not invent DeliveryState as a terminal boundary or use `MasterBoundary.NO_READY_WORK` merely because the required signal is not yet observable.
+Legacy `PENDING_DELIVERY` maps to `DeliveryState.PENDING`; it is a lifecycle state, not a canonical Master stop condition. If delayed required delivery evidence becomes the sole remaining external dependency after independent useful work is exhausted, normally stop at `MasterBoundary.BLOCKED` with the exact evidence/object/resume condition unless another boundary more precisely describes the cause. Do not invent DeliveryState as a terminal boundary or use `MasterBoundary.NO_READY_WORK` merely because the required signal is not yet observable.
 
 ## 7. Incident and hotfix mode
 
@@ -126,7 +141,7 @@ Hotfixes still require the strongest practical review/validation for their urgen
 After stable verification:
 
 - mark release/milestone state accurately;
-- close delivery-required work only when the intended artifact is verified `DeliveryState.DELIVERED` for the required DeliveryTarget; keep `TaskState.INTEGRATED` and DeliveryState distinct;
+- close delivery-required work only when `DELIVERY_PROVEN(...)` is true and the intended artifact is `DeliveryState.DELIVERED` for the required DeliveryTarget; keep `TaskState.INTEGRATED` and DeliveryState distinct;
 - for `DeliveryRequirement=INTEGRATION_ONLY`, do not manufacture a deployment requirement after verified integration;
 - create/reuse follow-up Issues for unresolved defects/debt discovered during release only when actionable and worth tracking;
 - update durable runbooks/docs only when operating behavior changed;
