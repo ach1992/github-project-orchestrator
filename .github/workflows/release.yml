@@ -28,6 +28,9 @@ jobs:
       - name: Validate Skill source
         run: python3 tools/validate_skill.py skill
 
+      - name: Test Phase 2 contract compatibility
+        run: python3 tests/test_contract_check_phase2.py
+
       - name: Verify immutable v1.0.0 baseline
         shell: bash
         run: |
