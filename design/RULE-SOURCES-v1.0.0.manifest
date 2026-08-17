@@ -1,0 +1,5 @@
+version: v1.0.0
+runtime_instruction_files: 9
+non_empty_source_lines: 972
+sha256: c356f5bd40521963f2ba4d9b3c50374e93fefa40dfd6d9d06aa257ca1738ec2d
+command: python3 tools/extract_rule_sources.py --skill-dir skill --output design/RULE-SOURCES-v1.0.0.tsv

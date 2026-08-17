@@ -1,58 +1,200 @@
 # Project Specification
 
-## Purpose
+Status: canonical project-level specification for the development of `github-project-orchestrator`.
 
-Develop and distribute `github-project-orchestrator` as a production-quality ChatGPT Skill that can take an already-provisioned GitHub repository plus a project-defining prompt/specification and own the engineering project end to end.
+## 1. Mission
 
-The Skill must be capable of establishing proportional repository/docs/task readiness, framing and preserving the accepted outcome, planning dependency-aware work, implementing directly or delegating bounded Worker tasks, validating and reviewing changes, integrating safely, recovering without chat history, and driving the project through its required release/delivery endpoint.
+Build and distribute `github-project-orchestrator` as a production-quality ChatGPT Skill that can take an already-provisioned GitHub repository plus a project-defining prompt/specification and operate as a practical Engineering Master across the full delivery lifecycle.
 
-## Product goals
+The Skill should behave like a capable combination of Engineering Project Manager, Technical Lead, Senior Developer, integration owner, and release owner. It must frame and preserve the accepted outcome, establish only the project structure that earns its cost, plan and sequence work, implement directly or delegate bounded Worker tasks, validate and review changes, integrate safely, drive required release/delivery, and keep authoritative project state recoverable by a replacement Master or human without prior chat history.
 
-1. Deliver excellent real-world execution quality rather than process ceremony.
-2. Preserve recoverability so a replacement Master can continue from authoritative repository/GitHub evidence without depending on prior chat.
-3. Make decisions quickly, consistently, and with minimal ambiguity while retaining strong safety, correctness, security, review, integration, and release guarantees.
-4. Keep orchestration lean: create only artifacts and process controls that materially improve execution, safety, coordination, delivery, or recovery.
-5. Preserve end-to-end autonomy inside the authorized envelope; do not introduce artificial stops or unnecessary confirmations.
-6. Keep Worker scope and authority bounded while allowing useful specialization and parallelism.
+The primary product outcome is not planning activity, issue count, commits, pull requests, or documentation volume. It is verified delivery of the accepted project outcome with strong correctness, safety, maintainability, recoverability, and execution efficiency.
 
-## Refactoring objective
+## 2. Meta-goal: operationally useful, low-friction Skill
 
-Optimize the Skill's operational decision model without losing behavioral guarantees.
+The Skill must help the agent reach project outcomes; it must not become an orchestration tax.
 
-Token count is not the primary objective. Prefer semantic normalization that makes the model easier to execute correctly:
+Optimize for:
+- correct and timely decisions;
+- fast orientation and first useful engineering action;
+- reliable rule activation at the moment it matters;
+- low unnecessary reasoning, tooling, ceremony, and re-discovery;
+- strong safety, review, delivery, and recovery guarantees;
+- low ambiguity and low duplication.
 
-- explicit typed state and state scope/lifetime;
-- one canonical owner for each normative rule;
-- decision tables, state graphs, branch trees, predicates, and schemas where they communicate relationships more precisely than prose;
-- event/role-specific routing so only relevant rules participate in a decision;
-- deterministic validators/scripts for mechanical invariants;
-- regression scenarios that preserve edge-case behavior during simplification.
+Do **not** optimize for fewer tokens, fewer files, or fewer lines as ends in themselves. Removing wording is valuable only when the protected behavior is preserved more clearly by a canonical rule, table, graph, state model, predicate, schema, deterministic check, or regression test.
 
-Do not remove a rule merely to reduce size. A rule may be removed from prose only after its behavior is preserved by an equivalent canonical representation, deterministic check, or deliberately revised requirement with regression coverage.
+Canonical refactor principle:
 
-## Baseline and release strategy
+`Rule preservation > text preservation`
 
-- `v1.0.0` is the immutable pre-refactor behavioral baseline copied from the existing installed/uploaded Skill.
+Complexity must earn its place. A new abstraction, artifact, field, script, state, or process is justified only when it materially improves correctness, speed, safety, coordination, maintainability, or recoverability without disproportionate cognitive or operational cost.
+
+## 3. Canonical goals
+
+The project uses stable Goal IDs so rules, implementation work, and evaluations can trace back to product intent.
+
+| ID | Goal | Definition | Required capabilities | Non-negotiable invariants | Acceptance / evaluation evidence |
+|---|---|---|---|---|---|
+| `G01` | Verified End-to-End Delivery | Own the accepted project outcome from intake through the required integration/delivery endpoint. | frame, execute, review, integrate, release, verify | activity is not outcome; merge is not completion when delivery is required | representative project reaches observable success criteria with verified endpoint |
+| `G02` | Outcome & Scope Integrity | Keep outcome, success criteria, constraints, non-goals, and completion coherent while requirements evolve. | requirement reconciliation, scope/change management | never shrink outcome to manufacture completion or expand it to manufacture work | subtask completion does not change project scope; accepted requirement changes propagate correctly |
+| `G03` | Adaptive Planning & Decomposition | Convert outcome into the smallest useful hierarchy of milestones/releases, workstreams, tasks, and changes needed for execution. | slicing, READY refinement, dependency-aware planning | planning exists to enable execution; avoid speculative backlog detail | oversized/ambiguous work is refined or split while small clear work stays lightweight |
+| `G04` | Dependency, Flow & Project Health Management | Manage critical path, dependencies, blockers, WIP, risk, available capacity, and continued plan validity. | prioritize, sequence, unblock, reassess, reconcile | finished verified value beats active-task count; static priority never overrides current dependency/release reality | bottlenecks change sequencing appropriately; completed work is reviewed/integrated instead of opening needless fronts |
+| `G05` | Professional Engineering Execution | Perform substantive work with senior-engineer discipline. | trace, debug, implement, validate, review, correct | root cause over symptom patch; smallest correct change; protect unrelated work | implementation is supported by relevant tests/evidence and reviewed effective diff |
+| `G06` | Architecture & Engineering-System Evolution | Preserve valid architecture and improve architecture, CI, tooling, docs, setup, and feedback loops when current evidence justifies the change. | architecture reasoning, tooling/CI/docs improvement, developer-experience analysis | existence is not fitness; improvement requires near-term project payback | recurring friction can trigger a bounded root enabling fix; cosmetic optimization does not |
+| `G07` | Engineering Quality & Evidence | Preserve correctness, security, reliability, compatibility, data integrity, performance, operations, and test quality using current evidence. | validation strategy, CI diagnosis, performance/security review | evidence beats narrative; never weaken checks merely to manufacture green | claims are bound to current SHA/object/environment and failures are classified before corrective mutation |
+| `G08` | Scale-Adaptive Coordination | Keep small projects light, coordinate medium projects sufficiently, and handle large/multi-repository projects without a giant central context or unnecessary process. | proportional governance, workstream boundaries, progressive context loading, cross-repo dependency view | project size alone does not justify heavier controls | bounded work stays lean; multi-actor/multi-repo work remains coherent without duplicating every local backlog centrally |
+| `G09` | Professional Delegation & Ownership | Use Workers only when specialization/parallelism repays coordination cost while Master remains accountable for project decisions and delivery. | bounded contracts, assignment identity, isolation, handoff/reconciliation | Worker never reprioritizes, broadens scope, integrates target, or owns release | Worker loss/staleness/blocker is absorbed without losing assignment state or automatically stopping Master |
+| `G10` | Authority, Risk & Safety Integrity | Maximize autonomy inside the authorized envelope while applying controls to the actual effects and risk of each action. | project authority, scoped authorization, effect/risk gates, safe escalation | capability, environment, risk, and assurance cannot upgrade authority; independent effects retain independent obligations | one-off authorization does not widen project authority; multi-effect actions preserve every applicable obligation |
+| `G11` | Verified Review, Integration, Release & Operations | Bind review and integration to fresh change identity and drive production-bound work through verified delivery and operational safety. | fresh review, CI, integration, release, deployment, migration, rollback, incident handling | self-review is not independent review; `INTEGRATED != DELIVERED` | changed HEAD invalidates stale approval; deployment transport success alone cannot prove delivery |
+| `G12` | Zero-Chat Recoverability & Succession | Make previous chat history unnecessary for correct continuation by another Master or human. | durable authoritative state, recovery, reconciliation, safe rotation | chat is disposable and non-authoritative | cold replacement can determine purpose, active outcome, work, blockers, risks, delivery state, and next valid action |
+| `G13` | Lean Navigable Project Knowledge | Organize project knowledge as a small, authoritative, navigable graph rather than duplicated manager memory. | Project Map/index, source-of-truth ownership, native relationships, progressive discovery | one owner per kind of truth; no manager-memory archive; avoid duplicate live status | replacement Master can traverse from project map/current outcome to relevant tasks, PRs, decisions, and release evidence without exhaustive reading |
+| `G14` | Repository Readiness, Hygiene & Self-Repair | Keep repository docs/tasks/CI/workflows/navigation fit for current delivery and repair stale, missing, or harmful structure when justified. | readiness audit, reuse/update/simplify, stale-state reconciliation | reuse before parallel systems; management artifacts must earn maintenance cost | inadequate current structures are repaired proportionally and bootstrapping stops once safe execution/recovery is supported |
+| `G15` | Proactive Improvement Without Scope Creep | Discover meaningful improvements while preserving accepted scope. | improvement classification, enabling work, proposals/follow-ups | required/in-scope improvements may execute; material adjacent improvements are proposed/tracked; low-value noise is ignored | mixed improvement scenarios are classified correctly without silent scope expansion or backlog inflation |
+| `G16` | Persistent Progress Without Friction | Continue while a safe, authorized, materially useful action traceable to the accepted outcome exists. | next-work synthesis, local-boundary handling, anti-spin, minimal decision escalation | no artificial stop, no artificial work, no blind retry | commit/PR/tool batch/Worker stop does not end execution; local blockers do not stop independent work; real terminal boundaries stop cleanly |
+
+## 4. Goal architecture
+
+The development model is intentionally layered:
+
+```text
+MISSION
+  -> CANONICAL GOALS
+  -> REQUIRED CAPABILITIES
+  -> NON-NEGOTIABLE INVARIANTS
+  -> DECISION MODELS
+  -> RUNTIME MECHANISMS
+  -> REGRESSION / OPERATIONAL TESTS
+```
+
+This separation is deliberate. Runtime mechanisms may evolve without silently changing the goals or guarantees they serve.
+
+Development traceability from goals to the v1.0.0 rule inventory and evaluations lives in `../design/GOAL-MAP.md`. Canonical baseline rule ownership lives in `../design/RULE-MAP.md`; typed runtime design lives in `../design/STATE-MODEL.md`; decision relationships live in `../design/DECISION-GRAPHS.md`; phased implementation lives in `../design/MIGRATION.md`.
+
+## 5. Representation policy
+
+Use the representation that makes a rule easiest to apply correctly, not the representation that merely looks shortest.
+
+| Logic | Preferred representation |
+|---|---|
+| state/lifecycle | state graph |
+| branching decision | decision tree |
+| authority/approval | gate matrix |
+| simultaneous action consequences | set/effect model + obligation union |
+| persisted structure | typed schema |
+| precedence | ordered table |
+| dependency/artifact relationships | graph/native links |
+| invalid implications | forbidden-inference matrix |
+| deterministic invariant | script/linter |
+| event-specific behavior | trigger/router table |
+| nuanced engineering judgment | concise prose |
+| edge/failure behavior | regression scenario |
+
+An abstraction replaces prose only when it reduces ambiguity, duplication, execution cost, or error probability. Do not add graphs, schemas, scripts, or states merely for stylistic consistency.
+
+## 6. Runtime loading and decision-friction target
+
+The future `SKILL.md` should remain a compact control kernel containing only the state/role model, universal invariants, Master control loop, source-of-truth model, event router, and terminal rules necessary for orientation.
+
+Detailed domains should load when their event becomes decision-relevant, for example:
+- governance/readiness when repository or project structure needs assessment or repair;
+- Task Contract/Worker rules when delegation or durable coordination is needed;
+- review/integration rules when a candidate reaches review/integration;
+- release rules when deterministic production/delivery effects enter the action frontier;
+- continuity rules on new/replacement Master or material recovery triggers;
+- eval/refactor rules only while modifying this Skill.
+
+Rules are not removed to achieve this. Activation is made more precise so unrelated rules do not occupy the normal decision frontier.
+
+## 7. Project scale model
+
+Scale controls are driven by actual coordination, dependency, recovery, risk, and release complexity rather than repository size alone.
+
+- **Small/bounded project:** prefer direct Master execution, FAST path where valid, minimal persistent management artifacts, and no Project/ADR ceremony without demonstrated need.
+- **Medium/coordinated project:** use persistent work identity, dependencies, milestones/releases, PR/review/CI coordination, and Workers where useful.
+- **Large/multi-repository project:** preserve one coherent global outcome and release/dependency view while keeping local work authoritative in its natural repository/workstream. Use explicit component/workstream ownership boundaries and progressive loading so Master does not need the entire project in active context.
+
+The target is scalable coordination without making Master a central information bottleneck.
+
+## 8. Zero-chat recovery and bounded recovery cost
+
+Recoverability requires more than storing information somewhere. A replacement Master must be able to reconstruct correct operational state quickly and progressively.
+
+Persist continuation-relevant truth, not transient reasoning. Documentation, tasks, and relationships must remain concise enough that a new Master or human can understand the project without reading all history.
+
+A cold replacement should be able to answer, from authoritative repository/GitHub/Git/CI/release/deployment sources as applicable:
+- what the project is and what outcome is currently accepted;
+- what completion means;
+- what is done, active, in review, blocked, or pending delivery;
+- the material dependencies, risks, and lasting decisions;
+- where current architecture/development/release rules live;
+- the current candidate/PR/release identities and evidence;
+- what action should be taken next.
+
+If losing the current chat prevents correct continuation, required durable state is missing. If recovery requires reading the whole repository or a large manager-history archive, the information architecture is also failing.
+
+## 9. Cross-cutting invariants
+
+The following guarantees should survive representation changes unless explicitly revised with corresponding rule/eval changes:
+
+- outcome before activity;
+- evidence before narrative;
+- one authoritative owner per kind of truth;
+- inspect before consequential mutation;
+- authority is independent from technical capability, risk, environment, and assurance;
+- scope changes only through valid direction/evidence;
+- Worker stop does not automatically become Master stop;
+- integration does not imply delivery;
+- unknown or incomplete evidence does not imply absence/cleanliness;
+- no blind retries;
+- no artificial stops;
+- no artificial work;
+- current evidence outranks stale state;
+- process is proportional to actual need;
+- improvements remain traceable to accepted outcome;
+- durable state is sufficient but lean;
+- complexity must earn its place.
+
+## 10. Change acceptance for the Skill itself
+
+Every material proposed change to the Skill should answer:
+
+1. Which canonical Goal ID does this improve?
+2. Which existing Rule IDs/invariants and eval scenarios can it affect?
+3. Does it reduce or increase operational/cognitive friction in representative work?
+4. What evidence demonstrates preserved or improved behavior?
+
+Do not accept changes solely because they are shorter, more abstract, more elegant, or more automated.
+
+## 11. Baseline and release strategy
+
+- `v1.0.0` is the immutable pre-refactor runtime baseline originating from the Skill supplied before refactoring.
 - Runtime source lives under `skill/`.
-- Development-only design, validation, and regression artifacts live outside `skill/` unless they are intentionally needed by the runtime Skill.
-- Each release must be tied to an immutable commit and ship a reproducible `skill.zip` plus SHA-256 checksum.
-- Refactoring proceeds incrementally with reviewable phases rather than a big-bang rewrite.
+- Development-only project/design/validation artifacts live outside `skill/` unless intentionally required at runtime.
+- `v1.0.0` must remain installable and unchanged while later releases evolve incrementally.
+- Runtime releases are versioned, validated, tied to immutable commits, and packaged as `skill.zip` with a SHA-256 checksum.
+- Refactoring is incremental and reviewable; no big-bang rewrite.
 
-## Current refactor direction
-
-The first development phase must build a rule/state map before changing runtime semantics. It should make explicit:
-
-- Project/runtime authority versus exact scoped authorization;
-- coordination baseline versus assurance level;
-- action effects when a single mutation has multiple simultaneous consequences;
-- state namespaces such as task state, Worker status, write state, delivery state, and Master stop boundary;
-- the scope/lifetime of each state variable;
-- forbidden inference relationships such as capability not upgrading authority and integration not implying delivery;
-- mapping from existing clauses to canonical owners and regression scenarios.
-
-## Non-goals
+## 12. Non-goals
 
 - Do not turn the Skill into a heavyweight project-management framework for every repository.
-- Do not require Workers, GitHub Projects, Issues, ADRs, or additional documents when they do not materially help the active outcome.
-- Do not optimize merely for fewer files, fewer lines, or fewer tokens.
-- Do not sacrifice correctness, security, maintainability, review freshness, rollback safety, or recoverability for apparent speed.
+- Do not require Workers, GitHub Projects, Issues, ADRs, dashboards, reports, or additional documents when they do not materially help current delivery or recovery.
+- Do not create periodic optimization workstreams merely because a better tool/process could exist.
+- Do not centralize or duplicate state that is already authoritative and discoverable in Git/GitHub/CI/release/deployment systems.
+- Do not sacrifice correctness, security, maintainability, review freshness, rollback safety, authority boundaries, or recoverability for apparent speed.
+- Do not trade agent usability for theoretical formalism.
+
+## 13. Project-level definition of done
+
+The refactor program is successful when the Skill demonstrably gets a capable agent to verified engineering outcomes with less unnecessary friction while preserving or strengthening its behavioral protections.
+
+At minimum:
+- no known lossy runtime state model remains for critical decisions;
+- no known ambiguous cross-namespace state propagation remains;
+- canonical rule ownership is traceable and duplicate definitions do not fork semantics;
+- routine work does not carry irrelevant project/release/recovery reasoning overhead;
+- small, medium, and large representative projects receive proportionate coordination;
+- replacement-Master cold recovery is correct and bounded;
+- delegation, review, integration, release, and production evidence remain fresh and identity-safe;
+- unauthorized authority escalation, artificial stops, artificial work, and blind retry regressions are covered by evaluation;
+- runtime changes are measured against the immutable v1.0.0 baseline and the canonical goals above.
