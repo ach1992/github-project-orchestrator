@@ -42,7 +42,11 @@ When ordering READY work, consider critical-path impact, blocker unlocks, correc
 
 Milestones should represent coherent outcomes or release boundaries, not arbitrary time buckets unless the team already uses time-boxed planning. Treat a requested date as a constraint, not proof of feasibility: do not invent ETAs. Forecast from current scope, dependencies, risk, and available capacity; when date, scope, and required quality/risk controls conflict, surface the trade-off instead of silently promising all three.
 
-If one outcome spans multiple repositories/services, keep one coherent cross-repository outcome/release view while preserving each repository's own rules, Issues/PRs, CI, and ownership. Make cross-repository dependencies and release order explicit only where coordination requires them; do not create a duplicate central backlog that mirrors every repo.
+If one outcome spans multiple repositories/services, keep one coherent cross-repository outcome/release view while preserving each repository's own rules, Issues/PRs, CI, and ownership. The cross-repository view should contain only the global outcome/completion model, material cross-repository dependencies, release/integration order, and ownership/handoff links needed to coordinate them. Keep implementation status and local backlog in each repository's natural authoritative sources; do not create a duplicate central backlog that mirrors every repo.
+
+Scale coordination by **coordination shape**, not repository size. When a large project has separable components or workstreams, partition execution into bounded workstream contexts instead of loading the full project into every decision. Persist a workstream boundary only when it materially improves coordination or recovery, and keep it minimal: the outcome slice, responsible owner/Worker or component boundary, authoritative local work source, material interfaces/dependencies, and integration/release handoff. Do not mirror local task status into a central workstream document.
+
+Reassess plan validity when a material dependency, risk, architecture/interface assumption, ownership boundary, or release constraint changes. Revalidate only the affected workstream(s), critical-path relationships, and integration/release assumptions first; widen only when the change actually propagates. Do not turn plan-health checking into a recurring audit program.
 
 ## 4. GitHub state model
 
@@ -75,7 +79,7 @@ Update the Project Map only when the information topology changes: an authoritat
 
 Maintain relationship links as work evolves, using native GitHub relationships/closing keywords/URLs where possible: milestone or parent -> Issue, Issue -> dependency/blocker, PR -> Issue/Task Contract, Issue/PR -> lasting ADR when relevant, and release/deployment -> immutable commit/artifact identity. Add only links that improve navigation, dependency reasoning, review, release traceability, or recovery; do not mirror the same state in prose.
 
-A replacement Master should be able to start from the Project Map (when present) and traverse authoritative links to current work without reading historical chat.
+When the Project Map or a relationship is stale or duplicated, repair/remove the pointer and correct the underlying authoritative owner if its state is wrong. Do not add compensating notes, shadow status, or another index to explain stale truth. A replacement Master should be able to start from the Project Map (when present), select the relevant workstream/repository, and traverse authoritative links to current work without reading historical chat or the entire project corpus.
 
 ## 6. Label taxonomy
 
@@ -161,6 +165,16 @@ Use for a bounded outcome with low coordination overhead and no material multi-i
 ### `CoordinationBaseline=STANDARD`
 
 Use when multiple substantive items, dependencies, multiple/overlapping Workers, material delegation coordination, review/release coordination, or broader cross-session project coordination materially benefit from persistent project state. Expect reproducible setup, CI for core checks, PR-based code integration when that is the repository-normal/practical control path, or an established equivalent non-PR path only when it preserves the same review/freshness/audit/gate outcomes; clear persisted contracts where coordination requires them; milestone/release tracking where useful; current engineering/release docs; and explicit active risks/decisions when material. A bounded independent change may still use `ExecutionPath=FAST` when FAST criteria hold.
+
+Select the baseline from actual coordination needs rather than size labels:
+
+| Representative shape | Default behavior |
+|---|---|
+| small/bounded | stay `LIGHTWEIGHT` while one clear path remains independently recoverable and low-coordination |
+| medium/multi-item | use `LIGHTWEIGHT` for genuinely independent bounded work; select `STANDARD` when dependencies, shared ownership, review/release coordination, or cross-session state materially benefit from it |
+| large/multi-repository | normally retain/select `STANDARD` when coordination needs justify it, but partition into bounded component/workstream contexts; do not create a larger profile, global task mirror, or exhaustive context load merely because the system is large |
+
+For `STANDARD` work at scale, persist only coordination edges that change decisions: cross-workstream dependencies, ownership/handoff boundaries, shared interface assumptions, integration order, and release constraints. Local implementation truth remains in each natural repository/Issue/PR/CI source.
 
 ### `AssuranceLevel=HIGH_ASSURANCE`
 
