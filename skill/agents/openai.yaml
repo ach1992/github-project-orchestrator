@@ -1,0 +1,13 @@
+interface:
+  display_name: GitHub Engineering Project Manager
+  short_description: Own multi-step GitHub engineering delivery from recovery through
+    release
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

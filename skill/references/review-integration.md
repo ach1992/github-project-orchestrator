@@ -1,0 +1,179 @@
+# Review and Integration
+
+Master owns acceptance and integration decisions. Worker handoff and self-authorship are never proof of correctness.
+
+## Contents
+
+[Review target](#1-establish-review-target) · [Review standard](#2-review-standard) · [Evidence](#3-evidence-authority-and-freshness) · [CI failures](#4-ci-failures) · [Conflicts](#5-conflicts) · [Integration gate](#6-integration-gate) · [Self-authored work](#7-self-authored-work) · [Independent handoff](#8-independent-review-handoff) · [Post-integration](#9-post-integration)
+
+## 1. Establish review target
+
+Before review, verify:
+
+- current outcome/acceptance and Issue/Task Contract revision when present;
+- PR base + current HEAD, or for recognized repository-normal non-PR path exact Integration Target + exact candidate commit/HEAD;
+- dependencies + target-branch state;
+- actual target-to-candidate diff + commits;
+- current pre-integration CI/checks; merge-queue/merge-group checks become authoritative only after enrollment creates merge-group identity;
+- applicable effective repository/platform integration rules for current target when decision-relevant;
+- profile/risk-required independent approvals.
+
+### Integration path selection
+
+Choose mechanism from authoritative repository/platform workflow, not from technical write permission:
+
+```text
+INTEGRATION PATH
+  |
+  +-- repository/platform requires PR or Merge Queue? ---> use required PR/queue path
+  |
+  +-- otherwise, is a non-PR path genuinely recognized?
+  |      |
+  |      +-- established repository workflow/policy/history supports it
+  |      +-- exact reviewed candidate + Integration Target are identifiable
+  |      +-- equivalent review/validation/freshness/audit evidence is possible
+  |      +-- active coordination/assurance controls remain satisfied
+  |      +-- no stricter rule requires PR
+  |             |
+  |             +-- all true ---> recognized non-PR path
+  |             +-- any false/unknown
+  |                    -> use a required/established controlled path when one is known
+  |                    -> otherwise RECONCILE BEFORE INTEGRATION; never invent/bypass a path
+  |
+  +-- technical direct-write capability alone -----------------> never sufficient
+```
+
+| Path | Candidate / target / effective change |
+|---|---|
+| PR | PR HEAD / PR base / base-to-HEAD diff |
+| Recognized non-PR | exact reviewed candidate commit/HEAD / authoritative Integration Target / target-to-candidate diff |
+
+`LIGHTWEIGHT` uses PR when practical or required. `STANDARD` normally uses PR-based integration, but do not invent a parallel PR process when an established repository-normal non-PR workflow provides equivalent control and no stricter rule requires PR. `HIGH_ASSURANCE` is additive: retain the coordination path that would otherwise apply and add stronger independent evidence/review as justified. When PR-based, keep PR identity as the review envelope. On a recognized non-PR path, apply the same freshness, optimistic concurrency, validation, review, risk/profile, and action gates. Direct integration remains Master responsibility; Worker direct target push/merge remains prohibited.
+
+Refresh mutable review state immediately before each Master-controlled integration step. Unexpected change in candidate HEAD, target/base, Contract Revision, effective rules, required checks/approvals, existing queue/merge-group identity, or material target state -> stop and reconcile; approval never transfers automatically to a different effective change.
+
+## 2. Review standard
+
+Review only concerns material to the task and repository, as applicable:
+
+| Area | Inspect |
+|---|---|
+| scope/architecture | acceptance, unintended scope, module boundaries |
+| security | validation/escaping, auth/authz, permissions, injection, SSRF/CSRF/path traversal, secrets/sensitive logging |
+| data/compatibility | integrity, transactions, concurrency, migration/rollback/backward compatibility, API/schema/error compatibility |
+| reliability/tests | idempotency, retries/timeouts/failure behavior, regression/edge tests, false-pass risk |
+| performance/operations | material resource/performance impact, observability, operational behavior |
+| docs/release | docs/config/release implications |
+| supply chain/execution | dependency/lockfile/package-source/build-workflow, provenance and license compatibility when material; inspect untrusted `.github/workflows/*`, package/install scripts, Docker/Make hooks, CI configuration, and deployment scripts before execution |
+| hygiene | repository hygiene + generated artifacts |
+
+Do not turn style preference into mandatory scope when formatting/lint policy passes. For untrusted contributor changes, inspect execution/supply-chain surfaces before running them. Use isolated least-privilege validation and do not expose production credentials, repository write tokens beyond necessity, or other sensitive secrets to changed setup/install/build hooks.
+
+| Finding | Gate effect |
+|---|---|
+| `BLOCKER` | unsafe/incorrect; integration prohibited |
+| `REQUIRED` | acceptance/quality requirement must be fixed before integration |
+| `OPTIONAL` | useful but not required by contract |
+
+## 3. Evidence authority and freshness
+
+Use the source authoritative for the question and verify it is current for the same SHA/object/environment.
+
+| Question | Current authoritative evidence |
+|---|---|
+| code/change identity | freshly fetched refs + inspected target-to-candidate diff |
+| GitHub workflow/contract | current Issue/PR/Project/milestone objects |
+| validation | actual local output and/or current CI/check tied to relevant SHA |
+| deployment | current environment/deployment record + artifact/commit identity |
+| lasting rules | current recognized repository governance/docs |
+
+Worker/human summaries and old chat are locators only. On conflict, test staleness, SHA/environment mismatch, and scope before deciding a source is wrong.
+
+## 4. CI failures
+
+Classify before code change, then take the action implied by evidence:
+
+| Class | Default response |
+|---|---|
+| `WORK_REGRESSION` | trace the failure to the active effective change; fix root cause; rerun the narrowest discriminating check, then required broader checks |
+| `BASELINE_FAILURE` | prove it also exists on the relevant target/baseline; keep it outside active scope unless it blocks acceptance/integration, creates material safety risk, or belongs to the accepted outcome; continue independent work where possible |
+| `FLAKY_TEST` | establish evidence of nondeterminism/transience; use only a bounded rerun justified by that evidence; do not treat eventual green-by-retry as proof that the change is correct |
+| `INFRASTRUCTURE_FAILURE` | diagnose runner/service/environment/tooling state; do not mutate product code without evidence that code caused the failure |
+| `INTEGRATION_FAILURE` | inspect candidate x current-target interaction, conflict, dependency, and compatibility; reconcile effective change before editing |
+| `UNKNOWN` | gather the smallest discriminating evidence before changing code or weakening checks |
+
+Never disable/skip/loosen/rewrite checks merely to get green CI unless the check itself is demonstrably wrong and its correction is separately justified/reviewed. Apply `master-cycle.md` anti-spin rules to retries.
+
+## 5. Conflicts
+
+| Class | Rule |
+|---|---|
+| `MECHANICAL` | low-risk textual integration, unchanged intent; resolve only when intent is clear |
+| `BEHAVIORAL` | both sides change behavior that must be reconciled; return to active outcome/explicit contract/required decision before edit |
+| `ARCHITECTURAL` | incompatible design/contract assumptions; return to active outcome/explicit contract/required decision before edit |
+
+Avoid unnecessary rebase/force-push; preserve repository history conventions.
+
+## 6. Integration gate
+
+A substantive change is `MERGE_READY` only when all applicable pre-integration conditions hold. `MERGE_READY` is the compatibility name for the logical **integration-ready** state: on a recognized non-PR path it means ready for that exact Master-owned integration, not permission to bypass policy/profile controls. Merge-queue checks that can exist only after enrollment are platform-controlled post-enrollment conditions, not pre-enrollment evidence.
+
+Before Master-controlled integration, require as applicable:
+
+- acceptance satisfied; explicit contract current;
+- current reviewed HEAD known;
+- no unresolved `BLOCKER`/`REQUIRED`;
+- required tests/checks/CI that can and must pass before the Master-controlled integration action pass, or a deliberate exception is authorized and documented in the appropriate place;
+- required dependencies are integrated or the stacking model is intentional and safe;
+- target compatibility current;
+- security/data/migration/operational concerns resolved;
+- required docs/config/release notes complete;
+- no unexplained scope expansion;
+- effective target rules respected: branch protection/rulesets, required checks/deployments, merge queue, allowed method/path; technical bypass capability alone does not authorize bypass;
+- risk/profile-required independent review + human approvals complete.
+
+Immediately before next Master-controlled integration action, re-read candidate/target identity, mergeability/equivalent target-update preconditions, effective rules, required pre-action checks/approvals, and any Task Contract revision that could invalidate decision. Unexpected drift -> reconcile; never overwrite/integrate through it.
+
+### Merge Queue
+
+| Stage | Rule |
+|---|---|
+| Before enrollment | Use normal queue path. If queue can later cause a consequential effect without another interceptable authorization decision, resolve **every** canonical gate that must precede that effect before enrollment. This includes required `INTEGRATION` approval/pre-authorization and, when deterministic, `PRODUCTION`; `DESTRUCTIVE_OR_IRREVERSIBLE` or `EXTERNAL_COMMITMENT` effects retain their current-human approval/decision requirement under the default matrix and are never waived merely by integration/production pre-authorization. Scope any permitted pre-authorization to queue-mediated integration of the reviewed candidate into the identified target subject to required queue checks. Never enroll while a required gate would become non-interceptable, and never require queue evidence that cannot exist yet. |
+| After enrollment | Verify created merge-group identity + required queue checks for current candidate/target. PR-head evidence does not substitute when platform evaluates distinct merge-group commit. |
+| Complete | Mark `INTEGRATED` only after platform reports target update and current target identity confirms intended change reached it. |
+| Regroup / target drift | For each new merge-group identity, require the current queue checks that apply to that identity. Routine regroup that stays within the reviewed/authorized effective-change and risk envelope needs no new human gate. If regroup or target movement—whether operationally normal for the queue or not—materially changes assessed action, target, risk, effective change, or review/approval assumptions, reconcile and re-review/re-apply applicable gates before integration when an intercept remains; never treat the word `normal` as proof that material drift is already authorized. |
+
+Apply `authority-gates.md`: `HIGH`/`CRITICAL` integration needs defined approval unless exact action is validly pre-authorized with current evidence; integration that implicitly deploys production is `PRODUCTION`.
+
+## 7. Self-authored work
+
+Master must not label self-review independent. Use the same finding severity/gate as delegated work. If the change is high-risk or policy requires separation of duties, obtain another reviewer.
+
+## 8. Independent review handoff
+
+When independent review is required and a genuinely independent reviewer must be dispatched/relayed, keep the handoff bounded and evidence-addressable. Include at minimum:
+
+- repository + PR/change identity;
+- exact target/base identity + exact candidate HEAD SHA;
+- accepted outcome/acceptance + current Contract Revision when present;
+- risk/effective profile + reason independent review is required;
+- exact review boundary + material architecture/security/data/performance/operational constraints;
+- current validation/CI evidence identifiers tied to the reviewed change;
+- reviewer authority, read-only by default unless another bounded action is explicitly authorized;
+- expected findings as `BLOCKER`, `REQUIRED`, or `OPTIONAL`, each tied to concrete evidence.
+
+Do not create permanent reviewer role/state solely for handoff. Master remains responsible for refreshing current evidence, deciding finding validity/currentness, obtaining required fixes/approvals, and owning integration. Manual relay uses the single-copy-target prompt rule from `SKILL.md`.
+
+## 9. Post-integration
+
+After integration, in order:
+
+1. verify the intended candidate/change actually reached the authoritative Integration Target;
+2. verify target CI/checks when applicable/currently available;
+3. mark engineering work `INTEGRATED`; update/close Issue/parent/milestone/Project/dependencies/active risk only according to whether the active outcome or explicit contract also requires delivery;
+4. capture only actionable follow-up work;
+5. update durable docs/ADR only when a lasting rule/decision changed;
+6. clean branch/worktree only when no useful uncommitted/unpushed work can be lost;
+7. update release readiness when delivery is affected.
+
+Do not copy integrated-change history into manager documents.
