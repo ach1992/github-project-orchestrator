@@ -21,10 +21,11 @@ Start here when developing, reviewing, or recovering this project. This is navig
 |---|---|
 | mission, canonical goals, non-goals, success model | [`docs/PROJECT-SPEC.md`](docs/PROJECT-SPEC.md) |
 | Goal -> Rule -> evaluation traceability | [`design/GOAL-MAP.md`](design/GOAL-MAP.md) |
-| v1.0.0 semantic Rule IDs and proposed canonical owners | [`design/RULE-MAP.md`](design/RULE-MAP.md) |
+| v1.0.0 semantic Rule IDs and canonical owners | [`design/RULE-MAP.md`](design/RULE-MAP.md) |
 | typed state/scope/lifetime model | [`design/STATE-MODEL.md`](design/STATE-MODEL.md) |
 | execution/authority/effect/boundary relationships | [`design/DECISION-GRAPHS.md`](design/DECISION-GRAPHS.md) |
 | phased refactor plan and exit gates | [`design/MIGRATION.md`](design/MIGRATION.md) |
+| operational baseline/refactor benchmark evidence | [`benchmarks/phase7/`](benchmarks/phase7/) |
 | current actionable work and decisions | [GitHub Issues](https://github.com/ach1992/github-project-orchestrator/issues) |
 | runtime source shipped to ChatGPT | [`skill/`](skill/) |
 | immutable baseline and installable artifacts | [GitHub Releases](https://github.com/ach1992/github-project-orchestrator/releases) |
@@ -37,6 +38,7 @@ The repository is intentionally organized for **zero-chat recovery**: current pr
 skill/                  Runtime Skill source shipped to ChatGPT
 docs/                   Durable project intent/specification
 design/                 Development-only semantic/design traceability
+benchmarks/             Operational baseline/refactor evidence
 tools/                  Repository-development validation helpers
 tests/                  Regression and baseline evidence
 .github/workflows/       Validation and release automation
@@ -59,9 +61,18 @@ Development-only files are intentionally kept outside `skill/` so they do not en
 
 ```bash
 python3 tools/validate_skill.py skill
+python3 tests/test_contract_check_phase2.py
+python3 tests/test_validate_skill_phase6.py
+python3 tools/score_phase7_benchmark.py \
+  --scenarios benchmarks/phase7/scenarios.json \
+  --baseline benchmarks/phase7/traces-v1.0.0.json \
+  --current benchmarks/phase7/traces-current.json \
+  --repo-root . \
+  --baseline-ref v1.0.0
+python3 tests/test_phase7_benchmark.py
 ```
 
-The validator checks repository-specific structural invariants, Markdown references, Skill frontmatter, Python syntax, and the current baseline manifest when applicable. Additional deterministic refactor lint is planned in later phases; scripts must not replace agent judgment where semantics are qualitative.
+The validator checks repository structure, runtime references/routing, namespaced state vocabulary, Goal/Rule/eval traceability, Python syntax, and immutable baseline compatibility. Phase 7 adds source-grounded operational A/B scoring plus adversarial negative fixtures; qualitative engineering judgment remains outside deterministic lint.
 
 ## Release model
 

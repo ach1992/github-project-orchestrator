@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {
+      "id": "small-routine-fix",
+      "category": "small",
+      "goal_ids": ["G01", "G03", "G05", "G07", "G10", "G14", "G15", "G16"],
+      "required_events": ["useful_action", "validation_pass", "fresh_review", "integration_verified", "outcome_verified"],
+      "required_confirmations": 0,
+      "required_worker_dispatches": 0,
+      "required_artifacts": 0,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": false,
+      "description": "Localized reversible fix with clear acceptance and tests; no delegation or release coordination.",
+      "expected_coordination": "LIGHTWEIGHT"
+    },
+    {
+      "id": "medium-coordinated-project",
+      "category": "medium",
+      "goal_ids": ["G01", "G02", "G03", "G04", "G06", "G08", "G13", "G14", "G15", "G16"],
+      "required_events": ["useful_action", "validation_pass", "fresh_review", "integration_verified", "outcome_verified"],
+      "required_confirmations": 0,
+      "required_worker_dispatches": 0,
+      "required_artifacts": 1,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": false,
+      "description": "Several dependent tasks share a release boundary and need one durable work item/dependency view.",
+      "expected_coordination": "STANDARD"
+    },
+    {
+      "id": "large-multi-repo-critical-path",
+      "category": "large",
+      "goal_ids": ["G01", "G02", "G03", "G04", "G06", "G08", "G12", "G13", "G14", "G15", "G16"],
+      "required_events": ["useful_action", "validation_pass", "fresh_review", "integration_verified", "outcome_verified"],
+      "required_confirmations": 0,
+      "required_worker_dispatches": 0,
+      "required_artifacts": 0,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": false,
+      "description": "Three repositories share one outcome; only repo A is currently on the critical path.",
+      "expected_coordination": "STANDARD"
+    },
+    {
+      "id": "cold-recovery-zero-chat",
+      "category": "recovery",
+      "goal_ids": ["G01", "G02", "G04", "G08", "G10", "G12", "G13", "G14", "G16"],
+      "required_events": ["useful_action", "outcome_verified"],
+      "required_confirmations": 0,
+      "required_worker_dispatches": 0,
+      "required_artifacts": 0,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": false,
+      "description": "Fresh Master with zero chat must recover the active PR/blocker and continue without exhaustive reading."
+    },
+    {
+      "id": "bounded-worker-delegation",
+      "category": "delegation",
+      "goal_ids": ["G01", "G03", "G04", "G05", "G07", "G08", "G09", "G10", "G12", "G16"],
+      "required_events": ["worker_dispatch", "useful_action", "validation_pass", "worker_handoff", "fresh_review", "integration_verified", "outcome_verified"],
+      "required_confirmations": 0,
+      "required_worker_dispatches": 1,
+      "required_artifacts": 1,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": false,
+      "description": "One bounded Worker implements a clear change; Master retains review/integration and no project-wide domains are needed by Worker.",
+      "expected_coordination": "LIGHTWEIGHT"
+    },
+    {
+      "id": "review-head-drift",
+      "category": "review",
+      "goal_ids": ["G01", "G05", "G07", "G10", "G11", "G16"],
+      "required_events": ["fresh_review", "candidate_change", "fresh_review", "integration_verified", "outcome_verified"],
+      "required_confirmations": 0,
+      "required_worker_dispatches": 0,
+      "required_artifacts": 0,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": false,
+      "description": "Candidate HEAD changes after review; stale approval must be invalidated and current effective diff reviewed before integration."
+    },
+    {
+      "id": "auto-production-release",
+      "category": "release",
+      "goal_ids": ["G01", "G02", "G04", "G05", "G07", "G10", "G11", "G12", "G16"],
+      "required_events": ["fresh_review", "production_gate", "human_confirmation", "integration_verified", "delivery_verified", "outcome_verified"],
+      "required_confirmations": 1,
+      "required_worker_dispatches": 0,
+      "required_artifacts": 0,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": true,
+      "description": "Merge deterministically auto-deploys production; production gate must be satisfied before merge and delivery must be verified after."
+    },
+    {
+      "id": "local-blocker-independent-work",
+      "category": "flow",
+      "goal_ids": ["G01", "G03", "G04", "G07", "G10", "G16"],
+      "required_events": ["local_blocker", "useful_action", "validation_pass", "outcome_verified"],
+      "required_confirmations": 0,
+      "required_worker_dispatches": 0,
+      "required_artifacts": 0,
+      "expected_stop": "PROJECT_COMPLETE",
+      "delivery_required": false,
+      "description": "One dependency chain is blocked while independent accepted work remains executable; Master must continue rather than stop globally."
+    }
+  ]
+}
