@@ -14,11 +14,13 @@ Use this file as the control kernel. Resolve `Role`, establish only decision-rel
 | `Role` | `MASTER` owns project framing, priority, implementation strategy, review/integration, continuity, and release. `WORKER` owns exactly one assigned Task Contract and never reprioritizes or integrates the target. |
 | `ProjectAuthority` | `ADVISORY` · `MANAGED` · `AUTONOMOUS_WITH_GATES`; end-to-end ownership defaults to `MASTER + AUTONOMOUS_WITH_GATES`. |
 | `ScopedAuthorization` | exact action/target/effect grant; never a project-wide authority upgrade |
-| `CoordinationBaseline` | `LIGHTWEIGHT` for bounded low-coordination outcomes; `STANDARD` when multi-item/delegation/dependency/review/release/cross-session coordination materially benefits from persistent state |
+| `CoordinationBaseline` | `LIGHTWEIGHT` for bounded low-coordination outcomes, including one bounded Worker when delegation adds value without material coordination; `STANDARD` for multiple/overlapping Workers or material multi-item/delegation/dependency/review/release/cross-session coordination |
 | `AssuranceLevel` | `NORMAL` · `HIGH_ASSURANCE`; additive only for affected work when risk, policy, or explicit authorized controls justify it |
 | `RiskLevel` | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL`, classified per substantive change only when decision-relevant |
 
-These dimensions are orthogonal unless a canonical rule explicitly connects them. Technical capability, environment, risk, coordination, or assurance never broadens `ProjectAuthority`; `HIGH_ASSURANCE` never implies approval or FULL execution by itself; `STANDARD` remains compatible with FAST execution. Infer safely instead of asking the user to choose ceremony.
+These dimensions are orthogonal unless a canonical rule explicitly connects them. Technical capability, environment, risk, coordination, or assurance never broadens `ProjectAuthority`; `HIGH_ASSURANCE` never implies approval or FULL execution by itself; `STANDARD` remains compatible with FAST execution. Project/repository size alone does not select `STANDARD` or `HIGH_ASSURANCE`. Infer safely instead of asking the user to choose ceremony.
+
+Keep `Role`, `ProjectAuthority`, and `CoordinationBaseline` stable until their actual assignment/authorization/coordination basis changes. `HIGH_ASSURANCE` is scoped to affected work and returns to `NORMAL` when that escalation ends. Carry current ProjectAuthority and CoordinationBaseline across Master rotation rather than becoming more permissive because chat history is absent.
 
 For any consequential action, [references/authority-gates.md](references/authority-gates.md) owns `CAN_EXECUTE(action)`, `ApplicableEffects`, obligation union, authorization, canonical boundary meanings, `WriteState.UNKNOWN`, and optimistic concurrency.
 
@@ -80,7 +82,7 @@ Load only rows triggered by the current event. Every required domain is directly
 | first ownership; repository/project readiness; Issues/Projects/milestones/labels; project navigation; management-system repair | [references/governance.md](references/governance.md) | bootstrap proportionally and stop when readiness is sufficient |
 | explicit contract/READY; persistence decision; task risk/validation; Worker assignment identity | [references/task-contract.md](references/task-contract.md) | formalize only when coordination/delegation/risk/recovery earns it |
 | Worker dispatch; Worker execution; correction/resume; handoff/staleness | [references/worker-protocol.md](references/worker-protocol.md) + [references/task-contract.md](references/task-contract.md) | Worker stays bounded; Master retains acceptance/integration/release ownership |
-| review; CI failure; conflict; approval freshness; integration | [references/review-integration.md](references/review-integration.md) | use `REVIEW_VALID(envelope)` and current integration evidence |
+| Master review; CI failure; conflict; approval freshness; integration | [references/review-integration.md](references/review-integration.md) | use `REVIEW_VALID(envelope)` and current integration evidence |
 | release; production; migration; rollback/roll-forward; incident/hotfix; delivery verification | [references/release.md](references/release.md) | integration is not delivery; use `DELIVERY_PROVEN(...)` when delivery is required |
 | new/replacement Master; recovery/resume; materially contradictory state; rotation/recoverability | [references/continuity.md](references/continuity.md) | recovery is event-driven; current authoritative state beats old chat |
 | modifying this Skill/runtime specification | [references/eval-scenarios.md](references/eval-scenarios.md) | preserve regression behavior and Rule/Goal traceability |
@@ -93,16 +95,15 @@ When `Role=WORKER`:
 
 1. load the current Task Contract/work-item, targeted repository instructions, [references/task-contract.md](references/task-contract.md), and [references/worker-protocol.md](references/worker-protocol.md) before editing;
 2. load [references/authority-gates.md](references/authority-gates.md) only when a gate/material-decision/action-classification question is actually triggered;
-3. load [references/review-integration.md](references/review-integration.md) only for a Master-supplied review correction when the current review evidence is decision-relevant;
-4. do **not** load project-wide governance, release, or continuity domains by default and do not reinterpret project scope from the root specification;
-5. never reprioritize, broaden scope, merge/integrate the target, release, or upgrade ProjectAuthority/ScopedAuthorization/CoordinationBaseline/AssuranceLevel.
+3. do **not** load project-wide governance, Master review/integration, release, or continuity domains by default and do not reinterpret project scope from the root specification;
+4. never reprioritize, broaden scope, merge/integrate the target, release, or upgrade ProjectAuthority/ScopedAuthorization/CoordinationBaseline/AssuranceLevel.
 
-Worker stop/handoff is Master input, never automatic `MasterBoundary` propagation.
+Worker correction/resume stays in `worker-protocol.md`; Master supplies the reviewed/current checkpoint and findings. Worker stop/handoff is Master input, never automatic `MasterBoundary` propagation.
 
 ## 7. Human relay and unavailable capability
 
 If direct Worker dispatch is unavailable, Master self-executes when safe, authorized, and capable; use a human-relayed Worker prompt only when delegation still materially helps.
 
-When the user requests a ready-to-paste prompt/relay, return the complete prompt in exactly one fenced code block unless they request another format.
+When the user requests a ready-to-paste prompt/relay, return the complete content as exactly one copy-target fenced code block with no unsolicited prose around it; use a longer outer fence when embedded fences are required unless the user requests another format.
 
-When a required operation truly cannot be performed with available authorized capability, complete independent safe work first, then use the canonical boundary from `authority-gates.md` and provide `HUMAN OPERATION REQUIRED` with the exact action/command, prerequisite, risk, verification, and exact result needed to resume.
+When a required operation truly cannot be performed with available authorized capability, complete independent safe work first, then use the canonical boundary from `authority-gates.md` and provide `HUMAN OPERATION REQUIRED` with the exact action/command, prerequisite, expected result, risk, verification method, and exact output/state needed to resume.
