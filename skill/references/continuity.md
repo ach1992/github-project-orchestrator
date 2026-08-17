@@ -31,9 +31,19 @@ A new/replacement Master enters `RECOVER` before consequential project mutation:
 7. determine active outcome/completion condition, review queue, blockers, `DeliveryRequirement`/`DeliveryTarget`/`DeliveryState`, and next executable action; recover `ProjectAuthority` and `CoordinationBaseline` independently, plus any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`;
 8. continue the valid plan instead of rebuilding it because chat history is absent.
 
+Keep cold recovery progressive and bounded:
+
+- **Orientation spine:** establish repository/repositories, current project outcome/completion, Project Map or equivalent truth-location index, current authority/profile, and the active critical path/workstream.
+- **Active-path context:** enter only the repository/workstream sources needed for the next decision: current Issue/contract, PR/branch/CI, direct dependencies/interfaces, blockers/risks, and integration/delivery state.
+- **Triggered depth:** load broader architecture, other workstreams, root specification, historical decisions, or release history only when a contradiction, dependency, interface, risk, or project-level decision makes that context materially relevant.
+
+Stop recovery reading once repository/target identity, active outcome, controlling dependencies/blockers, required authority/profile, current candidate/review/delivery state, and the next executable action are decision-valid. A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.
+
+For multi-repository outcomes, recover the small global coordination spine first: outcome/completion, repository/workstream ownership, cross-repository dependencies/interfaces, integration/release order, and delivery target. Then enter only the local repository contexts on the active critical path. Local Issues/PRs/CI/repository rules remain authoritative; do not reconstruct them in a central recovery snapshot.
+
 Never reconstruct `CoordinationBaseline` from `AssuranceLevel`, risk, project size, or technical access. Legacy `Operating Profile: LIGHTWEIGHT|STANDARD` can be interpreted losslessly as the same CoordinationBaseline with `AssuranceLevel=NORMAL`. Legacy `Operating Profile: HIGH_ASSURANCE` is not enough to identify its missing coordination baseline: recover that baseline from authoritative persisted project/assignment state or preserve the ambiguity until it is resolved; do not guess.
 
-After this baseline is established, do not re-enter the full recovery sequence for ordinary progress. A planned branch/worktree create/switch should verify the intended branch, base/HEAD, target relationship, and dirty-state ownership as needed, then resume execution. A failed GitHub/tool route should update transient capability knowledge and trigger an equivalent authoritative route when available; it should not by itself restart repository-wide recovery. Re-enter broader recovery only when concrete evidence materially invalidates the established baseline.
+After this baseline is established, do not re-enter the full recovery sequence for ordinary progress. A planned branch/worktree create/switch should verify the intended branch, base/HEAD, target relationship, and dirty-state ownership as needed, then resume execution. A failed GitHub/tool route should update transient capability knowledge and trigger an equivalent authoritative route when available; it should not by itself restart repository-wide recovery. Re-enter broader recovery only when concrete evidence materially invalidates the established baseline. When a material dependency, architecture/interface assumption, ownership boundary, risk, or release constraint changes, reconcile the affected workstream/critical-path slice first and widen recovery only when the impact actually crosses that boundary.
 
 Old handoff hints are accelerators only. `scripts/repo_preflight.py --recovery` may accelerate local Git inspection but is transient and incomplete. Treat any explicit completeness flag as authoritative for the helper output: when `status_complete`/`dirty_complete` is false, `dirty: false` means no dirty state was safely observed, not proof that the worktree is clean; when history/tag completeness is false, do not infer absence from the missing local evidence. Its high-cardinality status/branch lists are intentionally bounded; when `*_truncated` is true, use the reported totals plus targeted Git inspection for the paths/refs relevant to recovery rather than treating the returned subset as complete. The helper intentionally avoids implicit lazy fetches and reports replacement/graft history semantics; perform explicit authorized fetches or targeted trusted inspection only when the missing evidence can affect the next decision.
 
@@ -43,7 +53,8 @@ When state is stale or contradictory:
 
 - prefer current direct evidence using the source hierarchy in `SKILL.md`;
 - correct the authoritative current source rather than adding a compensating note elsewhere;
-- close/supersede duplicates only after confirming intent/current work;
+- repair/remove stale Project Map or relationship pointers after the authoritative target is reconciled; never preserve a misleading link merely to explain history;
+- close/supersede duplicates only after confirming intent/current work, and keep the surviving authoritative owner rather than creating another summary artifact;
 - preserve concurrent valid work and use optimistic concurrency for overwrite-sensitive updates;
 - do not infer `DeliveryState.DELIVERED` from `TaskState.INTEGRATED`, target/environment naming, or stale status fields;
 - do not infer a `MasterBoundary` from matching `TaskState`/`WorkerStatus`/`WriteState`/`DeliveryState` token text;
@@ -60,6 +71,8 @@ A replacement Master with no chat history should be able to find, when relevant:
 - unresolved lasting decisions;
 - release/deployment state including independent `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState`, plus next valid action;
 - authoritative locations and material relationships without chat history.
+
+For large or multi-repository projects, the test is satisfied when the replacement Master can find the global outcome/dependency/release spine and then reach the active local workstream sources progressively; it does **not** require an exhaustive central snapshot of every repository or work item.
 
 If not, persist only the missing future-useful fact in its proper source. Do not duplicate facts already reconstructable from Git/GitHub merely to make recovery faster, and do not promote a transient task to a standalone Issue when an existing PR/commit/work item already makes its intent recoverable.
 
