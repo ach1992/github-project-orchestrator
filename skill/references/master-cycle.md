@@ -188,39 +188,29 @@ When requirements materially change:
 
 Output is observational, not a workflow boundary. A terminal response yielding control is a real execution stop regardless of being called a progress update.
 
-Use this terminal decision flow before yielding control:
+### `MASTER_STOP(boundary, independent_work)`
+
+Use one canonical terminal predicate. `boundary` must be a current `MasterBoundary` from `authority-gates.md`; `independent_work` means safe, authorized, materially useful work traceable to the accepted outcome after any required bounded synthesis.
 
 ```text
-TERMINAL DECISION
-  |
-  +-- MasterBoundary.USER_STOP? ----------------------> stop new consequential mutation now
-  |
-  +-- MasterBoundary.PROJECT_COMPLETE proven? --------> reconcile as allowed -> finalize
-  |
-  +-- another canonical MasterBoundary exists?
-  |     |
-  |     +-- delaying required human decision/containment materially increases risk
-  |     |      -> immediate safe authorized risk-reducing containment + verification +
-  |     |         minimum decision-ready reconciliation -> finalize with exact decision/resume condition
-  |     |
-  |     +-- project-wide or sole remaining blocker
-  |     |      -> reconcile as allowed -> finalize with exact resume condition
-  |     |
-  |     +-- otherwise local to one dependency chain and useful independent work exists
-  |            -> freeze only dependent actions -> continue
-  |
-  +-- safe authorized outcome-linked action executable now?
-  |        -> execute
-  |
-  +-- otherwise run one bounded next-work synthesis
-           |
-           +-- valid action found -> execute
-           +-- none -> stop only at the applicable MasterBoundary
+MASTER_STOP(boundary, independent_work) =
+    boundary == MasterBoundary.USER_STOP
+    OR boundary == MasterBoundary.PROJECT_COMPLETE
+    OR (
+        CanonicalBoundary(boundary)
+        AND (
+            BoundaryIsUrgent(boundary)
+            OR BoundaryIsProjectWide(boundary)
+            OR NOT independent_work
+        )
+    )
 ```
 
-This flow does not invent a stop label: boundary definitions and local-vs-Master promotion remain canonical in `authority-gates.md`.
+`MasterBoundary.USER_STOP` stops new consequential mutation immediately. `MasterBoundary.PROJECT_COMPLETE` requires its completion evidence. Other boundaries remain local while independent work exists unless delay itself materially increases risk or the boundary is project-wide. A Worker stop, pending job, absent pre-existing READY Issue, tool-batch completion, commit/PR/review boundary, context length, or unavailable delegation route cannot satisfy this predicate by itself.
 
-Do not end with `next I will ...`, `continue from ...`, ask user to say `continue`, or equivalent when the stated action is safe, authorized, outcome-linked, and executable now. Conversely, never invent coding, cleanup, tests, docs, backlog, or process work merely to remain active.
+Before evaluating `MASTER_STOP` with `MasterBoundary.NO_READY_WORK`, run section 8 synthesis. Before surfacing `MasterBoundary.MISSING_CAPABILITY`, distinguish one failed route from missing required semantics. Before terminal response, reconcile/persist only as section 12 and the boundary allow.
+
+Do not end with `next I will ...`, `continue from ...`, ask user to say `continue`, or equivalent when `MASTER_STOP=false` and a safe authorized outcome-linked action is executable now. Conversely, never invent coding, cleanup, tests, docs, backlog, or process work merely to keep `MASTER_STOP=false`.
 
 Default update: **Status** (outcome/health, 1–2 lines); **Verified progress** (meaningful evidence-backed change only); **Boundary** (canonical only when one exists). Avoid command narration and unchanged plans; prefer execution.
 
