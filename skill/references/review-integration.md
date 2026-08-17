@@ -20,6 +20,22 @@ Before review, verify:
 
 Keep the review evidence inside an explicit identity envelope: repository, Integration Target/base, candidate/HEAD, relevant Contract Revision, environment when applicable, and evidence freshness. Candidate/target/contract/effective-change drift invalidates affected approval rather than being normalized away by narrative.
 
+### `REVIEW_VALID(envelope)`
+
+Use one validity predicate for whether an existing review can still authorize the exact effective change:
+
+```text
+REVIEW_VALID(envelope) =
+    RepositoryIdentityIsCurrent(envelope)
+    AND IntegrationTargetIsCurrent(envelope)
+    AND CandidateIdentityIsCurrent(envelope)
+    AND ContractRevisionIsCurrent(envelope)
+    AND EffectiveTargetToCandidateChangeWasReviewed(envelope)
+    AND MaterialReviewAssumptionsRemainCurrent(envelope)
+```
+
+When `REVIEW_VALID=false`, refresh the affected evidence and re-review the changed effective surface before integration. Current CI/checks, required approvals, unresolved findings, repository rules, and applicable action gates are separate integration-gate inputs; they are not hidden inside review freshness.
+
 ### Integration path selection
 
 Choose mechanism from authoritative repository/platform workflow, not from technical write permission:
@@ -52,7 +68,7 @@ INTEGRATION PATH
 
 `CoordinationBaseline=LIGHTWEIGHT` uses PR when practical or required. `CoordinationBaseline=STANDARD` normally uses PR-based integration, but do not invent a parallel PR process when an established repository-normal non-PR workflow provides equivalent control and no stricter rule requires PR. `AssuranceLevel=HIGH_ASSURANCE` is additive: retain the coordination path that would otherwise apply and add stronger independent evidence/review as justified. When PR-based, keep PR identity as the review envelope. On a recognized non-PR path, apply the same freshness, optimistic concurrency, validation, review, RiskLevel/AssuranceLevel, and `ApplicableEffects` gates. Direct integration remains Master responsibility; Worker direct target push/merge remains prohibited.
 
-Refresh mutable review state immediately before each Master-controlled integration step. Unexpected change in candidate HEAD, target/base, Contract Revision, effective rules, required checks/approvals, existing queue/merge-group identity, or material target state -> stop that integration action and reconcile; approval never transfers automatically to a different effective change.
+Immediately before each Master-controlled integration step, refresh the review envelope and mutable gate evidence. `REVIEW_VALID=false` or any unexpected required-check/approval/rule/queue-state drift stops that integration action for reconciliation; approval never transfers automatically to a different effective change.
 
 ## 2. Review standard
 
@@ -125,7 +141,7 @@ A substantive change is `TaskState.INTEGRATION_READY` only when all applicable p
 Before Master-controlled integration, require as applicable:
 
 - acceptance satisfied; explicit contract current;
-- current reviewed HEAD known;
+- `REVIEW_VALID(envelope)` for the exact current target/candidate/contract;
 - no unresolved review `BLOCKER`/`REQUIRED`;
 - required tests/checks/CI that can and must pass before the Master-controlled integration action pass, or a deliberate exception is authorized and documented in the appropriate place;
 - required dependencies are integrated or the stacking model is intentional and safe;
