@@ -76,10 +76,10 @@ CAN_EXECUTE(action) =
     AND RequiredObligationsAreSatisfied(action)
     AND AnyScopedAuthorizationUsedIsCurrentAndExact(action)
     AND RequiredCapabilityIsAvailable(action)
-    AND MutableIdentityEvidenceIsFresh(action)
+    AND RequiredMutableIdentityEvidenceIsFresh(action)
 ```
 
-Interpret each term using this file's matrix plus the authoritative repository/platform state for the action. `CAN_EXECUTE=false` is not itself a terminal Master boundary: reconcile uncertainty, use an authorized equivalent path, or classify the actual canonical boundary while independent useful work continues. `ADVISORY` does not become mutation-capable through technical access; `ScopedAuthorization` satisfies only the exact gate it covers; uncertain `ApplicableEffects` or stale mutable identity must be reconciled before mutation.
+Interpret each term only when it is applicable to the proposed action, using this file's matrix plus authoritative repository/platform state. `CAN_EXECUTE=false` is not itself a terminal Master boundary: reconcile uncertainty, use an authorized equivalent path, or classify the actual canonical boundary while independent useful work continues. `ADVISORY` does not become mutation-capable through technical access; `ScopedAuthorization` satisfies only the exact gate it covers; uncertain `ApplicableEffects` or stale required mutable identity must be reconciled before mutation.
 
 ### Classification decision flow
 
