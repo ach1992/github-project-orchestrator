@@ -13,6 +13,30 @@ OpenAI documents computer upload as a supported Skill installation path. Direct 
 
 Official ChatGPT Skills documentation: https://help.openai.com/en/articles/20001066-skills-in-chatgpt
 
-## Repository status
+## Repository layout
 
-This repository is being bootstrapped from the existing `github-project-orchestrator` Skill baseline. The complete runtime source and release automation will land through the initial bootstrap pull request.
+```text
+skill/                  Runtime Skill source shipped to ChatGPT
+docs/                   Durable project intent and design documentation
+tools/                  Repository-development validation helpers
+tests/                   Regression and baseline evidence
+.github/workflows/       Validation and release automation
+VERSION                  Release version
+CHANGELOG.md             Human-readable release history
+```
+
+Development-only files are intentionally kept outside `skill/` so they do not enter the runtime Skill package.
+
+## Validate locally
+
+```bash
+python3 tools/validate_skill.py skill
+```
+
+The validator checks repository-specific structural invariants, Markdown references, Skill frontmatter, Python syntax, and the current baseline manifest when applicable.
+
+## Release model
+
+`main` is the release source of truth. When `VERSION` contains a version that does not yet have a matching GitHub Release, the release workflow validates the repository, packages `skill/` as `skill.zip`, generates a SHA-256 checksum, and publishes tag/release `v<VERSION>` from the exact `main` commit.
+
+`v1.0.0` is the immutable baseline of the pre-refactor Skill. Future architectural optimization is evaluated against this baseline and its behavioral regression scenarios.
