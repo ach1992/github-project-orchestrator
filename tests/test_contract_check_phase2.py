@@ -35,7 +35,6 @@ none
 
 ## Risk / Release
 Risk: LOW
-Delivery Requirement: INTEGRATION_ONLY
 
 Issue: ach1992/github-project-orchestrator#5
 Assignment ID: 5-g1
