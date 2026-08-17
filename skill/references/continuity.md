@@ -37,7 +37,7 @@ Keep cold recovery progressive and bounded:
 - **Active-path context:** enter only the repository/workstream sources needed for the next decision: current Issue/contract, PR/branch/CI, direct dependencies/interfaces, blockers/risks, and integration/delivery state.
 - **Triggered depth:** load broader architecture, other workstreams, root specification, historical decisions, or release history only when a contradiction, dependency, interface, risk, or project-level decision makes that context materially relevant.
 
-Stop recovery reading once repository/target identity, active outcome, controlling dependencies/blockers, required authority/profile, current candidate/review/delivery state, and the next executable action are decision-valid. A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.
+Stop recovery reading once repository/target identity, active outcome, controlling dependencies/blockers, current `ProjectAuthority`/`CoordinationBaseline`/affected `AssuranceLevel`, current candidate/review/delivery state, and the next executable action are decision-valid. A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.
 
 For multi-repository outcomes, recover the small global coordination spine first: outcome/completion, repository/workstream ownership, cross-repository dependencies/interfaces, integration/release order, and delivery target. Then enter only the local repository contexts on the active critical path. Local Issues/PRs/CI/repository rules remain authoritative; do not reconstruct them in a central recovery snapshot.
 
