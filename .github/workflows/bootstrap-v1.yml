@@ -32,6 +32,7 @@ jobs:
           tar -xzf /tmp/repo-bootstrap.tar.gz
           rm -rf bootstrap
           rm -f .github/workflows/bootstrap-v1.yml
+          rm -f .github/workflows/release.yml
           python3 tools/validate_skill.py skill
           git status --short
 
