@@ -107,14 +107,9 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def validate_baseline(skill_dir: Path, repository_root: Path) -> None:
-    version_path = repository_root / "VERSION"
-    if not version_path.is_file() or version_path.read_text(encoding="utf-8").strip() != "1.0.0":
-        return
-
-    manifest_path = repository_root / "tests" / "baseline" / "v1.0.0.sha256"
+def validate_baseline(skill_dir: Path, manifest_path: Path) -> None:
     if not manifest_path.is_file():
-        fail("VERSION is 1.0.0 but baseline manifest is missing")
+        fail(f"Baseline manifest is missing: {manifest_path}")
 
     expected: dict[str, str] = {}
     for line in manifest_path.read_text(encoding="utf-8").splitlines():
@@ -129,21 +124,26 @@ def validate_baseline(skill_dir: Path, repository_root: Path) -> None:
         missing = sorted(set(expected) - set(actual))
         extra = sorted(set(actual) - set(expected))
         changed = sorted(path for path in set(actual) & set(expected) if actual[path] != expected[path])
-        fail(f"v1.0.0 baseline drift detected; missing={missing}, extra={extra}, changed={changed}")
+        fail(f"baseline drift detected; missing={missing}, extra={extra}, changed={changed}")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("skill_dir", type=Path)
+    parser.add_argument(
+        "--baseline-manifest",
+        type=Path,
+        help="Compare the supplied Skill source exactly against this SHA-256 baseline manifest.",
+    )
     args = parser.parse_args()
 
     skill_dir = args.skill_dir.resolve()
-    repository_root = skill_dir.parent
     validate_required_paths(skill_dir)
     frontmatter = parse_frontmatter(skill_dir / "SKILL.md")
     validate_markdown_links(skill_dir)
     validate_python(skill_dir)
-    validate_baseline(skill_dir, repository_root)
+    if args.baseline_manifest is not None:
+        validate_baseline(skill_dir, args.baseline_manifest.resolve())
     print(f"Valid Skill: {frontmatter['name']}")
     return 0
 
