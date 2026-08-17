@@ -47,6 +47,20 @@ if not valid["ok"]:
     raise AssertionError(valid)
 print("PASS valid-benchmark")
 
+score.validate_source_refs(ROOT, baseline, current)
+print("PASS pinned-source-provenance")
+
+floating = copy.deepcopy(current)
+trace(floating, "small-routine-fix")["source_basis"][0] = "main:skill/SKILL.md"
+try:
+    score.validate_source_refs(ROOT, baseline, floating)
+except ValueError as exc:
+    if "floating or malformed source_basis" not in str(exc):
+        raise
+    print("PASS floating-provenance-rejected")
+else:
+    raise AssertionError("floating-provenance: unexpectedly passed")
+
 cur = copy.deepcopy(current)
 t = trace(cur, "review-head-drift")
 t["events"] = [
@@ -55,6 +69,16 @@ t["events"] = [
     if not (event["type"] == "fresh_review" and event.get("candidate") == "c2")
 ]
 expect_fail("stale-integration", cur, "stale_integration")
+
+cur = copy.deepcopy(current)
+t = trace(cur, "review-head-drift")
+t["events"] = [
+    event
+    for event in t["events"]
+    if not (event["type"] == "fresh_review" and event.get("candidate") == "c2")
+]
+next(event for event in t["events"] if event["type"] == "integration_verified")["candidate"] = "c1"
+expect_fail("old-candidate-review-invalidated", cur, "stale_integration")
 
 cur = copy.deepcopy(current)
 t = trace(cur, "auto-production-release")
