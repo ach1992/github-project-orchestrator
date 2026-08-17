@@ -1,0 +1,95 @@
+name: Validate and Release Skill
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Skill source
+        run: python3 tools/validate_skill.py skill
+
+      - name: Verify clean runtime source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find skill -type d -name __pycache__ -print -quit | grep -q .; then
+            echo "Runtime source contains __pycache__" >&2
+            exit 1
+          fi
+          if find skill -type f \( -name '*.pyc' -o -name '*.pyo' \) -print -quit | grep -q .; then
+            echo "Runtime source contains compiled Python artifacts" >&2
+            exit 1
+          fi
+
+  release:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build skill.zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf build skill.zip skill.zip.sha256
+          mkdir -p build/github-project-orchestrator
+          cp -R skill/. build/github-project-orchestrator/
+          find build/github-project-orchestrator -type d -name __pycache__ -prune -exec rm -rf {} +
+          find build/github-project-orchestrator -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
+          (
+            cd build
+            zip -qr ../skill.zip github-project-orchestrator
+          )
+          sha256sum skill.zip > skill.zip.sha256
+          if unzip -Z1 skill.zip | grep -Eq '(^|/)__pycache__/|\.py[co]$'; then
+            echo "Release archive contains generated Python artifacts" >&2
+            exit 1
+          fi
+
+      - name: Publish version if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid VERSION: $VERSION" >&2
+            exit 1
+          fi
+          TAG="v${VERSION}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            EXISTING_SHA="$(gh api "repos/${GH_REPO}/git/ref/tags/${TAG}" --jq '.object.sha')"
+            if [[ "$EXISTING_SHA" != "$GITHUB_SHA" ]]; then
+              echo "$TAG already points to $EXISTING_SHA; bump VERSION before releasing $GITHUB_SHA" >&2
+              exit 1
+            fi
+            echo "Release $TAG already exists for $GITHUB_SHA; nothing to republish."
+            exit 0
+          fi
+          gh release create "$TAG" skill.zip skill.zip.sha256 \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --notes "Release $TAG of GitHub Project Orchestrator. See CHANGELOG.md for release details."

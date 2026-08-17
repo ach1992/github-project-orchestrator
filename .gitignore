@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+build/
+skill.zip
+skill.zip.sha256
+.DS_Store

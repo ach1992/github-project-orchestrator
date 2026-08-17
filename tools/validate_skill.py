@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import py_compile
 import re
 import sys
 from pathlib import Path
@@ -96,7 +95,8 @@ def validate_markdown_links(skill_dir: Path) -> None:
 
 def validate_python(skill_dir: Path) -> None:
     for script in skill_dir.rglob("*.py"):
-        py_compile.compile(str(script), doraise=True)
+        source = script.read_text(encoding="utf-8")
+        compile(source, str(script), "exec")
 
 
 def sha256_file(path: Path) -> str:
@@ -151,6 +151,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (ValueError, OSError, py_compile.PyCompileError) as exc:
+    except (ValueError, OSError, SyntaxError) as exc:
         print(f"Validation failed: {exc}", file=sys.stderr)
         raise SystemExit(1)
