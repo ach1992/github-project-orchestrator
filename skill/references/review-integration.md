@@ -29,12 +29,12 @@ REVIEW_VALID(envelope) =
     RepositoryIdentityIsCurrent(envelope)
     AND IntegrationTargetIsCurrent(envelope)
     AND CandidateIdentityIsCurrent(envelope)
-    AND ContractRevisionIsCurrent(envelope)
+    AND ApplicableContractRevisionIsCurrent(envelope)
     AND EffectiveTargetToCandidateChangeWasReviewed(envelope)
     AND MaterialReviewAssumptionsRemainCurrent(envelope)
 ```
 
-When `REVIEW_VALID=false`, refresh the affected evidence and re-review the changed effective surface before integration. Current CI/checks, required approvals, unresolved findings, repository rules, and applicable action gates are separate integration-gate inputs; they are not hidden inside review freshness.
+`ApplicableContractRevisionIsCurrent` is true when no explicit Task Contract applies; it requires an exact current revision only when the review is contract-bound. When `REVIEW_VALID=false`, refresh the affected evidence and re-review the changed effective surface before integration. Current CI/checks, required approvals, unresolved findings, repository rules, and applicable action gates are separate integration-gate inputs; they are not hidden inside review freshness.
 
 ### Integration path selection
 
