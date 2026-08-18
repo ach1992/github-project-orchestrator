@@ -29,7 +29,7 @@ The A/B traces in this phase are **source-grounded policy simulations**. They ar
 
 The scorer rejects floating/malformed provenance and, when run with `--repo-root`, verifies every declared `ref:path` directly from Git. This prevents later `main` drift from silently changing the historical Phase 7 evidence.
 
-That limitation is deliberate and visible. Phase 7 uses these traces to prove that the refactored policy surface can preserve protected behavior while reducing prescribed operational work. `LIVE-EVIDENCE.md` separately records real repository delivery evidence from the current runtime. Phase 8 still requires independent review before release-candidate acceptance.
+That limitation is deliberate and visible. Phase 7 uses these traces to prove that the refactored policy surface can preserve protected behavior while reducing prescribed operational work. `LIVE-EVIDENCE.md` separately records real repository delivery evidence from prior integrated phases. Phase 8's targeted independent-review relay clarification is additionally covered by regression scenario `BC` in `skill/references/eval-scenarios.md`, and Phase 8 still requires an actually independent review before release-candidate acceptance.
 
 Token/word/line size is diagnostic only. The scorer reports pinned baseline/current `SKILL.md` entrypoint size from Git when run with `--repo-root`, but entrypoint shrinkage cannot compensate for a protected-behavior regression.
 
@@ -39,7 +39,7 @@ Token/word/line size is diagnostic only. The scorer reports pinned baseline/curr
 - `traces-v1.0.0.json` — baseline source-grounded traces pinned to `v1.0.0`.
 - `traces-current.json` — refactored source-grounded traces pinned to `262395df2bc20d3014238e3f40f7b3f02b4f0500`.
 - `RESULTS.md` — checked-in Phase 7 interpretation and acceptance result.
-- `LIVE-EVIDENCE.md` — real GitHub delivery evidence from the refactored runtime.
+- `LIVE-EVIDENCE.md` — real GitHub delivery evidence from prior integrated refactor phases.
 - `../../tests/test_phase7_benchmark.py` — adversarial negative fixtures for the scorer.
 
 ## Run
