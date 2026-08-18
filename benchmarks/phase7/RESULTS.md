@@ -1,8 +1,8 @@
 # Phase 7 Benchmark Results
 
-Status: **PASS for source-grounded operational benchmark; independent release-candidate review remains Phase 8 work.**
+Status: **PASS for source-grounded operational benchmark.** Phase 8 subsequently completed independent release-candidate review and delivered `v1.1.0-rc.1`. The stable `v1.1.0` readiness work changes distribution/testing/documentation rather than the pinned runtime policy; its exact final candidate still requires fresh independent review before publication.
 
-The refactored side is re-pinned in Phase 8 to runtime commit `262395df2bc20d3014238e3f40f7b3f02b4f0500` after the targeted independent-review relay clarification. The eight fixed traces remain behaviorally unchanged; regression scenario `BC` separately covers the independent-review handoff boundary.
+The refactored traces are now pinned to immutable release commit `53182d5db086eef98ebaba757bb820b86e465845` (`v1.1.0-rc.1`). During final readiness, GitHub tree evidence verified that every top-level entry of `skill/` at this release commit has the same blob/tree SHA as the former intermediate runtime pin `262395df2bc20d3014238e3f40f7b3f02b4f0500`; therefore the re-pin changes provenance reachability, not evaluated runtime behavior. The eight fixed traces remain behaviorally unchanged; regression scenario `BC` separately covers the independent-review handoff boundary.
 
 ## A/B result
 
@@ -46,8 +46,8 @@ The benchmark test suite intentionally corrupts valid traces and requires failur
 5. unsafe shortcut/hidden-work style violations;
 6. overweight coordination (`STANDARD` where the scenario contract requires `LIGHTWEIGHT`).
 
-These negative fixtures passed locally before publication and are run in CI.
+These negative fixtures passed before the release-candidate publication and remain part of CI for the stable candidate.
 
 ## Interpretation boundary
 
-This result demonstrates a lower-friction **policy execution path** while preserving the benchmarked guarantees. It does not claim independent model-performance statistics, wall-clock latency improvement, or production reliability from these eight traces alone. `LIVE-EVIDENCE.md` adds real repository execution evidence; Phase 8 independent review and release-candidate verification remain required before final release.
+This result demonstrates a lower-friction **policy execution path** while preserving the benchmarked guarantees. It does not claim independent model-performance statistics, wall-clock latency improvement, or production reliability from these eight traces alone. `LIVE-EVIDENCE.md` adds real repository execution evidence. Phase 8 supplied the independent review and verified prerelease delivery that were still pending when Phase 7 was first authored; any later candidate that changes source/distribution must still satisfy its own current review, CI, release, and post-release evidence gates.

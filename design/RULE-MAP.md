@@ -1,14 +1,14 @@
 # Canonical Rule Map
 
-Status: Phase 1 semantic inventory for the immutable v1.0.0 baseline. No row below changes runtime behavior.
+Status: current development traceability map for the refactored runtime, preserving immutable `v1.0.0` source anchors for historical equivalence evidence. No row below independently changes runtime behavior; canonical runtime definitions live in the listed owners under `skill/`.
 
 ## 1. Mapping contract
 
-- A semantic Rule ID represents one behavior guarantee even when v1.0.0 repeats it in several files.
-- `Canonical owner` is the single location/domain that should define the rule after migration. Other runtime references may keep short boundary reminders but must not redefine it.
+- A semantic Rule ID represents one behavior guarantee even when v1.0.0 repeated it in several files.
+- `Canonical owner` is the single current location/domain that defines the rule. Other runtime references may keep short boundary reminders but must not redefine it.
 - `Source anchors` refer to the immutable `v1.0.0` runtime paths/lines. The deterministic source-index generator can reproduce `RULE-SOURCES-v1.0.0.tsv`; `RULE-SOURCES-v1.0.0.manifest` locks its expected row count and SHA-256 for mechanical traceability.
 - Eval IDs are regression anchors, not the full proof of equivalence.
-- Rule migration status begins as `BASELINE`; later phases may move it to `CANONICALIZED`, `EXECUTABLE`, `BOUNDARY_REMINDER`, or deliberately `SUPERSEDED` with an explicit decision and regression update.
+- Historical migration state is not a second source of current truth. If a future requirement deliberately supersedes a Rule ID, record the decision and update its canonical owner/evaluation evidence rather than creating competing definitions.
 
 ## 2. Foundation and truth
 
@@ -116,25 +116,27 @@ Status: Phase 1 semantic inventory for the immutable v1.0.0 baseline. No row bel
 | `INCIDENT-CONTAINMENT` | When current production identity/state is wrong or unsafe, containment outranks normal delivery flow. | `release.md` | `release.md:100-112` | CT |
 | `RELEASE-CLOSEOUT` | Close only after required delivery, evidence, state reconciliation, and remaining risks/rollback obligations are resolved or explicitly owned. | `release.md` | `release.md:113+` | P, CO |
 
-## 10. Known representation defects to fix in later phases
+## 10. Historical representation defects and resolution
 
-These are model defects, not proposed behavior changes:
+Phase 1 identified the representation defects below before runtime migration. They are retained here for traceability, but **they are not current unresolved defects**:
 
-1. `Operating Profile` is a lossy scalar for two independent dimensions: `CoordinationBaseline` and `AssuranceLevel`.
-2. `Action Class` behaves like a set of simultaneous effects but is written like a scalar classification.
-3. Bare `BLOCKED` and `WRITE_OUTCOME_UNKNOWN` labels cross multiple namespaces and invite invalid propagation.
-4. `Delivery endpoint` mixes a completion state (`INTEGRATED`) with environments (`STAGING`, `PRODUCTION`).
-5. Project-wide Authority and exact one-off authorization are described separately in prose but lack separate state fields.
-6. `Expected Starting HEAD` and correction/resume HEAD checkpoint are separate concepts but share an overloaded narrative channel.
-7. `TRIVIAL | SUBSTANTIVE` currently has limited independent decision power and should be retained only if Phase 2 proves it materially improves delegation/validation decisions.
+| Historical defect | Current resolution |
+|---|---|
+| scalar `Operating Profile` mixed coordination and assurance | current runtime uses independent `CoordinationBaseline` + `AssuranceLevel`; legacy `HIGH_ASSURANCE` never invents a missing baseline |
+| scalar `Action Class` could hide simultaneous consequences | `ApplicableEffects` is a set and `authority-gates.md` applies the union of independent obligations |
+| bare `BLOCKED` / `WRITE_OUTCOME_UNKNOWN` could propagate across domains | task, Worker, write, delivery, and Master-boundary lifecycles are namespace-qualified |
+| `Delivery endpoint` mixed completion state and environment | current model separates `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState` |
+| project-wide Authority and one-off approval lacked separate state fields | current model separates `ProjectAuthority` from exact `ScopedAuthorization` |
+| initial Worker HEAD and correction/resume checkpoint were overloaded | `Start HEAD` is immutable generation history; `Checkpoint HEAD` is the same-generation correction concurrency guard |
+| `TRIVIAL | SUBSTANTIVE` had little independent decision power | retained only as a local descriptor when it materially affects delegation, validation, or helper behavior; it is not a RiskLevel, profile, execution-path, or contract gate by itself |
 
-## 11. Coverage rule for Phase 2+
+## 11. Coverage rule for current maintenance
 
-A v1.0.0 clause may disappear from runtime prose only when at least one is true:
+A v1.0.0 clause may remain reduced/absent from current runtime prose only when at least one is true:
 
-- its semantic Rule ID has a canonical definition elsewhere and the removed text was duplicate definition;
-- it becomes a short event-bound boundary reminder that references the canonical rule;
-- a deterministic validator/script enforces the same invariant and the runtime retains the trigger/meaning needed to invoke it;
+- its semantic Rule ID has a canonical definition elsewhere and the omitted text was duplicate definition;
+- it is represented as a short event-bound boundary reminder that points to the canonical rule;
+- a deterministic validator/script enforces the mechanical invariant and the runtime retains the trigger/meaning needed to invoke it;
 - a deliberate requirement change marks the Rule ID `SUPERSEDED`, records rationale, and updates affected regression scenarios.
 
-No rule is considered migrated merely because a new graph or table appears to express a similar idea.
+A rule is never considered safely migrated or maintained merely because a graph/table appears similar. Goal -> Rule -> current canonical owner -> evaluation evidence must remain intact, and `tools/validate_skill.py` mechanically checks the traceability structure it can prove.

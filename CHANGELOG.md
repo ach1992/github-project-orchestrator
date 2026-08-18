@@ -2,6 +2,29 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.0] - 2026-08-18
+
+### Added
+
+- MIT public-distribution license, copyright (c) 2026 ACh (`https://github.com/ach1992`).
+- Focused regression coverage for the bundled read-only repository preflight helper, including requested-repository identity isolation, credential-safe remote display, clean/dirty evidence, and bounded status reporting.
+
+### Changed
+
+- Release packaging now injects the single canonical repository `LICENSE` into `skill.zip` and rejects duplicate Skill-local license ownership, while preserving byte-deterministic archive construction and SHA-256 evidence.
+- Project/design/benchmark documentation is reconciled to the completed Phase 1-8 migration so historical roadmap language cannot be mistaken for current unresolved work.
+- Phase 7 runtime provenance is pinned to the immutable reachable `v1.1.0-rc.1` release commit after verifying its full `skill/` tree is identical to the former intermediate pin, so historical benchmark validation survives feature-branch cleanup.
+- Stable-release validation includes repository-preflight regressions in addition to the existing runtime, compatibility, deterministic-lint, benchmark, package, publisher, immutable-baseline, and cleanliness checks.
+
+### Runtime compatibility
+
+- The Final GA readiness changes do not intentionally alter the runtime policy shipped in `v1.1.0-rc.1`; the runtime still preserves the lossless ontology, event routing, authority/effect model, bounded recovery, delegation, review-freshness, and delivery protections validated during the refactor.
+- `v1.0.0` remains the immutable pre-refactor baseline and `v1.1.0-rc.1` remains an immutable prerelease artifact.
+
+### Distribution
+
+- `v1.1.0` is distributed under the MIT License; the downloadable Skill archive carries the same canonical license notice as the repository.
+
 ## [1.1.0-rc.1] - 2026-08-18
 
 ### Added
@@ -30,7 +53,7 @@ All notable changes to this project are documented here.
 
 ### Distribution
 
-- This release candidate does not change the unresolved public-license decision tracked in Issue #3 and does not claim third-party redistribution/modification rights beyond the repository's existing language.
+- This release candidate predates the MIT licensing decision completed for `v1.1.0`; it remains an immutable historical prerelease artifact.
 
 ## [1.0.0] - 2026-08-18
 

@@ -1,12 +1,28 @@
 # Refactor Migration Plan
 
-Status: canonical development roadmap for evolving the immutable v1.0.0 baseline toward the goals in `../docs/PROJECT-SPEC.md`.
+Status: **completed historical migration record** for the v1.0.0 -> v1.1.0 refactor. Phases 0-8 are complete; `v1.1.0-rc.1` was independently reviewed and delivered. Current stable-release readiness is tracked in GitHub Issue #19 rather than by reopening these phases.
+
+The phase descriptions and exit gates below are retained as design provenance. Their imperative wording records what each phase was required to achieve; it is not a current backlog.
 
 ## Objective
 
 Convert the v1.0.0 prose-heavy defensive specification into a low-friction, typed, event-routed decision system that is easier for an agent to execute correctly **without losing behavioral guarantees**.
 
 The optimization target is operational usefulness, not token count. Each phase must improve one or more canonical Goal IDs while preserving traceability through `GOAL-MAP.md`, `RULE-MAP.md`, regression scenarios, and repository validation.
+
+## Completion status
+
+| Phase | Status | Durable outcome |
+|---|---|---|
+| 0 | complete | immutable `v1.0.0` baseline + installable release |
+| 1 | complete | canonical Goal/Rule/state/decision traceability established without runtime change |
+| 2 | complete | lossless runtime ontology + compatibility safeguards |
+| 3 | complete | canonical decision predicates and rule ownership |
+| 4 | complete | compact one-step role/event routing and bounded Worker context |
+| 5 | complete | scale-adaptive workstream/multi-repository coordination and progressive recovery |
+| 6 | complete | deterministic state/traceability/contract validation |
+| 7 | complete | source-grounded operational benchmark + adversarial fixtures + live delivery evidence |
+| 8 | complete | stabilized architecture, independent review, deterministic packaging/release publisher, delivered `v1.1.0-rc.1` |
 
 ## Invariants during migration
 
@@ -37,6 +53,8 @@ Purpose:
 
 ### Phase 1 - Semantic, state, and goal freeze
 
+Status: complete.
+
 Primary goals: all, especially `G02`, `G07`, `G10`, `G12`, `G13`, `G16`.
 
 Deliver:
@@ -56,6 +74,8 @@ Exit gate:
 - repository validation/CI passes.
 
 ### Phase 2 - Lossless runtime ontology
+
+Status: complete.
 
 Primary goals: `G07`, `G09`, `G10`, `G11`, `G12`.
 
@@ -78,6 +98,8 @@ Exit gate:
 
 ### Phase 3 - Low-friction decision kernel and canonical rule ownership
 
+Status: complete.
+
 Primary goals: `G01`, `G02`, `G07`, `G10`, `G16`, plus the project meta-goal.
 
 Replace repeated defensive definitions where a clearer canonical model exists:
@@ -88,13 +110,13 @@ Replace repeated defensive definitions where a clearer canonical model exists:
 - typed schemas for persisted identity;
 - short boundary reminders outside the canonical owner.
 
-Candidate predicates include:
+Canonical predicates implemented include:
 
 ```text
 CAN_EXECUTE(action)
 MASTER_STOP(boundary, independent_work)
 REVIEW_VALID(envelope)
-DELIVERY_PROVEN(artifact, environment, evidence)
+DELIVERY_PROVEN(artifact, target, evidence)
 ```
 
 Exit gate:
@@ -104,6 +126,8 @@ Exit gate:
 - regression suite remains green.
 
 ### Phase 4 - Role/event routing and progressive loading
+
+Status: complete.
 
 Primary goals: `G05`, `G08`, `G09`, `G11`, `G12`, `G16`.
 
@@ -131,6 +155,8 @@ Exit gate:
 
 ### Phase 5 - Scalable coordination and lean project knowledge
 
+Status: complete.
+
 Primary goals: `G03`, `G04`, `G06`, `G08`, `G12`, `G13`, `G14`, `G15`.
 
 Strengthen behaviors that are present in v1.0.0 but need explicit operational coverage:
@@ -150,6 +176,8 @@ Exit gate:
 
 ### Phase 6 - Mechanical enforcement
 
+Status: complete.
+
 Primary goals: `G07`, `G09`, `G10`, `G12`, `G13`, `G14`.
 
 Add deterministic lint/checks only where code is more reliable than prose:
@@ -168,6 +196,8 @@ Exit gate:
 - no subjective engineering judgment is accidentally encoded as a brittle mechanical gate.
 
 ### Phase 7 - Operational benchmarks and adversarial evaluation
+
+Status: complete.
 
 Primary goals: all; especially the meta-goal, `G01`, `G08`, `G12`, `G13`, `G16`.
 
@@ -196,6 +226,8 @@ Exit gate:
 
 ### Phase 8 - Architecture stabilization and release candidate
 
+Status: complete; delivered as `v1.1.0-rc.1` after independent review and post-release verification.
+
 Primary goals: all.
 
 Deliver:
@@ -213,7 +245,7 @@ Exit gate:
 
 ## Change acceptance template
 
-Every phase implementation or substantial refactor should be able to state:
+Future substantial runtime changes should still be able to state:
 
 ```text
 Goal IDs improved:

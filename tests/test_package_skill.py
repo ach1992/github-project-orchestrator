@@ -14,6 +14,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGER = ROOT / "tools" / "package_skill.py"
+LICENSE_TEXT = "MIT fixture license\n"
 
 spec = importlib.util.spec_from_file_location("package_skill", PACKAGER)
 if spec is None or spec.loader is None:
@@ -31,6 +32,7 @@ def build_fixture(root: Path) -> Path:
     (skill / "scripts" / "tool.py").write_text("print('ok')\n", encoding="utf-8")
     (skill / "scripts" / "tool.pyc").write_bytes(b"compiled")
     (skill / "scripts" / "__pycache__" / "tool.cpython.pyc").write_bytes(b"cache")
+    (root / "LICENSE").write_text(LICENSE_TEXT, encoding="utf-8")
     return skill
 
 
@@ -46,7 +48,7 @@ with tempfile.TemporaryDirectory() as tmp:
     package_skill.write_checksum(zip_a, checksum, digest_a)
 
     now = time.time() + 3600
-    for path in skill.rglob("*"):
+    for path in [*skill.rglob("*"), root / "LICENSE"]:
         if path.is_file():
             os.utime(path, (now, now))
     digest_b = package_skill.build(skill, zip_b)
@@ -58,18 +60,45 @@ with tempfile.TemporaryDirectory() as tmp:
 
     with zipfile.ZipFile(zip_a) as archive:
         names = archive.namelist()
+        packaged_license = archive.read("github-project-orchestrator/LICENSE")
     if names != sorted(names):
         raise AssertionError(f"archive entries are not sorted: {names}")
     if any("__pycache__" in name or name.endswith((".pyc", ".pyo")) for name in names):
         raise AssertionError(f"generated Python artifact leaked into archive: {names}")
     if not all(name.startswith("github-project-orchestrator/") for name in names):
         raise AssertionError(f"unexpected archive root: {names}")
-    print("PASS package-contents")
+    if packaged_license != LICENSE_TEXT.encode("utf-8"):
+        raise AssertionError("packaged LICENSE does not match canonical repository LICENSE")
+    print("PASS package-contents-license")
 
     expected_checksum = f"{digest_a}  a.zip\n"
     if checksum.read_text(encoding="utf-8") != expected_checksum:
         raise AssertionError("checksum file format drifted")
     print("PASS package-checksum")
+
+    license_path = root / "LICENSE"
+    license_path.unlink()
+    try:
+        package_skill.build(skill, root / "missing-license.zip")
+    except ValueError as exc:
+        if "LICENSE is missing" not in str(exc):
+            raise
+        print("PASS package-license-required")
+    else:
+        raise AssertionError("package unexpectedly allowed a missing canonical LICENSE")
+    license_path.write_text(LICENSE_TEXT, encoding="utf-8")
+
+    duplicate_license = skill / "LICENSE"
+    duplicate_license.write_text("duplicate\n", encoding="utf-8")
+    try:
+        package_skill.build(skill, root / "duplicate-license.zip")
+    except ValueError as exc:
+        if "must not duplicate" not in str(exc):
+            raise
+        print("PASS package-license-single-owner")
+    else:
+        raise AssertionError("package unexpectedly allowed duplicate LICENSE ownership")
+    duplicate_license.unlink()
 
     target = skill / "references" / "target.md"
     target.write_text("target\n", encoding="utf-8")
@@ -86,4 +115,4 @@ with tempfile.TemporaryDirectory() as tmp:
                 raise
             print("PASS package-symlink")
         else:
-            raise AssertionError("symlink unexpectedly allowed in release package")
+            raise AssertionError("symlink unexpectedly allowed")
