@@ -121,7 +121,7 @@ Use this state decision:
 | immediate health is acceptable but required soak/delayed migration/reliability/business signal is not yet observable | `DeliveryState.PENDING`; persist the exact completion condition in the authoritative Issue/release source |
 | `DELIVERY_PROVEN(...)` is true | `DeliveryState.DELIVERED`; proceed to closeout |
 
-Legacy `PENDING_DELIVERY` maps to `DeliveryState.PENDING`; it is a lifecycle state, not a canonical Master stop condition. If delayed required delivery evidence becomes the sole remaining external dependency after independent useful work is exhausted, normally stop at `MasterBoundary.BLOCKED` with the exact evidence/object/resume condition unless another boundary more precisely describes the cause. Do not invent DeliveryState as a terminal boundary or use `MasterBoundary.NO_READY_WORK` merely because the required signal is not yet observable.
+Legacy `PENDING_DELIVERY` maps to `DeliveryState.PENDING`; it is a lifecycle state, not a canonical Master stop condition. If delayed required delivery evidence becomes the sole remaining external dependency after independent useful work is exhausted, follow the canonical pending-job continuation rule in `master-cycle.md`: use supported bounded autonomous continuation first when safe and proportionate, and use `MasterBoundary.BLOCKED` only when that continuation is unavailable, no longer reasonable, or exhausted, preserving the exact evidence/object/status and resume condition unless another boundary more precisely describes the cause. Do not invent DeliveryState as a terminal boundary or use `MasterBoundary.NO_READY_WORK` merely because the required signal is not yet observable.
 
 ## 7. Incident and hotfix mode
 
