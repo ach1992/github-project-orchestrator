@@ -31,6 +31,9 @@ jobs:
       - name: Test Phase 2 contract compatibility
         run: python3 tests/test_contract_check_phase2.py
 
+      - name: Test repository preflight helper
+        run: python3 tests/test_repo_preflight.py
+
       - name: Test Phase 6 deterministic lint
         run: python3 tests/test_validate_skill_phase6.py
 
