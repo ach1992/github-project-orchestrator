@@ -161,7 +161,7 @@ AssuranceLevel ----------> evidence / validation / review depth
 
 Work ambiguity/dependency/review need ---> ExecutionPath FAST|FULL
 Recovery/coordination value ------------> ContractPersistence
-Capability/throughput/dependency --------> ExecutionStrategy SELF|DELEGATE|HYBRID
+Capability/throughput/dependency --------> ExecutionStrategy SELF_EXECUTE|DELEGATE|HYBRID
 ```
 
 Forbidden shortcuts:
