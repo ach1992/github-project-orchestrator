@@ -1,6 +1,6 @@
 # Decision Graphs
 
-Status: Phase 1 design model with Phase 3 runtime kernel ownership recorded. The graphs remain design/traceability artifacts; runtime definitions live in their canonical owners under `skill/`.
+Status: current design/traceability model for the refactored runtime. Historical phase provenance is retained where useful, while runtime definitions live only in their canonical owners under `skill/`.
 
 ## 1. Master execution graph
 
@@ -53,7 +53,7 @@ AUTHORITY + GATES + CAPABILITY + FRESHNESS
 
 The graph removes chat-turn, commit, PR-update, Worker-handoff, and tool-batch boundaries from the control loop. They are events, not terminal states.
 
-Phase 3 runtime owner for action execution is `skill/references/authority-gates.md` via `CAN_EXECUTE(action)`.
+Canonical runtime owner for action execution is `skill/references/authority-gates.md` via `CAN_EXECUTE(action)`.
 
 ## 2. Boundary propagation
 
@@ -72,7 +72,7 @@ Boundary detected
             `-- no -------------------------------> STOP / relay exact need
 ```
 
-Phase 3 runtime owner: `skill/references/master-cycle.md`.
+Canonical runtime owner: `skill/references/master-cycle.md`.
 
 ```text
 MASTER_STOP(boundary, independent_work) =
@@ -92,7 +92,7 @@ MASTER_STOP(boundary, independent_work) =
 
 ## 3. Authorization graph
 
-Phase 3 runtime owner: `skill/references/authority-gates.md`.
+Canonical runtime owner: `skill/references/authority-gates.md`.
 
 ```text
 Accepted scope --------+
@@ -137,7 +137,7 @@ No single effect classification is allowed to suppress an independently applicab
 
 ## 5. Review and delivery proof kernels
 
-Phase 3 records two additional canonical runtime predicates without moving their domain rules into this design artifact:
+Two canonical runtime predicates keep review and delivery proof in their owning domains:
 
 ```text
 REVIEW_VALID(envelope)
@@ -178,7 +178,7 @@ repository size -X-> STANDARD/HIGH_ASSURANCE by itself
 
 ## 7. Event-to-rule activation
 
-Phase 4, not Phase 3, owns progressive event routing. The later runtime should activate proof obligations by event rather than treating every invariant as equally active on every step.
+Phase 4 implemented progressive event routing in the current runtime. `skill/SKILL.md` is the canonical one-step router; this table is a design mirror showing the event/domain relationship, not a second routing definition.
 
 | Event | Required rule domains |
 |---|---|
@@ -193,6 +193,8 @@ Phase 4, not Phase 3, owns progressive event routing. The later runtime should a
 | after ambiguous write | `WriteState.UNKNOWN`, authoritative reconciliation, no blind retry |
 | before terminal response | synthesis, local-vs-project boundary, independent useful work, recoverability |
 | rotation consideration | continuity signals and safe rotation boundary only |
+
+If this design mirror and `skill/SKILL.md` ever disagree, the current runtime router plus Goal/Rule/eval evidence must be reconciled; do not operate from this file as a competing runtime owner.
 
 ## 8. Forbidden inference matrix
 
