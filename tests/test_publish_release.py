@@ -36,7 +36,7 @@ class PublishReleaseTests(unittest.TestCase):
         self.addCleanup(self.env.stop)
 
     def metadata(self) -> publish_release.ReleaseMetadata:
-        return publish_release.ReleaseMetadata("R1", "v1.1.0-rc.1", False, True)
+        return publish_release.ReleaseMetadata("R1", "v1.1.0-rc.1", False, True, SHA)
 
     def test_mismatched_existing_tag_fails_before_release_lookup(self) -> None:
         with mock.patch.object(publish_release, "resolve_remote_tag_commit", return_value=OTHER_SHA), mock.patch.object(
@@ -45,6 +45,15 @@ class PublishReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "Version/tag collision"):
                 publish_release.publish_release()
         get_release.assert_not_called()
+
+    def test_existing_release_commit_must_match(self) -> None:
+        wrong = publish_release.ReleaseMetadata("R1", "v1.1.0-rc.1", False, True, OTHER_SHA)
+        with mock.patch.object(publish_release, "resolve_remote_tag_commit", return_value=SHA), mock.patch.object(
+            publish_release, "get_release_metadata", return_value=wrong
+        ), mock.patch.object(publish_release, "verify_release_assets") as verify_assets:
+            with self.assertRaisesRegex(RuntimeError, "tag commit"):
+                publish_release.publish_release()
+        verify_assets.assert_not_called()
 
     def test_existing_exact_release_requires_exact_assets(self) -> None:
         with mock.patch.object(publish_release, "resolve_remote_tag_commit", return_value=SHA), mock.patch.object(
