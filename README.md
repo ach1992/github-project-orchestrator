@@ -21,8 +21,8 @@ Start here when developing, reviewing, or recovering this project. This is navig
 |---|---|
 | mission, canonical goals, non-goals, success model | [`docs/PROJECT-SPEC.md`](docs/PROJECT-SPEC.md) |
 | Goal -> Rule -> evaluation traceability | [`design/GOAL-MAP.md`](design/GOAL-MAP.md) |
-| v1.0.0 semantic Rule IDs and current canonical owners | [`design/RULE-MAP.md`](design/RULE-MAP.md) |
-| canonical typed state/scope/lifetime model and legacy compatibility | [`design/STATE-MODEL.md`](design/STATE-MODEL.md) |
+| v1.0.0 semantic Rule IDs and canonical owners | [`design/RULE-MAP.md`](design/RULE-MAP.md) |
+| typed state/scope/lifetime model | [`design/STATE-MODEL.md`](design/STATE-MODEL.md) |
 | execution/authority/effect/boundary relationships | [`design/DECISION-GRAPHS.md`](design/DECISION-GRAPHS.md) |
 | phased refactor plan and exit gates | [`design/MIGRATION.md`](design/MIGRATION.md) |
 | operational baseline/refactor benchmark evidence | [`benchmarks/phase7/`](benchmarks/phase7/) |
@@ -39,7 +39,7 @@ skill/                  Runtime Skill source shipped to ChatGPT
 docs/                   Durable project intent/specification
 design/                 Development-only semantic/design traceability
 benchmarks/             Operational baseline/refactor evidence
-tools/                  Repository-development validation and packaging helpers
+tools/                  Repository-development validation helpers
 tests/                  Regression and baseline evidence
 .github/workflows/       Validation and release automation
 VERSION                  Release version
@@ -56,6 +56,7 @@ Development-only files are intentionally kept outside `skill/` so they do not en
 - **Process proportional to need:** small work stays light; coordination grows only when dependency/risk/recovery value justifies it.
 - **Evidence over narrative:** current Git/GitHub/CI/release/deployment identity owns factual state.
 - **Recoverable and navigable:** persist only continuation-relevant truth in its natural owner and keep relationships easy to traverse.
+- **Independent review means independent context:** when an additional review is required, a fresh separate chat/model, review tool, or human reviewer is sufficient unless repository/platform policy explicitly requires a native GitHub approval identity; a separate GitHub username is not a default requirement.
 
 ## Validate locally
 
@@ -71,14 +72,13 @@ python3 tools/score_phase7_benchmark.py \
   --baseline-ref v1.0.0
 python3 tests/test_phase7_benchmark.py
 python3 tests/test_package_skill.py
-python3 tools/package_skill.py skill skill.zip skill.zip.sha256
 ```
 
-The validator checks repository structure, runtime references/routing, namespaced state vocabulary, Goal/Rule/eval traceability, Python syntax, and immutable baseline compatibility. Phase 7 adds source-grounded operational A/B scoring plus adversarial negative fixtures. Release packaging is deterministic for a fixed runtime tree, rejects symlinks/generated Python artifacts, and emits a SHA-256 checksum. Qualitative engineering judgment remains outside deterministic lint.
+The validator checks repository structure, runtime references/routing, namespaced state vocabulary, Goal/Rule/eval traceability, Python syntax, and immutable baseline compatibility. Phase 7 adds source-grounded operational A/B scoring plus adversarial negative fixtures; qualitative engineering judgment remains outside deterministic lint. Phase 8 also validates byte-deterministic package construction used by the release workflow.
 
 ## Release model
 
-`main` is the release source of truth. When `VERSION` contains a version that does not yet have a matching GitHub Release, the release workflow validates the repository, deterministically packages `skill/` as `skill.zip`, generates a SHA-256 checksum, and publishes tag/release `v<VERSION>` from the exact `main` commit. Versions with a prerelease suffix such as `-rc.1` are published as GitHub prereleases.
+`main` is the release source of truth. When `VERSION` contains a version that does not yet have a matching GitHub Release, the release workflow validates the repository, packages `skill/` as `skill.zip`, generates a SHA-256 checksum, and publishes tag/release `v<VERSION>` from the exact `main` commit. Versions containing a prerelease suffix (for example `1.1.0-rc.1`) are published as GitHub prereleases.
 
 `v1.0.0` is the immutable pre-refactor runtime baseline. Architectural changes are incremental, traceable to canonical Goal/Rule IDs, and evaluated against baseline behavior before a later runtime release is published.
 
