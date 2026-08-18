@@ -17,6 +17,7 @@ All notable changes to this project are documented here.
 ### Changed
 
 - The public README is reorganized around value, intended users, installation/update, practical startup usage, operating expectations, version/license, and links to deeper development evidence instead of exposing internal architecture as the primary path.
+- Phase 7 benchmark documentation now explicitly marks the `v1.1.0-rc.1` traces as historical evidence so they cannot be mistaken for candidate-current proof of the `v1.1.1` continuation policy.
 
 ### Runtime compatibility
 
