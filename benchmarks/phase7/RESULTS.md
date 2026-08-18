@@ -2,6 +2,8 @@
 
 Status: **PASS for source-grounded operational benchmark; independent release-candidate review remains Phase 8 work.**
 
+The refactored side is re-pinned in Phase 8 to runtime commit `262395df2bc20d3014238e3f40f7b3f02b4f0500` after the targeted independent-review relay clarification. The eight fixed traces remain behaviorally unchanged; regression scenario `BC` separately covers the independent-review handoff boundary.
+
 ## A/B result
 
 | Metric | `v1.0.0` baseline | Refactored runtime | Result |
