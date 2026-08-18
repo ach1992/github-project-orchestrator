@@ -18,6 +18,7 @@ query($owner:String!,$name:String!,$tag:String!) {
       tagName
       isDraft
       isPrerelease
+      tagCommit { oid }
     }
   }
 }
@@ -30,6 +31,7 @@ class ReleaseMetadata:
     tag_name: str
     is_draft: bool
     is_prerelease: bool
+    tag_commit: str
 
 
 def run_checked(args: list[str], *, capture_output: bool = True) -> subprocess.CompletedProcess[str]:
@@ -81,16 +83,16 @@ def get_release_metadata(owner: str, repo: str, tag: str) -> ReleaseMetadata | N
             "-f",
             f"tag={tag}",
             "--jq",
-            '.data.repository.release | if . == null then "ABSENT" else [.id,.tagName,(.isDraft|tostring),(.isPrerelease|tostring)] | @tsv end',
+            '.data.repository.release | if . == null then "ABSENT" else [.id,.tagName,(.isDraft|tostring),(.isPrerelease|tostring),(.tagCommit.oid // "")] | @tsv end',
         ]
     )
     value = result.stdout.strip()
     if value == "ABSENT":
         return None
     fields = value.split("\t")
-    if len(fields) != 4:
+    if len(fields) != 5:
         raise RuntimeError(f"Unexpected release metadata for {tag}: {value!r}")
-    release_id, tag_name, is_draft, is_prerelease = fields
+    release_id, tag_name, is_draft, is_prerelease, tag_commit = fields
     if is_draft not in {"true", "false"} or is_prerelease not in {"true", "false"}:
         raise RuntimeError(f"Unexpected release boolean metadata for {tag}: {value!r}")
     return ReleaseMetadata(
@@ -98,6 +100,7 @@ def get_release_metadata(owner: str, repo: str, tag: str) -> ReleaseMetadata | N
         tag_name=tag_name,
         is_draft=is_draft == "true",
         is_prerelease=is_prerelease == "true",
+        tag_commit=tag_commit,
     )
 
 
@@ -164,10 +167,15 @@ def verify_release_state(
     expected_prerelease: bool,
     local_zip: Path,
     local_checksum: Path,
+    expected_sha: str,
 ) -> None:
     if metadata.tag_name != tag:
         raise RuntimeError(
             f"Release metadata tag {metadata.tag_name} does not match expected tag {tag}"
+        )
+    if metadata.tag_commit != expected_sha:
+        raise RuntimeError(
+            f"Release {tag} tag commit {metadata.tag_commit or '<missing>'} does not match expected {expected_sha}"
         )
     if metadata.is_draft:
         raise RuntimeError(f"Release {tag} exists only as a draft")
@@ -221,6 +229,7 @@ def publish_release() -> None:
             expected_prerelease=expected_prerelease,
             local_zip=local_zip,
             local_checksum=local_checksum,
+            expected_sha=github_sha,
         )
         print(f"Release {tag} already exists and exactly matches {github_sha} and both assets.")
         return
@@ -261,6 +270,7 @@ def publish_release() -> None:
         expected_prerelease=expected_prerelease,
         local_zip=local_zip,
         local_checksum=local_checksum,
+        expected_sha=github_sha,
     )
     print(f"Published and verified {tag} at exact commit {github_sha} with exact release assets.")
 
