@@ -1,8 +1,8 @@
 # Phase 7 Benchmark Results
 
-Status: **PASS for source-grounded operational benchmark.** Phase 8 subsequently completed independent release-candidate review and delivered `v1.1.0-rc.1`. The stable `v1.1.0` readiness work changes distribution/testing/documentation rather than the pinned runtime policy; its exact final candidate still requires fresh independent review before publication.
+Status: **PASS for the historical source-grounded operational benchmark of the refactored runtime pinned to `v1.1.0-rc.1`.** Phase 8 subsequently completed independent release-candidate review and delivered `v1.1.0-rc.1`. The later stable `v1.1.0` readiness work changed distribution/testing/documentation rather than the pinned runtime policy. A later candidate that changes runtime policy—including `v1.1.1` continuation maintenance—is outside this benchmark result and requires its own current regression specification, exact-head validation, source/diff review, and fresh independent review.
 
-The refactored traces are now pinned to immutable release commit `53182d5db086eef98ebaba757bb820b86e465845` (`v1.1.0-rc.1`). During final readiness, GitHub tree evidence verified that every top-level entry of `skill/` at this release commit has the same blob/tree SHA as the former intermediate runtime pin `262395df2bc20d3014238e3f40f7b3f02b4f0500`; therefore the re-pin changes provenance reachability, not evaluated runtime behavior. The eight fixed traces remain behaviorally unchanged; regression scenario `BC` separately covers the independent-review handoff boundary.
+The refactored traces are pinned to immutable release commit `53182d5db086eef98ebaba757bb820b86e465845` (`v1.1.0-rc.1`). During final `v1.1.0` readiness, GitHub tree evidence verified that every top-level entry of `skill/` at this release commit has the same blob/tree SHA as the former intermediate runtime pin `262395df2bc20d3014238e3f40f7b3f02b4f0500`; therefore the re-pin changed provenance reachability, not evaluated runtime behavior. The eight fixed traces remain behaviorally unchanged; regression scenario `BC` separately covers the independent-review handoff boundary. They are historical Phase 7 evidence, not candidate-current execution evidence for later runtime-policy changes.
 
 ## A/B result
 
@@ -46,8 +46,8 @@ The benchmark test suite intentionally corrupts valid traces and requires failur
 5. unsafe shortcut/hidden-work style violations;
 6. overweight coordination (`STANDARD` where the scenario contract requires `LIGHTWEIGHT`).
 
-These negative fixtures passed before the release-candidate publication and remain part of CI for the stable candidate.
+These negative fixtures passed before the release-candidate publication and remain part of CI for later candidates as regression checks for the historical benchmark/scorer contract.
 
 ## Interpretation boundary
 
-This result demonstrates a lower-friction **policy execution path** while preserving the benchmarked guarantees. It does not claim independent model-performance statistics, wall-clock latency improvement, or production reliability from these eight traces alone. `LIVE-EVIDENCE.md` adds real repository execution evidence. Phase 8 supplied the independent review and verified prerelease delivery that were still pending when Phase 7 was first authored; any later candidate that changes source/distribution must still satisfy its own current review, CI, release, and post-release evidence gates.
+This result demonstrates a lower-friction **policy execution path** for the runtime pinned to `v1.1.0-rc.1` while preserving the benchmarked guarantees. It does not claim independent model-performance statistics, wall-clock latency improvement, or production reliability from these eight traces alone. `LIVE-EVIDENCE.md` adds real repository execution evidence. Phase 8 supplied the independent review and verified prerelease delivery that were still pending when Phase 7 was first authored. Any later candidate must still satisfy its own current review, CI, release, and post-release evidence gates; when it changes runtime policy, these eight historical traces do not themselves evaluate that new policy unless explicitly regenerated for it.
