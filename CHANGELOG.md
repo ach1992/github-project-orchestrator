@@ -20,6 +20,7 @@ All notable changes to this project are documented here.
 - Large-project coordination keeps local work authoritative behind a minimal global outcome/dependency/release spine.
 - Runtime/design documentation now reflects canonical post-refactor ownership instead of migration-era wording.
 - Independent review is defined by separation from the authoring Master context, not by a distinct GitHub username; a fresh independent chat/model, review tool, or human reviewer can provide the additional review unless repository/platform policy explicitly requires a native approval identity. Manual review relay is therefore a valid path rather than `MISSING_CAPABILITY` when no external GitHub reviewer account is available.
+- Release publication now fails closed on version/tag collisions: the remote tag must resolve to the exact release `GITHUB_SHA`, publication uses the pre-verified tag with `gh release create --verify-tag`, and an existing release is accepted as idempotent only when its tag, prerelease state, `skill.zip`, and checksum asset exactly match the current candidate.
 
 ### Compatibility
 
