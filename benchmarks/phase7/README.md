@@ -1,8 +1,8 @@
 # Phase 7 Operational Benchmark
 
-This directory provides repeatable operational evaluation for the refactor against the immutable `v1.0.0` baseline. Phase 7 originally pinned the refactored runtime to the exact intermediate commit that carried the current runtime. During final stable-release readiness, the benchmark was re-pinned to immutable release commit `53182d5db086eef98ebaba757bb820b86e465845` (`v1.1.0-rc.1`) after verifying that its complete `skill/` tree is byte-identical to the former intermediate runtime pin. This keeps provenance reachable after feature-branch cleanup without changing any trace behavior.
+This directory preserves repeatable operational evaluation of the `v1.1.0` refactor against the immutable `v1.0.0` baseline. The refactored-runtime traces are historical evidence pinned to immutable release commit `53182d5db086eef98ebaba757bb820b86e465845` (`v1.1.0-rc.1`) after verifying that its complete `skill/` tree is byte-identical to the former intermediate runtime pin. This keeps the original benchmark provenance reachable after feature-branch cleanup without changing the recorded trace behavior.
 
-Phase 8 completed independent review and verified delivery of `v1.1.0-rc.1`. Stable-release readiness is a separate current candidate: because the runtime policy has not changed in that readiness work, these historical traces stay pinned to the immutable prerelease runtime rather than floating to packaging/documentation commits. The exact stable candidate still receives current CI and fresh independent review before publication.
+Phase 8 completed independent review and verified delivery of `v1.1.0-rc.1`. These traces intentionally do not float with later candidates. A later candidate that changes runtime policy—including the `v1.1.1` continuation maintenance—is not evaluated by these eight historical traces unless they are explicitly regenerated/re-pinned for that candidate. For `v1.1.1`, continuation semantics are specified by regression scenarios `AQ` and `CO`; candidate readiness relies on exact-head validation plus fresh source/diff and independent review. Phase 7 remains historical refactor evidence and must not be cited as execution evidence for the new continuation policy.
 
 ## What this benchmark measures
 
@@ -39,7 +39,7 @@ Token/word/line size is diagnostic only. The scorer reports pinned baseline/curr
 
 - `scenarios.json` — fixed scenario contract and Goal coverage.
 - `traces-v1.0.0.json` — baseline source-grounded traces pinned to `v1.0.0`.
-- `traces-current.json` — refactored source-grounded traces pinned to immutable prerelease commit `53182d5db086eef98ebaba757bb820b86e465845`.
+- `traces-current.json` — historical refactored source-grounded traces pinned to immutable prerelease commit `53182d5db086eef98ebaba757bb820b86e465845`; the filename is phase-relative and does not mean the traces follow later release candidates.
 - `RESULTS.md` — checked-in Phase 7 interpretation and acceptance result.
 - `LIVE-EVIDENCE.md` — real GitHub delivery evidence from integrated refactor phases.
 - `../../tests/test_phase7_benchmark.py` — adversarial negative fixtures for the scorer.
