@@ -168,7 +168,9 @@ Apply `authority-gates.md`: high/critical `ApplicableEffects.INTEGRATION` needs 
 
 ## 7. Self-authored work
 
-Master must not label self-review independent. Use the same finding severity/gate as delegated work. If the change is high-risk or policy/AssuranceLevel requires separation of duties, obtain another reviewer.
+Master must not label self-review independent. Use the same finding severity/gate as delegated work. If the change is high-risk or policy/AssuranceLevel requires separation of duties, obtain review from a separate reviewer context/person/tool that did not author the candidate.
+
+Independent review is about **separation from the authoring review context**, not GitHub account identity. A fresh separate ChatGPT chat/model instance, another review agent/tool, or a human reviewer can satisfy this requirement when it receives the bounded current evidence and performs its own review. A distinct GitHub username, submitted PR review object, CODEOWNERS approval, or other platform-native reviewer identity is required only when repository/platform policy or an applicable canonical approval gate explicitly requires that mechanism. Do not report `MISSING_CAPABILITY` merely because no external GitHub reviewer username is available when an independent review can be relayed through another fresh reviewer context.
 
 ## 8. Independent review handoff
 
@@ -182,6 +184,8 @@ When independent review is required and a genuinely independent reviewer must be
 - current validation/CI evidence identifiers tied to the reviewed change;
 - reviewer authority, read-only by default unless another bounded action is explicitly authorized;
 - expected findings as `BLOCKER`, `REQUIRED`, or `OPTIONAL`, each tied to concrete evidence.
+
+If no direct reviewer tool/account is available but a fresh independent chat/model/human reviewer can be used, produce a single ready-to-paste `INDEPENDENT REVIEW CHAT` prompt and relay the result back to Master. Lack of a GitHub reviewer username alone is not a blocker. The returned review should identify the exact candidate SHA it reviewed, state a verdict (`APPROVE` or `CHANGES_REQUIRED`), and list evidence-backed findings. Master then verifies the candidate/target have not materially drifted before accepting that review as current.
 
 Do not create permanent reviewer role/state solely for handoff. Master remains responsible for refreshing current evidence, deciding finding validity/currentness, obtaining required fixes/approvals, and owning integration. Manual relay uses the single-copy-target prompt rule from `SKILL.md`.
 
