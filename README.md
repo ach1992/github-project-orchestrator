@@ -19,44 +19,29 @@ Start here when developing, reviewing, or recovering this project. This is navig
 
 | Need | Authoritative source |
 |---|---|
-| mission, canonical goals, non-goals, success model | [`docs/PROJECT-SPEC.md`](docs/PROJECT-SPEC.md) |
-| Goal -> Rule -> evaluation traceability | [`design/GOAL-MAP.md`](design/GOAL-MAP.md) |
-| v1.0.0 semantic Rule IDs and canonical owners | [`design/RULE-MAP.md`](design/RULE-MAP.md) |
-| typed state/scope/lifetime model | [`design/STATE-MODEL.md`](design/STATE-MODEL.md) |
-| execution/authority/effect/boundary relationships | [`design/DECISION-GRAPHS.md`](design/DECISION-GRAPHS.md) |
-| phased refactor plan and exit gates | [`design/MIGRATION.md`](design/MIGRATION.md) |
-| operational baseline/refactor benchmark evidence | [`benchmarks/phase7/`](benchmarks/phase7/) |
-| current actionable work and decisions | [GitHub Issues](https://github.com/ach1992/github-project-orchestrator/issues) |
-| runtime source shipped to ChatGPT | [`skill/`](skill/) |
-| immutable baseline and installable artifacts | [GitHub Releases](https://github.com/ach1992/github-project-orchestrator/releases) |
+| durable project mission, goals, non-goals, constraints, definition of done | [`docs/PROJECT-SPEC.md`](docs/PROJECT-SPEC.md) |
+| semantic goal inventory and rule coverage | [`design/GOAL-MAP.md`](design/GOAL-MAP.md) |
+| canonical Rule IDs and runtime owners | [`design/RULE-MAP.md`](design/RULE-MAP.md) |
+| canonical runtime state vocabulary/model | [`design/STATE-MODEL.md`](design/STATE-MODEL.md) |
+| core runtime behavior | [`skill/SKILL.md`](skill/SKILL.md) + direct references under [`skill/references/`](skill/references/) |
+| operational benchmark/evidence | [`benchmarks/phase7/`](benchmarks/phase7/) |
+| active delivery work, blockers, and accepted phase scope | GitHub Issues / Pull Requests |
+| validation/release automation | [`.github/workflows/release.yml`](.github/workflows/release.yml) + [`tools/`](tools/) + [`tests/`](tests/) |
 
-The repository is intentionally organized for **zero-chat recovery**: current project truth should be discoverable through this map, GitHub work items, Git/PR/CI evidence, and releases without relying on previous conversation history. Do not create parallel manager-memory or status-summary archives.
+## Runtime architecture
 
-## Repository layout
+The runtime entrypoint is intentionally compact. `skill/SKILL.md` establishes the orthogonal runtime dimensions, universal invariants, source-of-truth model, Master/Worker entry paths, and a direct role/event router. Detailed rules live in one-level references and are loaded only when their event is active.
 
-```text
-skill/                  Runtime Skill source shipped to ChatGPT
-docs/                   Durable project intent/specification
-design/                 Development-only semantic/design traceability
-benchmarks/             Operational baseline/refactor evidence
-tools/                  Repository-development validation helpers
-tests/                  Regression and baseline evidence
-.github/workflows/       Validation and release automation
-VERSION                  Release version
-CHANGELOG.md             Human-readable release history
-```
+Key runtime dimensions are independent unless a canonical rule explicitly connects them:
 
-Development-only files are intentionally kept outside `skill/` so they do not enter the runtime Skill package.
+- `Role`: `MASTER` or `WORKER`;
+- `ProjectAuthority`: project-wide authorization envelope;
+- `ScopedAuthorization`: exact one-off action/effect grant;
+- `CoordinationBaseline`: `LIGHTWEIGHT` or `STANDARD`;
+- `AssuranceLevel`: `NORMAL` or scoped `HIGH_ASSURANCE`;
+- `RiskLevel`: per substantive change.
 
-## Development principles
-
-- **Outcome before activity:** Issues, PRs, docs, tests, and process are means to verified delivery.
-- **Low friction without rule loss:** optimize decision quality and agent usability, not raw token/file reduction.
-- **Rule preservation > text preservation:** prose may be consolidated only when protected behavior remains canonical and tested.
-- **Process proportional to need:** small work stays light; coordination grows only when dependency/risk/recovery value justifies it.
-- **Evidence over narrative:** current Git/GitHub/CI/release/deployment identity owns factual state.
-- **Recoverable and navigable:** persist only continuation-relevant truth in its natural owner and keep relationships easy to traverse.
-- **Independent review means independent context:** when an additional review is required, a fresh separate chat/model, review tool, or human reviewer is sufficient unless repository/platform policy explicitly requires a native GitHub approval identity; a separate GitHub username is not a default requirement.
+Review evidence is bound to the current target/candidate/contract identity. Self-review is never independent review. When independent review is required, independence means a separate reviewer context/person/tool from the authoring Master; a distinct GitHub username or native PR approval is required only when repository/platform policy or the applicable gate explicitly requires that mechanism.
 
 ## Validate locally
 
@@ -72,13 +57,16 @@ python3 tools/score_phase7_benchmark.py \
   --baseline-ref v1.0.0
 python3 tests/test_phase7_benchmark.py
 python3 tests/test_package_skill.py
+python3 tests/test_publish_release.py
 ```
 
-The validator checks repository structure, runtime references/routing, namespaced state vocabulary, Goal/Rule/eval traceability, Python syntax, and immutable baseline compatibility. Phase 7 adds source-grounded operational A/B scoring plus adversarial negative fixtures; qualitative engineering judgment remains outside deterministic lint. Phase 8 also validates byte-deterministic package construction used by the release workflow.
+The validator checks repository structure, runtime references/routing, namespaced state vocabulary, Goal/Rule/eval traceability, Python syntax, and immutable baseline compatibility. Phase 7 adds source-grounded operational A/B scoring plus adversarial negative fixtures; qualitative engineering judgment remains outside deterministic lint. Phase 8 also validates byte-deterministic package construction and fail-closed release identity handling used by the release workflow.
 
 ## Release model
 
-`main` is the release source of truth. When `VERSION` contains a version that does not yet have a matching GitHub Release, the release workflow validates the repository, packages `skill/` as `skill.zip`, generates a SHA-256 checksum, and publishes tag/release `v<VERSION>` from the exact `main` commit. Versions containing a prerelease suffix (for example `1.1.0-rc.1`) are published as GitHub prereleases.
+`main` is the release source of truth. The release workflow validates the repository, packages `skill/` as `skill.zip`, generates `skill.zip.sha256`, and binds `v<VERSION>` to the exact release `GITHUB_SHA` before publication. A pre-existing or concurrently created version tag that resolves to another commit is a hard failure; publication uses the already verified tag with `gh release create --verify-tag` rather than relying on implicit tag creation. Versions containing a prerelease suffix (for example `1.1.0-rc.1`) are published as GitHub prereleases.
+
+An existing release is treated as an idempotent success only when its version tag still resolves to the exact release SHA, its prerelease state is correct, and both published assets are byte-for-byte identical to the package and checksum built from that commit. Otherwise the workflow fails closed instead of silently reporting delivery.
 
 `v1.0.0` is the immutable pre-refactor runtime baseline. Architectural changes are incremental, traceable to canonical Goal/Rule IDs, and evaluated against baseline behavior before a later runtime release is published.
 
