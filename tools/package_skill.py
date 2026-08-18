@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a deterministic installable Skill archive and SHA-256 checksum."""
+"""Build a byte-deterministic installable Skill archive and SHA-256 checksum."""
 
 from __future__ import annotations
 
@@ -44,14 +44,16 @@ def build(skill_dir: Path, output_zip: Path) -> str:
     if output_zip.exists():
         output_zip.unlink()
 
-    with zipfile.ZipFile(output_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    # ZIP_STORED deliberately avoids compressor-version variance. The Skill is
+    # small, and byte reproducibility is more useful here than compression.
+    with zipfile.ZipFile(output_zip, "w", compression=zipfile.ZIP_STORED) as archive:
         for path in source_files(skill_dir):
             info = zipfile.ZipInfo(archive_name(skill_dir, path), date_time=FIXED_ZIP_TIME)
-            info.compress_type = zipfile.ZIP_DEFLATED
+            info.compress_type = zipfile.ZIP_STORED
             info.create_system = 3
             info.external_attr = (stat.S_IFREG | 0o644) << 16
             info.flag_bits |= 0x800
-            archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
+            archive.writestr(info, path.read_bytes(), compress_type=zipfile.ZIP_STORED)
 
     digest = hashlib.sha256(output_zip.read_bytes()).hexdigest()
     return digest
