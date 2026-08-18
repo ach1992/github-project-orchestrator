@@ -47,7 +47,7 @@ Agent Runtime
 | `RiskLevel` | `LOW | MEDIUM | HIGH | CRITICAL` | substantive change/work item | recompute only when it can change a gate, review/validation depth, rollback, or release treatment | Not project size or importance. |
 | `ExecutionPath` | `FAST | FULL` | work item / bounded cycle | select when work becomes executable; promote on new evidence | Independent from coordination baseline, assurance, and persistence. |
 | `ContractPersistence` | `TRANSIENT | PERSISTED` | work item | decide from recovery/coordination value | FULL does not imply persisted. Existing persistence does not imply FULL. |
-| `ExecutionStrategy` | `SELF | DELEGATE | HYBRID` | work item | recompute when capability/dependency/throughput changes | Worker availability never creates a Master stop by itself. |
+| `ExecutionStrategy` | `SELF_EXECUTE | DELEGATE | HYBRID` | work item | recompute when capability/dependency/throughput changes | Worker availability never creates a Master stop by itself. |
 | `ApplicableEffects` | set of effect classes | individual action | classify immediately before consequential action | A set, not a scalar; one action may have multiple simultaneous effects. |
 | `CapabilitySnapshot` | structured evidence | runtime / next action | new runtime, material access change, or decision-relevant invalidation | Capability is execution feasibility, not authorization. |
 | `TaskState` | namespaced lifecycle | work item | lifecycle transitions | Separate from Worker handoff and Master boundary. |
