@@ -19,6 +19,7 @@ All notable changes to this project are documented here.
 - Worker execution context is bounded by task/role triggers rather than loading project-wide governance by default.
 - Large-project coordination keeps local work authoritative behind a minimal global outcome/dependency/release spine.
 - Runtime/design documentation now reflects canonical post-refactor ownership instead of migration-era wording.
+- Independent review is defined by separation from the authoring Master context, not by a distinct GitHub username; a fresh independent chat/model, review tool, or human reviewer can provide the additional review unless repository/platform policy explicitly requires a native approval identity.
 
 ### Compatibility
 
