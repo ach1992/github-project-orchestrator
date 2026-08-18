@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.1] - 2026-08-18
+
+### Fixed
+
+- Healthy pending CI/check/deployment dependencies no longer force a one-re-read `MasterBoundary.BLOCKED` stop when the runtime can safely continue with bounded, non-tight autonomous rechecks or a real resume primitive.
+- Pending external work now freezes only actions that actually depend on its result, so independently executable source/diff/acceptance review and other outcome-linked work are not unnecessarily serialized behind CI.
+- Canonical design vocabulary now uses `ExecutionStrategy=SELF_EXECUTE`, and delivery eval language uses `DeliveryState.PENDING` instead of the legacy `PENDING_DELIVERY` spelling.
+
+### Added
+
+- Sentinel regression tests proving repository preflight does not execute configured `core.fsmonitor` or active tracked-path `filter.<driver>.clean` / `filter.<driver>.process` helpers, while preserving safe complete or explicit incomplete/fail-closed semantics.
+
+### Changed
+
+- The public README is reorganized around value, intended users, installation/update, practical startup usage, operating expectations, version/license, and links to deeper development evidence instead of exposing internal architecture as the primary path.
+
+### Runtime compatibility
+
+- This is a patch-level maintenance release. It preserves the existing lifecycle/`MasterBoundary` separation, authority gates, review freshness, anti-spin protections, recovery model, and deterministic release workflow while repairing continuation precedence and dependency classification.
+- `v1.0.0` remains the immutable pre-refactor baseline, and previous `v1.1.0` release artifacts are not modified.
+
 ## [1.1.0] - 2026-08-18
 
 ### Added
