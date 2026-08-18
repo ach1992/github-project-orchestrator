@@ -104,6 +104,8 @@ Worker correction/resume stays in `worker-protocol.md`; Master supplies the revi
 
 If direct Worker dispatch is unavailable, Master self-executes when safe, authorized, and capable; use a human-relayed Worker prompt only when delegation still materially helps.
 
+When independent review is required, independence means a review performed outside the authoring Master's review context by a separate reviewer instance/person/tool; it does **not** require a distinct GitHub username or platform-native PR review unless repository/platform policy or an applicable approval gate specifically requires that mechanism. A fresh independent chat/model or human reviewer may be relayed the bounded current review packet and can satisfy the independent-review requirement when it returns evidence-backed findings for the exact reviewed identity. The Master must reconcile the returned review and revalidate candidate/target freshness before relying on it.
+
 When the user requests a ready-to-paste prompt/relay, return the complete content as exactly one copy-target fenced code block with no unsolicited prose around it; use a longer outer fence when embedded fences are required unless the user requests another format.
 
 When a required operation truly cannot be performed with available authorized capability, complete independent safe work first, then use the canonical boundary from `authority-gates.md` and provide `HUMAN OPERATION REQUIRED` with the exact action/command, prerequisite, expected result, risk, verification method, and exact output/state needed to resume.
