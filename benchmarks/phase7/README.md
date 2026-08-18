@@ -1,6 +1,6 @@
 # Phase 7 Operational Benchmark
 
-This directory provides repeatable operational evaluation for the refactor against the immutable `v1.0.0` baseline. The refactored runtime side is pinned to commit `23cceca37ba0353db5336970893419083de3b00b`; Phase 7 itself changes development/evaluation files, not `skill/` runtime policy.
+This directory provides repeatable operational evaluation for the refactor against the immutable `v1.0.0` baseline. The refactored runtime side is pinned to commit `262395df2bc20d3014238e3f40f7b3f02b4f0500`; Phase 7 established the benchmark, and Phase 8 re-pinned the same fixed traces after the targeted independent-review relay clarification so candidate evidence remains tied to the actual runtime.
 
 ## What this benchmark measures
 
@@ -37,7 +37,7 @@ Token/word/line size is diagnostic only. The scorer reports pinned baseline/curr
 
 - `scenarios.json` — fixed scenario contract and Goal coverage.
 - `traces-v1.0.0.json` — baseline source-grounded traces pinned to `v1.0.0`.
-- `traces-current.json` — refactored source-grounded traces pinned to `23cceca37ba0353db5336970893419083de3b00b`.
+- `traces-current.json` — refactored source-grounded traces pinned to `262395df2bc20d3014238e3f40f7b3f02b4f0500`.
 - `RESULTS.md` — checked-in Phase 7 interpretation and acceptance result.
 - `LIVE-EVIDENCE.md` — real GitHub delivery evidence from the refactored runtime.
 - `../../tests/test_phase7_benchmark.py` — adversarial negative fixtures for the scorer.
