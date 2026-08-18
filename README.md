@@ -13,6 +13,14 @@ OpenAI documents computer upload as a supported Skill installation path. Direct 
 
 Official ChatGPT Skills documentation: https://help.openai.com/en/articles/20001066-skills-in-chatgpt
 
+## License
+
+Licensed under the [MIT License](LICENSE).
+
+Copyright (c) 2026 [ACh](https://github.com/ach1992).
+
+The released `skill.zip` includes the same canonical `LICENSE` notice at its package root so the downloadable Skill carries its distribution terms with it.
+
 ## Project map
 
 Start here when developing, reviewing, or recovering this project. This is navigation to authoritative sources, not a duplicate status report.
@@ -48,6 +56,7 @@ Review evidence is bound to the current target/candidate/contract identity. Self
 ```bash
 python3 tools/validate_skill.py skill
 python3 tests/test_contract_check_phase2.py
+python3 tests/test_repo_preflight.py
 python3 tests/test_validate_skill_phase6.py
 python3 tools/score_phase7_benchmark.py \
   --scenarios benchmarks/phase7/scenarios.json \
@@ -60,14 +69,12 @@ python3 tests/test_package_skill.py
 python3 tests/test_publish_release.py
 ```
 
-The validator checks repository structure, runtime references/routing, namespaced state vocabulary, Goal/Rule/eval traceability, Python syntax, and immutable baseline compatibility. Phase 7 adds source-grounded operational A/B scoring plus adversarial negative fixtures; qualitative engineering judgment remains outside deterministic lint. Phase 8 also validates byte-deterministic package construction and fail-closed release identity handling used by the release workflow.
+The validator checks repository structure, runtime references/routing, namespaced state vocabulary, Goal/Rule/eval traceability, Python syntax, and immutable baseline compatibility. Phase 7 adds source-grounded operational A/B scoring plus adversarial negative fixtures; qualitative engineering judgment remains outside deterministic lint. Release validation also covers the bundled read-only repository preflight helper, byte-deterministic package construction including the canonical MIT license notice, and fail-closed release identity handling used by the release workflow.
 
 ## Release model
 
-`main` is the release source of truth. The release workflow validates the repository, packages `skill/` as `skill.zip`, generates `skill.zip.sha256`, and binds `v<VERSION>` to the exact release `GITHUB_SHA` before publication. A pre-existing or concurrently created version tag that resolves to another commit is a hard failure; publication uses the already verified tag with `gh release create --verify-tag` rather than relying on implicit tag creation. Versions containing a prerelease suffix (for example `1.1.0-rc.1`) are published as GitHub prereleases.
+`main` is the release source of truth. The release workflow validates the repository, packages `skill/` plus the canonical repository `LICENSE` as `skill.zip`, generates `skill.zip.sha256`, and binds `v<VERSION>` to the exact release `GITHUB_SHA` before publication. A pre-existing or concurrently created version tag that resolves to another commit is a hard failure; publication uses the already verified tag with `gh release create --verify-tag` rather than relying on implicit tag creation. Versions containing a prerelease suffix (for example `1.1.0-rc.1`) are published as GitHub prereleases.
 
 An existing release is treated as an idempotent success only when its version tag still resolves to the exact release SHA, its prerelease state is correct, and both published assets are byte-for-byte identical to the package and checksum built from that commit. Otherwise the workflow fails closed instead of silently reporting delivery.
 
 `v1.0.0` is the immutable pre-refactor runtime baseline. Architectural changes are incremental, traceable to canonical Goal/Rule IDs, and evaluated against baseline behavior before a later runtime release is published.
-
-The public-distribution license is intentionally tracked as a separate owner decision in [Issue #3](https://github.com/ach1992/github-project-orchestrator/issues/3); do not infer a license until that issue is resolved.
