@@ -19,7 +19,7 @@ All notable changes to this project are documented here.
 ### Fixed
 
 - Release automation no longer starts the write-capable publication job for ordinary validated `main` changes whose `VERSION` is unchanged; intentional version changes and manual dispatches still use the exact fail-closed tag/SHA/assets publisher.
-- Workflow concurrency now preserves queued `main` runs (`queue: max`) so a pending version-bump run cannot be silently replaced by a later non-release push before its release intent is evaluated.
+- Workflow concurrency now separates PR validation from release publication: superseded PR validations can be canceled, `main`/manual validations are not placed in one replaceable pending slot, and write-capable publication jobs serialize with queued preservation so a version-bump release intent cannot be silently discarded by a later push.
 
 ### Runtime compatibility
 
