@@ -25,7 +25,7 @@ All notable changes to this project are documented here.
 
 - `v1.1.2` adds no lifecycle/status/state dimension, no `EngineeringConcerns` contract field, no blanket logging/telemetry/testing/documentation requirement, and no human confirmation gate.
 - Existing FAST/FULL selection, ProjectAuthority/ScopedAuthorization, Worker scope/ownership, Master stop/continuation, review freshness, release/delivery state, zero-chat recovery, and immutable `v1.0.0` baseline semantics remain unchanged.
-- Routine/localized work with no material concern trigger stays on the existing lightweight path; required quality concerns are addressed proportionally rather than deferred merely to make delivery appear faster.
+- Routine/localized work with no material concern trigger preserves its current `CoordinationBaseline` and may use the existing FAST path when FAST criteria independently fit; required quality concerns are addressed proportionally rather than deferred merely to make delivery appear faster.
 
 ## [1.1.1] - 2026-08-18
 
