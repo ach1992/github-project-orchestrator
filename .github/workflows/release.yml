@@ -18,12 +18,26 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      release_intent: ${{ steps.release_intent.outputs.publish }}
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           fetch-tags: true
+
+      - name: Determine release intent
+        id: release_intent
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          publish="$(python3 tools/release_intent.py --event "$EVENT_NAME" --before "$BEFORE_SHA")"
+          echo "publish=$publish" >> "$GITHUB_OUTPUT"
 
       - name: Validate Skill source
         run: python3 tools/validate_skill.py skill
@@ -48,6 +62,9 @@ jobs:
 
       - name: Test Phase 7 benchmark scorer
         run: python3 tests/test_phase7_benchmark.py
+
+      - name: Test release intent decisions
+        run: python3 tests/test_release_intent.py
 
       - name: Test deterministic release packaging
         run: python3 tests/test_package_skill.py
@@ -82,7 +99,7 @@ jobs:
           fi
 
   release:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.validate.outputs.release_intent == 'true'
     needs: validate
     runs-on: ubuntu-latest
     permissions:
