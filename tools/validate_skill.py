@@ -16,6 +16,7 @@ REQUIRED_RUNTIME_PATHS = (
     "assets/icon.svg",
     "references/authority-gates.md",
     "references/continuity.md",
+    "references/engineering-quality.md",
     "references/eval-scenarios.md",
     "references/governance.md",
     "references/master-cycle.md",
