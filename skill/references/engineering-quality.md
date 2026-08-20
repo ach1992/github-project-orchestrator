@@ -27,7 +27,7 @@ Concern selection by itself never changes accepted scope, `RiskLevel`, `Assuranc
 | observability / diagnosability | If the behavior fails in production, will an operator/developer have enough safe evidence to locate the failing component/request/job/dependency and root cause? Use useful severity/levels, structured/contextual fields, correlation/request/job identity, exception/error evidence, metrics, traces, health/readiness signals, or alerts only when they materially improve detection or diagnosis. |
 | performance / capacity / cost | Can the change materially affect latency, CPU, memory, storage, network, database connections/query load, queue/backlog growth, log/telemetry volume, third-party quota, or infrastructure/cloud cost? Establish representative evidence or explicit bounds when material; do not optimize by intuition alone. |
 | user-facing quality | For applicable UI/product surfaces, are accessible interaction, responsive behavior, loading/error/empty states, localization/internationalization, and timezone behavior materially affected? Apply only the relevant subset. |
-| operations / release | Does configuration/environment behavior, health, rollback, deployment, support procedure, or incident response materially change? Update durable operating guidance only when future operators need it. |
+| operations / release | Does configuration/environment behavior, health, rollback, deployment, support procedure, or incident response materially change? Keep code, configuration, secrets, and environment-specific state separated where the platform supports it; validate material configuration at the appropriate boundary and prefer explicit safe defaults over silent misconfiguration. Update durable operating guidance only when future operators need it. |
 
 ### Production diagnostics and logging
 
@@ -48,7 +48,7 @@ For stateful/destructive systems, distinguish **backup existence** from a credib
 
 ### Master / self-execution
 
-For FAST work, keep selected concerns transient when the accepted request + repository evidence already make implementation/validation clear. For FULL or persisted work, express only concern-derived facts that materially affect existing Goal/Scope/Acceptance/Validation/Risk/Release fields; do not add a generic `EngineeringConcerns` field.
+For FAST work, keep selected concerns transient when the accepted request + repository evidence already make implementation/validation clear. For FULL or persisted work, express only concern-derived facts that materially affect existing Goal/Scope/Acceptance/Validation/Risk/Release fields; do not add a generic `EngineeringConcerns` field. If a recovery/rotation boundary makes a still-material concern-derived fact no longer recoverable from stronger code/Git/GitHub/CI/release evidence, let `continuity.md` persist only that missing unresolved fact in its natural existing owner.
 
 Implement the smallest repository-consistent solution that addresses the selected failure modes. Validate the concern at the narrowest high-signal boundary first, then broader required checks. A concern that is merely theoretically possible does not justify expanding scope or delaying useful delivery.
 
