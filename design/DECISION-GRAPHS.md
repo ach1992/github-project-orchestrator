@@ -184,6 +184,7 @@ Phase 4 implemented progressive event routing in the current runtime. `skill/SKI
 |---|---|
 | new/replacement Master | recovery, identity, authority, capability, outcome |
 | first ownership | root specification, proportional readiness, outcome, source-of-truth |
+| material cross-cutting engineering concern becomes decision-relevant | proportional engineering-quality concern selection + natural implementation/evidence owner; existing scope, risk, authority, review, and release domains remain canonical |
 | before consequential mutation | accepted scope, role, authority, effects, gates, capability, fresh mutable identity |
 | before delegation | contract/READY, assignment identity, Worker envelope, target separation |
 | Worker correction/resume | assignment generation + `CheckpointHEAD` concurrency |
