@@ -79,6 +79,7 @@ Load only rows triggered by the current event. Every required domain is directly
 |---|---|---|
 | any consequential mutation; approval/material decision; ambiguous write; overwrite-sensitive remote state | [references/authority-gates.md](references/authority-gates.md) | classify actual effects and use `CAN_EXECUTE(action)`; no invented confirmation gates |
 | Master planning; FAST/FULL; self-execution/delegation choice; Worker absorption; no-READY synthesis; terminal decision | [references/master-cycle.md](references/master-cycle.md) | continue until `MASTER_STOP(...)` is true |
+| material cross-cutting engineering concern during framing/implementation/Worker work/review, including privacy, resilience, production diagnosability/observability, capacity/cost, user-facing quality, or CI/automation fitness | [references/engineering-quality.md](references/engineering-quality.md) | select only concerns that can change the current work/evidence; no universal checklist, state field, or artifact |
 | first ownership; repository/project readiness; Issues/Projects/milestones/labels; project navigation; management-system repair | [references/governance.md](references/governance.md) | bootstrap proportionally and stop when readiness is sufficient |
 | explicit contract/READY; persistence decision; task risk/validation; Worker assignment identity | [references/task-contract.md](references/task-contract.md) | formalize only when coordination/delegation/risk/recovery earns it |
 | Worker dispatch; Worker execution; correction/resume; handoff/staleness | [references/worker-protocol.md](references/worker-protocol.md) + [references/task-contract.md](references/task-contract.md) | Worker stays bounded; Master retains acceptance/integration/release ownership |
@@ -87,13 +88,13 @@ Load only rows triggered by the current event. Every required domain is directly
 | new/replacement Master; recovery/resume; materially contradictory state; rotation/recoverability | [references/continuity.md](references/continuity.md) | recovery is event-driven; current authoritative state beats old chat |
 | modifying this Skill/runtime specification | [references/eval-scenarios.md](references/eval-scenarios.md) | preserve regression behavior and Rule/Goal traceability |
 
-For a bounded routine Master implementation, this normally means `master-cycle.md`, the relevant task/code/tests, and `authority-gates.md` only when the next action is consequential; do not continuously reason over governance, release, continuity, or Worker protocol unless their trigger occurs.
+For a bounded routine Master implementation, this normally means `master-cycle.md`, the relevant task/code/tests, and `authority-gates.md` only when the next action is consequential. Load `engineering-quality.md` only when the current change actually triggers a material concern from its domain; do not load governance, release, continuity, Worker protocol, or engineering-quality merely because code is substantive.
 
 ## 6. Worker entry
 
 When `Role=WORKER`:
 
-1. load the current Task Contract/work-item, targeted repository instructions, [references/task-contract.md](references/task-contract.md), and [references/worker-protocol.md](references/worker-protocol.md) before editing;
+1. load the current Task Contract/work-item, targeted repository instructions, [references/task-contract.md](references/task-contract.md), and [references/worker-protocol.md](references/worker-protocol.md) before editing; load [references/engineering-quality.md](references/engineering-quality.md) only when the current assignment triggers a material concern from that domain;
 2. load [references/authority-gates.md](references/authority-gates.md) only when a gate/material-decision/action-classification question is actually triggered;
 3. do **not** load project-wide governance, Master review/integration, release, or continuity domains by default and do not reinterpret project scope from the root specification;
 4. never reprioritize, broaden scope, merge/integrate the target, release, or upgrade ProjectAuthority/ScopedAuthorization/CoordinationBaseline/AssuranceLevel.

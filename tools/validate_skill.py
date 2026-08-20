@@ -28,7 +28,7 @@ REQUIRED_RUNTIME_PATHS = (
 )
 REQUIRED_DIRECT_ROUTER_TARGETS = tuple(
     path for path in REQUIRED_RUNTIME_PATHS if path.startswith("references/")
-)
+) + ("references/engineering-quality.md",)
 
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
 LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|mailto:|#)([^)]+)\)")

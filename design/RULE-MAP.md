@@ -7,6 +7,7 @@ Status: current development traceability map for the refactored runtime, preserv
 - A semantic Rule ID represents one behavior guarantee even when v1.0.0 repeated it in several files.
 - `Canonical owner` is the single current location/domain that defines the rule. Other runtime references may keep short boundary reminders but must not redefine it.
 - `Source anchors` refer to the immutable `v1.0.0` runtime paths/lines. The deterministic source-index generator can reproduce `RULE-SOURCES-v1.0.0.tsv`; `RULE-SOURCES-v1.0.0.manifest` locks its expected row count and SHA-256 for mechanical traceability.
+- For a Rule introduced by an accepted post-v1.0.0 requirement, `Source anchors` identify that project-level requirement/change instead of inventing a historical v1.0.0 location.
 - Eval IDs are regression anchors, not the full proof of equivalence.
 - Historical migration state is not a second source of current truth. If a future requirement deliberately supersedes a Rule ID, record the decision and update its canonical owner/evaluation evidence rather than creating competing definitions.
 
@@ -49,6 +50,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | `DIMENSIONS-ORTHOGONAL` | Coordination, assurance, risk, execution path, persistence, strategy, capability, and Authority are independent inputs unless an explicit rule connects them. | `SKILL.md` state ontology | `SKILL.md:12-31`; `authority-gates.md:9-20`; `task-contract.md:19-36` | AD, CE, CF, CM, CU |
 | `RISK-SCOPED` | Reclassify change risk only when decision-relevant; risk is change-specific and not importance/project size. | `task-contract.md` | `SKILL.md:21`; `task-contract.md:87-98` | AC, AJ, CW |
 | `WORK-CLEAR-ENOUGH` | Outcome, acceptance, validation, dependencies, and material risk must be clear enough for the next change; formalize only when useful. | `task-contract.md` | `SKILL.md:46`; `task-contract.md:19+` | K, L, BE |
+| `ENGINEERING-CONCERNS-PROPORTIONAL` | Activate only engineering concerns material to the actual change/failure surface and carry them through implementation/evidence without a universal checklist, state field, artifact, dimension change, or new gate by default. | `engineering-quality.md` | post-v1.1.1 requirement: `docs/PROJECT-SPEC.md` §3.1 | G, K, L, M, AB, AC, BS, BT, BU, CO |
 | `FAST-FULL-SELECT` | FAST/FULL is selected from ambiguity/dependency/review/control need; routine behavior changes may remain FAST. | `master-cycle.md` | `master-cycle.md:61-73`; `task-contract.md:23-36` | K, L, AB, CF, CM |
 | `CONTRACT-PERSISTENCE-INDEPENDENT` | FULL does not imply persistence; persistence depends on recovery/coordination value. Existing persistence does not imply FULL. | `task-contract.md` | `task-contract.md:23-36` | CM |
 | `DELEGATION-PROPORTIONAL` | Delegate only when specialization/throughput/parallelism materially helps; bounded single delegation can remain LIGHTWEIGHT while still using full Worker envelope. | `master-cycle.md` | `SKILL.md:27`; `master-cycle.md:74-85`; `worker-protocol.md:58-60` | Q, AN |
