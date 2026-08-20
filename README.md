@@ -52,7 +52,7 @@ You can also point the Master at a specific Issue, PR, milestone, release, or pr
 
 ## Version and license
 
-Release: **v1.1.1**
+Release: **v1.1.2**
 
 Licensed under the [MIT License](LICENSE). The released `skill.zip` includes the same canonical `LICENSE` notice at its package root.
 

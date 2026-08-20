@@ -15,7 +15,7 @@ For a substantive change:
 
 Possible concerns include security, privacy, data integrity, compatibility, resilience, observability/diagnosability, performance, capacity/resource/cost behavior, accessibility/user experience, migration, operations, and release safety. This is a reasoning aid, **not** a required enum, persisted state field, contract section, status, label, or checklist.
 
-Concern selection by itself never changes accepted scope, `RiskLevel`, `AssuranceLevel`, `ExecutionPath`, `CoordinationBaseline`, `ProjectAuthority`, or approval requirements. Change those only when their existing canonical rules independently justify it. A trivial/localized change with no material concern trigger stays on the normal FAST/lightweight path and must not gain logging, metrics, retry, accessibility, documentation, or process work merely because those practices exist.
+Concern selection by itself never changes accepted scope, `RiskLevel`, `AssuranceLevel`, `ExecutionPath`, `CoordinationBaseline`, `ProjectAuthority`, or approval requirements. Change those only when their existing canonical rules independently justify it. A trivial/localized change with no material concern trigger keeps its current `CoordinationBaseline` and uses the normal FAST path only when the existing FAST criteria independently fit; it must not gain logging, metrics, retry, accessibility, documentation, or process work merely because those practices exist.
 
 ## 2. Implementation discipline when a concern applies
 

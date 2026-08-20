@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.2] - 2026-08-20
+
+### Added
+
+- A directly routed `engineering-quality.md` runtime domain selects only engineering concerns material to the current change and carries them through implementation/evidence without introducing a universal checklist, persisted concern state, or new approval gate.
+- Production diagnosability guidance now covers proportional logging severity/context/correlation, controlled runtime diagnostics, diagnostic-versus-audit logging, sensitive-data minimization/redaction, telemetry noise/retention/access/cost, and metrics/traces/health/alerts only when they materially improve detection or diagnosis.
+- Conditional implementation guidance now covers resilience/failure handling, privacy, capacity/resource/cost behavior, configuration/environment discipline, user-facing accessibility/error/loading/localization/timezone concerns, and credible restore/recovery when those surfaces are relevant.
+
+### Changed
+
+- `G05`, `G06`, `G07`, and `G11` trace through the new canonical `ENGINEERING-CONCERNS-PROPORTIONAL` rule while preserving existing Goal/Rule ownership and reuse of current regression guards.
+- CI/automation fitness is now explicit but remains evidence-triggered under the existing `ARTIFACT-FITNESS` model: inspect trigger scope, duplicate work, concurrency/superseded runs, permissions, critical-path latency, matrix/caching payoff, resource cost, retention, maintainability, and discoverability only when current evidence justifies it.
+- Current-runtime validation requires the new domain to remain directly routed from `SKILL.md` without retroactively requiring it in the immutable `v1.0.0` baseline.
+
+### Fixed
+
+- Release automation no longer starts the write-capable publication job for ordinary validated `main` changes whose `VERSION` is unchanged; intentional version changes and manual dispatches still use the exact fail-closed tag/SHA/assets publisher.
+- Workflow concurrency now separates PR validation from release publication: superseded PR validations can be canceled, `main`/manual validations are not placed in one replaceable pending slot, and write-capable publication jobs serialize with queued preservation so a version-bump release intent cannot be silently discarded by a later push.
+
+### Runtime compatibility
+
+- `v1.1.2` adds no lifecycle/status/state dimension, no `EngineeringConcerns` contract field, no blanket logging/telemetry/testing/documentation requirement, and no human confirmation gate.
+- Existing FAST/FULL selection, ProjectAuthority/ScopedAuthorization, Worker scope/ownership, Master stop/continuation, review freshness, release/delivery state, zero-chat recovery, and immutable `v1.0.0` baseline semantics remain unchanged.
+- Routine/localized work with no material concern trigger preserves its current `CoordinationBaseline` and may use the existing FAST path when FAST criteria independently fit; required quality concerns are addressed proportionally rather than deferred merely to make delivery appear faster.
+
 ## [1.1.1] - 2026-08-18
 
 ### Fixed

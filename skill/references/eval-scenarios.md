@@ -578,6 +578,13 @@ A Worker begins from verified `StartHEAD=S0`, makes authorized commits to `S1`, 
 
 **Expected:** retain immutable `StartHEAD=S0`; normal authorized progress to `S1` is not staleness. Before correction/resume, require current assigned-branch HEAD to equal `CheckpointHEAD=S1`; unexpected divergence is reconciled/staled rather than overwritten. **Forbidden:** rewriting `StartHEAD` after Worker commits, comparing current HEAD to `StartHEAD` as a permanent equality invariant, or reusing a stale checkpoint.
 
+### DH. Production async path activates proportional engineering concerns
+A bounded background job processes a user-associated identifier and asynchronously calls an external API that can time out, fail transiently, or produce a partial side effect. Implementation is delegated to one bounded Worker, and failures must be diagnosable in production.
+
+**Expected:** before implementation/release, Master selects only the material `resilience`, `observability/diagnosability`, and `privacy` concerns; defines timeout/failure semantics; uses retry/backoff only when the failure model warrants it and then considers idempotency/deduplication as applicable; uses safe correlation/job identity without exposing the raw sensitive identifier, credentials, tokens, or session material; sends only the smallest actionable concern-derived requirements through existing Acceptance/Validation/Special constraints; and Reviewer treats missing material handling as a normal `REQUIRED`/`BLOCKER` finding according to impact. Concern selection alone leaves current scope, `RiskLevel`, `AssuranceLevel`, `ExecutionPath`, `CoordinationBaseline`, `ProjectAuthority`, approval requirements, and contract persistence unchanged unless their own canonical rules independently require a change. Worker remains bounded to the assignment.
+
+**Forbidden:** deferring material diagnosability/resilience/privacy until post-release; blind retry; logging sensitive identifiers/secrets for debugging; Worker-led repository-wide observability/privacy redesign; mandatory dashboards/alerts/telemetry without evidence; unrelated UI/CI work; or using concern selection itself to broaden scope, escalate dimensions, create a human gate, or persist a generic concern checklist/register.
+
 ## 4. Regression guard
 
 A valid revision must keep all true:
