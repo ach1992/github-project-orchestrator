@@ -10,6 +10,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 VERSION_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+(?:[.-][0-9A-Za-z.-]+)?$")
+RELEASE_ASSET_NAMES = (
+    "skill.zip",
+    "skill.zip.sha256",
+    "github-project-orchestrator-manus.zip",
+    "github-project-orchestrator-manus.zip.sha256",
+    "github-project-orchestrator-qwen.zip",
+    "github-project-orchestrator-qwen.zip.sha256",
+    "github-project-orchestrator-claude.zip",
+    "github-project-orchestrator-claude.zip.sha256",
+)
 GRAPHQL_RELEASE_QUERY = """
 query($owner:String!,$name:String!,$tag:String!) {
   repository(owner:$owner,name:$name) {
@@ -131,33 +141,27 @@ def assert_tag_identity(tag: str, expected_sha: str) -> str:
     return actual_sha
 
 
-def verify_release_assets(tag: str, local_zip: Path, local_checksum: Path) -> None:
+def local_release_assets() -> tuple[Path, ...]:
+    return tuple(Path(name) for name in RELEASE_ASSET_NAMES)
+
+
+def verify_release_assets(tag: str, local_assets: tuple[Path, ...]) -> None:
     with tempfile.TemporaryDirectory(prefix="release-verify-") as tmp:
         destination = Path(tmp)
-        run_checked(
-            [
-                "gh",
-                "release",
-                "download",
-                tag,
-                "-p",
-                local_zip.name,
-                "-p",
-                local_checksum.name,
-                "--dir",
-                str(destination),
-            ]
-        )
-        downloaded_zip = destination / local_zip.name
-        downloaded_checksum = destination / local_checksum.name
-        if not downloaded_zip.is_file() or not downloaded_checksum.is_file():
-            raise RuntimeError(f"Release {tag} is missing required assets")
-        if downloaded_zip.read_bytes() != local_zip.read_bytes():
-            raise RuntimeError(f"Release {tag} asset {local_zip.name} does not match this candidate")
-        if downloaded_checksum.read_bytes() != local_checksum.read_bytes():
-            raise RuntimeError(
-                f"Release {tag} asset {local_checksum.name} does not match this candidate"
-            )
+        command = ["gh", "release", "download", tag]
+        for asset in local_assets:
+            command.extend(["-p", asset.name])
+        command.extend(["--dir", str(destination)])
+        run_checked(command)
+
+        for local_asset in local_assets:
+            downloaded = destination / local_asset.name
+            if not downloaded.is_file():
+                raise RuntimeError(f"Release {tag} is missing required asset {local_asset.name}")
+            if downloaded.read_bytes() != local_asset.read_bytes():
+                raise RuntimeError(
+                    f"Release {tag} asset {local_asset.name} does not match this candidate"
+                )
 
 
 def verify_release_state(
@@ -165,8 +169,7 @@ def verify_release_state(
     *,
     tag: str,
     expected_prerelease: bool,
-    local_zip: Path,
-    local_checksum: Path,
+    local_assets: tuple[Path, ...],
     expected_sha: str,
 ) -> None:
     if metadata.tag_name != tag:
@@ -183,7 +186,7 @@ def verify_release_state(
         raise RuntimeError(
             f"Release {tag} prerelease={metadata.is_prerelease}, expected {expected_prerelease}"
         )
-    verify_release_assets(tag, local_zip, local_checksum)
+    verify_release_assets(tag, local_assets)
 
 
 def publish_release() -> None:
@@ -200,9 +203,8 @@ def publish_release() -> None:
         raise RuntimeError(f"Invalid VERSION: {version}")
     tag = f"v{version}"
     expected_prerelease = "-" in version
-    local_zip = Path("skill.zip")
-    local_checksum = Path("skill.zip.sha256")
-    for path in (local_zip, local_checksum):
+    local_assets = local_release_assets()
+    for path in local_assets:
         if not path.is_file():
             raise RuntimeError(f"Required release asset missing: {path}")
 
@@ -227,28 +229,27 @@ def publish_release() -> None:
             metadata,
             tag=tag,
             expected_prerelease=expected_prerelease,
-            local_zip=local_zip,
-            local_checksum=local_checksum,
+            local_assets=local_assets,
             expected_sha=github_sha,
         )
-        print(f"Release {tag} already exists and exactly matches {github_sha} and both assets.")
+        print(
+            f"Release {tag} already exists and exactly matches {github_sha} "
+            f"and all {len(local_assets)} required assets."
+        )
         return
 
     # Re-check immediately before publication. gh --verify-tag prevents implicit tag creation/rebinding.
     assert_tag_identity(tag, github_sha)
-    command = [
-        "gh",
-        "release",
-        "create",
-        tag,
-        str(local_zip),
-        str(local_checksum),
-        "--verify-tag",
-        "--title",
-        tag,
-        "--notes",
-        f"Release {tag} of GitHub Project Orchestrator. See CHANGELOG.md for release details.",
-    ]
+    command = ["gh", "release", "create", tag, *[str(path) for path in local_assets]]
+    command.extend(
+        [
+            "--verify-tag",
+            "--title",
+            tag,
+            "--notes",
+            f"Release {tag} of GitHub Project Orchestrator. See CHANGELOG.md for release details.",
+        ]
+    )
     if expected_prerelease:
         command.append("--prerelease")
 
@@ -268,11 +269,13 @@ def publish_release() -> None:
         metadata,
         tag=tag,
         expected_prerelease=expected_prerelease,
-        local_zip=local_zip,
-        local_checksum=local_checksum,
+        local_assets=local_assets,
         expected_sha=github_sha,
     )
-    print(f"Published and verified {tag} at exact commit {github_sha} with exact release assets.")
+    print(
+        f"Published and verified {tag} at exact commit {github_sha} "
+        f"with all {len(local_assets)} exact release assets."
+    )
 
 
 def main() -> int:
