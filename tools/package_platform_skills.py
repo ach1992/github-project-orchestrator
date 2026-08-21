@@ -58,7 +58,7 @@ def claude_entrypoint(source: bytes) -> bytes:
     name_match = NAME_RE.search(metadata)
     if name_match is None:
         raise ValueError("Canonical SKILL.md frontmatter is missing name")
-    name = name_match.group("value").strip().strip('"\'')
+    name = name_match.group("value").strip().strip("\"'")
     if len(name) > 64:
         raise ValueError("Claude Skill name exceeds 64 characters")
     if len(CLAUDE_DESCRIPTION) > 200:
