@@ -27,6 +27,7 @@ def build_fixture(root: Path) -> Path:
     skill = root / "skill"
     (skill / "references").mkdir(parents=True)
     (skill / "scripts").mkdir(parents=True)
+    (skill / "templates").mkdir(parents=True)
     (skill / "agents").mkdir(parents=True)
     (skill / "assets").mkdir(parents=True)
     (skill / "SKILL.md").write_text(
@@ -40,6 +41,7 @@ def build_fixture(root: Path) -> Path:
     )
     (skill / "references" / "rules.md").write_text("rules\n", encoding="utf-8")
     (skill / "scripts" / "tool.py").write_text("print('ok')\n", encoding="utf-8")
+    (skill / "templates" / "future.txt").write_text("portable future runtime\n", encoding="utf-8")
     (skill / "agents" / "openai.yaml").write_text("interface: openai\n", encoding="utf-8")
     (skill / "assets" / "icon.svg").write_text("<svg/>\n", encoding="utf-8")
     (root / "LICENSE").write_text(LICENSE_TEXT, encoding="utf-8")
@@ -67,10 +69,12 @@ with tempfile.TemporaryDirectory() as tmp:
 
         with zipfile.ZipFile(output_a) as archive:
             names = archive.namelist()
-            if f"github-project-orchestrator/agents/openai.yaml" in names:
+            if "github-project-orchestrator/agents/openai.yaml" in names:
                 raise AssertionError(f"OpenAI metadata leaked into {platform} package")
-            if f"github-project-orchestrator/assets/icon.svg" in names:
+            if "github-project-orchestrator/assets/icon.svg" in names:
                 raise AssertionError(f"OpenAI asset leaked into {platform} package")
+            if "github-project-orchestrator/templates/future.txt" not in names:
+                raise AssertionError(f"future portable runtime file was omitted from {platform} package")
             if archive.read("github-project-orchestrator/LICENSE") != LICENSE_TEXT.encode("utf-8"):
                 raise AssertionError(f"{platform} package license drifted")
 
