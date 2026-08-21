@@ -68,11 +68,18 @@ jobs:
       - name: Test deterministic release packaging
         run: python3 tests/test_package_skill.py
 
+      - name: Test deterministic platform packaging
+        run: python3 tests/test_package_platform_skills.py
+
       - name: Test exact release publisher
         run: python3 tests/test_publish_release.py
 
-      - name: Build candidate package
-        run: python3 tools/package_skill.py skill skill.zip skill.zip.sha256
+      - name: Build candidate packages
+        run: |
+          python3 tools/package_skill.py skill skill.zip skill.zip.sha256
+          python3 tools/package_platform_skills.py skill manus github-project-orchestrator-manus.zip github-project-orchestrator-manus.zip.sha256
+          python3 tools/package_platform_skills.py skill qwen github-project-orchestrator-qwen.zip github-project-orchestrator-qwen.zip.sha256
+          python3 tools/package_platform_skills.py skill claude github-project-orchestrator-claude.zip github-project-orchestrator-claude.zip.sha256
 
       - name: Verify immutable v1.0.0 baseline
         shell: bash
@@ -111,8 +118,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Build skill.zip
-        run: python3 tools/package_skill.py skill skill.zip skill.zip.sha256
+      - name: Build release assets
+        run: |
+          python3 tools/package_skill.py skill skill.zip skill.zip.sha256
+          python3 tools/package_platform_skills.py skill manus github-project-orchestrator-manus.zip github-project-orchestrator-manus.zip.sha256
+          python3 tools/package_platform_skills.py skill qwen github-project-orchestrator-qwen.zip github-project-orchestrator-qwen.zip.sha256
+          python3 tools/package_platform_skills.py skill claude github-project-orchestrator-claude.zip github-project-orchestrator-claude.zip.sha256
 
       - name: Publish exact version
         env:

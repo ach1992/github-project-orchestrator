@@ -29,14 +29,21 @@ class PublishReleaseTests(unittest.TestCase):
         os.chdir(self.tmp.name)
         self.addCleanup(os.chdir, self.old_cwd)
         Path("VERSION").write_text("1.1.0-rc.1\n", encoding="utf-8")
-        Path("skill.zip").write_bytes(b"zip")
-        Path("skill.zip.sha256").write_bytes(b"sum  skill.zip\n")
+        for index, name in enumerate(publish_release.RELEASE_ASSET_NAMES):
+            Path(name).write_bytes(f"asset-{index}-{name}".encode("utf-8"))
         self.env = mock.patch.dict(os.environ, {"GH_REPO": "o/r", "GITHUB_SHA": SHA}, clear=False)
         self.env.start()
         self.addCleanup(self.env.stop)
 
     def metadata(self) -> publish_release.ReleaseMetadata:
         return publish_release.ReleaseMetadata("R1", "v1.1.0-rc.1", False, True, SHA)
+
+    def test_missing_required_asset_fails_before_remote_mutation(self) -> None:
+        Path("github-project-orchestrator-claude.zip").unlink()
+        with mock.patch.object(publish_release, "resolve_remote_tag_commit") as resolve_tag:
+            with self.assertRaisesRegex(RuntimeError, "Required release asset missing"):
+                publish_release.publish_release()
+        resolve_tag.assert_not_called()
 
     def test_mismatched_existing_tag_fails_before_release_lookup(self) -> None:
         with mock.patch.object(publish_release, "resolve_remote_tag_commit", return_value=OTHER_SHA), mock.patch.object(
@@ -97,6 +104,8 @@ class PublishReleaseTests(unittest.TestCase):
         self.assertIn("--verify-tag", command)
         self.assertIn("--prerelease", command)
         self.assertNotIn("--target", command)
+        for asset_name in publish_release.RELEASE_ASSET_NAMES:
+            self.assertIn(asset_name, command)
 
     def test_tag_creation_race_must_reconcile_to_same_sha(self) -> None:
         with mock.patch.object(publish_release, "resolve_remote_tag_commit", return_value=None), mock.patch.object(
