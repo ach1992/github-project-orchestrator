@@ -4,7 +4,9 @@ Status: canonical project-level specification for the development of `github-pro
 
 ## 1. Mission
 
-Build and distribute `github-project-orchestrator` as a production-quality ChatGPT Skill that can take an already-provisioned GitHub repository plus a project-defining prompt/specification and operate as a practical Engineering Master across the full delivery lifecycle.
+Build and distribute `github-project-orchestrator` as a production-quality portable Agent Skill with validated distributions for ChatGPT, Manus, Qwen, and Claude.ai. The Skill must be able to take an already-provisioned GitHub repository plus a project-defining prompt/specification and operate as a practical Engineering Master across the full delivery lifecycle.
+
+The platform-neutral runtime under `skill/` is the single behavioral source of truth. Platform distributions may adapt only discovery, packaging, installation, or tool-capability boundaries required by the target platform; they must not fork project-management, engineering, authority, recovery, review, integration, or release semantics.
 
 The Skill should behave like a capable combination of Engineering Project Manager, Technical Lead, Senior Developer, integration owner, and release owner. It must frame and preserve the accepted outcome, establish only the project structure that earns its cost, plan and sequence work, implement directly or delegate bounded Worker tasks, validate and review changes, integrate safely, drive required release/delivery, and keep authoritative project state recoverable by a replacement Master or human without prior chat history.
 
@@ -185,10 +187,11 @@ Do not accept changes solely because they are shorter, more abstract, more elega
 ## 11. Baseline and release strategy
 
 - `v1.0.0` is the immutable pre-refactor runtime baseline originating from the Skill supplied before refactoring.
-- Runtime source lives under `skill/`.
+- Runtime source lives under `skill/` and remains the single behavioral source for every supported platform.
 - Development-only project/design/validation artifacts live outside `skill/` unless intentionally required at runtime.
 - `v1.0.0` must remain installable and unchanged while later releases evolve incrementally.
-- Runtime releases are versioned, validated, tied to immutable commits, and packaged as `skill.zip` with a SHA-256 checksum.
+- Runtime releases are versioned, validated, tied to immutable commits, and publish deterministic ChatGPT, Manus, Qwen, and Claude.ai artifacts plus SHA-256 checksums from the same canonical source and commit. `skill.zip` remains the ChatGPT-compatible artifact name.
+- Platform-specific distribution adapters must remain minimal and may not become independently maintained runtime forks.
 - Refactoring is incremental and reviewable; no big-bang rewrite.
 
 ## 12. Non-goals
@@ -197,6 +200,7 @@ Do not accept changes solely because they are shorter, more abstract, more elega
 - Do not require Workers, GitHub Projects, Issues, ADRs, dashboards, reports, or additional documents when they do not materially help current delivery or recovery.
 - Do not create periodic optimization workstreams merely because a better tool/process could exist.
 - Do not centralize or duplicate state that is already authoritative and discoverable in Git/GitHub/CI/release/deployment systems.
+- Do not maintain platform-specific forks of canonical orchestration behavior when a packaging/discovery adapter is sufficient.
 - Do not sacrifice correctness, security, maintainability, review freshness, rollback safety, authority boundaries, or recoverability for apparent speed.
 - Do not trade agent usability for theoretical formalism.
 
@@ -213,4 +217,5 @@ At minimum:
 - replacement-Master cold recovery is correct and bounded;
 - delegation, review, integration, release, and production evidence remain fresh and identity-safe;
 - unauthorized authority escalation, artificial stops, artificial work, and blind retry regressions are covered by evaluation;
+- supported ChatGPT, Manus, Qwen, and Claude.ai distributions are generated and validated from the same canonical runtime without semantic drift;
 - runtime changes are measured against the immutable v1.0.0 baseline and the canonical goals above.
