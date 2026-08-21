@@ -7,19 +7,15 @@
 | Platform | Release asset | Entrypoint | Platform-specific adaptation |
 |---|---|---|---|
 | ChatGPT | `skill.zip` | `SKILL.md` | Canonical package, including OpenAI interface metadata/assets. |
-| Manus | `github-project-orchestrator-manus.zip` | `SKILL.md` | Portable runtime only: entrypoint, `references/`, `scripts/`, and canonical `LICENSE`. |
-| Qwen | `github-project-orchestrator-qwen.zip` | `SKILL.md` | Portable runtime only. Root [`QWEN.md`](../QWEN.md) provides a repository-link bootstrap when package installation is unavailable. |
-| Claude.ai | `github-project-orchestrator-claude.zip` | `skill.md` | Portable runtime only; the entrypoint filename and discovery description are adapted to Claude custom-Skill requirements. |
+| Manus | `github-project-orchestrator-manus.zip` | `SKILL.md` | Canonical portable runtime with OpenAI-only `agents/` and `assets/` omitted. |
+| Qwen | `github-project-orchestrator-qwen.zip` | `SKILL.md` | Canonical portable runtime with OpenAI-only metadata/assets omitted. Root [`QWEN.md`](../QWEN.md) provides a repository-link bootstrap when package installation is unavailable. |
+| Claude.ai | `github-project-orchestrator-claude.zip` | `skill.md` | Canonical portable runtime with OpenAI-only metadata/assets omitted; the entrypoint filename and discovery description are adapted to Claude custom-Skill requirements. |
 
 Every archive also has a matching `.sha256` asset.
 
 ## Source-of-truth rule
 
-Core orchestration behavior is developed only under `skill/`:
-
-- `skill/SKILL.md`
-- `skill/references/`
-- `skill/scripts/`
+Core orchestration behavior is developed only under `skill/`. Portable distributions copy canonical runtime files by default and exclude the OpenAI-specific top-level `agents/` and `assets/` interface surfaces. This default-inclusion rule ensures that a future canonical runtime directory such as `templates/` or another supporting resource is not silently omitted from non-ChatGPT packages.
 
 Generated Manus, Qwen, and Claude packages must not introduce platform-specific project-management, engineering, authority, recovery, or release behavior. A platform adaptation is allowed only when required for discovery, packaging, installation, or tool capability compatibility.
 
@@ -51,7 +47,7 @@ Qwen Code natively supports `SKILL.md` Agent Skills. For Qwen environments that 
 
 ### Claude.ai
 
-Claude custom Skills support ZIP upload and use a lowercase `skill.md` entrypoint with bounded metadata. The Claude package therefore changes only the entrypoint filename and discovery description; the runtime body, references, and scripts remain canonical.
+Claude custom Skills support ZIP upload and use a lowercase `skill.md` entrypoint with bounded metadata. The Claude package therefore changes only the entrypoint filename and discovery description; the runtime body and supporting portable runtime files remain canonical.
 
 ## Release discipline
 
