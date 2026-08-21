@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.0] - 2026-08-21
+
+### Added
+
+- First-class generated distributions for Manus, Qwen, and Claude.ai alongside the existing ChatGPT package, all produced from the single canonical runtime under `skill/`.
+- A root `QWEN.md` bootstrap for Qwen environments that receive the repository URL but cannot install the Skill package directly.
+- Deterministic platform-package regression coverage proving portable packages exclude OpenAI-only metadata/assets and remain byte-stable across source timestamp changes.
+
+### Changed
+
+- Release validation now builds four platform artifacts from the same commit: `skill.zip`, `github-project-orchestrator-manus.zip`, `github-project-orchestrator-qwen.zip`, and `github-project-orchestrator-claude.zip`, each with a SHA-256 checksum.
+- The release publisher now fails closed unless all eight required assets are present and an existing release proves exact tag/SHA/prerelease/asset-byte identity.
+- Claude packaging uses the platform-required lowercase `skill.md` entrypoint and a bounded discovery description while preserving the canonical runtime body, references, and scripts.
+
+### Runtime compatibility
+
+- The canonical orchestration runtime is unchanged. Manus, Qwen, Claude.ai, and ChatGPT share the same `SKILL.md` behavior, references, scripts, authority model, recovery model, review rules, and release semantics.
+- Platform adaptations are restricted to packaging, discovery, installation, and tool-capability boundaries; no platform-specific manager-state files or orchestration forks are introduced.
+
 ## [1.1.2] - 2026-08-20
 
 ### Added
