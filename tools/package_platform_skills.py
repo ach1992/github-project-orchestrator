@@ -21,7 +21,7 @@ import package_skill
 ARCHIVE_ROOT = package_skill.ARCHIVE_ROOT
 FIXED_ZIP_TIME = package_skill.FIXED_ZIP_TIME
 EXCLUDED_SUFFIXES = package_skill.EXCLUDED_SUFFIXES
-PORTABLE_TOP_LEVEL = {"SKILL.md", "references", "scripts"}
+PORTABLE_EXCLUDED_TOP_LEVEL = {"agents", "assets"}
 PLATFORMS = {"manus", "qwen", "claude"}
 CLAUDE_DESCRIPTION = (
     "Manage GitHub software delivery end-to-end: recover state, plan, implement, review, "
@@ -41,8 +41,9 @@ def portable_source_files(skill_dir: Path) -> list[Path]:
     files: list[Path] = []
     for path in package_skill.source_files(skill_dir):
         relative = path.relative_to(skill_dir)
-        if relative.parts and relative.parts[0] in PORTABLE_TOP_LEVEL:
-            files.append(path)
+        if relative.parts and relative.parts[0] in PORTABLE_EXCLUDED_TOP_LEVEL:
+            continue
+        files.append(path)
     if not any(path.relative_to(skill_dir).as_posix() == "SKILL.md" for path in files):
         raise ValueError("Canonical Skill entrypoint is missing: SKILL.md")
     return files
