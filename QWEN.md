@@ -4,12 +4,14 @@ This repository contains the canonical GitHub Project Orchestrator runtime under
 
 When this repository is provided to a Qwen environment as the instruction source, use this file only as a bootstrap. Do not treat `QWEN.md`, `README.md`, or platform documentation as a second runtime specification.
 
+Canonical control kernel: @skill/SKILL.md
+
 ## Activate the orchestrator
 
-1. Read [`skill/SKILL.md`](skill/SKILL.md) as the control kernel.
+1. Read `skill/SKILL.md` as the control kernel. Qwen Code's `@skill/SKILL.md` context reference above loads the canonical entrypoint when this repository is opened as a project.
 2. Resolve the requested role (`MASTER` or `WORKER`) and current task from the user's request and authoritative repository/GitHub evidence.
 3. Follow the one-step router in `skill/SKILL.md` and load only the referenced files that the current event requires.
-4. Treat files under `skill/references/` and `skill/scripts/` as the canonical shared runtime. Do not invent Qwen-specific orchestration rules or persistent manager-state files.
+4. Treat the portable runtime under `skill/` as canonical. Do not invent Qwen-specific orchestration rules or persistent manager-state files.
 5. Keep platform/tool capability separate from project authority. If a required capability is unavailable, follow the canonical unavailable-capability and human-relay rules from the runtime.
 
 ## Qwen Code
