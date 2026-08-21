@@ -1,10 +1,10 @@
 # GitHub Project Orchestrator
 
-A reusable ChatGPT Skill for end-to-end GitHub software delivery. It combines an engineering project manager and senior developer workflow: recover current project state from Git/GitHub, choose the highest-value next action, implement or delegate bounded work, review and integrate safely, and drive release work to verified completion without unnecessary process or manual `continue` nudges.
+A portable Agent Skill for end-to-end GitHub software delivery, distributed for ChatGPT, Manus, Qwen, and Claude.ai from one canonical runtime. It combines an engineering project manager and senior developer workflow: recover current project state from Git/GitHub, choose the highest-value next action, implement or delegate bounded work, review and integrate safely, and drive release work to verified completion without unnecessary process or manual `continue` nudges.
 
 ## Why use it
 
-GitHub Project Orchestrator is intended for developers and technical owners who want ChatGPT to take sustained ownership of a software outcome rather than answer one isolated coding question at a time.
+GitHub Project Orchestrator is intended for developers and technical owners who want an AI agent to take sustained ownership of a software outcome rather than answer one isolated coding question at a time.
 
 Typical uses include:
 
@@ -16,14 +16,25 @@ Typical uses include:
 
 ## Install or update
 
-1. Open this repository's **Releases** page and download `skill.zip` from the release you want to use.
-2. In an eligible ChatGPT account, open **Plugins** -> **Skills** -> **Create** -> **Upload from your computer**.
-3. Upload `skill.zip`, review the Skill, and complete the installation flow.
-4. To move to a newer release, repeat the same upload flow with that release's `skill.zip` and follow the review/install steps shown by ChatGPT.
+Open the repository's **Releases** page and use the package for your platform:
 
-OpenAI documents computer upload as a supported Skill installation path. Direct installation from an arbitrary GitHub URL is not treated as an installer contract by this repository.
+| Platform | Release asset | Installation / activation |
+|---|---|---|
+| ChatGPT | `skill.zip` | Upload as a custom Skill in ChatGPT. |
+| Manus | `github-project-orchestrator-manus.zip` | Upload from the Manus Skills interface. |
+| Qwen | `github-project-orchestrator-qwen.zip` | Extract into a Qwen Code Skill directory. For repository-link environments, provide this repository URL and have Qwen read [`QWEN.md`](QWEN.md) first. |
+| Claude.ai | `github-project-orchestrator-claude.zip` | Enable code execution, then upload from **Customize -> Skills**. |
 
-Official ChatGPT Skills documentation: https://help.openai.com/en/articles/20001066-skills-in-chatgpt
+Each archive has a matching `.sha256` checksum. Manus, Qwen, and Claude packages are generated from `skill/`; they are not independently maintained forks.
+
+Official platform references:
+
+- ChatGPT Skills: https://help.openai.com/en/articles/20001066-skills-in-chatgpt
+- Manus Skills: https://help.manus.im/en/articles/14753565-how-to-share-and-use-skills-in-manus
+- Qwen Code Agent Skills: https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/
+- Claude custom Skills: https://support.claude.com/en/articles/12512180-use-skills-in-claude
+
+See [`docs/PLATFORM-DISTRIBUTIONS.md`](docs/PLATFORM-DISTRIBUTIONS.md) for the single-source distribution model and platform-specific packaging boundaries.
 
 ## Start using it
 
@@ -52,9 +63,9 @@ You can also point the Master at a specific Issue, PR, milestone, release, or pr
 
 ## Version and license
 
-Release: **v1.1.2**
+Release: **v1.2.0**
 
-Licensed under the [MIT License](LICENSE). The released `skill.zip` includes the same canonical `LICENSE` notice at its package root.
+Licensed under the [MIT License](LICENSE). Every released platform archive includes the same canonical `LICENSE` notice at its package root.
 
 Copyright (c) 2026 [ACh](https://github.com/ach1992).
 
@@ -66,7 +77,8 @@ The public README is intentionally not a second runtime specification. Deeper au
 - Goal and Rule traceability: [`design/GOAL-MAP.md`](design/GOAL-MAP.md) and [`design/RULE-MAP.md`](design/RULE-MAP.md);
 - runtime state vocabulary: [`design/STATE-MODEL.md`](design/STATE-MODEL.md);
 - runtime entrypoint and references: [`skill/SKILL.md`](skill/SKILL.md) and [`skill/references/`](skill/references/);
+- platform distribution policy: [`docs/PLATFORM-DISTRIBUTIONS.md`](docs/PLATFORM-DISTRIBUTIONS.md);
 - source-grounded operational benchmark: [`benchmarks/phase7/`](benchmarks/phase7/);
 - release history: [`CHANGELOG.md`](CHANGELOG.md).
 
-For maintainers, the pull-request workflow in [`.github/workflows/release.yml`](.github/workflows/release.yml) runs structural validation, compatibility tests, repository-preflight safety tests, deterministic lint, benchmark scoring/adversarial tests, deterministic packaging, publisher tests, immutable-baseline checks, and runtime cleanliness checks. `main` remains the validated integration source of truth; release publication is attempted only when `VERSION` changes on `main` or the workflow is explicitly dispatched, and the existing publisher then enforces exact version/tag/SHA/assets identity.
+For maintainers, the pull-request workflow in [`.github/workflows/release.yml`](.github/workflows/release.yml) runs structural validation, compatibility tests, repository-preflight safety tests, deterministic lint, benchmark scoring/adversarial tests, deterministic packaging for every supported platform, publisher tests, immutable-baseline checks, and runtime cleanliness checks. `main` remains the validated integration source of truth; release publication is attempted only when `VERSION` changes on `main` or the workflow is explicitly dispatched, and the publisher enforces exact version/tag/SHA/all-assets identity.
