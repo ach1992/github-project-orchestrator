@@ -14,7 +14,7 @@ Before editing, verify: repository/working directory; Issue/Task Contract revisi
 
 ## 2. Dispatch prompt
 
-Use a standalone prompt. When it is relayed between chats/agents, apply the machine-relay transport contract in `SKILL.md`: English by default and, when presented for copy/paste, exactly one fenced code block with no surrounding prose.
+Use a standalone prompt. When it is relayed between chats/agents, apply the canonical machine-relay transport contract in `SKILL.md`; do not restate or fork its language, literal-preservation, or copy-target rules here.
 
 ```text
 # WORKER DISPATCH - <WORKER_ID> - ISSUE #<NUMBER>
@@ -54,7 +54,7 @@ Special constraints:
 Before editing: read repository instructions and current contract; verify assignment/repo/branch/HEAD/status and that any current worktree is attached to the assigned branch.
 Implement the smallest correct change. Do not weaken tests. Stop for stale assignment, blocker, material scope expansion, or material decision.
 Push/update only the assigned branch/PR. Never push directly to the Integration Target, merge, or start another task.
-Return only the English structured handoff defined in section 5, as exactly one fenced code block with no prose outside it.
+Return only the structured handoff defined in section 5 under the canonical `SKILL.md` machine-relay transport contract.
 ```
 
 Worker inherits supplied `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, and any exact `ScopedAuthorization` only inside this bounded assignment and remains under the canonical gate matrix; Worker role still forbids Integration Target integration/release ownership. Never dispatch implementation Worker under `ProjectAuthority=ADVISORY`; first establish implementation-capable authority consistent with the matrix.
@@ -112,7 +112,7 @@ Choose exactly one `WorkerStatus` by the first controlling condition below; incl
 | 5 | `BLOCKED` | a real external dependency/precondition prevents progress and switching Worker/runtime alone does not resolve it |
 | 6 | `READY_FOR_REVIEW` | contracted implementation is complete enough for Master review and required Worker validation has been reported |
 
-Return the compact transport form below in English as exactly one fenced code block with no prose outside it. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
+Return the compact transport form below under the canonical `SKILL.md` machine-relay transport contract. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
 
 ```text
 # WORKER HANDOFF

@@ -102,7 +102,7 @@ Workers may continue across Master rotation only when their Task Contract and pe
 
 ## 7. New Master prompt
 
-Provide only a short bootstrap prompt when rotation is actually needed. When presented for relay, apply the `SKILL.md` machine-relay transport contract: English by default and exactly one fenced code block with no surrounding prose.
+Provide only a short bootstrap prompt when rotation is actually needed. When presented for relay, apply the canonical `SKILL.md` machine-relay transport contract rather than restating its transport rules here.
 
 ```text
 # NEW MASTER CHAT
