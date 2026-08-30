@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.2] - 2026-08-31
+
+### Changed
+
+- Machine-relay English now applies to relay prose while identity-bearing and decision-relevant literals (including refs/SHAs, paths, commands, code/error strings, and quoted source-language text whose exact wording matters) stay exact unless an existing safety/redaction rule requires otherwise.
+- Independent-review findings now use a severity-neutral record for `BLOCKER`, `REQUIRED`, and `OPTIONAL`, with a neutral finding ID and action wording that does not turn optional advice into required remediation.
+- Independent-review completion/verdict semantics are explicit and deterministic: only `COMPLETE / APPROVE`, `COMPLETE / CHANGES_REQUIRED`, and `INCOMPLETE / NOT_ISSUED` are valid; incomplete reviews may still report supported actionable findings without issuing an overall verdict.
+- Defensive-security relays now distinguish raw secret disclosure from authorized credentialed access through existing approved secret/runtime mechanisms, reducing unnecessary refusal pressure without weakening secret-handling or provider/platform safety boundaries.
+
+### Runtime compatibility
+
+- No lifecycle/status/state namespace, ProjectAuthority/ScopedAuthorization rule, approval/action-effect gate, Worker assignment model, integration/release/delivery semantic, parser, registry, or external dependency changes.
+- The canonical owners remain `SKILL.md` for relay transport, `review-integration.md` for review result semantics, and `engineering-quality.md` for defensive-security continuation; local Worker/continuity reminders now reference the canonical transport rule instead of duplicating it.
+
 ## [1.2.1] - 2026-08-30
 
 ### Added

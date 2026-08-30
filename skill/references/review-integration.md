@@ -213,13 +213,13 @@ Verdict: APPROVE | CHANGES_REQUIRED | NOT_ISSUED
 
 ## Findings
 
-### REQUIRED R-001 — <finding title>
+### <BLOCKER | REQUIRED | OPTIONAL> F-001 — <finding title>
 
 - Location: <path/lines/symbol/object>
 - Evidence: <concrete current evidence>
 - Impact: <why this matters>
-- Required Remediation: <smallest required correction>
-- Verification: <how Master can prove resolution>
+- Action: <smallest required remediation for BLOCKER/REQUIRED; optional recommendation for OPTIONAL>
+- Verification: <how Master can prove resolution for BLOCKER/REQUIRED; for OPTIONAL use not applicable only when verification is not meaningful>
 
 ## Residual Risks and Uncertainty
 
@@ -232,12 +232,17 @@ Verdict: APPROVE | CHANGES_REQUIRED | NOT_ISSUED
 
 Result rules:
 
-- `APPROVE` requires `Review Completion: COMPLETE`, the exact current review envelope, and no `BLOCKER` or `REQUIRED` finding;
-- `CHANGES_REQUIRED` means the candidate/evidence itself has at least one evidence-backed `BLOCKER` or `REQUIRED` deficiency;
-- `NOT_ISSUED` requires `Review Completion: INCOMPLETE` because a reviewer/tool/policy/evidence-access limitation prevented the required review; reviewer inability to inspect evidence is not silently converted into a candidate defect or approval;
+| Review Completion | Verdict | Meaning |
+|---|---|---|
+| `COMPLETE` | `APPROVE` | the exact current review envelope was completely reviewed and no `BLOCKER` or `REQUIRED` finding remains |
+| `COMPLETE` | `CHANGES_REQUIRED` | the exact current review envelope was completely reviewed and the candidate/evidence itself has at least one evidence-backed `BLOCKER` or `REQUIRED` deficiency |
+| `INCOMPLETE` | `NOT_ISSUED` | a reviewer/tool/policy/evidence-access limitation prevented the required review from being completed |
+
+These are the only valid completion/verdict pairs. An `INCOMPLETE / NOT_ISSUED` review may still report evidence-backed `BLOCKER`, `REQUIRED`, or `OPTIONAL` findings and other safely supported observations from inspected surfaces; those findings remain actionable evidence, but they do not convert an incomplete review into an overall verdict. Reviewer inability to inspect evidence is never silently converted into a candidate defect or approval.
+
 - when no finding exists, write `None.` under Findings rather than omitting the section; order actual findings `BLOCKER`, `REQUIRED`, then `OPTIONAL`;
-- a candidate that fails to supply evidence required by acceptance may receive `CHANGES_REQUIRED`; evidence that exists but was unavailable only to this reviewer normally yields `INCOMPLETE / NOT_ISSUED`;
-- security-sensitive results may describe defensive location, evidence, impact, remediation, and verification while following `engineering-quality.md` redaction/minimization boundaries; a restricted detail does not justify suppressing otherwise safe useful findings.
+- a candidate that fails to supply evidence required by acceptance may receive `COMPLETE / CHANGES_REQUIRED` when the required review itself is complete; evidence that exists but was unavailable only to this reviewer yields `INCOMPLETE / NOT_ISSUED`;
+- security-sensitive results may describe defensive location, evidence, impact, remediation/recommendation, and verification while following `engineering-quality.md` redaction/minimization boundaries; a restricted detail does not justify suppressing otherwise safe useful findings.
 
 Master verifies the candidate/target/contract and reviewed effective change have not materially drifted, checks result-contract completeness, and independently reconciles every finding before relying on the result. Formatting defects alone do not manufacture a code finding: if the semantic result is safely recoverable, normalize it for reconciliation; never normalize missing identity/evidence into approval.
 
