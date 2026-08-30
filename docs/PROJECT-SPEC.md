@@ -71,6 +71,14 @@ Production engineering is broader than latency. Material CPU, memory, storage, n
 
 Documentation, tests, logs, metrics, tracing, alerts, dashboards, Issues, ADRs, and other artifacts are **means, not goals**. Add or update them only when they materially improve correctness, diagnosis, safety, review, delivery, operation, or recovery. The absence of a generic artifact is not itself a defect, and no artifact should exist merely to record that a checklist was considered. Prefer the smallest authoritative evidence at the natural owner: code/tests for behavior, Git/PR for implementation/review history, CI for validation, Issues/Projects/milestones for unresolved work, durable docs/ADR for lasting knowledge/decisions, and release/deployment/observability systems for production evidence.
 
+### 3.2 Portable AI relay and defensive security continuity
+
+Prompts and results intended to move between agents/chats are operational transport artifacts. They should be immediately reusable without language conversion or manual reconstruction: English by default unless the user explicitly requests another relay language, and exactly one copy-target fenced block with no surrounding prose when presented for copy/paste. Domain owners define compact role-specific payloads for Worker dispatch/correction/handoff, independent-review prompt/result, and Master rotation/recovery. Transport formatting must not create duplicate lifecycle state, weaken engineering instructions, or replace authoritative Git/GitHub/CI/release evidence.
+
+Worker and reviewer results must distinguish observed identity/evidence from claims and limitations. A Worker handoff retains the current bounded assignment/status model; an independent review can approve only when its exact review envelope was completely reviewed and no blocking/required finding remains. Reviewer/tool/evidence-access limitations produce an explicit incomplete result rather than a false approval or an invented candidate defect.
+
+Security-sensitive AI work should state the exact evidence-backed defensive purpose, scope, authorization, allowed action boundary, and prohibited effects without claiming that technical access or authorization overrides provider/platform policy. When one unsafe/restricted detail cannot be supplied, safely allowed analysis, remediation, and verification should continue with bounded redaction and an exact limitation statement. This requirement must not solicit secrets, third-party targeting, weaponization, persistence/evasion, unapproved production mutation, or weakened security controls merely to avoid a refusal.
+
 ## 4. Goal architecture
 
 The development model is intentionally layered:

@@ -59,11 +59,13 @@ You can also point the Master at a specific Issue, PR, milestone, release, or pr
 - Ordinary reversible implementation can proceed autonomously when authorized; material approval, production, destructive, or other applicable gates remain explicit.
 - A pending CI/check/deployment does not automatically stop the workflow: useful independent work should continue first, and supported bounded continuation can keep short waits from requiring a user nudge.
 - Self-review is not relabeled independent review. When independent review is required, use a genuinely separate reviewer context/person/tool unless repository policy requires a native GitHub reviewer identity.
+- Worker, reviewer, and Master-rotation relays are English by default and use one copyable block when human-relayed; structured Worker/reviewer results preserve exact identity, evidence, completeness, and limitations for the receiving Master.
+- Security-sensitive AI relays state evidence-backed defensive scope and continue safely allowed analysis/remediation/testing when one detail is restricted, without claiming policy bypass or broadening authorization.
 - The Skill does not create background-work promises, artificial busywork, or parallel manager-state archives just to appear active.
 
 ## Version and license
 
-Release: **v1.2.0**
+Release: **v1.2.1**
 
 Licensed under the [MIT License](LICENSE). Every released platform archive includes the same canonical `LICENSE` notice at its package root.
 

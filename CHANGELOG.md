@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.1] - 2026-08-30
+
+### Added
+
+- A canonical machine-relay transport contract: AI-to-AI prompts/results are English by default and become exactly one fenced copy target when human-relayed, while role-specific domains retain payload semantics.
+- A structured Worker handoff contract with complete assignment/result identity, explicit performed/not-run validation evidence, and one-block English output without changing `WorkerStatus` or assignment lifecycle semantics.
+- A structured independent-review result contract that separates review completeness from verdict and prevents incomplete/unreviewable evidence from becoming a false approval or invented candidate defect.
+- Evidence-backed defensive-security relay guidance that continues safely allowed analysis, remediation, and verification when one detail is restricted, without claiming authorization overrides provider/platform policy.
+
+### Changed
+
+- Worker dispatch/correction, independent-review prompt/result, and Master rotation now share one transport rule instead of duplicating language/copyability requirements across domain owners.
+- Review relays now carry exact scope/policy limitations and distinguish `COMPLETE + APPROVE|CHANGES_REQUIRED` from `INCOMPLETE + NOT_ISSUED` as result fields rather than new orchestration states.
+- Goal/Rule/evaluation traceability covers portable relay behavior, Worker response discipline, incomplete-review handling, and bounded defensive-security continuation.
+
+### Runtime compatibility
+
+- No `TaskState`, `WorkerStatus`, `WriteState`, `DeliveryState`, `MasterBoundary`, authority, action-effect, approval, integration, release, or delivery semantics change.
+- No parser, template file, persisted relay registry, external dependency, or blanket security-review ceremony is introduced; direct user-facing language remains user-selected and explicit relay-language requests still override the English default.
+
 ## [1.2.0] - 2026-08-21
 
 ### Added
