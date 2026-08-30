@@ -14,7 +14,7 @@ Before editing, verify: repository/working directory; Issue/Task Contract revisi
 
 ## 2. Dispatch prompt
 
-Use a standalone prompt:
+Use a standalone prompt. When it is relayed between chats/agents, apply the machine-relay transport contract in `SKILL.md`: English by default and, when presented for copy/paste, exactly one fenced code block with no surrounding prose.
 
 ```text
 # WORKER DISPATCH - <WORKER_ID> - ISSUE #<NUMBER>
@@ -54,7 +54,7 @@ Special constraints:
 Before editing: read repository instructions and current contract; verify assignment/repo/branch/HEAD/status and that any current worktree is attached to the assigned branch.
 Implement the smallest correct change. Do not weaken tests. Stop for stale assignment, blocker, material scope expansion, or material decision.
 Push/update only the assigned branch/PR. Never push directly to the Integration Target, merge, or start another task.
-Return only the structured handoff below.
+Return only the English structured handoff defined in section 5, as exactly one fenced code block with no prose outside it.
 ```
 
 Worker inherits supplied `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, and any exact `ScopedAuthorization` only inside this bounded assignment and remains under the canonical gate matrix; Worker role still forbids Integration Target integration/release ownership. Never dispatch implementation Worker under `ProjectAuthority=ADVISORY`; first establish implementation-capable authority consistent with the matrix.
@@ -112,10 +112,15 @@ Choose exactly one `WorkerStatus` by the first controlling condition below; incl
 | 5 | `BLOCKED` | a real external dependency/precondition prevents progress and switching Worker/runtime alone does not resolve it |
 | 6 | `READY_FOR_REVIEW` | contracted implementation is complete enough for Master review and required Worker validation has been reported |
 
-Return the compact transport form below. `STATUS` is a value in the `WorkerStatus` namespace; token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
+Return the compact transport form below in English as exactly one fenced code block with no prose outside it. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
 
 ```text
+# WORKER HANDOFF
+
 STATUS: READY_FOR_REVIEW | BLOCKED | ENVIRONMENT_MISMATCH | STALE_ASSIGNMENT | SCOPE_CHANGE_REQUIRED | MATERIAL_DECISION_REQUIRED
+
+## Assignment Envelope
+
 Worker: <id>
 Issue: <canonical URL or owner/repo#n>
 Assignment ID: <id>
@@ -131,11 +136,24 @@ Coordination Baseline: <LIGHTWEIGHT | STANDARD>
 Assurance Level: <NORMAL | HIGH_ASSURANCE>
 Scoped Authorization: <exact grant or none>
 Task Risk: <LOW | MEDIUM | HIGH | CRITICAL>
+
+## Result Identity
+
 PR: <url or none>
 HEAD: <sha if available>
-Completed: <short list>
-Validation: <commands/checks and pass/fail>
-Blocker/decision: <none or exact issue>
+
+## Completed Work
+
+- <concise completed item or none>
+
+## Validation
+
+- `<exact command/check>` — PASS | FAIL | NOT_RUN
+  - Evidence: <concise result or reason not run>
+
+## Blocker or Decision
+
+- <none or exact blocker/decision/gate/evidence>
 ```
 
 Handoff is locator/claim, not review evidence.
@@ -150,4 +168,4 @@ Use the `WorkerStatus` classifier above instead of collapsing all stops into `BL
 
 ## 8. Corrections
 
-Normal review corrections on a still-valid assignment generation reuse the same Worker/branch/PR/Assignment ID. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD` plus current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints; Worker verifies assigned-branch HEAD still equals that checkpoint before editing. `Start HEAD` remains the immutable original generation anchor and is never rewritten merely because authorized commits advanced the branch. If superseded/cancelled/invalidated, the checkpoint diverged materially, or responsibility moves to another Worker, Master reconciles and mints a fresh Assignment ID before redispatch when a new generation is required. Master re-reviews the new effective change; approval never carries automatically across code changes.
+Normal review corrections on a still-valid assignment generation reuse the same Worker/branch/PR/Assignment ID. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD` plus current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints; Worker verifies assigned-branch HEAD still equals that checkpoint before editing. When this correction/resume instruction is relayed, use the `SKILL.md` machine-relay transport contract and send only the decision-relevant delta: Worker + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. Do not duplicate the full original contract when its authoritative identity is current and reachable. `Start HEAD` remains the immutable original generation anchor and is never rewritten merely because authorized commits advanced the branch. If superseded/cancelled/invalidated, the checkpoint diverged materially, or responsibility moves to another Worker, Master reconciles and mints a fresh Assignment ID before redispatch when a new generation is required. Master re-reviews the new effective change; approval never carries automatically across code changes.

@@ -29,6 +29,12 @@ Concern selection by itself never changes accepted scope, `RiskLevel`, `Assuranc
 | user-facing quality | For applicable UI/product surfaces, are accessible interaction, responsive behavior, loading/error/empty states, localization/internationalization, and timezone behavior materially affected? Apply only the relevant subset. |
 | operations / release | Does configuration/environment behavior, health, rollback, deployment, support procedure, or incident response materially change? Keep code, configuration, secrets, and environment-specific state separated where the platform supports it; validate material configuration at the appropriate boundary and prefer explicit safe defaults over silent misconfiguration. Update durable operating guidance only when future operators need it. |
 
+### Authorized defensive AI work
+
+When security-sensitive implementation or review is relayed to another AI, state only authorization and scope supported by current evidence: the exact defensive goal, in-scope repository/change/system, applicable explicit user/organization authorization, allowed action boundary (for example read-only review or isolated reversible implementation/test), and prohibited out-of-scope effects. Technical access or repository permissions alone never invent or widen `ProjectAuthority`/`ScopedAuthorization`, and an authorization statement never claims to override provider/platform policy.
+
+Frame the requested work around defensive analysis, root cause, remediation, and verification. Do not request secrets/credentials, unrelated third-party targeting, unapproved production mutation, weaponization, persistence, evasion, or other unnecessary offensive action. If a provider/tool restricts one detail, omit or redact only that detail, continue every safely allowed outcome-linked review/remediation/test, and report the exact limitation plus its effect on evidence/completeness. Do not replace all safe work with an undifferentiated refusal merely because security is involved. If a limitation prevents required review evidence, return an incomplete review without approval under `review-integration.md`; never fabricate evidence or weaken security to avoid the limitation.
+
 ### Production diagnostics and logging
 
 When production diagnosability is material:

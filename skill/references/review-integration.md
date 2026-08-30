@@ -183,9 +183,63 @@ When independent review is required and a genuinely independent reviewer must be
 - exact review boundary + material architecture/security/data/performance/operational constraints;
 - current validation/CI evidence identifiers tied to the reviewed change;
 - reviewer authority, read-only by default unless another bounded action is explicitly authorized;
+- for security-sensitive work, the exact evidence-backed defensive purpose/scope and allowed/prohibited action boundary from `engineering-quality.md` without inventing authorization or implying that authorization overrides provider/platform policy;
 - expected findings as `BLOCKER`, `REQUIRED`, or `OPTIONAL`, each tied to concrete evidence.
 
-If no direct reviewer tool/account is available but a fresh independent chat/model/human reviewer can be used, produce a single ready-to-paste `INDEPENDENT REVIEW CHAT` prompt and relay the result back to Master. Lack of a GitHub reviewer username alone is not a blocker. The returned review should identify the exact candidate SHA it reviewed, state a verdict (`APPROVE` or `CHANGES_REQUIRED`), and list evidence-backed findings. Master then verifies the candidate/target have not materially drifted before accepting that review as current.
+If no direct reviewer tool/account is available but a fresh independent chat/model/human reviewer can be used, produce a single ready-to-paste `INDEPENDENT REVIEW CHAT` prompt and relay the result back to Master. Lack of a GitHub reviewer username alone is not a blocker. The prompt and returned result follow the machine-relay transport contract in `SKILL.md`.
+
+The reviewer returns exactly this result contract. `Review Completion` and `Verdict` are transport/result fields, not new orchestration lifecycle states:
+
+```text
+# INDEPENDENT REVIEW RESULT
+
+Review Completion: COMPLETE | INCOMPLETE
+Verdict: APPROVE | CHANGES_REQUIRED | NOT_ISSUED
+
+## Review Envelope
+
+- Repository: <owner/repository>
+- Integration Target: <branch@sha>
+- Candidate: <exact sha>
+- Pull Request: <number/url or none>
+- Contract Revision: <number or not applicable>
+- Risk Level: <LOW | MEDIUM | HIGH | CRITICAL>
+- Coordination Baseline: <LIGHTWEIGHT | STANDARD>
+- Assurance Level: <NORMAL | HIGH_ASSURANCE>
+
+## Evidence Reviewed
+
+- <authoritative evidence inspected>
+
+## Findings
+
+### REQUIRED R-001 — <finding title>
+
+- Location: <path/lines/symbol/object>
+- Evidence: <concrete current evidence>
+- Impact: <why this matters>
+- Required Remediation: <smallest required correction>
+- Verification: <how Master can prove resolution>
+
+## Residual Risks and Uncertainty
+
+- <none or bounded residual risk/uncertainty>
+
+## Scope or Policy Limitations
+
+- <none or exact unreviewed/restricted surface and effect on completeness>
+```
+
+Result rules:
+
+- `APPROVE` requires `Review Completion: COMPLETE`, the exact current review envelope, and no `BLOCKER` or `REQUIRED` finding;
+- `CHANGES_REQUIRED` means the candidate/evidence itself has at least one evidence-backed `BLOCKER` or `REQUIRED` deficiency;
+- `NOT_ISSUED` requires `Review Completion: INCOMPLETE` because a reviewer/tool/policy/evidence-access limitation prevented the required review; reviewer inability to inspect evidence is not silently converted into a candidate defect or approval;
+- when no finding exists, write `None.` under Findings rather than omitting the section; order actual findings `BLOCKER`, `REQUIRED`, then `OPTIONAL`;
+- a candidate that fails to supply evidence required by acceptance may receive `CHANGES_REQUIRED`; evidence that exists but was unavailable only to this reviewer normally yields `INCOMPLETE / NOT_ISSUED`;
+- security-sensitive results may describe defensive location, evidence, impact, remediation, and verification while following `engineering-quality.md` redaction/minimization boundaries; a restricted detail does not justify suppressing otherwise safe useful findings.
+
+Master verifies the candidate/target/contract and reviewed effective change have not materially drifted, checks result-contract completeness, and independently reconciles every finding before relying on the result. Formatting defects alone do not manufacture a code finding: if the semantic result is safely recoverable, normalize it for reconciliation; never normalize missing identity/evidence into approval.
 
 Do not create permanent reviewer role/state solely for handoff. Master remains responsible for refreshing current evidence, deciding finding validity/currentness, obtaining required fixes/approvals, and owning integration. Manual relay uses the single-copy-target prompt rule from `SKILL.md`.
 
