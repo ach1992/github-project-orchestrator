@@ -14,6 +14,7 @@ BENCH = ROOT / "benchmarks" / "phase7"
 CHECKER = ROOT / "tools" / "check_runtime_equivalence.py"
 CONFIG = BENCH / "runtime-optimization-baseline.json"
 LANE = BENCH / "runtime-optimization-scenarios.json"
+MODEL_TRIAL = BENCH / "model-trial-cases.json"
 
 spec = importlib.util.spec_from_file_location("runtime_equivalence", CHECKER)
 if spec is None or spec.loader is None:
@@ -85,6 +86,15 @@ for case in lane["comparison_cases"]:
     if not case.get("protect") or not case.get("measure") or not case.get("eval_anchors"):
         raise AssertionError(f"comparison case is incomplete: {case.get('id')}")
 print("PASS runtime-optimization-comparison-contract")
+
+model_trial = json.loads(MODEL_TRIAL.read_text(encoding="utf-8"))
+if model_trial.get("semantic_case_contract") != "benchmarks/phase7/runtime-optimization-scenarios.json":
+    raise AssertionError("model trials must reference the canonical runtime optimization semantic case contract")
+if set(model_trial.get("case_ids", [])) != observed_cases:
+    raise AssertionError(
+        "model-trial case IDs must exactly select the canonical runtime optimization cases"
+    )
+print("PASS model-trial-semantic-case-single-owner")
 
 baseline = result["baseline_inventory"]
 
