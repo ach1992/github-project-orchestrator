@@ -76,8 +76,14 @@ jobs:
       - name: Test runtime equivalence gate
         run: python3 tests/test_runtime_equivalence.py
 
-      - name: Test runtime dimension representation prototype
-        run: python3 tests/test_runtime_dimension_invariant_experiment.py
+      - name: Test runtime representation prototypes
+        shell: bash
+        run: |
+          set -euo pipefail
+          for test in tests/test_runtime_*_experiment.py; do
+            echo "==> $test"
+            python3 "$test"
+          done
 
       - name: Test auditable model trial runner
         run: python3 tests/test_run_model_trials.py
