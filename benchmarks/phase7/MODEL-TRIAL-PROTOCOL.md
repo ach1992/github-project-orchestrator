@@ -46,7 +46,9 @@ Optional latency/token measurements may be captured in a **separate diagnostic a
 
 ## Required case coverage
 
-Use the machine-readable contract in `model-trial-cases.json`. It includes the eight current representation-comparison classes:
+`runtime-optimization-scenarios.json` is the single semantic owner for the representation-comparison cases, including each case's protected behavior and eval anchors. `model-trial-cases.json` is only the actual-model scoring/selection manifest: it references that canonical semantic contract and selects the same eight case IDs without duplicating their meaning.
+
+The selected cases cover:
 
 - hot FAST Master path;
 - consequential mutation/authority path;
