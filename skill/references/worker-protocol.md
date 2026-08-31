@@ -8,9 +8,16 @@ Workers are bounded implementation agents. Master remains accountable for projec
 
 ## 1. Isolation
 
-One Worker = one Task Contract + one assigned branch at a time. Use a dedicated worktree when useful for isolation; its filesystem path is runtime location, not assignment identity.
+One Worker = one Task Contract + one assigned branch at a time. Use a dedicated worktree when useful; its path is runtime location, never assignment identity.
 
-Before editing, verify: repository/working directory; Issue/Task Contract revision; `Assignment ID`; exact `Base SHA`; assigned branch; distinct canonical Integration Target; Worker identity; active Assignment Status; inherited `Project Authority`, `Coordination Baseline`, and `Assurance Level`; any exact current `Scoped Authorization`; known worktree state; repository rules; required validation; task risk/release constraints. On **initial dispatch**, current assigned-branch/worktree HEAD must equal immutable `Start HEAD`. After normal authorized commits in the same valid generation, treat `Start HEAD` as the historical verified start, not a permanent HEAD-equality requirement. On a same-generation correction/resume, verify current assigned-branch HEAD equals the Master-supplied `Checkpoint HEAD` before editing. Material identity/checkpoint mismatch -> `WorkerStatus.STALE_ASSIGNMENT`; do not guess. Worker never upgrades ProjectAuthority, ScopedAuthorization, CoordinationBaseline, or AssuranceLevel, and never broadens assignment because Master is unavailable.
+[task-contract.md](task-contract.md) §8 owns the persisted Worker assignment/concurrency envelope. Before editing:
+
+1. verify repository/working directory, assigned branch/worktree safety, repository rules, required validation, and task risk/release constraints;
+2. verify the current persisted assignment envelope from §8;
+3. on initial dispatch before the first contracted edit, require current assigned-branch/worktree HEAD = immutable `Start HEAD`; later authorized same-generation commits may advance beyond it without staleness;
+4. on same-generation correction/resume, require current assigned-branch HEAD = Master-supplied `Checkpoint HEAD` before editing.
+
+Any material identity/checkpoint mismatch -> `WorkerStatus.STALE_ASSIGNMENT`; never guess. Worker never upgrades `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, or `AssuranceLevel`, and never broadens assignment because Master is unavailable.
 
 ## 2. Dispatch prompt
 
