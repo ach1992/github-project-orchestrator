@@ -1,6 +1,6 @@
 # Runtime Representation Model-Trial Protocol
 
-Tracking: #35, #36 Contract Revision 2, #37
+Tracking: #35, #36 Contract Revision 2, #37, #47
 
 ## Purpose
 
@@ -26,6 +26,37 @@ Within a trial suite, keep the model/runtime identity, model settings, available
 
 Do not inspect, request, store, or score private chain-of-thought. Score only observable behavior and evidence. The scored trial JSON uses a closed schema and rejects undeclared/private-reasoning fields.
 
+## Executable evidence lane
+
+`tools/run_model_trials.py` is the single provider/paired-execution layer for this protocol. It does not own case semantics or scoring policy:
+
+- `runtime-optimization-scenarios.json` remains the semantic owner and now carries each case's exact `trial_input` next to its existing protected behavior and measurement contract;
+- `model-trial-cases.json` remains the selection/scoring manifest;
+- the exact experiment descriptor at the candidate SHA owns how the candidate representation is materialized from the immutable baseline;
+- `score_model_trials.py` remains the only deterministic scored-evidence gate.
+
+The runner validates the exact baseline/candidate identities, materializes the candidate entrypoint from the frozen experiment descriptor, precomputes the full paired plan and exact input fingerprints before dispatch, and alternates baseline-first/candidate-first order deterministically. It exposes only one controlled function tool, `read_runtime_reference`, so progressive reference routing remains observable without adding project-specific orchestration tools. Raw tool audit records store path/hash/size/status rather than duplicating reference contents.
+
+Default `--suite screening` consumes the experiment's declared screening IDs and `minimum_pairs_per_case` from the existing manifest. For the current first experiment this is exactly 3 pairs each for `hot-fast-master-path` and `cold-master-recovery`: 6 pairs / 12 representation executions. `--suite selection` consumes all eight case IDs from the manifest. Increasing pair count changes the frozen plan fingerprint and therefore the auditable trial identity.
+
+Dry-run/plan mode needs no API credential and performs no provider call:
+
+```bash
+python3 tools/run_model_trials.py \
+  --candidate-ref 9384b371264473b291fe815b5725ae64f44d4179 \
+  --dry-run
+```
+
+The exact candidate commit must already exist in local Git object storage; dry-run never fetches it implicitly. This keeps candidate provenance/network activity outside trial execution.
+
+For a live run, provision `RUNTIME_MODEL_API_KEY` only through an approved server-side secret/environment mechanism. The runner intentionally has no API-key command-line option and never writes request headers or the secret into evidence. Supply the non-secret runtime identity through `API_BASE_URL`, `MODEL_ID`, `MODEL_VERSION`, and explicit `MODEL_SETTINGS_JSON` (or the corresponding non-secret CLI options), then provide new, non-existing paths for `--raw-output` and `--annotation-template-output`. Evidence paths are create-only: the runner refuses to overwrite an existing trial artifact.
+
+The transport boundary is the OpenAI-compatible Chat Completions endpoint (`POST /chat/completions`) with one response choice and function-tool calling. `API_BASE_URL` may be the API root (for example an endpoint ending in `/v1`) or the full `/chat/completions` route. HTTPS is required except for loopback/local mocked HTTP. There is no automatic retry: transport/provider-schema failure stops the suite, writes only incomplete raw evidence, produces no scorer-input template, and cannot be claimed as scored evidence.
+
+A successful raw artifact contains exact representation/runtime/settings/toolset identity, the frozen plan, unique `trial://...` per-run audit references, user-visible model output/refusal, safe provider response identity/status, timestamps, and observable runtime-reference tool operations. Unknown provider fields are not copied into evidence; private reasoning is never requested or persisted.
+
+After every planned run completes, the runner can emit an **annotation template** shaped like the scorer input. Its `observed` fields are intentionally `null`: the runner does not silently judge semantic correctness, protected violations, useful-action steps, or unnecessary activity. The unannotated template is deliberately rejected by `score_model_trials.py`. A reviewer/explicit annotation step must fill only observable fields from the raw evidence before the scorer is run.
+
 ## Required observable fields
 
 Each scored run records only:
@@ -47,7 +78,7 @@ Optional latency/token measurements may be captured in a **separate diagnostic a
 
 ## Required case coverage
 
-`runtime-optimization-scenarios.json` is the single semantic owner for the representation-comparison cases, including each case's protected behavior and eval anchors. `model-trial-cases.json` is only the actual-model scoring/selection manifest: it references that canonical semantic contract and selects the same eight case IDs without duplicating their meaning.
+`runtime-optimization-scenarios.json` is the single semantic owner for the representation-comparison cases, including each case's exact model-trial input, protected behavior and eval anchors. `model-trial-cases.json` is only the actual-model scoring/selection manifest: it references that canonical semantic contract and selects the same eight case IDs without duplicating their meaning.
 
 The selected cases cover:
 
@@ -60,7 +91,7 @@ The selected cases cover:
 - integration versus delivery;
 - namespace/effect isolation.
 
-The default selection suite requires at least three paired runs per case. More runs are appropriate when results are noisy or near the decision boundary.
+The default selection suite requires at least three paired runs per case. More runs are appropriate when results are noisy or near the decision boundary, but any post-output plan/input/settings/threshold change is a new auditable trial identity rather than an in-place rewrite of observed evidence.
 
 ## Hard gates
 
