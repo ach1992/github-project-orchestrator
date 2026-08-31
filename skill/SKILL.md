@@ -9,18 +9,16 @@ Use this file as the control kernel. Resolve `Role`, establish only decision-rel
 
 ## 1. Role and runtime state
 
-| Dimension | Values / rule |
-|---|---|
-| `Role` | `MASTER` owns project framing, priority, implementation strategy, review/integration, continuity, and release. `WORKER` owns exactly one assigned Task Contract and never reprioritizes or integrates the target. |
-| `ProjectAuthority` | `ADVISORY` · `MANAGED` · `AUTONOMOUS_WITH_GATES`; end-to-end ownership defaults to `MASTER + AUTONOMOUS_WITH_GATES`. |
-| `ScopedAuthorization` | exact action/target/effect grant; never a project-wide authority upgrade |
-| `CoordinationBaseline` | `LIGHTWEIGHT` for bounded low-coordination outcomes, including one bounded Worker when delegation adds value without material coordination; `STANDARD` for multiple/overlapping Workers or material multi-item/delegation/dependency/review/release/cross-session coordination |
-| `AssuranceLevel` | `NORMAL` · `HIGH_ASSURANCE`; additive only for affected work when risk, policy, or explicit authorized controls justify it |
-| `RiskLevel` | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL`, classified per substantive change only when decision-relevant |
+| Dimension | Values / responsibility | Stability / non-implication |
+|---|---|---|
+| `Role` | `MASTER` owns project framing, priority, implementation strategy, review/integration, continuity, and release. `WORKER` owns exactly one assigned Task Contract and never reprioritizes or integrates the target. | `KEEP` until the actual assignment basis changes. |
+| `ProjectAuthority` | `ADVISORY` · `MANAGED` · `AUTONOMOUS_WITH_GATES`; end-to-end ownership defaults to `MASTER + AUTONOMOUS_WITH_GATES`. | `KEEP` until the actual authorization basis changes. Capability, environment, risk, coordination, or assurance never widens it; chat/Master rotation never makes it more permissive. |
+| `ScopedAuthorization` | exact action/target/effect grant | Never upgrades project-wide `ProjectAuthority`. |
+| `CoordinationBaseline` | `LIGHTWEIGHT` for bounded low-coordination outcomes, including one bounded Worker when delegation adds value without material coordination; `STANDARD` for multiple/overlapping Workers or material multi-item/delegation/dependency/review/release/cross-session coordination | `KEEP` until the actual coordination basis changes, including across Master rotation. `STANDARD` remains FAST-compatible and never implies FULL. |
+| `AssuranceLevel` | `NORMAL` · `HIGH_ASSURANCE` | Apply `HIGH_ASSURANCE` only to affected work, additively, when justified by risk, policy, or explicit authorized controls; return to `NORMAL` when that escalation ends. It never implies approval or FULL. |
+| `RiskLevel` | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | Classify per substantive change only when decision-relevant. |
 
-These dimensions are orthogonal unless a canonical rule explicitly connects them. Technical capability, environment, risk, coordination, or assurance never broadens `ProjectAuthority`; `HIGH_ASSURANCE` never implies approval or FULL execution by itself; `STANDARD` remains compatible with FAST execution. Project/repository size alone does not select `STANDARD` or `HIGH_ASSURANCE`. Infer safely instead of asking the user to choose ceremony.
-
-Keep `Role`, `ProjectAuthority`, and `CoordinationBaseline` stable until their actual assignment/authorization/coordination basis changes. `HIGH_ASSURANCE` is scoped to affected work and returns to `NORMAL` when that escalation ends. Carry current ProjectAuthority and CoordinationBaseline across Master rotation rather than becoming more permissive because chat history is absent.
+Dimensions remain orthogonal unless a canonical rule explicitly connects them. Project/repository size alone selects neither `STANDARD` nor `HIGH_ASSURANCE`. Infer safely instead of asking user to choose ceremony.
 
 For any consequential action, [references/authority-gates.md](references/authority-gates.md) owns `CAN_EXECUTE(action)`, `ApplicableEffects`, obligation union, authorization, canonical boundary meanings, `WriteState.UNKNOWN`, and optimistic concurrency.
 
@@ -105,7 +103,7 @@ Worker correction/resume stays in `worker-protocol.md`; Master supplies the revi
 
 If direct Worker dispatch is unavailable, Master self-executes when safe, authorized, and capable; use a human-relayed Worker prompt only when delegation still materially helps.
 
-When independent review is required, independence means a review performed outside the authoring Master's review context by a separate reviewer instance/person/tool; it does **not** require a distinct GitHub username or platform-native PR review unless repository/platform policy or an applicable approval gate specifically requires that mechanism. A fresh independent chat/model or human reviewer may be relayed the bounded current review packet and can satisfy the independent-review requirement when it returns evidence-backed findings for the exact reviewed identity. The Master must reconcile the returned review and revalidate candidate/target freshness before relying on it.
+When independent review is required, independence means a review performed outside the authoring Master's review context by a separate reviewer instance/person/tool; it does **not** require a distinct GitHub username or platform-native PR review unless repository/platform policy or an applicable approval gate specifically requires that mechanism. A fresh independent chat/model or human reviewer may be relayed the bounded current review packet and can satisfy the independent-review requirement when it returns evidence-backed findings for the exact reviewed identity. The Master must reconcile the returned review and revalidate candidate/target freshness before relyinging on it.
 
 A **machine relay** is a complete prompt or result intended for another agent/chat, including Worker dispatch/correction/handoff, independent-review prompt/result, and Master rotation/recovery bootstrap. Write machine-relay prose in English unless the user explicitly requests another relay language; direct user-facing explanation remains in the user's language. Preserve identity-bearing or decision-relevant literals as observed—including identifiers, refs/SHAs, paths, commands, code/error strings, and quoted source-language or user-facing text when exact wording is material—unless an existing safety/redaction rule requires omission or redaction; never silently translate or normalize them merely to satisfy the relay language default. Every machine relay emitted in a user-visible response is automatically a copy/paste artifact: the entire response must be exactly one copy-target fenced code block containing the complete relay, with no content before or after it. No separate request for copy-ready formatting is required; use a longer outer fence when embedded fences are required. The directly routed domain owner defines the payload fields and semantics; this transport rule creates no new lifecycle/state and never weakens scope, authority, safety, evidence, review, or release controls.
 
