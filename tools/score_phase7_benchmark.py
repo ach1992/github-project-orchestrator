@@ -212,7 +212,7 @@ def evaluate_candidate_pair(scenarios_doc, baseline_doc, candidate_doc):
 
     This lane checks protected behavior and reports structural/friction diagnostics only.
     It intentionally does not require, reward, or certify a synthetic trace reduction.
-    Practical optimization claims belong exclusively to paired actual model/runtime trials.
+    This scorer does not issue a practical-optimization verdict; the current program evidence policy owns that decision, and paired actual model/runtime trials are optional corroboration.
     """
     baseline_version = baseline_doc.get("version", "")
     candidate_version = candidate_doc.get("version", "")
@@ -248,8 +248,8 @@ def evaluate_candidate_pair(scenarios_doc, baseline_doc, candidate_doc):
         "evidence_kind": "source-grounded-policy-simulation",
         "optimization_claim_eligible": False,
         "proof_boundary": (
-            "protected/source-grounded diagnostic comparison only; actual paired model/runtime "
-            "trial evidence is required for any practical-improvement claim"
+            "protected/source-grounded diagnostic comparison only; not measured model/runtime "
+            "performance evidence and not sufficient by itself for a practical-improvement claim"
         ),
     }
 

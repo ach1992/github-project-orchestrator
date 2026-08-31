@@ -119,7 +119,7 @@ score.validate_source_refs(ROOT, runtime_baseline)
 print("PASS v1.2.2-runtime-baseline-provenance")
 
 # Identical source-grounded traces are semantically acceptable. They simply prove no
-# practical improvement; that determination belongs to actual paired model/runtime trials.
+# measured model/runtime improvement by itself; current program policy owns the broader practical-benefit determination, with paired model/runtime trials optional corroboration.
 same_candidate = copy.deepcopy(runtime_baseline)
 same_candidate["version"] = "a" * 40
 same_result = score.evaluate_candidate_pair(
@@ -166,7 +166,7 @@ if unsafe_result["ok"] or not any(
 print("PASS source-grounded-safety-regression-rejected")
 
 # Structural friction increases are surfaced for review but are not misrepresented as
-# measured LLM regressions; actual A/B trials decide practical value.
+# measured LLM regressions; current program evidence policy decides practical value, with actual A/B trials optional corroboration.
 noisier_candidate = copy.deepcopy(runtime_baseline)
 noisier_candidate["version"] = "c" * 40
 trace(noisier_candidate, "small-routine-fix")["events"].insert(
