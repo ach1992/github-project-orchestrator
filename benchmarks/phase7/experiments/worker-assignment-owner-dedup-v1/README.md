@@ -79,6 +79,8 @@ The source §1 paragraph is doing two jobs at once:
 
 Under the #50 framework, ontology and procedure are different semantic shapes. The assignment envelope stays a table/schema in its canonical owner; Worker Protocol uses a short numbered verification procedure because sequence/before-edit action is the actual local behavior.
 
+The result is a **single exact assignment envelope owner** plus one Worker-specific verification procedure, rather than two normative field-list renditions.
+
 The candidate is therefore not "shorter prose for its own sake". It removes one competing rendition of the assignment envelope while keeping the exact Worker action local.
 
 ## Protected evidence surface
