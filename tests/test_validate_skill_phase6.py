@@ -234,10 +234,42 @@ def worker_contract_tests() -> None:
     )
 
 
+
+def machine_relay_transport_regression_tests() -> None:
+    skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
+    project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
+    eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
+
+    forbidden_legacy = (
+        "When a relay is presented for copy/paste",
+        "when presented for copy/paste",
+    )
+    for legacy in forbidden_legacy:
+        if legacy in skill_text or legacy in project_text:
+            raise AssertionError(f"machine-relay copyability is still conditional: {legacy}")
+
+    required_skill = (
+        "Every machine relay emitted in a user-visible response is automatically a copy/paste artifact",
+        "the entire response must be exactly one copy-target fenced code block containing the complete relay",
+        "No separate request for copy-ready formatting is required",
+    )
+    for phrase in required_skill:
+        if phrase not in skill_text:
+            raise AssertionError(f"canonical machine-relay transport invariant missing: {phrase}")
+
+    if "Every user-visible machine relay is automatically a copy/paste artifact" not in project_text:
+        raise AssertionError("project-level machine-relay requirement is not unconditional")
+    if "without waiting for a separate copy-ready request" not in eval_text:
+        raise AssertionError("AT does not exercise relay output without a separate copy-ready request")
+    if "returned independent-review result is itself a machine relay" not in eval_text:
+        raise AssertionError("DI does not exercise the independent-review result transport path")
+    print("PASS machine-relay-unconditional-copy-target")
+
 def main() -> None:
     traceability_tests()
     state_tests()
     worker_contract_tests()
+    machine_relay_transport_regression_tests()
 
 
 if __name__ == "__main__":
