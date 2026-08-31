@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Score paired observable A/B trials for runtime-representation candidates.
 
-This scorer never consumes or requests private chain-of-thought. It evaluates only
-explicit observable run records plus auditable transcript/tool-log references.
+This scorer never consumes or requests private chain-of-thought. It accepts only the
+closed observable evidence schema plus auditable transcript/tool-log references.
 """
 from __future__ import annotations
 
@@ -15,11 +15,30 @@ from pathlib import Path
 
 FULL_SHA_RE = re.compile(r"[0-9a-f]{40}")
 PROGRAM_BASELINE_REF = "f98e8a242c720931e34aa7c4e8a799090e3d0495"
+REQUIRED_TRIAL_FIELDS = {
+    "schema_version",
+    "suite_id",
+    "evidence_kind",
+    "baseline_representation",
+    "candidate_representation",
+    "runtime_identity",
+    "runs",
+}
+REQUIRED_REPRESENTATION_FIELDS = {"label", "ref"}
 REQUIRED_RUNTIME_IDENTITY = {
     "model_id",
     "model_version",
     "settings_fingerprint",
     "toolset_fingerprint",
+}
+REQUIRED_RUN_FIELDS = {
+    "run_id",
+    "pair_id",
+    "case_id",
+    "representation",
+    "order",
+    "transcript_ref",
+    "observed",
 }
 REQUIRED_OBSERVED_FIELDS = {
     "correct_next_action",
@@ -139,6 +158,10 @@ def one_sided_sign_test(differences: list[int]) -> dict:
 
 def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
     cases = validate_cases(cases_doc)
+    if set(trials_doc) != REQUIRED_TRIAL_FIELDS:
+        raise ValueError(
+            f"model-trial result fields must be exactly {sorted(REQUIRED_TRIAL_FIELDS)}"
+        )
     if trials_doc.get("schema_version") != 1:
         raise ValueError("unsupported model-trial result schema_version")
     if trials_doc.get("suite_id") != cases_doc["suite_id"]:
@@ -146,43 +169,53 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
     if trials_doc.get("evidence_kind") != "actual-model-runtime-ab":
         raise ValueError("trial evidence_kind must be actual-model-runtime-ab")
 
-    baseline = trials_doc.get("baseline_representation", {})
-    candidate = trials_doc.get("candidate_representation", {})
-    baseline_ref = baseline.get("ref", "")
-    candidate_ref = candidate.get("ref", "")
+    baseline = trials_doc["baseline_representation"]
+    candidate = trials_doc["candidate_representation"]
+    if not isinstance(baseline, dict) or set(baseline) != REQUIRED_REPRESENTATION_FIELDS:
+        raise ValueError("baseline_representation must contain exactly label and ref")
+    if not isinstance(candidate, dict) or set(candidate) != REQUIRED_REPRESENTATION_FIELDS:
+        raise ValueError("candidate_representation must contain exactly label and ref")
+    baseline_ref = baseline["ref"]
+    candidate_ref = candidate["ref"]
     if baseline_ref != cases_doc["baseline_ref"] or baseline_ref != PROGRAM_BASELINE_REF:
         raise ValueError("trial baseline representation does not match immutable program baseline")
     if not FULL_SHA_RE.fullmatch(candidate_ref) or candidate_ref == baseline_ref:
         raise ValueError("candidate representation must be a distinct exact full commit SHA")
-    if not baseline.get("label") or not candidate.get("label"):
-        raise ValueError("baseline and candidate representations require non-empty labels")
+    if not isinstance(baseline["label"], str) or not baseline["label"].strip():
+        raise ValueError("baseline representation requires a non-empty label")
+    if not isinstance(candidate["label"], str) or not candidate["label"].strip():
+        raise ValueError("candidate representation requires a non-empty label")
 
-    runtime_identity = trials_doc.get("runtime_identity", {})
-    if set(runtime_identity) != REQUIRED_RUNTIME_IDENTITY:
+    runtime_identity = trials_doc["runtime_identity"]
+    if not isinstance(runtime_identity, dict) or set(runtime_identity) != REQUIRED_RUNTIME_IDENTITY:
         raise ValueError(
             f"runtime_identity fields must be exactly {sorted(REQUIRED_RUNTIME_IDENTITY)}"
         )
     if any(not isinstance(value, str) or not value.strip() for value in runtime_identity.values()):
         raise ValueError("runtime_identity values must be non-empty strings")
 
-    runs = trials_doc.get("runs", [])
+    runs = trials_doc["runs"]
     if not isinstance(runs, list) or not runs:
         raise ValueError("model-trial results require runs")
 
     pair_rows: dict[str, list[dict]] = defaultdict(list)
     seen_run_ids: set[str] = set()
     for row in runs:
-        run_id = row.get("run_id")
+        if not isinstance(row, dict) or set(row) != REQUIRED_RUN_FIELDS:
+            raise ValueError(
+                f"every trial run must contain exactly {sorted(REQUIRED_RUN_FIELDS)}"
+            )
+        run_id = row["run_id"]
         if not isinstance(run_id, str) or not run_id:
             raise ValueError("every trial run requires a non-empty run_id")
         if run_id in seen_run_ids:
             raise ValueError(f"duplicate trial run_id: {run_id}")
         seen_run_ids.add(run_id)
-        pair_id = row.get("pair_id")
-        case_id = row.get("case_id")
-        representation = row.get("representation")
-        order = row.get("order")
-        transcript_ref = row.get("transcript_ref")
+        pair_id = row["pair_id"]
+        case_id = row["case_id"]
+        representation = row["representation"]
+        order = row["order"]
+        transcript_ref = row["transcript_ref"]
         if not isinstance(pair_id, str) or not pair_id:
             raise ValueError(f"run {run_id} requires pair_id")
         if case_id not in cases:
@@ -193,7 +226,7 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
             raise ValueError(f"run {run_id} order must be 1 or 2")
         if not isinstance(transcript_ref, str) or not transcript_ref.strip():
             raise ValueError(f"run {run_id} requires auditable transcript_ref")
-        observed = row.get("observed")
+        observed = row["observed"]
         if not isinstance(observed, dict):
             raise ValueError(f"run {run_id} requires observed object")
         validate_observed(observed, run_id)
