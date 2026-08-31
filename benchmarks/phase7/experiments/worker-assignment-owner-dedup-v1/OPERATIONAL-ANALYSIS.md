@@ -3,7 +3,17 @@
 Experiment: `worker-assignment-owner-dedup-v1`
 Tracking: #54
 
-This analysis compares canonical decision/application paths, not private model reasoning. The supported benefit claim is ownership/locality: one assignment ontology plus one Worker verification procedure instead of two prose renditions of the same envelope.
+This analysis compares canonical decision/application paths, not private model reasoning. The supported benefit claim is ownership/locality: one persisted assignment-identity ontology plus concise Worker-owned verification behavior instead of repeating the persisted field list inside that behavior.
+
+Canonical Rule Map boundary used throughout:
+
+- `ASSIGNMENT-IDENTITY` -> `task-contract.md`;
+- `START-HEAD-HISTORICAL` -> `worker-protocol.md`;
+- `CORRECTION-CHECKPOINT` -> `worker-protocol.md`;
+- `STALE-ASSIGNMENT` -> `worker-protocol.md`;
+- `WORKER-TARGET-SEPARATION` -> `worker-protocol.md`.
+
+The candidate must remove only duplicate persisted-field enumeration; it must not move these Worker-owned behaviors to Task Contract.
 
 ## 1. Initial Worker dispatch before first edit
 
@@ -14,27 +24,29 @@ Input:
 
 Protected behavior:
 
-- load current contract + assignment identity;
-- verify repository/workdir/branch/worktree and every persisted envelope assumption;
+- load current contract + persisted assignment identity;
+- verify repository/workdir/branch/worktree and the current envelope;
 - current assigned-branch/worktree HEAD must equal immutable Start HEAD before first edit;
 - mismatch -> `WorkerStatus.STALE_ASSIGNMENT`.
 
 Baseline path:
 
-- `task-contract.md` §8 defines the exact persisted envelope and Start HEAD semantics;
-- `worker-protocol.md` §1 lists almost the same fields again and repeats initial Start HEAD equality before applying the Worker consequence.
+- `task-contract.md` §8 canonically owns the persisted assignment generation/envelope identity;
+- Worker Protocol canonically owns the initial Start HEAD behavior and mismatch consequence;
+- source Worker §1 nevertheless re-lists most persisted envelope fields before applying that behavior.
 
 Candidate path:
 
-- `task-contract.md` §8 remains the single envelope definition;
-- candidate Worker §1 says to read/verify that current envelope, then performs the local branch/worktree and initial Start HEAD check;
-- mismatch consequence remains local.
+- `task-contract.md` §8 remains the single persisted identity/envelope definition;
+- candidate Worker §1 verifies that current envelope without re-listing it;
+- candidate check 3 remains the Worker-owned initial Start HEAD rule;
+- mismatch consequence remains local in Worker Protocol.
 
 Decision: **identical**.
 
-Structural difference: the Worker does not have to reconcile two normative field lists before editing.
+Structural difference: the Worker no longer reconciles two normative persisted-field lists before applying the same Worker-owned concurrency rule.
 
-Protected evals: `AK`, `AM`, `DG`.
+Protected rules/evals: `ASSIGNMENT-IDENTITY`, `START-HEAD-HISTORICAL`, `AK`, `AM`, `DG`.
 
 ## 2. Normal authorized Worker progress
 
@@ -52,19 +64,20 @@ Protected behavior:
 
 Baseline path:
 
-- this rule exists in canonical `task-contract.md` §8 and is repeated in Worker §1 and Worker staleness section.
+- Task Contract persists Start HEAD inside the assignment envelope;
+- canonical `START-HEAD-HISTORICAL` behavior is owned by Worker Protocol and is represented in Worker §1 plus the staleness section.
 
 Candidate path:
 
-- canonical identity owner retains the full Start HEAD semantics;
-- Worker §1 check 3 explicitly preserves normal authorized same-generation advance;
+- Task Contract continues to persist Start HEAD unchanged;
+- candidate Worker §1 check 3 explicitly preserves normal authorized same-generation advance;
 - detailed Worker staleness classifier remains unchanged.
 
 Decision: **identical**.
 
-Structural difference: enough local Worker guidance remains to prevent false staleness, but the full assignment field ontology is not re-listed.
+Structural difference: enough local Worker guidance remains to preserve the canonical historical-anchor rule, while the persisted assignment field ontology is not re-listed.
 
-Protected eval: `CR`.
+Protected rule/eval: `START-HEAD-HISTORICAL`, `CR`.
 
 ## 3. Same-generation correction/resume
 
@@ -81,21 +94,21 @@ Protected behavior:
 
 Baseline path:
 
-- canonical Task Contract identity owner defines Checkpoint semantics;
-- Worker §1 repeats them;
-- Worker Corrections section owns the detailed correction payload/flow.
+- Task Contract persists assignment identity and provides the Checkpoint field in the envelope;
+- canonical `CORRECTION-CHECKPOINT` behavior is owned by Worker Protocol;
+- source Worker §1 states the pre-edit Checkpoint equality and Corrections section owns the detailed correction payload/flow.
 
 Candidate path:
 
-- Task Contract remains the canonical Checkpoint definition;
-- candidate Worker §1 check 4 applies the pre-edit concurrency check;
+- Task Contract continues to persist the envelope field;
+- candidate Worker §1 check 4 remains the Worker-owned pre-edit Checkpoint equality rule;
 - Corrections section remains byte-identical and owns the detailed correction flow.
 
 Decision: **identical**.
 
-Structural difference: definition, pre-edit verification, and detailed correction procedure each have one distinct owner rather than Worker §1 redefining the identity field.
+Structural difference: persisted identity, pre-edit Worker behavior, and detailed correction procedure each remain with their existing owners; only the duplicate persisted-field enumeration is removed.
 
-Protected evals: `DG`, `AV`, `CR`.
+Protected rule/evals: `CORRECTION-CHECKPOINT`, `DG`, `AV`, `CR`.
 
 ## 4. Assignment generation replaced or invalidated
 
@@ -111,23 +124,50 @@ Protected behavior:
 
 Baseline path:
 
-- Task Contract defines generation identity/stale assumptions;
-- Worker §1 repeats field list and mismatch rule;
-- Worker staleness classifier gives the exact drift matrix.
+- Task Contract owns persisted assignment-generation identity;
+- Worker Protocol owns stale-assignment behavior and the exact drift classifier;
+- source Worker §1 repeats the persisted field list before stating the mismatch consequence.
 
 Candidate path:
 
-- Task Contract stays the single persisted identity definition;
-- Worker §1 requires every persisted assumption current and maps material mismatch to STALE;
-- exact drift classifier remains unchanged.
+- Task Contract remains the single persisted identity definition;
+- candidate Worker §1 check 2 verifies the current envelope and maps material identity/checkpoint mismatch to STALE;
+- exact downstream Worker drift classifier remains unchanged.
 
 Decision: **identical**.
 
-Structural difference: no competing field enumeration, while detailed Worker-specific classification remains local.
+Structural difference: no competing persisted-field enumeration, while canonical Worker-specific stale classification remains local.
 
-Protected evals: `AV`, `AK`.
+Protected rules/evals: `ASSIGNMENT-IDENTITY`, `STALE-ASSIGNMENT`, `AV`, `AK`.
 
-## 5. Master unavailable during Worker execution
+## 5. Assigned branch versus Integration Target
+
+Input:
+
+- persisted envelope carries Assigned Branch and canonical Integration Target.
+
+Protected behavior:
+
+- assigned branch is distinct from Integration Target;
+- Worker does not take target integration ownership.
+
+Baseline path:
+
+- Task Contract persists both identities and validates assignment shape;
+- Worker Protocol owns target-separation/integration-boundary behavior.
+
+Candidate path:
+
+- candidate check 2 verifies the persisted envelope rather than re-listing both fields;
+- all downstream Worker execution/target-separation/integration-owner text remains byte-identical.
+
+Decision: **identical**.
+
+Structural difference: identity values remain in the schema owner; behavior remains in Worker Protocol without duplicating the schema enumeration in Isolation.
+
+Protected rule/evals: `WORKER-TARGET-SEPARATION`, `AM`, `CP`.
+
+## 6. Master unavailable during Worker execution
 
 Input:
 
@@ -158,10 +198,11 @@ Protected evals: `DB`, `CP`.
 
 Supported claim:
 
-- `task-contract.md` remains the single exact assignment envelope owner;
-- Worker Protocol retains a local before-edit verification procedure and Worker-specific mismatch consequence;
+- `task-contract.md` remains the single persisted `ASSIGNMENT-IDENTITY` owner;
+- Worker Protocol remains the canonical owner of Start HEAD historical behavior, correction Checkpoint behavior, stale assignment, and target separation;
+- candidate Worker §1 retains those relevant pre-edit behaviors but no longer re-declares the entire persisted envelope;
 - no new reference hop is introduced because Worker entry already mandates both references;
 - transport schemas remain complete and unchanged;
-- no state, field, Rule ID, authority boundary, routing edge, or lifecycle change is introduced.
+- no state, field, Rule ID, authority boundary, routing edge, canonical rule owner, or lifecycle changes.
 
-The candidate does **not** claim live-model accuracy/latency improvement. Its Phase B value is reduced competing normative ownership and more direct semantic-shape matching: schema/table for assignment identity, ordered procedure for Worker verification.
+The candidate does **not** claim live-model accuracy/latency improvement. Its Phase B value is reduced competing persisted-identity enumeration and more direct semantic-shape matching: schema/table for persisted assignment identity, ordered procedure for Worker-owned pre-edit verification.
