@@ -179,6 +179,17 @@ except ValueError as exc:
 else:
     raise AssertionError("missing transcript reference unexpectedly accepted")
 
+private_reasoning = copy.deepcopy(improved_doc)
+private_reasoning["runs"][0]["chain_of_thought"] = "private reasoning must not enter evidence"
+try:
+    score.evaluate(copy.deepcopy(cases), private_reasoning)
+except ValueError as exc:
+    if "every trial run must contain exactly" not in str(exc):
+        raise
+    print("PASS private-reasoning-field-rejected")
+else:
+    raise AssertionError("private reasoning field unexpectedly accepted")
+
 bad_cases = copy.deepcopy(cases)
 bad_cases["baseline_ref"] = "0" * 40
 try:
