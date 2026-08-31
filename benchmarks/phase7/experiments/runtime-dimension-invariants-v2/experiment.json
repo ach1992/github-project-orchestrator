@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "experiment_id": "runtime-dimension-invariants-v2",
+  "issue": 52,
+  "source_ref": "9e584166008567d71591d2a03bf7da713d3664a4",
+  "semantic_baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "semantic_change_allowed": false,
+  "canonical_runtime_changed_during_prototype": false,
+  "isolated_variable": "representation and ownership locality of runtime-dimension stability and non-implication semantics",
+  "supersedes_exact_representation_experiment": "decision-frame-v1@9384b371264473b291fe815b5725ae64f44d4179",
+  "replacements": [
+    {
+      "path": "skill/SKILL.md",
+      "start_heading": "## 1. Role and runtime state",
+      "end_heading_exclusive": "## 2. Universal invariants",
+      "candidate_section": "benchmarks/phase7/experiments/runtime-dimension-invariants-v2/candidate-skill-section.md"
+    },
+    {
+      "path": "skill/references/authority-gates.md",
+      "start_heading": "## 1. Decision dimensions",
+      "end_heading_exclusive": "## 2. Applicable effects",
+      "candidate_section": "benchmarks/phase7/experiments/runtime-dimension-invariants-v2/candidate-authority-section.md"
+    }
+  ],
+  "protected_rule_anchors": [
+    "AUTHORITY-STABLE",
+    "COORDINATION-BASELINE",
+    "ASSURANCE-ADDITIVE",
+    "DIMENSIONS-ORTHOGONAL",
+    "FAST-FULL-SELECT"
+  ],
+  "eval_anchors": ["AD", "AH", "CZ", "BG", "BH", "CU", "CX"],
+  "acceptance": {
+    "non_target_runtime_byte_identity_required": true,
+    "direct_runtime_routing_unchanged": true,
+    "new_runtime_state_allowed": false,
+    "new_rule_id_allowed": false,
+    "actual_model_trial_required": false,
+    "semantic_ledger_required": true,
+    "source_grounded_operational_analysis_required": true
+  }
+}
