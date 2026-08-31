@@ -173,7 +173,8 @@ def validate_trace_set(scenarios_doc, trace_doc):
         "goal_coverage": covered_goals,
         "version": version,
         "evidence_kind": trace_doc["evidence_kind"],
-        "proof_boundary": "source-grounded policy simulation; not independent model-performance evidence",
+        "optimization_claim_eligible": False,
+        "proof_boundary": "source-grounded policy simulation; not model-performance evidence",
     }
 
 def evaluate(scenarios_doc, baseline_doc, current_doc):
@@ -207,12 +208,11 @@ def evaluate(scenarios_doc, baseline_doc, current_doc):
     }
 
 def evaluate_candidate_pair(scenarios_doc, baseline_doc, candidate_doc):
-    """Compare an immutable current baseline with a candidate representation.
+    """Compare current source-grounded traces without making a performance claim.
 
-    Protected behavior is a hard gate. Every measured friction field must be non-worse,
-    and at least one decision-cost field must strictly improve. This does not turn the
-    source-grounded trace into real model-performance evidence; independent model/runtime
-    trials remain separately required by the optimization program.
+    This lane checks protected behavior and reports structural/friction diagnostics only.
+    It intentionally does not require, reward, or certify a synthetic trace reduction.
+    Practical optimization claims belong exclusively to paired actual model/runtime trials.
     """
     baseline_version = baseline_doc.get("version", "")
     candidate_version = candidate_doc.get("version", "")
@@ -225,30 +225,32 @@ def evaluate_candidate_pair(scenarios_doc, baseline_doc, candidate_doc):
     )
     acceptance_errors = protected_errors(scenarios, baseline_rows, candidate_rows)
     totals = {"baseline": totals_for(baseline_rows), "current": totals_for(candidate_rows)}
-    for field in FRICTION_FIELDS:
-        if totals["current"][field] > totals["baseline"][field]:
-            acceptance_errors.append(f"candidate worsened {field}")
-    material_fields = (
-        "steps_to_first_useful_action", "context_domains", "discovery_steps"
-    )
-    improved = [
-        field for field in material_fields
-        if totals["current"][field] < totals["baseline"][field]
+    deltas = {
+        field: totals["current"][field] - totals["baseline"][field]
+        for field in FRICTION_FIELDS
+    }
+    diagnostic_regressions = [
+        field for field, delta in deltas.items() if delta > 0
     ]
-    if not improved:
-        acceptance_errors.append(
-            "candidate shows no material source-grounded friction improvement"
-        )
+    diagnostic_reductions = [
+        field for field, delta in deltas.items() if delta < 0
+    ]
     return {
         "ok": not acceptance_errors,
         "acceptance_errors": acceptance_errors,
         "baseline": baseline_rows,
         "current": candidate_rows,
         "totals": totals,
-        "improved_material_fields": improved,
+        "diagnostic_deltas": deltas,
+        "diagnostic_regressions": diagnostic_regressions,
+        "diagnostic_reductions": diagnostic_reductions,
         "goal_coverage": covered_goals,
         "evidence_kind": "source-grounded-policy-simulation",
-        "proof_boundary": "does not prove independent LLM latency/quality improvement",
+        "optimization_claim_eligible": False,
+        "proof_boundary": (
+            "protected/source-grounded diagnostic comparison only; actual paired model/runtime "
+            "trial evidence is required for any practical-improvement claim"
+        ),
     }
 
 def main():
