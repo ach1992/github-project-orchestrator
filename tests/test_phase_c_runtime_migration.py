@@ -36,83 +36,85 @@ def base(path: str) -> str:
     ).stdout
 
 
-def candidate(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
-
-
 def embedded_candidate(path: Path) -> str:
     """Normalize only the Markdown section separator, not candidate content."""
-    return candidate(path).rstrip("\n") + "\n\n"
+    return path.read_text(encoding="utf-8").rstrip("\n") + "\n\n"
 
 
-def split_between(text: str, start: str, end: str) -> tuple[str, str, str]:
+def replace_between(text: str, start: str, end: str, replacement: str) -> str:
     assert text.count(start) == 1, start
     assert text.count(end) == 1, end
     i = text.index(start)
     j = text.index(end)
     assert i < j
-    return text[:i], text[i:j], text[j:]
+    return text[:i] + replacement + text[j:]
 
 
-def assert_one_replacement(path: str, start: str, end: str, expected: str) -> None:
-    old_before, _, old_after = split_between(base(path), start, end)
-    new_before, new_mid, new_after = split_between(current(path), start, end)
-    assert new_before == old_before, f"unexpected bytes before selected migration surface in {path}"
-    assert new_after == old_after, f"unexpected bytes after selected migration surface in {path}"
-    assert new_mid == expected, f"canonical section does not equal selected prototype in {path}"
-
-
-def test_p1() -> None:
-    assert_one_replacement(
-        SKILL,
+def expected_skill() -> str:
+    return replace_between(
+        base(SKILL),
         "## 1. Role and runtime state",
         "## 2. Universal invariants",
         embedded_candidate(P1 / "candidate-skill-section.md"),
     )
-    assert_one_replacement(
-        AUTHORITY,
+
+
+def expected_authority() -> str:
+    text = replace_between(
+        base(AUTHORITY),
         "## 1. Decision dimensions",
         "## 2. Applicable effects",
         embedded_candidate(P1 / "candidate-authority-section.md"),
     )
-
-
-def test_p2() -> None:
-    assert_one_replacement(
-        WORKER,
-        "## 1. Isolation",
-        "## 2. Dispatch prompt",
-        embedded_candidate(P2 / "candidate-worker-isolation.md"),
-    )
-
-
-def test_p3() -> None:
-    marker = "For already-running CI/check/deployment/job, `pending` is dependency state, not failure."
-    assert_one_replacement(
-        MASTER,
-        marker,
-        "## 10. Requirement changes",
-        embedded_candidate(P3 / "candidate-pending-job.md"),
-    )
-
-
-def test_p4() -> None:
-    assert_one_replacement(
-        AUTHORITY,
+    return replace_between(
+        text,
         "## 6. `WriteState.UNKNOWN`",
         "## 7. Optimistic concurrency",
         embedded_candidate(P4 / "candidate-write-unknown.md"),
     )
 
 
-def test_p5() -> None:
+def expected_worker() -> str:
+    return replace_between(
+        base(WORKER),
+        "## 1. Isolation",
+        "## 2. Dispatch prompt",
+        embedded_candidate(P2 / "candidate-worker-isolation.md"),
+    )
+
+
+def expected_master() -> str:
+    marker = "For already-running CI/check/deployment/job, `pending` is dependency state, not failure."
+    return replace_between(
+        base(MASTER),
+        marker,
+        "## 10. Requirement changes",
+        embedded_candidate(P3 / "candidate-pending-job.md"),
+    )
+
+
+def expected_continuity() -> str:
     marker = "For multi-repository outcomes, recover the small global coordination spine first:"
-    assert_one_replacement(
-        CONTINUITY,
+    return replace_between(
+        base(CONTINUITY),
         "## 2. Recovery sequence",
         marker,
         embedded_candidate(P5 / "candidate-recovery.md"),
     )
+
+
+def test_exact_composition() -> None:
+    expected = {
+        SKILL: expected_skill(),
+        AUTHORITY: expected_authority(),
+        WORKER: expected_worker(),
+        MASTER: expected_master(),
+        CONTINUITY: expected_continuity(),
+    }
+    for path, expected_text in expected.items():
+        assert current(path) == expected_text, (
+            f"{path} differs from exact Phase C base plus selected P1-P5 replacements"
+        )
 
 
 def test_runtime_surface() -> None:
@@ -135,11 +137,7 @@ def test_runtime_surface() -> None:
 
 
 def main() -> None:
-    test_p1()
-    test_p2()
-    test_p3()
-    test_p4()
-    test_p5()
+    test_exact_composition()
     test_runtime_surface()
     print("Phase C P1-P5 runtime migration composition: PASS")
 
