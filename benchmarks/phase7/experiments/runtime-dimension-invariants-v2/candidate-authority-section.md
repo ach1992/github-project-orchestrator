@@ -1,4 +1,4 @@
-## 1. Decision inputs
+## 1. Decision dimensions
 
 Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. This domain does not reclassify those dimensions; it applies current action effects, obligations, repository/platform policy, and gate evidence.
 
