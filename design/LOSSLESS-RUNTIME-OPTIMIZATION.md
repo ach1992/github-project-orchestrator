@@ -2,31 +2,49 @@
 
 Tracking: #35  
 Baseline task: #36  
-Prototype task: #37  
+Phase B: #37  
+Research/audit task: #50  
 Migration task: #38  
 Final proof/integration task: #39
 
 ## 1. Purpose
 
-Optimize **how** the runtime expresses the existing orchestration semantics so an LLM can select and execute the correct path with less inference, reconstruction, irrelevant context traversal, and activation error.
+Optimize **how** the runtime expresses the existing orchestration semantics so an LLM can retrieve, activate, combine, and execute the correct path with less irrelevant context, repeated reconstruction, duplication, reference hopping, and routing/activation error.
 
-This program is intentionally different from adding, removing, or changing orchestration policy. The candidate runtime is acceptable only when the current semantic contract is preserved losslessly and comparable **actual model/runtime A/B evidence** shows a material execution benefit.
+This program is intentionally different from adding, removing, or changing orchestration policy. It is also different from generic prompt shortening or visual cleanup. The optimization question is not:
+
+> Can this text be made shorter or more structured?
+
+It is:
+
+> What representation makes this exact semantic easiest for an LLM to apply correctly at the moment it becomes relevant, while preserving every protected behavior and avoiding unnecessary active context?
 
 The optimization target is:
 
 ```text
 Semantic behavior:        IDENTICAL for protected baseline requirements
 Safety/correctness:       >= baseline
-Decision quality:         >= baseline on comparable actual model/runtime trials
-Practical friction:       < baseline on at least one material observable paired metric
+Representation fit:       appropriate to the semantic shape and fragility
+Activation locality:      relevant rules available with minimal unrelated context
+Inference/retrieval cost: plausibly lower where a change is claimed to help
 Maintenance/routing cost: no material net regression
 ```
 
-Line count, token count, visual elegance, structural novelty, or manually shortened source-grounded traces are diagnostics only. They are never sufficient acceptance evidence.
+Line count, token count, visual elegance, number of tables, structural novelty, or manually shortened traces are diagnostics only. They are never sufficient acceptance evidence.
 
-## 2. Immutable comparison baseline
+### 1.1 Current proof-policy boundary
 
-The baseline for this program is:
+The program previously required comparable live actual-model/runtime A/B evidence as the only proof of practical improvement. Contract Revision 3 of #35/#37 changes that requirement for the current environment.
+
+A trustworthy live A/B comparison requires a controlled uncontaminated runtime, equivalent model/settings/tool availability, stable model identity, broad enough coverage for this orchestration Skill, and evidence collection that does not itself alter the execution path. The current environment cannot guarantee that proof surface. Manual imitation would risk replacing one uncertain measurement with another.
+
+Therefore live actual-model/runtime A/B evidence is now **optional corroboration**, not a mandatory gate. The existing runner/scorer remains useful infrastructure for a future trustworthy environment, but API/model availability no longer blocks research, representation analysis, deterministic equivalence, migration selection, or final assurance.
+
+No optional empirical result can override a protected semantic/safety regression.
+
+## 2. Immutable semantic comparison baseline
+
+The semantic/equivalence baseline for this program remains:
 
 ```text
 Repository: ach1992/github-project-orchestrator
@@ -35,9 +53,9 @@ Baseline commit: f98e8a242c720931e34aa7c4e8a799090e3d0495
 Released version: v1.2.2
 ```
 
-The baseline does not float if `main` advances. Target freshness is a separate integration concern.
+The baseline never floats with `main`. It is comparison evidence, not a future integration target.
 
-Baseline semantics are derived from the canonical runtime/design/test owners at that commit, especially:
+Baseline semantics are derived from canonical runtime/design/test owners at that commit, especially:
 
 - `skill/SKILL.md`
 - `skill/references/*.md`
@@ -49,63 +67,178 @@ Baseline semantics are derived from the canonical runtime/design/test owners at 
 - deterministic helper tests
 - `benchmarks/phase7/*`
 
-This document is not a second canonical rule registry. It defines the optimization/proof protocol; semantic truth remains with the existing canonical owners.
+Later accepted target behavior must also be preserved during migration. In particular, verified `v1.2.3@ff7b23a25aac9721d515dbfd03c5b2546749a89d` added the accepted complete-response machine-relay copy-target behavior after v1.2.2. Phase C applies selected representation changes onto then-current `main`; it never materializes the old baseline wholesale.
 
-## 3. Evidence hierarchy
+This document is not a second canonical rule registry. It defines representation-engineering methodology; semantic truth remains with existing canonical owners.
 
-Keep evidence roles separate so a cleaner-looking representation cannot manufacture its own proof.
+## 3. Research foundation
 
-### 3.1 Mechanical equivalence
+Representation choices must be informed by current model guidance, the Agent Skills format, credible empirical research, and this project's own real failure/correction history. No single source is universal authority over every model or task.
 
-Baseline-derived deterministic checks may prove objective facts such as Rule/owner identity, Goal/state/router/eval coverage, configured predicate ownership, exact baseline identity, and selected representation invariants.
+### 3.1 Current OpenAI model guidance
 
-They do **not** prove prose/judgment equivalence or model performance.
+Current OpenAI GPT-5.6 guidance recommends favoring leaner prompts, stating each instruction once, removing repeated instructions/examples that do not encode a real requirement, exposing only relevant tools, and keeping tool descriptions concise and precise. OpenAI reports directional internal coding-agent results in which leaner system prompts improved evaluation scores while substantially reducing tokens/cost; those numbers are workload-specific and are not treated here as universal performance guarantees.
 
-### 3.2 Source-grounded policy simulation
+The same guidance warns that repeated approval language can itself cause unnecessary approval requests. This is directly relevant to an orchestration Skill whose safety rules must be strong without creating duplicate stop pressure.
 
-Pinned source-grounded traces may verify expected protected behavior and report structural/context/friction diagnostics. Because a lossless representation should preserve the same normative behavior, a hand-authored synthetic trace difference is not evidence that an actual model reasons faster or more reliably.
+Current OpenAI model-migration guidance also favors specifying outcomes, success criteria, allowed side effects, evidence rules, and required output shape while reducing unnecessary step-by-step process instructions unless the exact path is itself part of the contract.
 
-Source-grounded representation comparisons are therefore always ineligible to prove the program's practical-improvement requirement.
+Implications for this Skill:
 
-### 3.3 Actual model/runtime paired A/B trials
+- keep true invariants explicit and singular;
+- do not repeat the same control in several hot-path paragraphs merely for emphasis;
+- encode exact process only where sequence is actually semantic;
+- do not confuse more instructions with more reliability;
+- keep generic model competence out of the Skill unless project-specific behavior would otherwise be wrong.
 
-Only comparable actual model/runtime paired A/B evidence may satisfy practical improvement. Trials use the exact immutable baseline and one exact candidate, equivalent model/runtime/settings/tool availability, balanced run order, auditable transcript/tool-log references, and observable metrics only. Do not request, store, or score private chain-of-thought.
+### 3.2 Agent Skills standard and authoring guidance
 
-The machine-readable contract and scorer live in:
+The Agent Skills specification loads content progressively:
 
-- `benchmarks/phase7/MODEL-TRIAL-PROTOCOL.md`
-- `benchmarks/phase7/model-trial-cases.json`
-- `tools/score_model_trials.py`
+1. metadata for discovery;
+2. full `SKILL.md` when activated;
+3. references/scripts/resources only when needed.
 
-### 3.4 Semantic/high-assurance review
+The specification recommends keeping the main `SKILL.md` under roughly 500 lines / 5,000 tokens, keeping reference files focused, and avoiding deep reference chains.
 
-Model-trial gains still require review for semantic completeness, benchmark construction, evidence authenticity, maintenance/routing cost, candidate/target freshness, and overfitting to one model or scenario set.
+Agent Skills creator guidance adds several high-value principles:
+
+- effective Skills come from real domain/project expertise, runbooks, issues, corrections, and failure history rather than generic advice;
+- every token in activated `SKILL.md` competes for attention with conversation/system/tool context;
+- add what the agent would otherwise get wrong; omit what it already knows;
+- overly comprehensive Skills can cause irrelevant paths to activate;
+- moderate, stepwise detail often beats exhaustive documentation;
+- tell the agent exactly **when** to load deeper references;
+- match specificity to fragility: allow judgment where several approaches are valid, but prescribe exact mechanics when sequence/consistency is fragile;
+- provide a default path rather than a menu of equal options;
+- favor reusable procedures over instance-specific answers;
+- use gotchas, templates, checklists, validation loops, and scripts only where the task shape justifies them.
+
+These principles strongly support the existing project goal of a compact control kernel plus direct event-specific references.
+
+### 3.3 Long-context locality and retrieval
+
+Long-context research such as *Lost in the Middle* shows that models do not necessarily use information equally well at every context position; retrieval and use of relevant information can degrade when required facts are buried inside long context.
+
+This does **not** mean every important rule must be placed at the beginning or duplicated at the end. Duplication creates its own attention and contradiction cost. The engineering implication is instead:
+
+- reduce unrelated active context;
+- route directly to the relevant owner;
+- keep decision-critical inputs/conditions sufficiently local;
+- avoid long chains where a rule depends on material accidentally loaded earlier;
+- prefer progressive disclosure over unconditional loading of rare-path detail.
+
+### 3.4 Prompt and instruction sensitivity
+
+Peer-reviewed and recent empirical work shows that meaning-preserving wording and formatting changes can affect instruction following, sometimes substantially. Other research shows that part of apparent format sensitivity can come from brittle evaluation methods. Together these results argue against a universal claim such as "Markdown is best", "JSON is best", or "tables are always clearer for an LLM".
+
+Instruction-reliability research also shows that high benchmark accuracy does not guarantee robustness to nuanced prompt variants, and lexical-sensitivity studies show semantically similar instruction wording can produce different downstream behavior.
+
+Engineering implication:
+
+- semantic equivalence must be protected explicitly when wording/format changes;
+- representation changes should be chosen from semantic shape, not fashion;
+- one representation should not be generalized from one model/task/study to every Skill domain;
+- deterministic regression/property checks are valuable because surface equivalence is not enough.
+
+### 3.5 Structured representations: useful but not universally superior
+
+Table-understanding research shows representation format affects LLM performance and that structured text can help when the underlying task is truly tabular/relational. However, studies of structured generation also show that rigid output-format restrictions can reduce reasoning performance in tasks where free-form reasoning is important.
+
+This yields a crucial rule for this program:
+
+> **Structure should expose existing structure, not impose artificial structure on nuanced semantics.**
+
+A gate matrix is a strong candidate when the rule really is a matrix. A state transition table is useful when there is a real lifecycle. A schema is appropriate for an exact handoff record. But a paragraph expressing nuanced engineering judgment may become worse, not better, if forced into a Boolean table.
+
+### 3.6 Public Skill implementations as supporting experience
+
+Current OpenAI plugin Skills provide useful implementation examples but are supporting evidence, not universal templates. Strong recurring patterns include:
+
+- short umbrella/router Skills that quickly dispatch to specialist domains;
+- concise default workflows;
+- explicit boundaries between what the current Skill owns and what should route elsewhere;
+- focused references rather than a monolithic instruction file;
+- deterministic scripts/validators where repeated mechanics would otherwise be reinvented.
+
+Our runtime already follows much of this architecture. Optimization should improve the weak surfaces, not replace working progressive routing merely because another project uses a different layout.
+
+### 3.7 Research sources
+
+Starting primary/credible sources, reviewed for this revision on 2026-08-31:
+
+- OpenAI, current model guidance: https://developers.openai.com/api/docs/guides/latest-model
+- Agent Skills specification: https://agentskills.io/specification
+- Agent Skills creator best practices: https://agentskills.io/skill-creation/best-practices
+- Liu et al., *Lost in the Middle*: https://arxiv.org/abs/2307.03172
+- Lou et al., *Large Language Model Instruction Following: A Survey of Progresses and Challenges*: https://aclanthology.org/2024.cl-3.7/
+- Zhan et al., *Unveiling the Lexical Sensitivity of LLMs*: https://aclanthology.org/2024.emnlp-main.295/
+- Dong et al., *Revisiting the Reliability of Language Models in Instruction-Following*: https://aclanthology.org/2026.acl-long.354/
+- He et al., *Does Prompt Formatting Have Any Impact on LLM Performance?*: https://arxiv.org/abs/2411.10541
+- Deng et al., *Tables as Texts or Images*: https://aclanthology.org/2024.findings-acl.23/
+- Tam et al., *Let Me Speak Freely?*: https://aclanthology.org/2024.emnlp-industry.91/
+- Qin et al., *InFoBench*: https://aclanthology.org/2024.findings-acl.772/
+
+Use newer primary evidence when materially relevant. Treat single studies and vendor-specific measured percentages as bounded evidence, not immutable design laws.
 
 ## 4. Core design principle
 
-Optimize **decision inference depth**, not prose aesthetics.
+Optimize **decision application cost**, not prose aesthetics.
 
-For each runtime decision, prefer the cheapest representation that preserves all required semantics:
+For each semantic unit, choose the cheapest representation that makes the exact rule easy to retrieve and apply correctly while preserving nuance, precedence, exceptions, and ownership.
 
-| Logic shape | Preferred representation when justified |
+### 4.1 Representation-selection dimensions
+
+Before changing a unit, classify it across six dimensions:
+
+| Dimension | Question |
 |---|---|
-| lifecycle transition | state-transition table / finite-state relation |
-| branching decision | ordered decision table or compact ASCII decision graph |
-| authority/gate | canonical predicate + decision table |
-| simultaneous consequences | set semantics + obligation union |
-| precedence | ordered conditions with explicit first controlling condition |
-| forbidden implication | compact non-edge / forbidden-inference matrix |
-| source selection | direct router table |
-| deterministic invariant | script/test rather than repeated prose reasoning |
-| output/handoff shape | explicit schema |
-| nuanced engineering/product judgment | concise prose, not brittle Boolean encoding |
-| rare compatibility/edge behavior | event-triggered reference, not unconditional hot-path text |
+| semantic shape | What logic actually exists: invariant, branch, precedence, lifecycle, set of effects, judgment, schema, router, procedure? |
+| activation locality | Is this hot, warm, cold, or DEV-only? |
+| fragility | Can the agent choose among several valid approaches, or must sequence/shape be exact? |
+| canonical ownership | Where is the single normative owner and what reminders/duplicates exist? |
+| retrieval/inference cost | How many conditions/references must be reconstructed before the correct decision is available? |
+| maintenance cost | Does a new abstraction/router/schema reduce future work or create another surface to keep synchronized? |
 
-A representation is not better merely because it is more graphical for a human. Mermaid and large visual diagrams may remain useful design documentation, while runtime tables/ASCII graphs/predicates may provide better token locality and traversal behavior for an LLM. That expected benefit remains a hypothesis until actual model/runtime trials support it.
+Paragraph count and file length are not classification dimensions by themselves.
+
+### 4.2 Default representation mapping
+
+| Semantic shape | Preferred representation when justified | Avoid when |
+|---|---|---|
+| nuanced engineering/product judgment | concise prose with purpose/constraints | rigid Booleanization would lose nuance/context |
+| short unordered completeness set | bullets/checklist | items have precedence/branching semantics |
+| fixed dimensions/comparisons | compact table | cells become long mixed-purpose paragraphs |
+| authority/gate combinations | gate matrix + canonical predicate | obligations are hidden by one scalar class |
+| branching/precedence/control flow | ordered decision table, predicate, pseudocode, or compact ASCII DAG | flow is mostly judgment rather than deterministic branching |
+| lifecycle | state-transition relation/table/graph | no real state transition exists |
+| simultaneous consequences | set/effect model + obligation union | ordering is mistakenly substituted for independent obligations |
+| event -> domain owner | direct router table | routing requires several hidden intermediate references |
+| structured handoff/persisted record | schema/template | free-form judgment is the actual requirement |
+| deterministic invariant/validation | script/test/linter | behavior requires contextual professional judgment |
+| rare-path detail | focused trigger-loaded reference | rule must be known before its trigger is recognizable |
+| non-obvious recurring failure | concise gotcha near earliest reliable trigger | it merely restates a normal rule already easy to infer |
+| explanatory rationale | concise prose, optionally adjacent to the decision it explains | rationale becomes a second normative owner |
+
+`KEEP` is always a valid result.
+
+### 4.3 Why not "convert ten paragraphs into a table" automatically?
+
+Ten paragraphs can represent very different things:
+
+- ten variations of the same duplicated rule -> consolidate;
+- a true decision matrix -> table/matrix may be better;
+- an ordered flow -> decision table/pseudocode may be better;
+- a lifecycle -> state relation may be better;
+- nuanced trade-offs -> concise prose may remain best;
+- rare-path details -> move to a triggered reference rather than reformat in place;
+- deterministic validation -> replace repeated prose reasoning with a script/test.
+
+The optimization unit is the **semantic function**, not the paragraph.
 
 ## 5. Lossless-equivalence surface
 
-Before any canonical runtime representation changes, preserve/check at least these classes.
+Before any canonical runtime representation change, preserve/check at least these classes.
 
 ### 5.1 Rule and goal identity
 
@@ -133,7 +266,7 @@ No representation optimization may reconstruct a scalar profile/action class tha
 
 ### 5.3 Lifecycle namespaces
 
-Preserve independent state namespaces and their valid meanings/transitions:
+Preserve independent namespaces and valid meanings/transitions:
 
 - `TaskState`
 - `WorkerStatus`
@@ -157,17 +290,19 @@ A candidate may change the representation but must not create competing independ
 
 ### 5.5 Multi-effect obligations
 
-`ApplicableEffects` remains a set and required controls remain the union of obligations for every actual/deterministic effect. A shortcut or decision table must not collapse `INTEGRATION + PRODUCTION + DESTRUCTIVE_OR_IRREVERSIBLE` into one scalar class or erase an independent gate.
+`ApplicableEffects` remains a set and required controls remain the union of obligations for every actual/deterministic effect. A shortcut or table must not collapse `INTEGRATION + PRODUCTION + DESTRUCTIVE_OR_IRREVERSIBLE` into one scalar class or erase an independent gate.
 
 ### 5.6 Progressive loading and direct reachability
 
 - every runtime domain required by an event remains directly reachable from `SKILL.md`;
-- a rule must not depend on having accidentally loaded another reference first;
-- cold/rare-path material must not become a new unconditional hot-path dependency without measured justification.
+- a rule must not depend on accidentally loading another reference first;
+- cold/rare-path material must not become an unconditional hot-path dependency without strong justification;
+- `SKILL.md` stays a control kernel rather than a duplicate of domain references;
+- reference splitting must not create deep chains or force multiple loads for one ordinary decision.
 
-### 5.7 Compatibility
+### 5.7 Compatibility and accepted target drift
 
-Legacy accepted inputs may be normalized once into the canonical vocabulary, but the resulting meaning must remain identical to the baseline. Representation optimization is not permission to remove compatibility behavior.
+Legacy accepted inputs may be normalized once into canonical vocabulary, but resulting meaning must remain identical. Later accepted runtime behavior after v1.2.2 must be preserved on the then-current integration target.
 
 ## 6. Forbidden-inference guard
 
@@ -190,100 +325,168 @@ Candidate representations must continue preventing at least these high-value fal
 | environment name such as staging/test | proof of reversible/non-production effect |
 | workflow-triggering push | `PRODUCTION` unless deterministic triggered effect actually is production |
 
-This table is a proof target, not a new rule owner. Baseline canonical files remain normative.
+This is a proof target, not a new normative owner.
 
 ## 7. Candidate representation families
 
-Treat each as a hypothesis to test, not a planned rewrite.
+Treat each family as a conditional tool, not a planned rewrite.
 
-### 7.1 Transient decision frame
+### 7.1 Compact decision frame
 
-A compact runtime frame may reduce repeated reconstruction of already-established facts:
+Use only when several already-established orthogonal inputs repeatedly need to be reassembled for one decision. It may reduce inconsistent re-derivation, but it must not become a new persisted state or duplicate canonical truth.
 
-```text
-Role
-ProjectAuthority
-CoordinationBaseline
-AssuranceLevel
-ActiveOutcome identity
-CurrentEvent
-ExecutionPath
-RiskLevel when decision-relevant
-ProposedAction + ApplicableEffects
-Required current evidence/freshness
-IndependentUsefulWork
-DeliveryRequirement / target when relevant
-```
-
-The frame is transient reasoning structure, not a persisted manager-memory artifact or new lifecycle state.
-
-Expected benefit: fewer repeated classifications and fewer inconsistent re-derivations within one decision cycle. This remains an empirical hypothesis until paired model/runtime trials support it.
+PR #43's stable-state `KEEP / reclassify-trigger` frame is one prior hypothesis in this family. #50 must reassess whether the actual recurring problem and representation fit justify it.
 
 ### 7.2 Decision card
 
-For a bounded domain decision, co-locate:
+For one bounded decision owner, co-locate only what materially reduces hidden lookup:
 
 ```text
 TRIGGER
 INPUTS
 DECIDE
-TRUE/FALSE OR CONTROL OUTPUT
-EXCEPTIONS / UNKNOWN HANDLING
+OUTPUT
+UNKNOWN / EXCEPTION HANDLING
 LOAD DEEPER ONLY IF ...
 ```
 
-Expected benefit: reduce reference hopping and hidden exception discovery while retaining a single canonical owner.
+Use only when this improves locality without duplicating domain semantics elsewhere.
 
-### 7.3 Ordered decision table / ASCII DAG
+### 7.3 Ordered decision table / predicate / compact ASCII DAG
 
-Use when the current behavior is fundamentally branching/precedence logic. Keep the common path short and route uncertainty/exceptional cases to deeper owner text.
+Use when behavior is genuinely branching or precedence-driven. Keep common paths short and uncertainty/rare exceptions routed to the canonical deeper owner.
 
-Expected benefit: lower inference depth and more deterministic traversal.
+### 7.4 Safe common-path subset
 
-### 7.4 Safe common-path short circuit
-
-A shortcut is allowed only when it is mechanically demonstrated to be a safe subset/equivalent of the canonical decision. Example shape:
+A shortcut is allowed only if it is a provable safe subset/equivalent of the canonical decision, for example:
 
 ```text
 FAST_SUBSET(action) == true  =>  CAN_EXECUTE(action) == true
 ```
 
-If the implication cannot be proven/tested for every allowed input combination, do not adopt the shortcut.
+If the implication cannot be protected for every allowed input combination, do not adopt it.
 
 ### 7.5 Hot/warm/cold/DEV-only locality
 
-Split or route content by actual activation frequency only when actual model/runtime evidence shows the saved context/traversal cost exceeds new routing/maintenance cost. File length alone is not evidence.
+Move detail by activation locality only when the rule remains directly discoverable at the right event and reference fragmentation does not increase total decision cost.
+
+Do not split files merely because they are long.
 
 ### 7.6 Legacy normalization layer
 
-When compatibility inputs are encountered, map them once to canonical current terms before ordinary reasoning. Do not repeatedly carry legacy vocabulary through the hot path.
+When compatibility inputs appear, normalize once to current canonical terms before ordinary reasoning. Do not carry duplicate legacy vocabulary through every hot path.
 
 ### 7.7 Machine-readable semantic IR
 
-Consider only for deterministic mechanics whose machine representation can be validated/generated without becoming a competing semantic owner. Do not encode nuanced judgment merely to obtain a cleaner schema.
+Consider only for deterministic mechanics whose machine form can be validated/generated without becoming a competing semantic owner. Do not encode nuanced judgment merely to obtain a cleaner schema.
 
-## 8. Experiment protocol
+## 8. Research-first runtime audit protocol (#50)
 
-For each candidate mechanism:
+No canonical `skill/` change occurs during the audit pass.
 
-1. **Hypothesis** — name the concrete recurring inference/traversal problem.
-2. **Baseline path** — identify exact canonical owners and representative scenarios.
-3. **Candidate representation** — change the smallest possible surface first, preferably outside the canonical runtime during prototype stage.
-4. **Equivalence check** — map every affected baseline semantic to candidate form.
-5. **Protected tests** — run deterministic/eval/adversarial checks before measuring performance.
-6. **Source-grounded diagnostic** — compare expected protected behavior and structural/context implications without making a performance claim.
-7. **Actual paired trial** — compare the same case/workload under equivalent model/runtime/settings/tool conditions using the model-trial protocol.
-8. **Benefit check** — require material observable paired improvement; record token/line/aesthetic changes only as diagnostics.
-9. **Maintenance check** — account for new router nodes, files, generated artifacts, validator burden, and future change cost.
-10. **Decision** — `ADOPT`, `REJECT`, or `REVISE`; rejection is a valid successful experiment.
+For each semantic unit in `skill/SKILL.md` and directly routed `skill/references/*.md`, record only enough information to support a decision:
 
-Never bundle many representation changes before the source of benefit is understood.
+| Field | Meaning |
+|---|---|
+| owner / semantic | exact canonical decision/rule being expressed |
+| current representation | prose, bullets, table, predicate, schema, flow, etc. |
+| semantic shape | classification from §4 |
+| locality | hot / warm / cold / DEV-only |
+| fragility | flexible judgment or exact/sequence-sensitive |
+| duplication | repeated normative wording or justified local reminder? |
+| retrieval/inference burden | reference hops, scattered conditions, reconstructed dimensions, hidden exceptions |
+| recommendation | `KEEP`, `MOVE/ROUTE`, `TABLE/MATRIX`, `DECISION`, `STATE`, `PREDICATE/SET`, `SCHEMA`, `SCRIPT/TEST`, `PROSE` |
+| rationale | why this representation should be more reliable/easier to apply for an LLM |
+| protection | exact rules/evals/tests that prevent semantic loss |
 
-## 9. Measurement model
+Prioritize surfaces by expected payoff:
 
-### Protected metrics — hard gates
+1. high-frequency decisions with repeated reconstruction/duplicate rules;
+2. high-risk decisions whose semantics are scattered or easy to collapse incorrectly;
+3. repeated reference hops that can be made direct without duplicating ownership;
+4. deterministic mechanics currently re-derived in prose;
+5. cold material occupying the unconditional kernel without justification;
+6. only then lower-frequency stylistic opportunities.
 
-A candidate fails if any required protected behavior regresses, including:
+Do not bundle multiple representation families merely for efficiency. The source of benefit should remain understandable.
+
+## 9. Evidence hierarchy for adoption
+
+A candidate representation may advance only when every applicable layer supports it.
+
+### 9.1 Canonical semantic contract
+
+Confirm exact owner and required behavior. No candidate may reinterpret the requirement to make optimization easier.
+
+### 9.2 Research-backed representation rationale
+
+Explain why the semantic shape, locality, fragility, and current evidence favor the candidate representation over the existing one. Cite current primary/credible guidance where useful, but do not turn a single source into a universal rule.
+
+### 9.3 One-to-one semantic ledger
+
+Map every affected baseline semantic to its candidate form. Detect:
+
+- omitted conditions;
+- new implications;
+- precedence changes;
+- state/effect collapse;
+- hidden exception loss;
+- duplicate canonical owners;
+- new reference dependencies.
+
+### 9.4 Deterministic equivalence and regression protection
+
+Run applicable Rule/Goal/state/router/eval coverage, property/adversarial tests, validators, compatibility tests, packaging checks, and runtime-cleanliness checks.
+
+Deterministic checks do not prove nuanced prose equivalence by themselves; semantic review still applies.
+
+### 9.5 Source-grounded operational analysis
+
+Walk representative existing scenarios through baseline and candidate semantics using only observable/canonical decisions. Confirm equal protected decisions and inspect the claimed structural benefit, such as:
+
+- fewer duplicate normative rules active at once;
+- fewer reference hops before the decisive owner;
+- less repeated reconstruction of already-established dimensions;
+- clearer precedence/exception locality;
+- smaller unrelated hot-path activation surface;
+- deterministic work moved from repeated reasoning to a validator/script.
+
+Synthetic deletion of reasoning steps is not proof. The structural claim must follow from the actual representation and routing change.
+
+### 9.6 Maintenance/routing cost
+
+Account for:
+
+- new files/router nodes;
+- synchronization burden;
+- schema/validator complexity;
+- future edit locality;
+- discoverability;
+- compatibility burden;
+- risk of two competing sources of truth.
+
+A representation that is marginally cleaner but creates more ownership/routing complexity should be rejected.
+
+### 9.7 Optional controlled model/runtime corroboration
+
+If a trustworthy environment later exists, the integrated model-trial lane may provide additional observable evidence. The runner/scorer must preserve its identity/input/order/audit constraints.
+
+Optional A/B evidence:
+
+- is not required solely for historical consistency;
+- must not be manufactured manually in an uncontrolled environment;
+- cannot override any protected regression;
+- should be interpreted as model/runtime-specific evidence, not a universal representation law.
+
+### 9.8 Final independent assurance
+
+Before high-risk canonical integration, freeze exact candidate/current target and obtain fresh independent HIGH_ASSURANCE review of the complete effective change and evidence envelope.
+
+## 10. Measurement and diagnostic model
+
+### Protected hard gates
+
+A candidate fails if it causes any required protected regression, including:
 
 - unsafe/stale mutation;
 - authority/gate leakage;
@@ -294,78 +497,85 @@ A candidate fails if any required protected behavior regresses, including:
 - false delivery completion;
 - wrong/early terminal Master stop;
 - loss of zero-chat recoverability;
-- compatibility regression required by baseline.
+- required compatibility regression;
+- new duplicate/contradictory canonical owner.
 
-Protected failures cannot be compensated by a weighted performance score.
+### Structural/operational benefit indicators
 
-### Primary actual-trial metrics
+These can substantiate a representation decision when tied directly to the changed runtime path:
 
-Measure only observable behavior; do not rely on hidden reasoning traces:
+- canonical instruction duplication removed;
+- reference hops reduced without hiding required detail;
+- conditions/precedence made local to the decision owner;
+- hot-path unrelated context removed through direct progressive routing;
+- deterministic re-derivation replaced by validated mechanics;
+- stable dimension reconstruction avoided without introducing persistent state;
+- fewer equally presented alternatives because a correct default is now explicit;
+- rare exceptions moved out of the hot path while remaining directly triggerable.
 
-- protected-behavior violation count;
-- wrong next-action decision count;
-- observable steps before first useful action;
-- unnecessary user questions/confirmations;
-- unnecessary actions/tool operations;
-- unnecessary runtime-reference loads;
-- terminal-turn errors requiring a manual user `continue`.
+### Diagnostics only
 
-The model-trial scorer also derives composite avoidable events from observable unnecessary questions/actions/reference loads/manual-continue events.
+These cannot select a candidate by themselves:
 
-### Diagnostic metrics
+- line/word/token count;
+- number of files/tables/graphs;
+- visual neatness;
+- source-grounded trace length without a real representation/routing reason;
+- one model/provider recommendation with no fit analysis;
+- optional latency/token measurements from uncontrolled runtime conditions.
 
-The following can explain a result but are not optimization proof by themselves:
+## 11. One-to-one migration ledger (#38)
 
-- source-grounded policy-trace step counts;
-- source/reference surface size;
-- line/word/token counts;
-- expected hot/cold activation surface;
-- optional latency/token measurements when runtime/provider conditions are not controlled enough for primary use.
+Every changed canonical surface must be reviewable with a row like:
 
-## 10. One-to-one migration ledger
+| Baseline owner/semantic | Candidate owner/representation | Representation rationale | Equivalence/protection evidence | Operational benefit evidence | Status |
+|---|---|---|---|---|---|
+| exact current rule/decision | exact candidate form | semantic-shape/locality/fragility reason | eval/property/review reference | structural/source-grounded evidence | unchanged / adopted / rejected |
 
-During Phase C, every changed canonical surface must be reviewable with a ledger row like:
+Keep the ledger in the active Issue/PR when sufficient; do not create a permanent duplicate runtime registry merely to host it.
 
-| Baseline owner/semantic | Candidate owner/representation | Equivalence evidence | Actual benefit evidence | Status |
-|---|---|---|---|---|
-| exact current rule/decision | exact candidate form | eval/property/review reference | paired model/runtime trial reference | unchanged / adopted / rejected |
-
-The ledger may be kept in the active Issue/PR if that is sufficient for recovery; do not create a permanent duplicate runtime registry solely to host it.
-
-## 11. Phase gates
+## 12. Phase gates
 
 ### Phase A — baseline/equivalence (#36)
 
-No canonical runtime representation change. Establish exact baseline, deterministic equivalence inventory/checks, source-grounded diagnostic lane, and actual model/runtime A/B protocol/scorer.
+Complete. Preserve exact immutable semantic baseline and deterministic equivalence inventory/checks.
 
-### Phase B — experiments (#37)
+### Phase B — research/audit/prototypes (#37 / #50)
 
-Prototype and measure. Reject non-beneficial ideas even if they look cleaner. No representation may be selected from source-grounded traces alone.
+1. synthesize current representation evidence and applicability limits;
+2. audit runtime by semantic unit without canonical runtime changes;
+3. rank actual opportunities by payoff/risk;
+4. reassess PR #43 as one hypothesis;
+5. prototype only the smallest justified candidate families;
+6. reject ideas whose evidence does not beat `KEEP`.
+
+No missing model API blocks this phase.
 
 ### Phase C — lossless migration (#38)
 
-Apply only winners supported by actual paired model/runtime evidence. Require one-to-one semantic mapping and rerun the evidence suite on the actual final implementation.
+Apply only selected research/evidence-backed candidates onto then-current `main`. Preserve one-to-one semantic coverage and accepted target drift. Rerun complete deterministic/semantic/source-grounded protection.
 
 ### Phase D — final proof/integration (#39)
 
-Freeze exact candidate/target identity, run full validation, complete semantic review and fresh independent HIGH_ASSURANCE review, then integrate through the repository-normal controlled path only when all gates pass.
+Freeze exact candidate/target, run full validation, prove semantic completeness and retained structural benefit, complete fresh independent HIGH_ASSURANCE review, and integrate through repository-normal controlled path only when all gates pass.
 
 Public version/release publication remains a separate consequential action.
 
-## 12. Acceptance rule
+## 13. Acceptance rule
 
-A candidate representation is eligible for migration/integration only if all are true:
+A candidate representation is eligible for final integration only if all are true:
 
 ```text
 ProtectedBehavior(candidate) >= ProtectedBehavior(baseline)
 SemanticCoverage(candidate) == RequiredBaselineCoverage
-ActualPairedModelRuntimeEvidence == PASS
-MaterialObservableMetric(candidate) < baseline on controlled paired evidence
-NetMaintenanceAndRoutingCost(candidate) does not erase the measured gain
+RepresentationRationale(candidate) == RESEARCH_BACKED_AND_SEMANTICALLY_FIT
+DeterministicAndAdversarialProtection(candidate) == PASS
+SourceGroundedOperationalAnalysis(candidate) == SUPPORTS_CLAIMED_BENEFIT
+NetMaintenanceAndRoutingCost(candidate) does not erase the benefit
 ExactCandidateValidation == PASS
 FreshIndependentReview == COMPLETE / APPROVE
 ```
 
-Source-grounded traces, token counts, line counts, or structural elegance can never substitute for `ActualPairedModelRuntimeEvidence == PASS`.
+When trustworthy controlled model/runtime evidence exists, it may strengthen the case but is not mandatory under the current contract.
 
-If the experiments show that the current representation is already the better trade-off, the correct result is **no runtime refactor**. The purpose of this program is a better operating Skill, not a larger change set.
+If research/audit shows that the current representation is already the better trade-off, the correct result is **no runtime refactor**. The purpose of this program is a better operating Skill, not a larger change set.
