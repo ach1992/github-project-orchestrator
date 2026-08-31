@@ -1,0 +1,25 @@
+name: Validate Runtime Experiment Screening Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tools/score_runtime_ab_screening.py'
+      - 'tests/test_runtime_ab_screening.py'
+      - '.github/workflows/runtime-experiment-screening.yml'
+
+jobs:
+  screening-gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Validate screening acceptance and rejection behavior
+        run: python3 tests/test_runtime_ab_screening.py
