@@ -10,8 +10,10 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
+BENCH = ROOT / "benchmarks" / "phase7"
 CHECKER = ROOT / "tools" / "check_runtime_equivalence.py"
-CONFIG = ROOT / "benchmarks" / "phase7" / "runtime-optimization-baseline.json"
+CONFIG = BENCH / "runtime-optimization-baseline.json"
+LANE = BENCH / "runtime-optimization-scenarios.json"
 
 spec = importlib.util.spec_from_file_location("runtime_equivalence", CHECKER)
 if spec is None or spec.loader is None:
@@ -24,6 +26,36 @@ result = eq.check_repository(ROOT, copy.deepcopy(config))
 if not result["ok"]:
     raise AssertionError(result)
 print("PASS immutable-v1.2.2-baseline-equivalence")
+
+lane = json.loads(LANE.read_text(encoding="utf-8"))
+if lane.get("schema_version") != 1:
+    raise AssertionError("runtime optimization lane schema_version must be 1")
+if lane.get("baseline_ref") != config["baseline_ref"]:
+    raise AssertionError("runtime optimization lane must use the immutable configured baseline")
+if lane.get("evidence_policy", {}).get("source_grounded_trace_is_model_performance_proof") is not False:
+    raise AssertionError("source-grounded evidence must not claim independent model-performance proof")
+if lane.get("evidence_policy", {}).get("protected_behavior_is_hard_gate") is not True:
+    raise AssertionError("protected behavior must remain a hard gate")
+required_cases = {
+    "hot-fast-master-path",
+    "consequential-mutation-authority-path",
+    "worker-dispatch-and-resume",
+    "cold-master-recovery",
+    "review-integration-freshness",
+    "pending-external-job-continuation",
+    "integration-versus-delivery",
+    "namespace-and-effect-isolation",
+}
+observed_cases = {case["id"] for case in lane.get("comparison_cases", [])}
+if observed_cases != required_cases:
+    raise AssertionError(
+        f"runtime optimization comparison cases changed: expected={sorted(required_cases)} "
+        f"observed={sorted(observed_cases)}"
+    )
+for case in lane["comparison_cases"]:
+    if not case.get("protect") or not case.get("measure") or not case.get("eval_anchors"):
+        raise AssertionError(f"comparison case is incomplete: {case.get('id')}")
+print("PASS runtime-optimization-comparison-contract")
 
 baseline = result["baseline_inventory"]
 
