@@ -8,9 +8,11 @@ Canonical decision model for whether the Master may act, must reconcile, or must
 
 ## 1. Decision dimensions
 
-Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Technical capability and environment remain separate execution constraints. This domain does not reclassify those dimensions; it applies current action effects, obligations, repository/platform policy, and gate evidence.
+Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Technical capability and environment remain separate execution constraints. This domain consumes the shared dimension ontology rather than re-declaring its values; it owns authorization/action-gate interpretation and applies current action effects, obligations, repository/platform policy, and gate evidence.
 
-Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants. An exact one-off instruction/approval is `ScopedAuthorization`: it may satisfy only the applicable gate for that action without converting the broader project to a more permissive `ProjectAuthority`. It may also authorize that exact action where the canonical matrix permits scoped authorization.
+`ProjectAuthority` is the project-wide authorization envelope for normal reversible mutation. It changes only from applicable explicit user or higher-level authorization; access/capability, environment, risk, coordination, or assurance may constrain execution but never grants or widens it. Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants.
+
+An exact one-off instruction/approval is `ScopedAuthorization`: it may authorize or satisfy only the applicable gate for that exact action where the canonical matrix permits scoped authorization, without converting the broader project to a more permissive `ProjectAuthority`. `CoordinationBaseline=STANDARD` does not imply FULL execution. `AssuranceLevel=HIGH_ASSURANCE` adds evidence/review controls without removing baseline controls and does not by itself create human approval or a different `ProjectAuthority`.
 
 Use the lightest safe controls. Importance alone does not make risk high; consider blast radius, reversibility, security/data impact, compatibility, and production consequences.
 
