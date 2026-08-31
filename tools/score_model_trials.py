@@ -16,6 +16,13 @@ from pathlib import Path
 FULL_SHA_RE = re.compile(r"[0-9a-f]{40}")
 PROGRAM_BASELINE_REF = "f98e8a242c720931e34aa7c4e8a799090e3d0495"
 SEMANTIC_CASE_CONTRACT = "benchmarks/phase7/runtime-optimization-scenarios.json"
+# Frozen first Phase B screening declared by decision-frame-v1. This is not a
+# free-form case selector: screening may score only this predeclared subset,
+# while selection still requires every canonical case in the manifest.
+SCREENING_CASE_IDS = (
+    "hot-fast-master-path",
+    "cold-master-recovery",
+)
 REQUIRED_CASE_CONTRACT_FIELDS = {
     "schema_version",
     "suite_id",
@@ -108,7 +115,18 @@ def validate_cases(cases_doc: dict) -> tuple[str, ...]:
         raise ValueError("every model-trial case_id must be a non-empty string")
     if len(case_ids) != len(set(case_ids)):
         raise ValueError("duplicate model-trial case_id")
+    if any(case_id not in case_ids for case_id in SCREENING_CASE_IDS):
+        raise ValueError("frozen screening case is missing from the canonical model-trial case set")
     return tuple(case_ids)
+
+
+def selected_case_ids(cases_doc: dict, suite: str) -> tuple[str, ...]:
+    all_case_ids = validate_cases(cases_doc)
+    if suite == "selection":
+        return all_case_ids
+    if suite == "screening":
+        return SCREENING_CASE_IDS
+    raise ValueError(f"unsupported model-trial evaluation suite: {suite}")
 
 
 def _nonnegative_int(value, field: str) -> int:
@@ -173,9 +191,11 @@ def one_sided_sign_test(differences: list[int]) -> dict:
     }
 
 
-def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
-    case_ids = validate_cases(cases_doc)
-    case_id_set = set(case_ids)
+def evaluate(cases_doc: dict, trials_doc: dict, *, suite: str = "selection") -> dict:
+    all_case_ids = validate_cases(cases_doc)
+    case_ids = selected_case_ids(cases_doc, suite)
+    all_case_id_set = set(all_case_ids)
+    selected_case_id_set = set(case_ids)
     if set(trials_doc) != REQUIRED_TRIAL_FIELDS:
         raise ValueError(
             f"model-trial result fields must be exactly {sorted(REQUIRED_TRIAL_FIELDS)}"
@@ -238,8 +258,10 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
         transcript_ref = row["transcript_ref"]
         if not isinstance(pair_id, str) or not pair_id:
             raise ValueError(f"run {run_id} requires pair_id")
-        if case_id not in case_id_set:
+        if case_id not in all_case_id_set:
             raise ValueError(f"run {run_id} uses unknown case_id: {case_id}")
+        if case_id not in selected_case_id_set:
+            raise ValueError(f"run {run_id} uses case outside {suite} suite: {case_id}")
         if not isinstance(input_fingerprint, str) or not input_fingerprint.strip():
             raise ValueError(f"run {run_id} requires non-empty input_fingerprint")
         if representation not in {"baseline", "candidate"}:
@@ -354,6 +376,8 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
         "ok": not errors,
         "acceptance_errors": errors,
         "suite_id": cases_doc["suite_id"],
+        "evaluation_suite": suite,
+        "evaluated_case_ids": list(case_ids),
         "semantic_case_contract": cases_doc["semantic_case_contract"],
         "evidence_kind": trials_doc["evidence_kind"],
         "baseline_ref": baseline_ref,
@@ -381,8 +405,14 @@ def main() -> None:
         default=Path("benchmarks/phase7/model-trial-cases.json"),
     )
     parser.add_argument("--trials", type=Path, required=True)
+    parser.add_argument(
+        "--suite",
+        choices=("screening", "selection"),
+        default="selection",
+        help="score the frozen two-case screening subset or the full canonical selection suite",
+    )
     args = parser.parse_args()
-    result = evaluate(load(args.cases), load(args.trials))
+    result = evaluate(load(args.cases), load(args.trials), suite=args.suite)
     print(json.dumps(result, indent=2, sort_keys=True))
     raise SystemExit(0 if result["ok"] else 1)
 
