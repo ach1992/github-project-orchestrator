@@ -43,6 +43,7 @@ def expect_fail(name: str, cur: dict, contains: str) -> None:
     print(f"PASS {name}")
 
 
+# Historical Phase 7 acceptance remains unchanged.
 valid = result(copy.deepcopy(current))
 if not valid["ok"]:
     raise AssertionError(valid)
@@ -106,48 +107,54 @@ t = trace(cur, "bounded-worker-delegation")
 next(event for event in t["events"] if event["type"] == "coordination")["value"] = "STANDARD"
 expect_fail("coordination-overweight", cur, "coordination_mismatch")
 
-# Representation-optimization lane: first validate the exact v1.2.2 policy trace
-# without claiming that a source-grounded simulation is independent model evidence.
+# Representation-optimization source-grounded lane validates protected behavior and
+# reports diagnostics only. It is deliberately ineligible to prove LLM optimization.
 runtime_valid = score.validate_trace_set(copy.deepcopy(scenarios), copy.deepcopy(runtime_baseline))
 if not runtime_valid["ok"]:
     raise AssertionError(runtime_valid)
-print("PASS v1.2.2-runtime-baseline-valid")
+if runtime_valid["optimization_claim_eligible"] is not False:
+    raise AssertionError(runtime_valid)
+print("PASS v1.2.2-runtime-baseline-valid-not-performance-proof")
 score.validate_source_refs(ROOT, runtime_baseline)
 print("PASS v1.2.2-runtime-baseline-provenance")
 
-# Identical traces are not an optimization win. A representation candidate must have
-# a material measured improvement rather than merely a different shape/version label.
+# Identical source-grounded traces are semantically acceptable. They simply prove no
+# practical improvement; that determination belongs to actual paired model/runtime trials.
 same_candidate = copy.deepcopy(runtime_baseline)
 same_candidate["version"] = "a" * 40
 same_result = score.evaluate_candidate_pair(
     copy.deepcopy(scenarios), copy.deepcopy(runtime_baseline), same_candidate
 )
-if same_result["ok"] or not any(
-    "no material source-grounded friction improvement" in error
-    for error in same_result["acceptance_errors"]
-):
-    raise AssertionError(f"identical-candidate unexpectedly accepted: {same_result}")
-print("PASS identical-representation-not-a-win")
+if not same_result["ok"]:
+    raise AssertionError(same_result)
+if same_result["optimization_claim_eligible"] is not False:
+    raise AssertionError(same_result)
+if any(same_result["diagnostic_deltas"].values()):
+    raise AssertionError(same_result)
+print("PASS identical-source-trace-valid-but-not-an-optimization-claim")
 
-# Model a lossless representation improvement that avoids one pre-action re-derivation
-# in the hot path while keeping all protected scenario events intact.
-improved_candidate = copy.deepcopy(runtime_baseline)
-improved_candidate["version"] = "b" * 40
-hot = trace(improved_candidate, "small-routine-fix")
+# A hand-authored synthetic reduction is diagnostic only; it must never become evidence
+# that a model actually reconstructs fewer decisions or executes faster/more accurately.
+reduced_candidate = copy.deepcopy(runtime_baseline)
+reduced_candidate["version"] = "b" * 40
+hot = trace(reduced_candidate, "small-routine-fix")
 for index, event in enumerate(hot["events"]):
     if event == {"type": "classify", "target": "Role"}:
         del hot["events"][index]
         break
-improved_result = score.evaluate_candidate_pair(
-    copy.deepcopy(scenarios), copy.deepcopy(runtime_baseline), improved_candidate
+reduced_result = score.evaluate_candidate_pair(
+    copy.deepcopy(scenarios), copy.deepcopy(runtime_baseline), reduced_candidate
 )
-if not improved_result["ok"]:
-    raise AssertionError(improved_result)
-if "steps_to_first_useful_action" not in improved_result["improved_material_fields"]:
-    raise AssertionError(improved_result)
-print("PASS measurable-lossless-candidate-improvement")
+if not reduced_result["ok"]:
+    raise AssertionError(reduced_result)
+if reduced_result["optimization_claim_eligible"] is not False:
+    raise AssertionError(reduced_result)
+if "steps_to_first_useful_action" not in reduced_result["diagnostic_reductions"]:
+    raise AssertionError(reduced_result)
+print("PASS synthetic-source-reduction-remains-diagnostic-only")
 
-unsafe_candidate = copy.deepcopy(improved_candidate)
+# Protected-behavior failures remain hard failures in the source-grounded lane.
+unsafe_candidate = copy.deepcopy(reduced_candidate)
 trace(unsafe_candidate, "small-routine-fix")["events"].insert(2, {"type": "unsafe_shortcut"})
 unsafe_result = score.evaluate_candidate_pair(
     copy.deepcopy(scenarios), copy.deepcopy(runtime_baseline), unsafe_candidate
@@ -156,18 +163,22 @@ if unsafe_result["ok"] or not any(
     "unsafe_shortcut" in error for error in unsafe_result["acceptance_errors"]
 ):
     raise AssertionError(f"unsafe candidate unexpectedly accepted: {unsafe_result}")
-print("PASS optimization-cannot-average-away-safety-regression")
+print("PASS source-grounded-safety-regression-rejected")
 
-worse_candidate = copy.deepcopy(improved_candidate)
-trace(worse_candidate, "small-routine-fix")["events"].insert(
+# Structural friction increases are surfaced for review but are not misrepresented as
+# measured LLM regressions; actual A/B trials decide practical value.
+noisier_candidate = copy.deepcopy(runtime_baseline)
+noisier_candidate["version"] = "c" * 40
+trace(noisier_candidate, "small-routine-fix")["events"].insert(
     2, {"type": "load_domain", "target": "unnecessary-cold-domain"}
 )
-worse_result = score.evaluate_candidate_pair(
-    copy.deepcopy(scenarios), copy.deepcopy(runtime_baseline), worse_candidate
+noisier_result = score.evaluate_candidate_pair(
+    copy.deepcopy(scenarios), copy.deepcopy(runtime_baseline), noisier_candidate
 )
-if worse_result["ok"] or not any(
-    "candidate worsened context_domains" in error
-    for error in worse_result["acceptance_errors"]
-):
-    raise AssertionError(f"context-regressing candidate unexpectedly accepted: {worse_result}")
-print("PASS context-regression-rejected")
+if not noisier_result["ok"]:
+    raise AssertionError(noisier_result)
+if noisier_result["optimization_claim_eligible"] is not False:
+    raise AssertionError(noisier_result)
+if "context_domains" not in noisier_result["diagnostic_regressions"]:
+    raise AssertionError(noisier_result)
+print("PASS source-context-regression-reported-not-overclaimed")
