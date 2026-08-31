@@ -35,15 +35,15 @@ State:
 
 Source decision:
 - prefer runtime-supported continuation over yielding control;
-- perform bounded non-tight authoritative rechecks;
+- bounded non-tight authoritative rechecks are valid when synchronous waiting is safe/proportionate;
 - re-read only when transition is plausibly due;
 - bound by expected duration, runtime/tool limits, and diminishing value.
 
 Candidate decision:
 - opening rule preserves the preference for runtime-supported continuation;
-- second row carries all four synchronous-wait constraints together.
+- the sole-dependency row carries the synchronous-recheck alternative and all of its guards together.
 
-Result: same decision. Related constraints are more local and no new polling cadence/state is introduced.
+Result: same decision. Related constraints are local and no new polling cadence/state is introduced.
 
 Protected anchor: `AQ`.
 
@@ -54,21 +54,39 @@ State:
 - the runtime provides a genuine suitable event/condition resume mechanism.
 
 Source decision:
-- the real primitive is an allowed/preferred continuation path;
+- the real primitive is an allowed continuation path;
 - do not fabricate background monitoring.
 
 Candidate decision:
-- third row uses the real primitive;
+- the same sole-dependency row represents the real primitive as alternative (b), alongside rather than after/before synchronous rechecks;
 - final guard separately forbids fabricated monitoring/resume.
 
-Result: same decision and safety boundary.
+Result: same decision and safety boundary. Combining both permitted mechanisms in one row intentionally avoids inventing a first-match priority that the source does not define.
 
 Protected anchor: `AQ`.
 
-## Scenario 4 — Dependency resolves successfully
+## Scenario 4 — Both continuation mechanisms are available
 
 State:
-- a bounded authoritative recheck observes CI success.
+- pending is the sole dependency;
+- bounded synchronous waiting is safe/proportionate;
+- a suitable real event/condition resume primitive also exists.
+
+Source decision:
+- either real runtime-supported continuation mechanism may be used according to suitability;
+- the source does not define a strict event-first or recheck-first precedence.
+
+Candidate decision:
+- both mechanisms live inside the same sole-dependency row as explicit alternatives.
+
+Result: same choice surface; the candidate does not create an artificial row-order priority.
+
+Protected anchor: `AQ`.
+
+## Scenario 5 — Dependency resolves successfully
+
+State:
+- an authoritative continuation path observes success.
 
 Source decision:
 - immediately continue the existing workflow;
@@ -81,10 +99,10 @@ Result: same decision.
 
 Protected anchors: `AQ`, `AW`.
 
-## Scenario 5 — Dependency transitions to failure
+## Scenario 6 — Dependency transitions to failure
 
 State:
-- an authoritative recheck observes failure.
+- an authoritative continuation path observes failure.
 
 Source decision:
 - stop waiting immediately;
@@ -98,7 +116,7 @@ Result: same decision. The candidate does not redefine failure classes or retry 
 
 Protected anchors: `AQ`, `CL`.
 
-## Scenario 6 — Long or unsupported wait becomes the sole blocker
+## Scenario 7 — Long or unsupported wait becomes the sole blocker
 
 State:
 - pending is still the sole remaining blocker;
@@ -115,7 +133,7 @@ Result: same decision. The candidate does not allow BLOCKED while independent wo
 
 Protected anchors: `AQ`, `CN`.
 
-## Scenario 7 — DeliveryState.PENDING namespace separation
+## Scenario 8 — DeliveryState.PENDING namespace separation
 
 State:
 - deployment completed;
@@ -133,7 +151,7 @@ Result: same namespace semantics; no new lifecycle transition is invented.
 
 Protected anchor: `CO`.
 
-## Scenario 8 — Pending must not become NO_READY_WORK
+## Scenario 9 — Pending must not become NO_READY_WORK
 
 State:
 - an already-running required external dependency is pending;
@@ -157,10 +175,11 @@ No new file is needed at runtime, no router edge changes, and no second owner is
 Potential benefit:
 - condition/action pairs become explicit and adjacent;
 - success, failure, continued waiting, and terminal BLOCKED paths are visually separable;
+- the two continuation mechanisms remain local alternatives without false precedence;
 - the namespace guards remain outside the table rather than being hidden as pseudo-branches.
 
 Potential cost:
 - table cells can become harder to scan if they grow into prose;
-- future changes must preserve row precedence and the conjunctive BLOCKED condition.
+- future changes must preserve the conjunctive BLOCKED condition and keep continuation mechanisms as alternatives unless source semantics intentionally change.
 
-Assessment: the current candidate stays compact enough that the table exposes real branching instead of merely rewrapping prose. This supports selection if deterministic/equivalence review remains green. `KEEP` remains valid if later review finds lost nuance or maintenance cost.
+Assessment: the current candidate stays compact enough that the table exposes real branching instead of merely rewrapping prose, while the sole-dependency row avoids an artificial precedence edge found during semantic self-review. This supports selection if deterministic/equivalence review remains green. `KEEP` remains valid if later review finds lost nuance or maintenance cost.
