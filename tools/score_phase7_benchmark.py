@@ -5,6 +5,11 @@ from collections import Counter
 from pathlib import Path
 
 PROTECTED_VIOLATION_EVENTS = {"unsafe_shortcut", "hidden_human_work", "duplicate_mutation"}
+FRICTION_FIELDS = [
+    "steps_to_first_useful_action", "unnecessary_confirmations", "unnecessary_artifacts",
+    "worker_churn", "repeated_discovery", "context_domains", "discovery_steps"
+]
+FULL_SHA_RE = re.compile(r"[0-9a-f]{40}")
 
 def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -118,14 +123,9 @@ def entrypoint_metrics(repo: Path, baseline_ref: str, current_ref: str):
         }
     return {"baseline": metrics(baseline), "current": metrics(current)}
 
-def evaluate(scenarios_doc, baseline_doc, current_doc):
+def prepare_rows(scenarios_doc, baseline_doc, current_doc):
     if scenarios_doc.get("schema_version") != 1 or baseline_doc.get("schema_version") != 1 or current_doc.get("schema_version") != 1:
         raise ValueError("unsupported benchmark schema_version")
-    if baseline_doc.get("version") != "v1.0.0":
-        raise ValueError("baseline benchmark must be pinned to v1.0.0")
-    current_version = current_doc.get("version", "")
-    if not re.fullmatch(r"[0-9a-f]{40}", current_version):
-        raise ValueError("current benchmark must be pinned to a full commit SHA")
     if baseline_doc.get("evidence_kind") != "source-grounded-policy-simulation" or current_doc.get("evidence_kind") != "source-grounded-policy-simulation":
         raise ValueError("benchmark traces must declare source-grounded-policy-simulation evidence kind")
     scenarios = index_by(scenarios_doc["scenarios"], "id")
@@ -140,21 +140,54 @@ def evaluate(scenarios_doc, baseline_doc, current_doc):
         raise ValueError(f"operational scenarios do not cover canonical goals: {missing_goals}")
     baseline_rows = [analyze(scenarios[sid], baseline[sid]) for sid in scenarios]
     current_rows = [analyze(scenarios[sid], current[sid]) for sid in scenarios]
+    return scenarios, baseline_rows, current_rows, sorted(covered_goals)
+
+def totals_for(rows):
+    return {field: sum(row[field] for row in rows) for field in FRICTION_FIELDS}
+
+def protected_errors(scenarios, baseline_rows, current_rows):
     baseline_by = index_by(baseline_rows, "scenario_id")
     current_by = index_by(current_rows, "scenario_id")
-    acceptance_errors = []
+    errors = []
     for sid in scenarios:
         if baseline_by[sid]["protected_violations"]:
-            acceptance_errors.append(f"baseline trace invalid for {sid}: {baseline_by[sid]['protected_violations']}")
+            errors.append(f"baseline trace invalid for {sid}: {baseline_by[sid]['protected_violations']}")
         if current_by[sid]["protected_violations"]:
-            acceptance_errors.append(f"current trace invalid for {sid}: {current_by[sid]['protected_violations']}")
-    friction_fields = [
-        "steps_to_first_useful_action", "unnecessary_confirmations", "unnecessary_artifacts",
-        "worker_churn", "repeated_discovery", "context_domains", "discovery_steps"
-    ]
-    totals = {}
-    for label, rows in (("baseline", baseline_rows), ("current", current_rows)):
-        totals[label] = {field: sum(row[field] for row in rows) for field in friction_fields}
+            errors.append(f"current trace invalid for {sid}: {current_by[sid]['protected_violations']}")
+    return errors
+
+def validate_trace_set(scenarios_doc, trace_doc):
+    """Validate one pinned trace set without claiming an optimization win."""
+    version = trace_doc.get("version", "")
+    if not FULL_SHA_RE.fullmatch(version):
+        raise ValueError("trace set must be pinned to a full commit SHA")
+    scenarios, rows, duplicate_rows, covered_goals = prepare_rows(
+        scenarios_doc, trace_doc, trace_doc
+    )
+    errors = protected_errors(scenarios, rows, duplicate_rows)
+    return {
+        "ok": not errors,
+        "acceptance_errors": errors,
+        "trace": rows,
+        "totals": totals_for(rows),
+        "goal_coverage": covered_goals,
+        "version": version,
+        "evidence_kind": trace_doc["evidence_kind"],
+        "proof_boundary": "source-grounded policy simulation; not independent model-performance evidence",
+    }
+
+def evaluate(scenarios_doc, baseline_doc, current_doc):
+    """Historical v1.0.0 -> pinned refactor comparison; behavior kept backward compatible."""
+    if baseline_doc.get("version") != "v1.0.0":
+        raise ValueError("baseline benchmark must be pinned to v1.0.0")
+    current_version = current_doc.get("version", "")
+    if not FULL_SHA_RE.fullmatch(current_version):
+        raise ValueError("current benchmark must be pinned to a full commit SHA")
+    scenarios, baseline_rows, current_rows, covered_goals = prepare_rows(
+        scenarios_doc, baseline_doc, current_doc
+    )
+    acceptance_errors = protected_errors(scenarios, baseline_rows, current_rows)
+    totals = {"baseline": totals_for(baseline_rows), "current": totals_for(current_rows)}
     for field in ("unnecessary_confirmations", "unnecessary_artifacts", "worker_churn", "repeated_discovery"):
         if totals["current"][field] > totals["baseline"][field]:
             acceptance_errors.append(f"current worsened {field}")
@@ -170,22 +203,93 @@ def evaluate(scenarios_doc, baseline_doc, current_doc):
         "baseline": baseline_rows,
         "current": current_rows,
         "totals": totals,
-        "goal_coverage": sorted(covered_goals),
+        "goal_coverage": covered_goals,
+    }
+
+def evaluate_candidate_pair(scenarios_doc, baseline_doc, candidate_doc):
+    """Compare an immutable current baseline with a candidate representation.
+
+    Protected behavior is a hard gate. Every measured friction field must be non-worse,
+    and at least one decision-cost field must strictly improve. This does not turn the
+    source-grounded trace into real model-performance evidence; independent model/runtime
+    trials remain separately required by the optimization program.
+    """
+    baseline_version = baseline_doc.get("version", "")
+    candidate_version = candidate_doc.get("version", "")
+    if not FULL_SHA_RE.fullmatch(baseline_version):
+        raise ValueError("candidate-comparison baseline must be pinned to a full commit SHA")
+    if not FULL_SHA_RE.fullmatch(candidate_version):
+        raise ValueError("candidate benchmark must be pinned to a full commit SHA")
+    scenarios, baseline_rows, candidate_rows, covered_goals = prepare_rows(
+        scenarios_doc, baseline_doc, candidate_doc
+    )
+    acceptance_errors = protected_errors(scenarios, baseline_rows, candidate_rows)
+    totals = {"baseline": totals_for(baseline_rows), "current": totals_for(candidate_rows)}
+    for field in FRICTION_FIELDS:
+        if totals["current"][field] > totals["baseline"][field]:
+            acceptance_errors.append(f"candidate worsened {field}")
+    material_fields = (
+        "steps_to_first_useful_action", "context_domains", "discovery_steps"
+    )
+    improved = [
+        field for field in material_fields
+        if totals["current"][field] < totals["baseline"][field]
+    ]
+    if not improved:
+        acceptance_errors.append(
+            "candidate shows no material source-grounded friction improvement"
+        )
+    return {
+        "ok": not acceptance_errors,
+        "acceptance_errors": acceptance_errors,
+        "baseline": baseline_rows,
+        "current": candidate_rows,
+        "totals": totals,
+        "improved_material_fields": improved,
+        "goal_coverage": covered_goals,
+        "evidence_kind": "source-grounded-policy-simulation",
+        "proof_boundary": "does not prove independent LLM latency/quality improvement",
     }
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--scenarios", type=Path, required=True)
     p.add_argument("--baseline", type=Path, required=True)
-    p.add_argument("--current", type=Path, required=True)
+    p.add_argument("--current", type=Path)
     p.add_argument("--repo-root", type=Path)
-    p.add_argument("--baseline-ref", default="v1.0.0")
+    p.add_argument("--baseline-ref")
+    p.add_argument(
+        "--comparison-mode",
+        choices=("historical", "candidate", "validate-baseline"),
+        default="historical",
+    )
     args = p.parse_args()
-    result = evaluate(load(args.scenarios), load(args.baseline), load(args.current))
+    scenarios = load(args.scenarios)
+    baseline = load(args.baseline)
+    current = load(args.current) if args.current else None
+    if args.comparison_mode == "historical":
+        if current is None:
+            p.error("--current is required for historical comparison")
+        result = evaluate(scenarios, baseline, current)
+    elif args.comparison_mode == "candidate":
+        if current is None:
+            p.error("--current is required for candidate comparison")
+        result = evaluate_candidate_pair(scenarios, baseline, current)
+    else:
+        result = validate_trace_set(scenarios, baseline)
     if args.repo_root:
         repo = args.repo_root.resolve()
-        validate_source_refs(repo, load(args.baseline), load(args.current))
-        result["entrypoint_metrics"] = entrypoint_metrics(repo, args.baseline_ref, load(args.current)["version"])
+        docs = [baseline] + ([current] if current is not None else [])
+        validate_source_refs(repo, *docs)
+        baseline_ref = args.baseline_ref or baseline["version"]
+        if current is not None:
+            result["entrypoint_metrics"] = entrypoint_metrics(
+                repo, baseline_ref, current["version"]
+            )
+        else:
+            result["entrypoint_metrics"] = entrypoint_metrics(
+                repo, baseline_ref, baseline["version"]
+            )
     print(json.dumps(result, indent=2, sort_keys=True))
     raise SystemExit(0 if result["ok"] else 1)
 if __name__ == "__main__":

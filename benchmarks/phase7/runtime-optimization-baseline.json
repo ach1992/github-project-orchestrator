@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "program": "lossless-runtime-decision-representation-optimization",
+  "baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "baseline_version": "1.2.2",
+  "surfaces": {
+    "rule_map": "design/RULE-MAP.md",
+    "goal_map": "design/GOAL-MAP.md",
+    "project_spec": "docs/PROJECT-SPEC.md",
+    "skill_entrypoint": "skill/SKILL.md",
+    "eval_scenarios": "skill/references/eval-scenarios.md"
+  },
+  "state_namespaces": [
+    "TaskState",
+    "WorkerStatus",
+    "WriteState",
+    "DeliveryState",
+    "MasterBoundary"
+  ],
+  "canonical_predicates": {
+    "CAN_EXECUTE": "skill/references/authority-gates.md",
+    "MASTER_STOP": "skill/references/master-cycle.md",
+    "REVIEW_VALID": "skill/references/review-integration.md",
+    "DELIVERY_PROVEN": "skill/references/release.md"
+  },
+  "benchmark_evidence": {
+    "historical_scenarios": "benchmarks/phase7/scenarios.json",
+    "historical_results": "benchmarks/phase7/RESULTS.md",
+    "current_comparison_lane": "benchmarks/phase7/runtime-optimization-scenarios.json"
+  }
+}

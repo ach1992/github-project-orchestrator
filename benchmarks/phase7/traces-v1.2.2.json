@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "version": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "released_version": "v1.2.2",
+  "evidence_kind": "source-grounded-policy-simulation",
+  "purpose": "Immutable representation-optimization comparison baseline; not independent model latency/performance evidence.",
+  "traces": [
+    {
+      "scenario_id": "small-routine-fix",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/master-cycle.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/authority-gates.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/review-integration.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "coordination", "value": "LIGHTWEIGHT"},
+        {"type": "classify", "target": "Role"},
+        {"type": "classify", "target": "ProjectAuthority"},
+        {"type": "classify", "target": "CoordinationBaseline=LIGHTWEIGHT"},
+        {"type": "load_domain", "target": "master-cycle"},
+        {"type": "discover", "target": "repo-and-target"},
+        {"type": "load_domain", "target": "authority-gates"},
+        {"type": "useful_action", "target": "implement-local-fix"},
+        {"type": "validation_pass"},
+        {"type": "load_domain", "target": "review-integration"},
+        {"type": "fresh_review", "candidate": "c1"},
+        {"type": "integration_verified", "candidate": "c1"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    },
+    {
+      "scenario_id": "medium-coordinated-project",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/master-cycle.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/governance.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/authority-gates.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/review-integration.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "coordination", "value": "STANDARD"},
+        {"type": "classify", "target": "Role"},
+        {"type": "classify", "target": "ProjectAuthority"},
+        {"type": "classify", "target": "CoordinationBaseline=STANDARD"},
+        {"type": "load_domain", "target": "master-cycle"},
+        {"type": "load_domain", "target": "governance"},
+        {"type": "discover", "target": "dependency-view"},
+        {"type": "load_domain", "target": "authority-gates"},
+        {"type": "artifact_create", "target": "durable-work-item"},
+        {"type": "useful_action", "target": "unblock-critical-task"},
+        {"type": "validation_pass"},
+        {"type": "load_domain", "target": "review-integration"},
+        {"type": "fresh_review", "candidate": "c1"},
+        {"type": "integration_verified", "candidate": "c1"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    },
+    {
+      "scenario_id": "large-multi-repo-critical-path",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/master-cycle.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/governance.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/authority-gates.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/review-integration.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "coordination", "value": "STANDARD"},
+        {"type": "classify", "target": "Role"},
+        {"type": "classify", "target": "ProjectAuthority"},
+        {"type": "classify", "target": "CoordinationBaseline=STANDARD"},
+        {"type": "load_domain", "target": "master-cycle"},
+        {"type": "load_domain", "target": "governance"},
+        {"type": "discover", "target": "global-outcome-dependency-release-spine"},
+        {"type": "discover", "target": "repo-a-critical-workstream"},
+        {"type": "load_domain", "target": "authority-gates"},
+        {"type": "useful_action", "target": "repo-a-critical-path-change"},
+        {"type": "validation_pass"},
+        {"type": "load_domain", "target": "review-integration"},
+        {"type": "fresh_review", "candidate": "a1"},
+        {"type": "integration_verified", "candidate": "a1"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    },
+    {
+      "scenario_id": "cold-recovery-zero-chat",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/continuity.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/master-cycle.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "load_domain", "target": "continuity"},
+        {"type": "discover", "target": "orientation-spine"},
+        {"type": "discover", "target": "active-pr-ci-dependency"},
+        {"type": "reconcile", "target": "active-pr"},
+        {"type": "load_domain", "target": "master-cycle"},
+        {"type": "useful_action", "target": "continue-active-pr"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    },
+    {
+      "scenario_id": "bounded-worker-delegation",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/master-cycle.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/task-contract.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/worker-protocol.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/authority-gates.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/review-integration.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "coordination", "value": "LIGHTWEIGHT"},
+        {"type": "classify", "target": "Role"},
+        {"type": "classify", "target": "ProjectAuthority"},
+        {"type": "classify", "target": "CoordinationBaseline=LIGHTWEIGHT"},
+        {"type": "load_domain", "target": "master-cycle"},
+        {"type": "load_domain", "target": "task-contract"},
+        {"type": "load_domain", "target": "worker-protocol"},
+        {"type": "load_domain", "target": "authority-gates"},
+        {"type": "artifact_create", "target": "worker-contract"},
+        {"type": "worker_dispatch", "worker": "w1"},
+        {"type": "useful_action", "target": "worker-implements"},
+        {"type": "validation_pass"},
+        {"type": "worker_handoff"},
+        {"type": "load_domain", "target": "review-integration"},
+        {"type": "fresh_review", "candidate": "w1c1"},
+        {"type": "integration_verified", "candidate": "w1c1"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    },
+    {
+      "scenario_id": "review-head-drift",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/review-integration.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/authority-gates.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "load_domain", "target": "review-integration"},
+        {"type": "fresh_review", "candidate": "c1"},
+        {"type": "candidate_change", "candidate": "c2"},
+        {"type": "fresh_review", "candidate": "c2"},
+        {"type": "load_domain", "target": "authority-gates"},
+        {"type": "useful_action", "target": "integrate-current-candidate"},
+        {"type": "integration_verified", "candidate": "c2"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    },
+    {
+      "scenario_id": "auto-production-release",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/review-integration.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/authority-gates.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/release.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "load_domain", "target": "review-integration"},
+        {"type": "load_domain", "target": "authority-gates"},
+        {"type": "load_domain", "target": "release"},
+        {"type": "fresh_review", "candidate": "r1"},
+        {"type": "production_gate"},
+        {"type": "human_confirmation", "reason": "production"},
+        {"type": "useful_action", "target": "merge-production-trigger"},
+        {"type": "integration_verified", "candidate": "r1"},
+        {"type": "delivery_verified", "candidate": "r1", "target": "production"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    },
+    {
+      "scenario_id": "local-blocker-independent-work",
+      "source_basis": [
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/SKILL.md",
+        "f98e8a242c720931e34aa7c4e8a799090e3d0495:skill/references/master-cycle.md"
+      ],
+      "events": [
+        {"type": "read_entrypoint"},
+        {"type": "load_domain", "target": "master-cycle"},
+        {"type": "local_blocker", "target": "chain-a"},
+        {"type": "useful_action", "target": "chain-b"},
+        {"type": "validation_pass"},
+        {"type": "outcome_verified"},
+        {"type": "stop", "boundary": "PROJECT_COMPLETE"}
+      ]
+    }
+  ]
+}

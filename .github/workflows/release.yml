@@ -50,6 +50,9 @@ jobs:
       - name: Test Phase 6 deterministic lint
         run: python3 tests/test_validate_skill_phase6.py
 
+      - name: Check immutable v1.2.2 runtime equivalence
+        run: python3 tools/check_runtime_equivalence.py --repo-root .
+
       - name: Score Phase 7 operational benchmark
         run: |
           python3 tools/score_phase7_benchmark.py \
@@ -59,8 +62,19 @@ jobs:
             --repo-root . \
             --baseline-ref v1.0.0
 
+      - name: Validate v1.2.2 representation baseline traces
+        run: |
+          python3 tools/score_phase7_benchmark.py \
+            --comparison-mode validate-baseline \
+            --scenarios benchmarks/phase7/scenarios.json \
+            --baseline benchmarks/phase7/traces-v1.2.2.json \
+            --repo-root .
+
       - name: Test Phase 7 benchmark scorer
         run: python3 tests/test_phase7_benchmark.py
+
+      - name: Test runtime equivalence gate
+        run: python3 tests/test_runtime_equivalence.py
 
       - name: Test release intent decisions
         run: python3 tests/test_release_intent.py
