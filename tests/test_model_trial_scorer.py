@@ -43,8 +43,7 @@ def observed(*, refs: int = 0, steps: int = 5, correct: bool = True, violations=
 
 def make_trials(*, improve_refs: bool = False) -> dict:
     runs = []
-    for case in cases["cases"]:
-        case_id = case["id"]
+    for case_id in cases["case_ids"]:
         for index in range(cases["minimum_pairs_per_case"]):
             pair_id = f"{case_id}-{index + 1}"
             baseline_first = index % 2 == 0
@@ -131,7 +130,7 @@ if decision_result["ok"] or not any(
 print("PASS decision-regression-rejected")
 
 step_regression = copy.deepcopy(improved_doc)
-first_case = cases["cases"][0]["id"]
+first_case = cases["case_ids"][0]
 for row in step_regression["runs"]:
     if row["case_id"] == first_case and row["representation"] == "candidate":
         row["observed"]["steps_to_first_useful_action"] += 1
