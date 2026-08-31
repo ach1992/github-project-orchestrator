@@ -9,16 +9,16 @@ Use this file as the control kernel. Resolve `Role`, establish only decision-rel
 
 ## 1. Role and runtime state
 
-| Dimension | Values / responsibility | Stability / non-implication |
+| Dimension | Values / rule | Stability / non-implication |
 |---|---|---|
-| `Role` | `MASTER` owns project framing, priority, implementation strategy, review/integration, continuity, and release. `WORKER` owns exactly one assigned Task Contract and never reprioritizes or integrates the target. | `KEEP` until the actual assignment basis changes. |
-| `ProjectAuthority` | `ADVISORY` · `MANAGED` · `AUTONOMOUS_WITH_GATES`; end-to-end ownership defaults to `MASTER + AUTONOMOUS_WITH_GATES`. | `KEEP` until the actual authorization basis changes. Capability, environment, risk, coordination, or assurance never widens it; chat/Master rotation never makes it more permissive. |
-| `ScopedAuthorization` | exact action/target/effect grant | Never upgrades project-wide `ProjectAuthority`. |
-| `CoordinationBaseline` | `LIGHTWEIGHT` for bounded low-coordination outcomes, including one bounded Worker when delegation adds value without material coordination; `STANDARD` for multiple/overlapping Workers or material multi-item/delegation/dependency/review/release/cross-session coordination | `KEEP` until the actual coordination basis changes, including across Master rotation. `STANDARD` remains FAST-compatible and never implies FULL. |
-| `AssuranceLevel` | `NORMAL` · `HIGH_ASSURANCE` | Apply `HIGH_ASSURANCE` only to affected work, additively, when justified by risk, policy, or explicit authorized controls; return to `NORMAL` when that escalation ends. It never implies approval or FULL. |
-| `RiskLevel` | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | Classify per substantive change only when decision-relevant. |
+| `Role` | `MASTER` owns project framing, priority, implementation strategy, review/integration, continuity, and release. `WORKER` owns exactly one assigned Task Contract and never reprioritizes or integrates the target. | Retain the current value until the actual assignment basis changes. |
+| `ProjectAuthority` | `ADVISORY` · `MANAGED` · `AUTONOMOUS_WITH_GATES`; end-to-end ownership defaults to `MASTER + AUTONOMOUS_WITH_GATES`. | Retain the current value until the actual authorization basis changes. Capability, environment, risk, coordination, or assurance may constrain execution but never broadens `ProjectAuthority`; chat/Master rotation alone never makes it more permissive. |
+| `ScopedAuthorization` | exact action/target/effect grant; never a project-wide authority upgrade | Keep it exact to its stated scope; never infer project-wide `ProjectAuthority` from it. |
+| `CoordinationBaseline` | `LIGHTWEIGHT` for bounded low-coordination outcomes, including one bounded Worker when delegation adds value without material coordination; `STANDARD` for multiple/overlapping Workers or material multi-item/delegation/dependency/review/release/cross-session coordination | Retain the current value until the actual coordination/recovery basis changes, including across Master rotation. `STANDARD` remains compatible with FAST execution and never implies FULL. |
+| `AssuranceLevel` | `NORMAL` · `HIGH_ASSURANCE`; additive only for affected work when risk, policy, or explicit authorized controls justify it | `HIGH_ASSURANCE` never removes underlying coordination/baseline controls or by itself implies approval or FULL execution; return to `NORMAL` when that escalation ends. |
+| `RiskLevel` | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL`, classified per substantive change only when decision-relevant | Reclassify only when change-specific evidence can affect a decision, gate, or evidence depth. |
 
-Dimensions remain orthogonal unless a canonical rule explicitly connects them. Project/repository size alone selects neither `STANDARD` nor `HIGH_ASSURANCE`. Infer safely instead of asking user to choose ceremony.
+These dimensions remain orthogonal unless a canonical rule explicitly connects them. Project/repository size alone does not select `STANDARD` or `HIGH_ASSURANCE`. Infer safely instead of asking the user to choose ceremony.
 
 For any consequential action, [references/authority-gates.md](references/authority-gates.md) owns `CAN_EXECUTE(action)`, `ApplicableEffects`, obligation union, authorization, canonical boundary meanings, `WriteState.UNKNOWN`, and optimistic concurrency.
 
