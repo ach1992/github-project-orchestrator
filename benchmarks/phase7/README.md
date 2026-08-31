@@ -12,18 +12,24 @@ This lane does not rewrite the historical `v1.0.0 -> v1.1.0` evidence above. It 
 
 - `runtime-optimization-baseline.json` — exact baseline identity and the mechanical semantic surfaces/predicate owners checked by `tools/check_runtime_equivalence.py`;
 - `traces-v1.2.2.json` — source-grounded v1.2.2 policy-simulation traces for the existing eight Phase 7 scenarios;
-- `runtime-optimization-scenarios.json` — the minimum comparison classes for Phase B, including the hot FAST path, consequential authority path, Worker resume, cold recovery, review freshness, pending dependency continuation, integration/delivery separation, and namespace/effect isolation;
-- `../../tests/test_runtime_equivalence.py` — adversarial fixtures proving that Rule/owner/Goal/state/router/eval/predicate loss is rejected.
+- `runtime-optimization-scenarios.json` — the minimum representation-comparison classes, including the hot FAST path, consequential authority path, Worker resume, cold recovery, review freshness, pending dependency continuation, integration/delivery separation, and namespace/effect isolation;
+- `MODEL-TRIAL-PROTOCOL.md` and `model-trial-cases.json` — the observable paired actual-model/runtime A/B contract that is the only benchmark lane eligible to prove practical representation improvement;
+- `tools/score_model_trials.py` — the deterministic scorer for supplied paired observable A/B records;
+- `../../tests/test_runtime_equivalence.py` and `../../tests/test_model_trial_scorer.py` — adversarial fixtures for the mechanical and real-trial evidence gates.
 
-`tools/score_phase7_benchmark.py --comparison-mode candidate` compares two full-SHA-pinned source-grounded trace sets. Candidate acceptance is stricter than simple equivalence: protected behavior must stay clean, every measured friction field must be non-worse, and at least one material source-grounded decision-cost field must improve. An identical baseline/candidate pair is deliberately **not** an optimization win.
+### Evidence roles are intentionally separate
 
-The source-grounded lane still does **not** prove actual LLM latency, comprehension quality, or cross-model reliability. Phase B must add comparable model/runtime trial evidence before a representation change is selected for migration. The mechanical equivalence checker likewise proves only objective representation invariants; semantic prose/judgment equivalence remains a review/evaluation responsibility.
+`tools/score_phase7_benchmark.py --comparison-mode candidate` compares two full-SHA-pinned **source-grounded policy simulations**. In the representation-optimization program this mode checks protected behavior and reports diagnostic friction/context deltas only. It always reports `optimization_claim_eligible: false`. An identical baseline/candidate trace can therefore be valid, and a manually shortened candidate trace can be diagnostically smaller, without either result proving that an LLM is faster, more accurate, or less error-prone.
 
-## What this benchmark measures
+Practical improvement may be accepted only from the separate paired actual-model/runtime A/B lane described in `MODEL-TRIAL-PROTOCOL.md`. That lane keeps model/runtime/settings/toolset identity fixed, alternates representation order within pairs, scores only observable behavior, requires auditable transcript/tool-log references, hard-fails protected regressions, and requires a material paired improvement. It never requests or scores private chain-of-thought.
 
-The benchmark uses eight representative project traces covering small, medium, large/multi-repository, cold recovery, bounded delegation, review drift, production release, and local-blocker flow. Each scenario declares observable required behavior, proportional coordination, permitted human confirmation/artifact counts, delivery requirements, and the expected terminal boundary.
+The mechanical equivalence checker likewise proves only objective representation invariants; semantic prose/judgment equivalence remains a review/evaluation responsibility.
 
-`tools/score_phase7_benchmark.py` scores both baseline and current traces for:
+## Historical source-grounded benchmark measures
+
+The historical benchmark uses eight representative project traces covering small, medium, large/multi-repository, cold recovery, bounded delegation, review drift, production release, and local-blocker flow. Each scenario declares observable required behavior, proportional coordination, permitted human confirmation/artifact counts, delivery requirements, and the expected terminal boundary.
+
+`tools/score_phase7_benchmark.py` scores source-grounded traces for:
 
 - protected-behavior violations;
 - steps before the first useful engineering action;
@@ -40,28 +46,46 @@ The benchmark uses eight representative project traces covering small, medium, l
 
 The scorer treats unsafe shortcuts, hidden human work, stale integration, missing delivery verification, wrong stop boundaries, overweight coordination, and missing required controls as failures. It never gives safety credit in exchange for lower friction.
 
-## Evidence types and limitation
+## Evidence types and limitations
 
-The A/B traces in this phase are **source-grounded policy simulations**. They are produced by applying the pinned runtime instructions to fixed scenarios and recording the prescribed/selected execution path. They are reproducible and auditable against the cited runtime paths, but they are not independent multi-model trials and do not measure wall-clock model latency.
+### Source-grounded policy simulation
 
-The scorer rejects floating/malformed provenance and, when run with `--repo-root`, verifies every declared `ref:path` directly from Git. This prevents later `main` drift from silently changing the historical Phase 7 evidence. Pinning to a reachable immutable release commit also prevents ordinary branch cleanup from making valid historical provenance unreadable in CI.
+The source-grounded traces are produced by applying pinned runtime instructions to fixed scenarios and recording the prescribed/selected execution path. They are reproducible and auditable against cited runtime paths, but they are not independent model trials and do not measure actual model comprehension, routing reliability, latency, or execution quality.
 
-That limitation is deliberate and visible. Phase 7 uses these traces to prove that the refactored policy surface can preserve protected behavior while reducing prescribed operational work. `LIVE-EVIDENCE.md` separately records real repository delivery evidence. Regression scenario `BC` in `skill/references/eval-scenarios.md` covers the independent-review handoff semantics; Phase 8 then exercised independent review on a real release candidate rather than treating the synthetic scenario as sufficient evidence by itself.
+The scorer rejects floating/malformed provenance and, when run with `--repo-root`, verifies every declared `ref:path` directly from Git. This prevents later `main` drift from silently changing evidence. For representation candidates, trace friction differences are diagnostics only and cannot satisfy the program's practical-improvement requirement.
 
-Token/word/line size is diagnostic only. The scorer reports pinned baseline/current `SKILL.md` entrypoint size from Git when run with `--repo-root`, but entrypoint shrinkage cannot compensate for a protected-behavior regression.
+Historical Phase 7 legitimately uses its source-grounded traces to document the prescribed operational effects of the v1.1.0 refactor. That historical result is preserved as historical evidence and is not retroactively reinterpreted as actual model-performance proof.
+
+### Actual model/runtime paired A/B evidence
+
+`MODEL-TRIAL-PROTOCOL.md` defines the evidence needed for a current representation-optimization claim. Each paired run compares the exact immutable v1.2.2 representation and one exact candidate on the same case under equivalent runtime identity/settings/tool availability. Only observable run behavior is scored.
+
+Primary metrics are:
+
+- protected-behavior violation count;
+- wrong next-action decision count;
+- observable steps before first useful action;
+- composite avoidable events: unnecessary questions + unnecessary actions + unnecessary reference loads + manual-continue events.
+
+The default contract requires at least three pairs per case, balanced order within one run where practical, zero candidate protected violations, no per-case worsening on a primary metric, and at least one directional paired improvement meeting the configured exact one-sided sign-test threshold. Passing the scorer still requires evidence review of transcript authenticity, trial construction, model/runtime identity, and operational significance before migration.
+
+Optional token/latency fields may be recorded when measured comparably, but they are diagnostic by default. Token/word/line reduction cannot compensate for a correctness/safety regression and cannot establish an optimization win by itself.
 
 ## Files
 
-- `scenarios.json` — fixed scenario contract and Goal coverage.
-- `traces-v1.0.0.json` — baseline source-grounded traces pinned to `v1.0.0`.
+- `scenarios.json` — fixed historical Phase 7 scenario contract and Goal coverage.
+- `traces-v1.0.0.json` — historical baseline source-grounded traces pinned to `v1.0.0`.
 - `traces-current.json` — historical refactored source-grounded traces pinned to immutable prerelease commit `53182d5db086eef98ebaba757bb820b86e465845`; the filename is phase-relative and does not mean the traces follow later release candidates.
 - `runtime-optimization-baseline.json` — immutable v1.2.2 representation-comparison baseline configuration.
-- `traces-v1.2.2.json` — immutable v1.2.2 source-grounded policy-simulation baseline for future representation candidates.
-- `runtime-optimization-scenarios.json` — current representation-comparison case contract; it supplements rather than replaces the historical eight-scenario schema.
+- `traces-v1.2.2.json` — immutable v1.2.2 source-grounded policy-simulation baseline for representation candidates.
+- `runtime-optimization-scenarios.json` — current representation-comparison semantic/diagnostic case contract.
+- `MODEL-TRIAL-PROTOCOL.md` — actual model/runtime A/B evidence protocol.
+- `model-trial-cases.json` — machine-readable actual model/runtime case and acceptance contract.
 - `RESULTS.md` — checked-in historical Phase 7 interpretation and acceptance result.
 - `LIVE-EVIDENCE.md` — real GitHub delivery evidence from integrated refactor phases.
-- `../../tests/test_phase7_benchmark.py` — adversarial negative fixtures for historical and current candidate-comparison scorer behavior.
-- `../../tests/test_runtime_equivalence.py` — adversarial negative fixtures for the immutable runtime-equivalence gate.
+- `../../tests/test_phase7_benchmark.py` — adversarial fixtures for historical and source-grounded representation-comparison behavior.
+- `../../tests/test_runtime_equivalence.py` — adversarial fixtures for the immutable runtime-equivalence gate.
+- `../../tests/test_model_trial_scorer.py` — adversarial fixtures for observable paired model/runtime evidence scoring.
 
 ## Run
 
@@ -88,7 +112,7 @@ python3 tools/score_phase7_benchmark.py \
 python3 tools/check_runtime_equivalence.py --repo-root .
 ```
 
-Compare a future candidate trace set only after it is pinned to the exact candidate SHA:
+Compare a future candidate source-grounded trace set for protected behavior and diagnostics only:
 
 ```bash
 python3 tools/score_phase7_benchmark.py \
@@ -99,11 +123,20 @@ python3 tools/score_phase7_benchmark.py \
   --repo-root .
 ```
 
+Score actual paired model/runtime evidence after Phase B has produced an exact candidate and auditable run records:
+
+```bash
+python3 tools/score_model_trials.py \
+  --cases benchmarks/phase7/model-trial-cases.json \
+  --trials <actual-model-trials.json>
+```
+
 Run adversarial fixtures:
 
 ```bash
 python3 tests/test_phase7_benchmark.py
 python3 tests/test_runtime_equivalence.py
+python3 tests/test_model_trial_scorer.py
 ```
 
-A historical passing score still requires zero protected-behavior violations in both historical trace sets, full `G01`-`G16` scenario coverage, correct proportional coordination, and the original friction reductions. A representation candidate additionally must preserve the immutable v1.2.2 semantic gate and demonstrate a material comparable improvement; source-grounded evidence alone is not sufficient proof of actual model performance.
+A historical passing score still requires zero protected-behavior violations in both historical trace sets, full `G01`-`G16` scenario coverage, correct proportional coordination, and the historical friction result. A current representation candidate must preserve the immutable v1.2.2 semantic/protected-behavior gate **and separately pass actual comparable model/runtime A/B evidence before any practical optimization claim or migration is accepted**.
