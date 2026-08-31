@@ -3,8 +3,7 @@ For already-running CI/check/deployment/job, `pending` is dependency state, not 
 | Current condition | Required action |
 |---|---|
 | independent useful work still exists | Continue it before waiting. |
-| pending is the sole dependency and bounded synchronous waiting is safe/proportionate | Use non-tight authoritative rechecks only when a transition is plausibly due; bound continuation by expected job duration, tool/runtime limits, and diminishing value. |
-| pending is the sole dependency and a suitable real event/condition resume primitive exists | Use that primitive rather than fabricating monitoring/resume. |
+| pending is the sole dependency | Use an available safe runtime-supported continuation path: either bounded, non-tight authoritative rechecks when synchronous waiting is safe/proportionate, or a suitable real event/condition resume primitive. For rechecks, read only when a transition is plausibly due and bound continuation by expected job duration, tool/runtime limits, and diminishing value. |
 | dependency resolves successfully | Immediately continue the existing workflow; do not require a user nudge. |
 | dependency fails | Stop waiting immediately, classify the failure, and continue the applicable remediation or independent-work path. |
 | dependency is still pending, is the sole remaining blocker, and autonomous continuation is unavailable, no longer reasonable, or exhausted | Use `MasterBoundary.BLOCKED` with the exact external object, current status, why autonomous continuation cannot safely continue, exact resume condition, and recoverable state. |
