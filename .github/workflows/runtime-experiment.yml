@@ -1,0 +1,34 @@
+name: Validate Runtime Representation Experiment
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'benchmarks/phase7/experiments/**'
+      - 'tools/materialize_runtime_experiment.py'
+      - 'tools/run_runtime_ab_trials.py'
+      - 'tests/test_runtime_representation_experiment.py'
+      - 'tests/test_runtime_ab_trial_harness.py'
+      - '.github/workflows/runtime-experiment.yml'
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Validate isolated decision-frame materialization
+        run: python3 tests/test_runtime_representation_experiment.py
+
+      - name: Validate observable A/B trial harness
+        run: python3 tests/test_runtime_ab_trial_harness.py
+
+      - name: Re-check immutable v1.2.2 equivalence baseline
+        run: python3 tools/check_runtime_equivalence.py --repo-root .
