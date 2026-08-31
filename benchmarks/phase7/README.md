@@ -21,7 +21,7 @@ This lane does not rewrite the historical `v1.0.0 -> v1.1.0` evidence above. It 
 
 `tools/score_phase7_benchmark.py --comparison-mode candidate` compares two full-SHA-pinned **source-grounded policy simulations**. In the representation-optimization program this mode checks protected behavior and reports diagnostic friction/context deltas only. It always reports `optimization_claim_eligible: false`. An identical baseline/candidate trace can therefore be valid, and a manually shortened candidate trace can be diagnostically smaller, without either result proving that an LLM is faster, more accurate, or less error-prone.
 
-Practical improvement may be accepted only from the separate paired actual-model/runtime A/B lane described in `MODEL-TRIAL-PROTOCOL.md`. That lane keeps model/runtime/settings/toolset identity fixed, alternates representation order within pairs, scores only observable behavior, requires auditable transcript/tool-log references, hard-fails protected regressions, and requires a material paired improvement. It never requests or scores private chain-of-thought.
+Practical improvement may be accepted only from the separate paired actual-model/runtime A/B lane described in `MODEL-TRIAL-PROTOCOL.md`. That lane keeps model/runtime/settings/toolset identity fixed, alternates which representation runs first across pairs, scores only observable behavior, requires auditable transcript/tool-log references, hard-fails protected regressions, and requires a material paired improvement. It never requests or scores private chain-of-thought.
 
 The mechanical equivalence checker likewise proves only objective representation invariants; semantic prose/judgment equivalence remains a review/evaluation responsibility.
 
@@ -67,9 +67,9 @@ Primary metrics are:
 - observable steps before first useful action;
 - composite avoidable events: unnecessary questions + unnecessary actions + unnecessary reference loads + manual-continue events.
 
-The default contract requires at least three pairs per case, balanced order within one run where practical, zero candidate protected violations, no per-case worsening on a primary metric, and at least one directional paired improvement meeting the configured exact one-sided sign-test threshold. Passing the scorer still requires evidence review of transcript authenticity, trial construction, model/runtime identity, and operational significance before migration.
+The default contract requires at least three pairs per case, balanced baseline-first/candidate-first order within each case, zero candidate protected violations, no per-case worsening on a primary metric, and at least one directional paired improvement meeting the configured exact one-sided sign-test threshold. Passing the scorer still requires evidence review of transcript authenticity, trial construction, model/runtime identity, and operational significance before migration.
 
-Optional token/latency fields may be recorded when measured comparably, but they are diagnostic by default. Token/word/line reduction cannot compensate for a correctness/safety regression and cannot establish an optimization win by itself.
+Optional token/latency measurements may be kept in a separate diagnostic artifact when measured comparably; the scored trial JSON intentionally has a closed observable schema and does not accept them. Token/word/line reduction cannot compensate for a correctness/safety regression and cannot establish an optimization win by itself.
 
 ## Files
 
