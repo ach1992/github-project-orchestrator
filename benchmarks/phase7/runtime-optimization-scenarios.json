@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "purpose": "Comparable v1.2.2-baseline versus candidate decision-representation trials inside the existing Phase 7 benchmark system.",
+  "baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "evidence_policy": {
+    "protected_behavior_is_hard_gate": true,
+    "token_or_line_count_is_success_metric": false,
+    "source_grounded_trace_is_model_performance_proof": false,
+    "candidate_requires_material_improvement": true
+  },
+  "comparison_cases": [
+    {
+      "id": "hot-fast-master-path",
+      "class": "hot-path",
+      "reuse_phase7_scenario": "small-routine-fix",
+      "eval_anchors": ["L", "AD", "CZ"],
+      "protect": [
+        "FAST remains available for bounded reversible Master work",
+        "stable dimensions are reused rather than ceremonially reclassified",
+        "no new confirmation or contract artifact is introduced"
+      ],
+      "measure": [
+        "steps_to_first_useful_action",
+        "references_loaded_before_decisive_action",
+        "stable_dimension_reconstructions",
+        "activated_context_surface"
+      ]
+    },
+    {
+      "id": "consequential-mutation-authority-path",
+      "class": "gate",
+      "reuse_phase7_scenario": null,
+      "eval_anchors": ["H", "BO", "CV", "DC"],
+      "protect": [
+        "actual deterministic effects are classified before mutation",
+        "multi-effect obligations remain a union",
+        "capability or one scoped grant never widens unrelated Authority"
+      ],
+      "measure": [
+        "decision_steps",
+        "references_loaded_before_decisive_action",
+        "false_gate_or_shortcut_errors"
+      ]
+    },
+    {
+      "id": "worker-dispatch-and-resume",
+      "class": "delegation",
+      "reuse_phase7_scenario": "bounded-worker-delegation",
+      "eval_anchors": ["DB", "DG", "CR", "CK"],
+      "protect": [
+        "full compact Worker envelope remains complete",
+        "StartHEAD and CheckpointHEAD meanings remain distinct",
+        "Worker stop does not automatically become Master stop"
+      ],
+      "measure": [
+        "worker_startup_steps",
+        "worker_resume_steps",
+        "references_loaded",
+        "assignment_reconstruction_errors"
+      ]
+    },
+    {
+      "id": "cold-master-recovery",
+      "class": "recovery",
+      "reuse_phase7_scenario": "cold-recovery-zero-chat",
+      "eval_anchors": ["I", "AH", "BG", "BH"],
+      "protect": [
+        "authoritative state outranks old chat",
+        "Authority and coordination/assurance survive rotation losslessly",
+        "ordinary planned transitions do not restart broad recovery"
+      ],
+      "measure": [
+        "recovery_reads_before_useful_action",
+        "activated_context_surface",
+        "repeated_discovery"
+      ]
+    },
+    {
+      "id": "review-integration-freshness",
+      "class": "review",
+      "reuse_phase7_scenario": "review-head-drift",
+      "eval_anchors": ["E", "CJ", "DI"],
+      "protect": [
+        "review remains bound to exact current effective change",
+        "material drift invalidates affected approval",
+        "incomplete independent review cannot issue an overall verdict"
+      ],
+      "measure": [
+        "review_decision_steps",
+        "references_loaded",
+        "stale_approval_errors"
+      ]
+    },
+    {
+      "id": "pending-external-job-continuation",
+      "class": "flow",
+      "reuse_phase7_scenario": null,
+      "eval_anchors": ["AQ", "AW", "CN"],
+      "protect": [
+        "independent useful work proceeds before waiting",
+        "healthy pending state is not failure or NO_READY_WORK",
+        "terminal response is not allowed while executable outcome-linked work remains"
+      ],
+      "measure": [
+        "manual_continue_required",
+        "premature_stop_errors",
+        "unnecessary_wait_or_poll_steps"
+      ]
+    },
+    {
+      "id": "integration-versus-delivery",
+      "class": "release",
+      "reuse_phase7_scenario": "auto-production-release",
+      "eval_anchors": ["CO", "DF", "CT"],
+      "protect": [
+        "integration never implies delivered",
+        "delivery target and delivery state remain independent",
+        "wrong or unknown production artifact identity cannot be called delivered"
+      ],
+      "measure": [
+        "delivery_decision_steps",
+        "references_loaded",
+        "false_delivery_completion_errors"
+      ]
+    },
+    {
+      "id": "namespace-and-effect-isolation",
+      "class": "adversarial",
+      "reuse_phase7_scenario": "local-blocker-independent-work",
+      "eval_anchors": ["DE", "DD", "DC"],
+      "protect": [
+        "TaskState.BLOCKED, WorkerStatus.BLOCKED, and MasterBoundary.BLOCKED remain independent",
+        "WriteState.UNKNOWN does not automatically become a Master stop",
+        "multi-effect actions retain every independent obligation"
+      ],
+      "measure": [
+        "namespace_propagation_errors",
+        "effect_collapse_errors",
+        "decision_steps"
+      ]
+    }
+  ]
+}
