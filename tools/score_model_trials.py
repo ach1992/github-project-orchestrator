@@ -15,6 +15,19 @@ from pathlib import Path
 
 FULL_SHA_RE = re.compile(r"[0-9a-f]{40}")
 PROGRAM_BASELINE_REF = "f98e8a242c720931e34aa7c4e8a799090e3d0495"
+SEMANTIC_CASE_CONTRACT = "benchmarks/phase7/runtime-optimization-scenarios.json"
+REQUIRED_CASE_CONTRACT_FIELDS = {
+    "schema_version",
+    "suite_id",
+    "baseline_ref",
+    "semantic_case_contract",
+    "minimum_pairs_per_case",
+    "sign_test_alpha",
+    "evidence_kind",
+    "primary_metrics",
+    "observable_only",
+    "case_ids",
+}
 REQUIRED_TRIAL_FIELDS = {
     "schema_version",
     "suite_id",
@@ -61,39 +74,40 @@ def load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def validate_cases(cases_doc: dict) -> dict[str, dict]:
-    if cases_doc.get("schema_version") != 1:
+def validate_cases(cases_doc: dict) -> tuple[str, ...]:
+    if set(cases_doc) != REQUIRED_CASE_CONTRACT_FIELDS:
+        raise ValueError(
+            f"model-trial case contract fields must be exactly {sorted(REQUIRED_CASE_CONTRACT_FIELDS)}"
+        )
+    if cases_doc["schema_version"] != 1:
         raise ValueError("unsupported model-trial case schema_version")
-    if cases_doc.get("suite_id") != "lossless-runtime-representation-v1":
+    if cases_doc["suite_id"] != "lossless-runtime-representation-v1":
         raise ValueError("unexpected model-trial suite_id")
-    if cases_doc.get("baseline_ref") != PROGRAM_BASELINE_REF:
+    if cases_doc["baseline_ref"] != PROGRAM_BASELINE_REF:
         raise ValueError("model-trial baseline must remain pinned to v1.2.2 program baseline")
-    if cases_doc.get("evidence_kind") != "actual-model-runtime-ab":
+    if cases_doc["semantic_case_contract"] != SEMANTIC_CASE_CONTRACT:
+        raise ValueError("model-trial semantic case contract must remain canonical Phase 7 runtime contract")
+    if cases_doc["evidence_kind"] != "actual-model-runtime-ab":
         raise ValueError("model-trial case contract must require actual-model-runtime-ab evidence")
-    if cases_doc.get("observable_only") is not True:
+    if cases_doc["observable_only"] is not True:
         raise ValueError("model-trial contract must remain observable-only")
-    minimum = cases_doc.get("minimum_pairs_per_case")
+    minimum = cases_doc["minimum_pairs_per_case"]
     if not isinstance(minimum, int) or isinstance(minimum, bool) or minimum < 1:
         raise ValueError("minimum_pairs_per_case must be a positive integer")
-    alpha = cases_doc.get("sign_test_alpha")
+    alpha = cases_doc["sign_test_alpha"]
     if not isinstance(alpha, (int, float)) or isinstance(alpha, bool) or not (0 < alpha <= 0.5):
         raise ValueError("sign_test_alpha must be in (0, 0.5]")
-    if tuple(cases_doc.get("primary_metrics", [])) != PRIMARY_METRICS:
+    if tuple(cases_doc["primary_metrics"]) != PRIMARY_METRICS:
         raise ValueError("primary_metrics changed from the observable selection contract")
 
-    cases: dict[str, dict] = {}
-    for case in cases_doc.get("cases", []):
-        case_id = case.get("id")
-        if not isinstance(case_id, str) or not case_id:
-            raise ValueError("every model-trial case requires a non-empty id")
-        if case_id in cases:
-            raise ValueError(f"duplicate model-trial case id: {case_id}")
-        if not case.get("protect"):
-            raise ValueError(f"model-trial case has no protected behavior contract: {case_id}")
-        cases[case_id] = case
-    if not cases:
-        raise ValueError("model-trial case contract is empty")
-    return cases
+    case_ids = cases_doc["case_ids"]
+    if not isinstance(case_ids, list) or not case_ids:
+        raise ValueError("model-trial case_ids must be a non-empty list")
+    if any(not isinstance(case_id, str) or not case_id for case_id in case_ids):
+        raise ValueError("every model-trial case_id must be a non-empty string")
+    if len(case_ids) != len(set(case_ids)):
+        raise ValueError("duplicate model-trial case_id")
+    return tuple(case_ids)
 
 
 def _nonnegative_int(value, field: str) -> int:
@@ -145,8 +159,10 @@ def one_sided_sign_test(differences: list[int]) -> dict:
     if non_ties == 0:
         p_value = 1.0
     else:
-        numerator = sum(math.comb(non_ties, k) for k in range(positive, non_ties + 1))
-        p_value = numerator / (2 ** non_ties)
+        p_value = (
+            sum(math.comb(non_ties, k) for k in range(positive, non_ties + 1))
+            / (2 ** non_ties)
+        )
     return {
         "positive": positive,
         "negative": negative,
@@ -157,16 +173,17 @@ def one_sided_sign_test(differences: list[int]) -> dict:
 
 
 def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
-    cases = validate_cases(cases_doc)
+    case_ids = validate_cases(cases_doc)
+    case_id_set = set(case_ids)
     if set(trials_doc) != REQUIRED_TRIAL_FIELDS:
         raise ValueError(
             f"model-trial result fields must be exactly {sorted(REQUIRED_TRIAL_FIELDS)}"
         )
-    if trials_doc.get("schema_version") != 1:
+    if trials_doc["schema_version"] != 1:
         raise ValueError("unsupported model-trial result schema_version")
-    if trials_doc.get("suite_id") != cases_doc["suite_id"]:
+    if trials_doc["suite_id"] != cases_doc["suite_id"]:
         raise ValueError("trial suite_id does not match case contract")
-    if trials_doc.get("evidence_kind") != "actual-model-runtime-ab":
+    if trials_doc["evidence_kind"] != "actual-model-runtime-ab":
         raise ValueError("trial evidence_kind must be actual-model-runtime-ab")
 
     baseline = trials_doc["baseline_representation"]
@@ -218,7 +235,7 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
         transcript_ref = row["transcript_ref"]
         if not isinstance(pair_id, str) or not pair_id:
             raise ValueError(f"run {run_id} requires pair_id")
-        if case_id not in cases:
+        if case_id not in case_id_set:
             raise ValueError(f"run {run_id} uses unknown case_id: {case_id}")
         if representation not in {"baseline", "candidate"}:
             raise ValueError(f"run {run_id} representation must be baseline or candidate")
@@ -258,7 +275,7 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
 
     errors: list[str] = []
     minimum = cases_doc["minimum_pairs_per_case"]
-    for case_id in cases:
+    for case_id in case_ids:
         count = len(pairs_by_case[case_id])
         if count < minimum:
             errors.append(f"case {case_id} has {count} pairs; requires at least {minimum}")
@@ -279,7 +296,8 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
     }
     per_case = {}
     differences = {metric: [] for metric in PRIMARY_METRICS}
-    for case_id, case_pairs in pairs_by_case.items():
+    for case_id in case_ids:
+        case_pairs = pairs_by_case[case_id]
         case_totals = {
             "baseline": {metric: 0 for metric in PRIMARY_METRICS},
             "candidate": {metric: 0 for metric in PRIMARY_METRICS},
@@ -326,19 +344,21 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
         "ok": not errors,
         "acceptance_errors": errors,
         "suite_id": cases_doc["suite_id"],
+        "semantic_case_contract": cases_doc["semantic_case_contract"],
         "evidence_kind": trials_doc["evidence_kind"],
         "baseline_ref": baseline_ref,
         "candidate_ref": candidate_ref,
         "runtime_identity": runtime_identity,
         "pair_count": len(pairs),
-        "pairs_per_case": {case_id: len(pairs_by_case[case_id]) for case_id in cases},
+        "pairs_per_case": {case_id: len(pairs_by_case[case_id]) for case_id in case_ids},
         "totals": totals,
         "per_case": per_case,
         "sign_tests": sign_tests,
         "improved_metrics": improved_metrics,
         "proof_boundary": (
-            "scores supplied observable paired records only; transcript authenticity, provider bias, "
-            "cross-model generalization, and semantic completeness still require evidence review"
+            "scores supplied observable paired records only; semantic case meaning remains owned by "
+            "the canonical Phase 7 runtime-optimization scenario contract; transcript authenticity, "
+            "provider bias, cross-model generalization, and semantic completeness still require review"
         ),
     }
 
