@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pending-job-decision-structure-v1",
+  "issue": 56,
+  "source_ref": "b5c2574f50821de7133119f27f5abf69f10b2624",
+  "semantic_baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "semantic_change_allowed": false,
+  "canonical_runtime_changed_during_prototype": false,
+  "isolated_variable": "representation of already-running pending external-job continuation and stop precedence",
+  "replacement": {
+    "path": "skill/references/master-cycle.md",
+    "start_marker": "For already-running CI/check/deployment/job, `pending` is dependency state, not failure.",
+    "end_heading_exclusive": "## 10. Requirement changes",
+    "candidate_section": "benchmarks/phase7/experiments/pending-job-decision-structure-v1/candidate-pending-job.md"
+  },
+  "protected_eval_anchors": ["AQ", "AW", "CN", "CO", "CL"],
+  "acceptance": {
+    "non_target_runtime_byte_identity_required": true,
+    "anti_spin_steps_before_target_unchanged": true,
+    "requirement_change_and_later_sections_unchanged": true,
+    "master_stop_predicate_unchanged": true,
+    "new_runtime_state_allowed": false,
+    "actual_model_trial_required": false,
+    "semantic_ledger_required": true,
+    "source_grounded_operational_analysis_required": true
+  }
+}
