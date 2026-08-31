@@ -171,15 +171,15 @@ After failure:
 
 Persistence means adaptive progress, not infinite retry.
 
-For already-running CI/check/deployment/job, `pending` is dependency state, not failure. Continue independent useful work first; when the pending dependency becomes the only remaining dependency, prefer a real runtime-supported continuation mechanism over yielding control.
+For already-running CI/check/deployment/job, `pending` is dependency state, not failure. Continue independent useful work first. Once no independent useful work remains and `pending` is the sole dependency, prefer a real runtime-supported continuation mechanism over yielding control.
 
 | Current condition | Required action |
 |---|---|
-| independent useful work still exists | Continue it before waiting. |
-| pending is the sole dependency | Use an available safe runtime-supported continuation path: either (a) Use non-tight authoritative rechecks only when a transition is plausibly due and synchronous waiting is safe/proportionate, bounding continuation by expected job duration, tool/runtime limits, and diminishing value; or (b) when a suitable real event/condition resume primitive exists, use it rather than fabricating monitoring/resume. |
+| independent useful work still exists | Continue it before waiting; do not stop or wait solely because the dependency is pending. |
+| no independent useful work remains; `pending` is the sole dependency; a safe autonomous continuation path is available and still reasonable | Use either suitable runtime-supported path without inventing precedence: (a) bounded, non-tight authoritative rechecks only when a transition is plausibly due and synchronous waiting is safe/proportionate, bounded by expected job duration, tool/runtime limits, and diminishing value; or (b) a suitable real event/condition resume primitive. |
 | dependency resolves successfully | Immediately continue the existing workflow; do not require a user nudge. |
 | dependency fails | Stop waiting immediately, classify the failure, and continue the applicable remediation or independent-work path. |
-| dependency is still pending, is the sole remaining blocker, and autonomous continuation is unavailable, no longer reasonable, or exhausted | Use `MasterBoundary.BLOCKED` with the exact external object, current status, why autonomous continuation cannot safely continue, exact resume condition, and recoverable state. |
+| dependency is still pending; no independent useful work remains; it is the sole remaining blocker; safe autonomous continuation is unavailable, no longer reasonable, or exhausted | Use `MasterBoundary.BLOCKED` with the exact external object, current status, why autonomous continuation cannot safely continue, exact resume condition, and recoverable state. |
 
 Never tight-poll, sleep indefinitely, fabricate background monitoring/resume, or manufacture work. `DeliveryState.PENDING` remains a lifecycle state, not a terminal boundary label; never use `MasterBoundary.NO_READY_WORK` merely because an already-running required dependency is unfinished.
 
