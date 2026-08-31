@@ -22,6 +22,8 @@ EVAL_RE = re.compile(r"^###\s+([A-Z]{1,3})\.\s+", re.MULTILINE)
 DIRECT_REF_RE = re.compile(r"\((references/[A-Za-z0-9._/-]+\.md)\)")
 FULL_SHA_RE = re.compile(r"[0-9a-f]{40}")
 TEXT_SUFFIXES = {".md", ".py", ".yaml", ".yml", ".json"}
+PROGRAM_BASELINE_REF = "f98e8a242c720931e34aa7c4e8a799090e3d0495"
+PROGRAM_BASELINE_VERSION = "1.2.2"
 
 
 def run_git(repo: Path, *args: str) -> str:
@@ -208,8 +210,17 @@ def validate_config(config: dict) -> None:
     baseline_ref = config.get("baseline_ref", "")
     if not FULL_SHA_RE.fullmatch(baseline_ref):
         raise ValueError("baseline_ref must be an immutable full commit SHA")
-    if not re.fullmatch(r"\d+\.\d+\.\d+", config.get("baseline_version", "")):
+    if baseline_ref != PROGRAM_BASELINE_REF:
+        raise ValueError(
+            f"baseline_ref must remain pinned to program baseline {PROGRAM_BASELINE_REF}"
+        )
+    baseline_version = config.get("baseline_version", "")
+    if not re.fullmatch(r"\d+\.\d+\.\d+", baseline_version):
         raise ValueError("baseline_version must use x.y.z syntax")
+    if baseline_version != PROGRAM_BASELINE_VERSION:
+        raise ValueError(
+            f"baseline_version must remain pinned to program baseline {PROGRAM_BASELINE_VERSION}"
+        )
     required_surfaces = {
         "rule_map", "goal_map", "project_spec", "skill_entrypoint", "eval_scenarios"
     }
