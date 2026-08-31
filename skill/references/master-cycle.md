@@ -142,7 +142,7 @@ When no READY work exists and outcome is incomplete, do not stop immediately. In
 6. select independent review/quality/integration/release work that advances outcome;
 7. only then consider `MasterBoundary.NO_READY_WORK`.
 
-Continuation candidate must be materially useful and traceable to accepted outcome via at least one: unmet completion criterion; current Issue/Task Contract or implicit fast-path contract; dependency/blocker; required implementation/validation/review/integration/delivery; bounded investigation resolving uncertainty blocking one of those paths. For `CoordinationBaseline=LIGHTWEIGHT` implicit work, accepted request + current repository evidence may provide traceability.
+Continuation candidate must be materially useful and traceable to the accepted outcome via at least one: unmet completion criterion; current Issue/Task Contract or implicit fast-path contract; dependency/blocker; required implementation/validation/review/integration/delivery; bounded investigation resolving uncertainty blocking one of those paths. For `CoordinationBaseline=LIGHTWEIGHT` implicit work, accepted request + current repository evidence may provide traceability.
 
 | Discovered improvement | Action |
 |---|---|
@@ -165,7 +165,7 @@ After failure:
 1. classify the failure and capture the smallest useful evidence;
 2. determine whether inputs/state changed;
 3. distinguish a failed route/tool from a genuinely missing required capability;
-4. preserve still-valid recovered facts and change strategy: isolate/reproduce, reduce scope, inspect logs/diff, use another authoritative route, repair environment, or switch to independent work;
+4. preserve still-valid recovered facts and change strategy: isolate/reproduce, reduce scope, inspect logs/diff, use another authoritative route, repair environment, or switch independent work;
 5. cap blind retries; retry a known-failed route only when new evidence makes success plausible or explicit transient-failure semantics justify a bounded retry;
 6. if the required capability/external boundary remains genuinely unavailable after independent work, surface the exact MasterBoundary + resume evidence.
 
@@ -221,7 +221,7 @@ MASTER_STOP(boundary, independent_work) =
 
 Before evaluating `MASTER_STOP` with `MasterBoundary.NO_READY_WORK`, run section 8 synthesis. Before surfacing `MasterBoundary.MISSING_CAPABILITY`, distinguish one failed route from missing required semantics. Before terminal response, reconcile/persist only as section 12 and the boundary allow.
 
-Do not end with `next I will ...`, ask user to say `continue`, or equivalent when `MASTER_STOP=false` and a safe authorized outcome-linked action is executable now. Conversely, never invent coding, cleanup, tests, docs, backlog, or process work merely to keep `MASTER_STOP=false`.
+Do not end with `next I will ...`, `continue from ...`, ask user to say `continue`, or equivalent when `MASTER_STOP=false` and a safe authorized outcome-linked action is executable now. Conversely, never invent coding, cleanup, tests, docs, backlog, or process work merely to keep `MASTER_STOP=false`.
 
 Default update: **Status** (outcome/health, 1–2 lines); **Verified progress** (meaningful evidence-backed change only); **Boundary** (canonical only when one exists). Avoid command narration and unchanged plans; prefer execution.
 
