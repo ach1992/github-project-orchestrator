@@ -46,6 +46,7 @@ def make_trials(*, improve_refs: bool = False) -> dict:
     for case_id in cases["case_ids"]:
         for index in range(cases["minimum_pairs_per_case"]):
             pair_id = f"{case_id}-{index + 1}"
+            input_fingerprint = f"input:{pair_id}:fixture-v1"
             baseline_first = index % 2 == 0
             base_order = 1 if baseline_first else 2
             candidate_order = 2 if baseline_first else 1
@@ -54,6 +55,7 @@ def make_trials(*, improve_refs: bool = False) -> dict:
                     "run_id": f"{pair_id}-baseline",
                     "pair_id": pair_id,
                     "case_id": case_id,
+                    "input_fingerprint": input_fingerprint,
                     "representation": "baseline",
                     "order": base_order,
                     "transcript_ref": f"artifact://{pair_id}/baseline",
@@ -65,6 +67,7 @@ def make_trials(*, improve_refs: bool = False) -> dict:
                     "run_id": f"{pair_id}-candidate",
                     "pair_id": pair_id,
                     "case_id": case_id,
+                    "input_fingerprint": input_fingerprint,
                     "representation": "candidate",
                     "order": candidate_order,
                     "transcript_ref": f"artifact://{pair_id}/candidate",
@@ -167,6 +170,23 @@ except ValueError as exc:
 else:
     raise AssertionError("incomplete pair unexpectedly accepted")
 
+mismatched_input = copy.deepcopy(improved_doc)
+first_pair = mismatched_input["runs"][0]["pair_id"]
+candidate_run = next(
+    row
+    for row in mismatched_input["runs"]
+    if row["pair_id"] == first_pair and row["representation"] == "candidate"
+)
+candidate_run["input_fingerprint"] = "input:different"
+try:
+    score.evaluate(copy.deepcopy(cases), mismatched_input)
+except ValueError as exc:
+    if "inputs do not match" not in str(exc):
+        raise
+    print("PASS mismatched-paired-input-rejected")
+else:
+    raise AssertionError("mismatched paired input unexpectedly accepted")
+
 missing_transcript = copy.deepcopy(improved_doc)
 missing_transcript["runs"][0]["transcript_ref"] = ""
 try:
@@ -177,6 +197,17 @@ except ValueError as exc:
     print("PASS missing-audit-reference-rejected")
 else:
     raise AssertionError("missing transcript reference unexpectedly accepted")
+
+duplicate_transcript = copy.deepcopy(improved_doc)
+duplicate_transcript["runs"][1]["transcript_ref"] = duplicate_transcript["runs"][0]["transcript_ref"]
+try:
+    score.evaluate(copy.deepcopy(cases), duplicate_transcript)
+except ValueError as exc:
+    if "duplicate transcript_ref" not in str(exc):
+        raise
+    print("PASS duplicate-audit-reference-rejected")
+else:
+    raise AssertionError("duplicate transcript reference unexpectedly accepted")
 
 private_reasoning = copy.deepcopy(improved_doc)
 private_reasoning["runs"][0]["chain_of_thought"] = "private reasoning must not enter evidence"
