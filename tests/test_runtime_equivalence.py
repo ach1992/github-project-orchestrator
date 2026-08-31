@@ -27,6 +27,28 @@ if not result["ok"]:
     raise AssertionError(result)
 print("PASS immutable-v1.2.2-baseline-equivalence")
 
+bad_config = copy.deepcopy(config)
+bad_config["baseline_ref"] = "0" * 40
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "must remain pinned to program baseline" not in str(exc):
+        raise
+    print("PASS baseline-ref-drift-rejected")
+else:
+    raise AssertionError("baseline-ref-drift: unexpectedly passed")
+
+bad_config = copy.deepcopy(config)
+bad_config["baseline_version"] = "9.9.9"
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "must remain pinned to program baseline" not in str(exc):
+        raise
+    print("PASS baseline-version-drift-rejected")
+else:
+    raise AssertionError("baseline-version-drift: unexpectedly passed")
+
 lane = json.loads(LANE.read_text(encoding="utf-8"))
 if lane.get("schema_version") != 1:
     raise AssertionError("runtime optimization lane schema_version must be 1")
