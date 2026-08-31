@@ -45,13 +45,13 @@ The source snapshot descends from the immutable semantic baseline and preserves 
 | `STANDARD` remains compatible with FAST | `CoordinationBaseline` row, stability column | explicit compatibility retained |
 | `STANDARD` never implies FULL | `CoordinationBaseline` row, stability column | explicit forbidden implication retained |
 | `AssuranceLevel` values | `AssuranceLevel` row, values column | exact values retained |
-| HIGH_ASSURANCE is affected-work-only and justified only by risk/policy/authorized control | `AssuranceLevel` row, stability column | scoped escalation retained |
+| HIGH_ASSURANCE is additive and affected-work-only, justified by risk/policy/authorized control | `AssuranceLevel` row, stability column | additive scoped escalation is explicit rather than inferred |
 | HIGH_ASSURANCE returns to NORMAL when escalation ends | `AssuranceLevel` row, stability column | de-escalation retained |
 | HIGH_ASSURANCE never implies approval/FULL | `AssuranceLevel` row, stability column | explicit forbidden implication retained |
 | `RiskLevel` values and per-change classification | `RiskLevel` row | exact values and decision-relevant per-change rule retained |
 | project/repository size alone selects neither STANDARD nor HIGH_ASSURANCE | sentence immediately after matrix | retained once for both affected dimensions rather than repeated per row |
 | dimensions are orthogonal unless a canonical rule connects them | sentence immediately after matrix | exact relation retained |
-| infer safely instead of asking the user to choose ceremony | sentence immediately after matrix | behavior retained |
+| infer safely instead of asking the user to choose ceremony | sentence immediately after matrix | behavior retained with equivalent wording |
 | consequential-action canonical owner is `authority-gates.md` | final §1 paragraph | exact routing/ownership reminder retained |
 
 ## One-to-one semantic ledger — `authority-gates.md` §1
@@ -59,10 +59,11 @@ The source snapshot descends from the immutable semantic baseline and preserves 
 | Baseline semantic | Candidate location | Preservation / ownership reason |
 |---|---|---|
 | Role/Authority/ScopedAuthorization/Coordination/Assurance/Risk are independent decision inputs | first paragraph | references the already-active kernel ontology instead of re-declaring values |
-| technical capability is not Authority | kernel `ProjectAuthority` row + first paragraph says this domain does not reclassify dimensions | canonical ontology stays in kernel; gate file consumes it |
+| technical capability/environment remain independent execution constraints rather than Authority | kernel `ProjectAuthority` row + first paragraph | gate bridge explicitly preserves these as separate constraints while the kernel owns the no-upgrade rule |
 | repository/platform permissions still apply | second paragraph | retained verbatim in meaning |
 | explicit user/higher-level authorization changes only what it clearly grants | second paragraph | retained |
-| one-off exact instruction/approval is ScopedAuthorization, not project-wide Authority | second paragraph | retained and kept gate-local because it affects whether a gate can be satisfied |
+| one-off exact instruction/approval is ScopedAuthorization, not project-wide Authority | second paragraph | retained |
+| ScopedAuthorization may authorize or satisfy only its bounded applicable gate/action where the canonical matrix permits | second paragraph | both authorization and gate-satisfaction effects are explicit without broadening project-wide Authority |
 | use lightest safe controls | third paragraph | retained |
 | importance alone does not make risk high | third paragraph | retained |
 | risk classification considers blast radius, reversibility, security/data, compatibility, production | third paragraph | retained |
@@ -71,6 +72,15 @@ The source snapshot descends from the immutable semantic baseline and preserves 
 
 No gate-matrix row, `ApplicableEffects` meaning, obligation-union rule, `CAN_EXECUTE`, action-classification flow, edge case, ScopedAuthorization validity rule, MasterBoundary, WriteState, concurrency, or human-operation rule is changed by this experiment.
 
+## Self-review corrections before selection
+
+The first prototype draft exposed two small but material semantic edges during one-to-one review, and both were corrected before any migration decision:
+
+1. `AssuranceLevel` now states explicitly that `HIGH_ASSURANCE` is **additive**, not merely affected-work scoped. This protects the existing rule that stronger assurance never replaces the underlying coordination/control baseline.
+2. the gate bridge now preserves technical capability/environment as separate execution constraints and explicitly preserves both bounded ScopedAuthorization effects: it may **authorize** the exact action or **satisfy** its applicable gate where the canonical matrix permits.
+
+These corrections are evidence that the ledger is serving its intended purpose: representation compression is rejected or revised whenever a small baseline implication is lost.
+
 ## Structural diagnostics — not acceptance proof
 
 Using whitespace-delimited word counts on the two replaced source sections:
@@ -78,13 +88,13 @@ Using whitespace-delimited word counts on the two replaced source sections:
 | Surface | Baseline | Candidate |
 |---|---:|---:|
 | `SKILL.md` §1 | 255 | 255 |
-| `authority-gates.md` §1 | 232 | 113 |
-| combined when authority gates is activated | 487 | 368 |
+| `authority-gates.md` §1 | 232 | 135 |
+| combined when authority gates is activated | 487 | 390 |
 
 Interpretation:
 
 - the always-active kernel is **not enlarged by word count**;
-- the consequential-action path removes roughly one quarter of the words in these two sections because the specialist no longer repeats the ontology;
+- the consequential-action path removes roughly one fifth of the words in these two sections because the specialist no longer repeats the ontology;
 - these counts are diagnostics only. The candidate is acceptable only if the semantic ledger, mechanical isolation, eval protection, and source-grounded operational analysis remain lossless.
 
 ## Why this is different from PR #43
