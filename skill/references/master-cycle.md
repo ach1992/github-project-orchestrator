@@ -95,7 +95,7 @@ For substantive self-authored work:
 | `MANAGE` | Confirm outcome and explicit contract when present; verify dependencies, RiskLevel, CoordinationBaseline/AssuranceLevel, ProjectAuthority/ScopedAuthorization as relevant, base/branch, acceptance, validation. FAST may use request + repository evidence. For dirty worktree, identify pre-task paths/hunks before editing. Never stash/reset/clean/checkout-overwrite/amend/absorb unrelated changes; if ownership ambiguous, safely isolate branch/worktree or edit only verified-safe files. |
 | `TRACE` | Before editing, inspect execution path, tests, interfaces, and conventions enough to distinguish root cause from symptom. |
 | `IMPLEMENT` | Smallest correct root-cause change; preserve architecture and public/internal contracts; avoid unrelated cleanup/abstraction. Verify primary docs for version-sensitive APIs/dependencies/platform behavior. Performance work: establish representative baseline/constraint, identify bottleneck with profiling/high-signal evidence when practical, compare same workload after change; never trade correctness/security/maintainability for unmeasured optimization. |
-| `VALIDATE` | Narrowest high-signal checks first, then broader required checks; separate baseline failures from regressions. Pre-existing failure/debt/warning/unrelated defect enters scope only if it blocks acceptance/integration, creates material safety risk, or belongs to the active outcome; otherwise follow up only when actionable/worth tracking. Inspect working tree + full relevant diff. |
+| `VALIDATE` | Narrowest high-signal checks first, then broader required checks; separate baseline failures from regressions. Pre-existing failure/debt/warning/unrelated defect enters scope only if it blocks acceptance/integration, creates material safety risk, or belongs to active outcome; otherwise follow up only when actionable/worth tracking. Inspect working tree + full relevant diff. |
 | `REVIEW` | Reviewer mindset; re-read acceptance; inspect correctness, security, compatibility, data/migration, operations, tests, unintended scope, and fit with existing behavior. |
 | `CORRECT / RE-REVIEW` | Fix required findings; material scope/RiskLevel change returns to MANAGE. |
 | `INTEGRATE` | Repository-normal path/policy + canonical ApplicableEffects/gates. |
@@ -123,7 +123,7 @@ Do not mirror WorkerStatus labels into MasterBoundary without Master-level recon
 - avoid parallel edits to the same unstable surface;
 - integrate foundations before dependents unless intentional stacking is supported;
 - when review/CI/conflicts/release readiness bottleneck, prioritize clearing it over opening more fronts;
-- a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff/acceptance review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
+- a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
 - reconcile stale assignments before replacement dispatch;
 - create out-of-contract follow-up only when actionable and not required for current acceptance;
 - preserve parallelism on genuinely independent surfaces.
@@ -142,7 +142,7 @@ When no READY work exists and outcome is incomplete, do not stop immediately. In
 6. select independent review/quality/integration/release work that advances outcome;
 7. only then consider `MasterBoundary.NO_READY_WORK`.
 
-Continuation candidate must be materially useful and traceable to the accepted outcome via at least one: unmet completion criterion; current Issue/Task Contract or implicit fast-path contract; dependency/blocker; required implementation/validation/review/integration/delivery; bounded investigation resolving uncertainty blocking one of those paths. For `CoordinationBaseline=LIGHTWEIGHT` implicit work, accepted request + current repository evidence may provide traceability.
+Continuation candidate must be materially useful and traceable to accepted outcome via at least one: unmet completion criterion; current Issue/Task Contract or implicit fast-path contract; dependency/blocker; required implementation/validation/review/integration/delivery; bounded investigation resolving uncertainty blocking one of those paths. For `CoordinationBaseline=LIGHTWEIGHT` implicit work, accepted request + current repository evidence may provide traceability.
 
 | Discovered improvement | Action |
 |---|---|
@@ -165,7 +165,7 @@ After failure:
 1. classify the failure and capture the smallest useful evidence;
 2. determine whether inputs/state changed;
 3. distinguish a failed route/tool from a genuinely missing required capability;
-4. preserve still-valid recovered facts and change strategy: isolate/reproduce, reduce scope, inspect logs/diff, use another authoritative route, repair environment, or switch independent work;
+4. preserve still-valid recovered facts and change strategy: isolate/reproduce, reduce scope, inspect logs/diff, use another authoritative route, repair environment, or switch to independent work;
 5. cap blind retries; retry a known-failed route only when new evidence makes success plausible or explicit transient-failure semantics justify a bounded retry;
 6. if the required capability/external boundary remains genuinely unavailable after independent work, surface the exact MasterBoundary + resume evidence.
 
