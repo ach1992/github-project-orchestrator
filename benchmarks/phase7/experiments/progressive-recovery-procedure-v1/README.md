@@ -37,7 +37,8 @@ The three-layer model is the better top-level representation because it directly
 | establish checkout/worktrees, repository rules, current capabilities | Orientation spine |
 | use lightweight Project Map/index when present | Orientation spine |
 | load only durable docs relevant to current work | Orientation spine |
-| root specification only when project-level intent is unresolved or material contradiction/change makes it relevant | Orientation spine + Triggered depth |
+| do not load root specification merely because chat is absent | Orientation spine guard |
+| load root specification only when project-level intent is unresolved or material contradiction/change makes it relevant | Triggered depth |
 | establish current project outcome/completion | Orientation spine |
 | recover `ProjectAuthority` and `CoordinationBaseline` independently | Orientation spine |
 | recover affected `AssuranceLevel` and exact current `ScopedAuthorization` | Orientation spine |
@@ -61,7 +62,7 @@ All later §2 rules beginning with multi-repository recovery remain outside the 
 
 ## Important semantic choice
 
-The table rows are **progressive context layers**, not a rigid first-match state machine. Work inside a layer may use any source needed to make that layer decision-valid. The structure preserves the source rule that triggered depth is conditional rather than always loaded, while the existing later rules continue to govern when an established baseline should be retained or widened.
+The table rows are **progressive context layers**, not a rigid first-match state machine. Work inside a layer may use any source needed to make that layer decision-valid. Root-spec loading has one owner: the Triggered-depth row; Orientation only preserves the guard that chat loss by itself is not a trigger. The existing later rules continue to govern when an established baseline should be retained or widened.
 
 ## Scope proof
 
