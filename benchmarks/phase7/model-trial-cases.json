@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "suite_id": "lossless-runtime-representation-v1",
+  "baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "semantic_case_contract": "benchmarks/phase7/runtime-optimization-scenarios.json",
+  "minimum_pairs_per_case": 3,
+  "sign_test_alpha": 0.05,
+  "evidence_kind": "actual-model-runtime-ab",
+  "primary_metrics": [
+    "protected_violation_count",
+    "decision_error",
+    "steps_to_first_useful_action",
+    "avoidable_events"
+  ],
+  "observable_only": true,
+  "case_ids": [
+    "hot-fast-master-path",
+    "consequential-mutation-authority-path",
+    "worker-dispatch-and-resume",
+    "cold-master-recovery",
+    "review-integration-freshness",
+    "pending-external-job-continuation",
+    "integration-versus-delivery",
+    "namespace-and-effect-isolation"
+  ]
+}

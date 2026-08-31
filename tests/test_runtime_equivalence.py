@@ -14,6 +14,7 @@ BENCH = ROOT / "benchmarks" / "phase7"
 CHECKER = ROOT / "tools" / "check_runtime_equivalence.py"
 CONFIG = BENCH / "runtime-optimization-baseline.json"
 LANE = BENCH / "runtime-optimization-scenarios.json"
+MODEL_TRIAL = BENCH / "model-trial-cases.json"
 
 spec = importlib.util.spec_from_file_location("runtime_equivalence", CHECKER)
 if spec is None or spec.loader is None:
@@ -54,9 +55,16 @@ if lane.get("schema_version") != 1:
     raise AssertionError("runtime optimization lane schema_version must be 1")
 if lane.get("baseline_ref") != config["baseline_ref"]:
     raise AssertionError("runtime optimization lane must use the immutable configured baseline")
-if lane.get("evidence_policy", {}).get("source_grounded_trace_is_model_performance_proof") is not False:
+evidence_policy = lane.get("evidence_policy", {})
+if evidence_policy.get("source_grounded_trace_is_model_performance_proof") is not False:
     raise AssertionError("source-grounded evidence must not claim independent model-performance proof")
-if lane.get("evidence_policy", {}).get("protected_behavior_is_hard_gate") is not True:
+if evidence_policy.get("source_grounded_friction_is_diagnostic_only") is not True:
+    raise AssertionError("source-grounded friction must remain diagnostic-only")
+if evidence_policy.get("practical_improvement_requires_actual_model_runtime_ab") is not True:
+    raise AssertionError("practical improvement must require actual model/runtime A/B evidence")
+if evidence_policy.get("candidate_requires_material_improvement_before_migration") is not True:
+    raise AssertionError("candidate must still prove material improvement before migration")
+if evidence_policy.get("protected_behavior_is_hard_gate") is not True:
     raise AssertionError("protected behavior must remain a hard gate")
 required_cases = {
     "hot-fast-master-path",
@@ -78,6 +86,15 @@ for case in lane["comparison_cases"]:
     if not case.get("protect") or not case.get("measure") or not case.get("eval_anchors"):
         raise AssertionError(f"comparison case is incomplete: {case.get('id')}")
 print("PASS runtime-optimization-comparison-contract")
+
+model_trial = json.loads(MODEL_TRIAL.read_text(encoding="utf-8"))
+if model_trial.get("semantic_case_contract") != "benchmarks/phase7/runtime-optimization-scenarios.json":
+    raise AssertionError("model trials must reference the canonical runtime optimization semantic case contract")
+if set(model_trial.get("case_ids", [])) != observed_cases:
+    raise AssertionError(
+        "model-trial case IDs must exactly select the canonical runtime optimization cases"
+    )
+print("PASS model-trial-semantic-case-single-owner")
 
 baseline = result["baseline_inventory"]
 
