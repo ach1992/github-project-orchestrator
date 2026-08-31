@@ -85,6 +85,9 @@ jobs:
             python3 "$test"
           done
 
+      - name: Test Phase C runtime migration composition
+        run: python3 tests/test_phase_c_runtime_migration.py
+
       - name: Test auditable model trial runner
         run: python3 tests/test_run_model_trials.py
 
