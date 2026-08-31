@@ -22,13 +22,13 @@ A trial is a paired execution of the same case against:
 - immutable baseline representation `v1.2.2@f98e8a242c720931e34aa7c4e8a799090e3d0495`; and
 - one exact candidate representation SHA.
 
-Within a trial suite, keep the model/runtime identity, model settings, available tool surface, case input, and scoring rubric equivalent. Alternate which representation runs first so order/system warming cannot systematically favor one side.
+Within a trial suite, keep the model/runtime identity, model settings, available tool surface, case input, and scoring rubric equivalent. Alternate which representation runs first across pairs so order/system warming cannot systematically favor one side.
 
-Do not inspect, request, store, or score private chain-of-thought. Score only observable behavior and evidence.
+Do not inspect, request, store, or score private chain-of-thought. Score only observable behavior and evidence. The scored trial JSON uses a closed schema and rejects undeclared/private-reasoning fields.
 
 ## Required observable fields
 
-Each run records:
+Each scored run records only:
 
 - `case_id` and unique paired `pair_id`;
 - exact representation (`baseline` or `candidate`);
@@ -42,7 +42,7 @@ Each run records:
 - unnecessary runtime-reference loads;
 - whether a premature terminal response required a manual `continue`.
 
-Optional latency/token fields may be recorded when measured comparably, but they are diagnostic by default because provider/runtime scheduling and tokenizer differences can confound them.
+Optional latency/token measurements may be captured in a **separate diagnostic artifact** when measured comparably, but they are not fields in the scored trial JSON and are diagnostic by default because provider/runtime scheduling and tokenizer differences can confound them.
 
 ## Required case coverage
 
@@ -64,12 +64,12 @@ The default selection suite requires at least three paired runs per case. More r
 A candidate cannot pass when any is true:
 
 - candidate produces any protected-behavior violation in the selection suite;
-- candidate has more wrong next-action decisions than baseline;
-- candidate materially worsens a gated observable friction metric in aggregate;
-- required cases/pairs are incomplete or baseline/candidate order is materially unbalanced;
+- candidate worsens wrong-next-action decisions or any other primary metric in **any required case**;
+- required cases/pairs are incomplete or baseline-first/candidate-first order is materially unbalanced within a case;
 - baseline and candidate are not tied to exact representation identities;
 - runtime/model/settings/toolset identity is missing;
 - evidence lacks auditable transcript/tool-log references;
+- scored evidence contains undeclared/private-reasoning fields;
 - no material paired improvement is demonstrated.
 
 A better token count, prettier table, shorter file, or hand-authored source trace cannot compensate for one of these failures.
@@ -87,7 +87,7 @@ The candidate must:
    - observable steps before first useful action; or
    - composite avoidable events = unnecessary questions + unnecessary actions + unnecessary reference loads + manual-continue events.
 
-The sign test deliberately ignores improvement magnitude when testing direction, so the scorer also reports aggregate deltas for review. Final selection still checks whether the measured gain is operationally meaningful enough to repay maintenance/routing complexity.
+The sign test deliberately ignores improvement magnitude when testing direction, so the scorer also reports aggregate totals for review. Final selection still checks whether the measured gain is operationally meaningful enough to repay maintenance/routing complexity.
 
 ## What the scorer proves and does not prove
 
