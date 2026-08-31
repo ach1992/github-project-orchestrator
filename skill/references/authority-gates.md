@@ -8,20 +8,11 @@ Canonical decision model for whether the Master may act, must reconcile, or must
 
 ## 1. Decision dimensions
 
-Evaluate independently:
+Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Technical capability and environment remain separate execution constraints. This domain does not reclassify those dimensions; it applies current action effects, obligations, repository/platform policy, and gate evidence.
 
-| Dimension | Values | Effect |
-|---|---|---|
-| `Role` | `MASTER` · `WORKER` | role responsibility |
-| `ProjectAuthority` | `ADVISORY` · `MANAGED` · `AUTONOMOUS_WITH_GATES` | project-wide authorization envelope for normal reversible mutation |
-| `ScopedAuthorization` | exact action/target/effect grant | may satisfy only the specifically granted gate; never upgrades ProjectAuthority |
-| `CoordinationBaseline` | `LIGHTWEIGHT` · `STANDARD` | coordination/persistence controls |
-| `AssuranceLevel` | `NORMAL` · `HIGH_ASSURANCE` | additive evidence/review controls for affected work; never removes baseline controls or creates a human gate by itself |
-| `RiskLevel` | `LOW` · `MEDIUM` · `HIGH` · `CRITICAL` | gate/evidence depth for the specific change |
+Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants. An exact one-off instruction/approval is `ScopedAuthorization`: it may satisfy only the applicable gate for that action without converting the broader project to a more permissive `ProjectAuthority`. It may also authorize that exact action where the canonical matrix permits scoped authorization.
 
-Repository/platform permissions still apply. Role, ProjectAuthority, ScopedAuthorization, CoordinationBaseline, AssuranceLevel, RiskLevel, and technical capability are independent inputs. Access/capability, environment, risk, coordination, or assurance may constrain what can be done but never upgrades ProjectAuthority by itself. When explicit user or higher-level authorization changes the permitted project envelope, scope that change only to what it clearly grants. An exact one-off instruction/approval is `ScopedAuthorization`: it may authorize or satisfy the gate for that action without converting the broader project to a more permissive ProjectAuthority.
-
-Use the lightest safe controls. Importance alone does not make risk high; consider blast radius, reversibility, security/data impact, compatibility, and production consequences. `CoordinationBaseline=STANDARD` does not imply FULL execution, and `AssuranceLevel=HIGH_ASSURANCE` does not imply a human approval or a different ProjectAuthority.
+Use the lightest safe controls. Importance alone does not make risk high; consider blast radius, reversibility, security/data impact, compatibility, and production consequences.
 
 ## 2. Applicable effects
 
@@ -170,17 +161,14 @@ On `MasterBoundary.USER_STOP`, cease new consequential mutations immediately; no
 
 ## 6. `WriteState.UNKNOWN`
 
-For ambiguous mutation transport/API results:
+For ambiguous mutation transport/API results, use one guarded recovery algorithm:
 
-`WriteState.UNKNOWN -> NO BLIND RETRY -> DECISION-SCOPED AUTHORITATIVE RE-READ -> PRESENT? VERIFY+WriteState.KNOWN+CONTINUE : PROVEN ABSENT? SAFE-IDEMPOTENT/CORRELATED RETRY ONCE : INCOMPLETE/UNKNOWN? FREEZE -> CONTINUE INDEPENDENT SAFE WORK -> MasterBoundary.WRITE_OUTCOME_UNKNOWN ONLY WHEN SOLE BLOCKER`
-
-More precisely:
-
-1. mark the individual mutation `WriteState.UNKNOWN`; do not blindly retry and do not automatically stop the Master;
-2. re-read the authoritative remote object/list using stable identity/semantic equivalence and establish enough decision-scoped completeness to distinguish present from absent;
-3. if present, verify, mark the action `WriteState.KNOWN`, and continue;
-4. only when that authoritative re-read **proves absence**, retry once when safely idempotent or protected by stable correlation/deduplication identity; an incomplete/truncated/unknown re-read is not absence and must not authorize a retry; otherwise freeze the dependent mutation and continue independent safe work;
-5. after one safe retry—or when no safe retry exists—if outcome remains ambiguous, keep that mutation at `WriteState.UNKNOWN`, continue independent safe work, and surface `MasterBoundary.WRITE_OUTCOME_UNKNOWN` only when it becomes the sole/project-wide controlling blocker.
+1. Mark only the individual mutation `WriteState.UNKNOWN`; do not blindly retry and do not automatically stop the Master.
+2. Re-read the authoritative remote object/list using stable identity or semantic equivalence, with enough decision-scoped completeness to distinguish **present**, **proven absent**, and **incomplete/unknown**.
+3. If the equivalent write is **present**, verify it, mark the action `WriteState.KNOWN`, and continue.
+4. If the re-read **proves absence**, retry at most once and only when the retry is safely idempotent or protected by stable correlation/deduplication identity. If retry is not safe, freeze the dependent mutation and continue independent safe work.
+5. If the re-read is **incomplete/truncated/unknown**, never treat that as absence and never use it to authorize a retry; freeze the dependent mutation and continue independent safe work.
+6. After the one safe retry—or when no safe retry exists—if outcome remains ambiguous, keep that mutation at `WriteState.UNKNOWN`, continue independent safe work, and surface `MasterBoundary.WRITE_OUTCOME_UNKNOWN` only when it becomes the sole/project-wide controlling blocker.
 
 Apply to Issue/PR creation, comments, labels, Project updates, pushes, releases, deployment triggers, and other non-idempotent writes.
 
