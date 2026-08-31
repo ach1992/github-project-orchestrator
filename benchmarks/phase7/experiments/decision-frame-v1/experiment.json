@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "experiment_id": "decision-frame-v1",
+  "issue": 37,
+  "hypothesis": "Making the existing carry-forward stability rule explicit as a transient KEEP/reclassification-trigger decision frame reduces observable re-derivation/routing friction and decision mistakes without changing any runtime semantic.",
+  "baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "baseline_entrypoint": "skill/SKILL.md",
+  "replacement": {
+    "start_heading": "## 1. Role and runtime state",
+    "end_heading_exclusive": "## 2. Universal invariants",
+    "candidate_section": "benchmarks/phase7/experiments/decision-frame-v1/candidate-section.md"
+  },
+  "semantic_change_allowed": false,
+  "canonical_runtime_changed_during_prototype": false,
+  "isolated_variable": "representation of still-valid carry-forward Role, ProjectAuthority, and CoordinationBaseline reuse",
+  "explicitly_not_combined_with": [
+    "authority short circuits",
+    "reference splitting",
+    "new Rule IDs",
+    "new lifecycle state",
+    "new persisted decision artifact",
+    "legacy normalization",
+    "centralized forbidden-inference refactor"
+  ],
+  "baseline_rule_anchors": [
+    "AUTHORITY-STABLE",
+    "COORDINATION-BASELINE",
+    "ASSURANCE-ADDITIVE",
+    "DIMENSIONS-ORTHOGONAL",
+    "FAST-FULL-SELECT"
+  ],
+  "eval_anchors": ["AD", "CZ", "BG", "BH"],
+  "screening_case_ids": [
+    "hot-fast-master-path",
+    "cold-master-recovery"
+  ],
+  "selection_case_contract": "benchmarks/phase7/runtime-optimization-scenarios.json",
+  "model_trial_manifest": "benchmarks/phase7/model-trial-cases.json",
+  "acceptance": {
+    "mechanical_equivalence_required": true,
+    "source_grounded_diagnostics_are_performance_proof": false,
+    "actual_paired_model_runtime_evidence_required": true,
+    "protected_behavior_regression_allowed": false,
+    "per_case_primary_metric_regression_allowed": false,
+    "material_observable_improvement_required": true
+  }
+}
