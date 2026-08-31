@@ -17,12 +17,12 @@ The evidence hierarchy is:
 
 ## Trial unit
 
-A trial is a paired execution of the same case against:
+A trial is a paired execution of the same exact case input against:
 
 - immutable baseline representation `v1.2.2@f98e8a242c720931e34aa7c4e8a799090e3d0495`; and
 - one exact candidate representation SHA.
 
-Within a trial suite, keep the model/runtime identity, model settings, available tool surface, case input, and scoring rubric equivalent. Alternate which representation runs first across pairs so order/system warming cannot systematically favor one side.
+Within a trial suite, keep the model/runtime identity, model settings, available tool surface, case input, and scoring rubric equivalent. Each baseline/candidate pair carries the same non-empty `input_fingerprint`, and the scorer rejects mismatched paired inputs. Alternate which representation runs first across pairs so order/system warming cannot systematically favor one side.
 
 Do not inspect, request, store, or score private chain-of-thought. Score only observable behavior and evidence. The scored trial JSON uses a closed schema and rejects undeclared/private-reasoning fields.
 
@@ -31,9 +31,10 @@ Do not inspect, request, store, or score private chain-of-thought. Score only ob
 Each scored run records only:
 
 - `case_id` and unique paired `pair_id`;
+- `input_fingerprint` identifying the exact case input seen by both sides of the pair;
 - exact representation (`baseline` or `candidate`);
 - within-pair order (`1` or `2`);
-- a durable transcript/tool-log reference sufficient for audit;
+- a unique durable transcript/tool-log reference sufficient to audit that run;
 - whether the first/selected next action was correct;
 - any protected-behavior violations;
 - observable steps before the first useful action;
@@ -68,9 +69,10 @@ A candidate cannot pass when any is true:
 - candidate produces any protected-behavior violation in the selection suite;
 - candidate worsens wrong-next-action decisions or any other primary metric in **any required case**;
 - required cases/pairs are incomplete or baseline-first/candidate-first order is materially unbalanced within a case;
+- the two sides of a pair do not have the same exact `input_fingerprint`;
 - baseline and candidate are not tied to exact representation identities;
 - runtime/model/settings/toolset identity is missing;
-- evidence lacks auditable transcript/tool-log references;
+- evidence lacks unique auditable transcript/tool-log references;
 - scored evidence contains undeclared/private-reasoning fields;
 - no material paired improvement is demonstrated.
 
@@ -100,7 +102,7 @@ Therefore final adoption also requires:
 - exact candidate identity;
 - raw evidence availability;
 - semantic/equivalence checks;
-- review of trial construction/order/settings;
+- review of trial construction/order/settings and input-fingerprint provenance;
 - repeat or broader trials when results are marginal, model-specific, or unstable.
 
 If no candidate passes this protocol, the correct Phase B result is **no runtime migration**.
