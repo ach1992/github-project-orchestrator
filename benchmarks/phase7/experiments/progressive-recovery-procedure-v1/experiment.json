@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "experiment_id": "progressive-recovery-procedure-v1",
+  "issue": 60,
+  "source_ref": "9cfbc9bc57be4690796d3d9996a517cd257746c5",
+  "semantic_baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "semantic_change_allowed": false,
+  "canonical_runtime_changed_during_prototype": false,
+  "isolated_variable": "single progressive representation of cold Master recovery depth and required evidence",
+  "replacement": {
+    "path": "skill/references/continuity.md",
+    "start_heading": "## 2. Recovery sequence",
+    "end_marker_exclusive": "For multi-repository outcomes, recover the small global coordination spine first:",
+    "candidate_section": "benchmarks/phase7/experiments/progressive-recovery-procedure-v1/candidate-recovery.md"
+  },
+  "protected_eval_anchors": ["I", "AH", "BG", "BH", "BY"],
+  "acceptance": {
+    "non_target_runtime_byte_identity_required": true,
+    "later_recovery_rules_unchanged": true,
+    "state_boundary_surface_unchanged": true,
+    "new_runtime_state_allowed": false,
+    "actual_model_trial_required": false,
+    "semantic_ledger_required": true,
+    "source_grounded_operational_analysis_required": true
+  }
+}
