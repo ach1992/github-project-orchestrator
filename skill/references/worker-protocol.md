@@ -8,7 +8,7 @@ Workers are bounded implementation agents. Master remains accountable for projec
 
 ## 1. Isolation
 
-One Worker = one Task Contract + one assigned branch at a time. Use a dedicated worktree when useful; its path is runtime location, never assignment identity.
+One Worker = one Task Contract + one assigned branch at a time. Use a dedicated worktree when useful for isolation; its filesystem path is runtime location, not assignment identity.
 
 [task-contract.md](task-contract.md) §8 owns the persisted Worker assignment/concurrency envelope. Before editing:
 
