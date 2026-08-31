@@ -95,7 +95,7 @@ For substantive self-authored work:
 | `MANAGE` | Confirm outcome and explicit contract when present; verify dependencies, RiskLevel, CoordinationBaseline/AssuranceLevel, ProjectAuthority/ScopedAuthorization as relevant, base/branch, acceptance, validation. FAST may use request + repository evidence. For dirty worktree, identify pre-task paths/hunks before editing. Never stash/reset/clean/checkout-overwrite/amend/absorb unrelated changes; if ownership ambiguous, safely isolate branch/worktree or edit only verified-safe files. |
 | `TRACE` | Before editing, inspect execution path, tests, interfaces, and conventions enough to distinguish root cause from symptom. |
 | `IMPLEMENT` | Smallest correct root-cause change; preserve architecture and public/internal contracts; avoid unrelated cleanup/abstraction. Verify primary docs for version-sensitive APIs/dependencies/platform behavior. Performance work: establish representative baseline/constraint, identify bottleneck with profiling/high-signal evidence when practical, compare same workload after change; never trade correctness/security/maintainability for unmeasured optimization. |
-| `VALIDATE` | Narrowest high-signal checks first, then broader required checks; separate baseline failures from regressions. Pre-existing failure/debt/warning/unrelated defect enters scope only if it blocks acceptance/integration, creates material safety risk, or belongs to active outcome; otherwise follow up only when actionable/worth tracking. Inspect working tree + full relevant diff. |
+| `VALIDATE` | Narrowest high-signal checks first, then broader required checks; separate baseline failures from regressions. Pre-existing failure/debt/warning/unrelated defect enters scope only if it blocks acceptance/integration, creates material safety risk, or belongs to the active outcome; otherwise follow up only when actionable/worth tracking. Inspect working tree + full relevant diff. |
 | `REVIEW` | Reviewer mindset; re-read acceptance; inspect correctness, security, compatibility, data/migration, operations, tests, unintended scope, and fit with existing behavior. |
 | `CORRECT / RE-REVIEW` | Fix required findings; material scope/RiskLevel change returns to MANAGE. |
 | `INTEGRATE` | Repository-normal path/policy + canonical ApplicableEffects/gates. |
@@ -123,7 +123,7 @@ Do not mirror WorkerStatus labels into MasterBoundary without Master-level recon
 - avoid parallel edits to the same unstable surface;
 - integrate foundations before dependents unless intentional stacking is supported;
 - when review/CI/conflicts/release readiness bottleneck, prioritize clearing it over opening more fronts;
-- a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
+- a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff/acceptance review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
 - reconcile stale assignments before replacement dispatch;
 - create out-of-contract follow-up only when actionable and not required for current acceptance;
 - preserve parallelism on genuinely independent surfaces.
@@ -171,7 +171,17 @@ After failure:
 
 Persistence means adaptive progress, not infinite retry.
 
-For already-running CI/check/deployment/job, `pending` is dependency state, not failure. Continue independent useful work first. When it becomes the sole remaining dependency, prefer a real runtime-supported continuation mechanism over yielding control: use a bounded, non-tight sequence of authoritative rechecks when synchronous waiting is safe and proportionate, or an actual event/condition resume primitive when one is available and suitable. Re-read only when a transition is plausibly due; bound the continuation by expected job duration, tool/runtime limits, and diminishing value rather than spinning. If the dependency resolves, immediately continue the existing workflow without requiring a user nudge. If it fails, stop waiting immediately, classify the failure, and continue the applicable remediation or independent-work path. Never tight-poll, sleep indefinitely, fabricate background monitoring/resume, or manufacture work. Use `MasterBoundary.BLOCKED` only when the still-pending dependency is the sole remaining blocker and bounded autonomous continuation is unavailable, no longer reasonable, or exhausted; include the exact external object, current status, why autonomous continuation cannot safely continue, exact resume condition, and recoverable state. `DeliveryState.PENDING` is a lifecycle state, not a terminal boundary label; never use `MasterBoundary.NO_READY_WORK` merely because an already-running required dependency is not finished.
+For already-running CI/check/deployment/job, `pending` is dependency state, not failure. Continue independent useful work first; when the pending dependency becomes the only remaining dependency, prefer a real runtime-supported continuation mechanism over yielding control.
+
+| Current condition | Required action |
+|---|---|
+| independent useful work still exists | Continue it before waiting. |
+| pending is the sole dependency | Use an available safe runtime-supported continuation path: either (a) use non-tight authoritative rechecks only when a transition is plausibly due and synchronous waiting is safe/proportionate, bounding continuation by expected job duration, tool/runtime limits, and diminishing value; or (b) when a suitable real event/condition resume primitive exists, use it rather than fabricating monitoring/resume. |
+| dependency resolves successfully | Immediately continue the existing workflow; do not require a user nudge. |
+| dependency fails | Stop waiting immediately, classify the failure, and continue the applicable remediation or independent-work path. |
+| dependency is still pending, is the sole remaining blocker, and autonomous continuation is unavailable, no longer reasonable, or exhausted | Use `MasterBoundary.BLOCKED` with the exact external object, current status, why autonomous continuation cannot safely continue, exact resume condition, and recoverable state. |
+
+Never tight-poll, sleep indefinitely, fabricate background monitoring/resume, or manufacture work. `DeliveryState.PENDING` remains a lifecycle state, not a terminal boundary label; never use `MasterBoundary.NO_READY_WORK` merely because an already-running required dependency is unfinished.
 
 ## 10. Requirement changes
 
@@ -211,7 +221,7 @@ MASTER_STOP(boundary, independent_work) =
 
 Before evaluating `MASTER_STOP` with `MasterBoundary.NO_READY_WORK`, run section 8 synthesis. Before surfacing `MasterBoundary.MISSING_CAPABILITY`, distinguish one failed route from missing required semantics. Before terminal response, reconcile/persist only as section 12 and the boundary allow.
 
-Do not end with `next I will ...`, `continue from ...`, ask user to say `continue`, or equivalent when `MASTER_STOP=false` and a safe authorized outcome-linked action is executable now. Conversely, never invent coding, cleanup, tests, docs, backlog, or process work merely to keep `MASTER_STOP=false`.
+Do not end with `next I will ...`, ask user to say `continue`, or equivalent when `MASTER_STOP=false` and a safe authorized outcome-linked action is executable now. Conversely, never invent coding, cleanup, tests, docs, backlog, or process work merely to keep `MASTER_STOP=false`.
 
 Default update: **Status** (outcome/health, 1–2 lines); **Verified progress** (meaningful evidence-backed change only); **Boundary** (canonical only when one exists). Avoid command narration and unchanged plans; prefer execution.
 
