@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Exact composition guards for the Phase C P1-P5 canonical runtime migration."""
+"""Scope and semantic guards for the refined Phase C P1-P5 runtime migration."""
 from __future__ import annotations
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -13,12 +14,12 @@ AUTHORITY = "skill/references/authority-gates.md"
 WORKER = "skill/references/worker-protocol.md"
 MASTER = "skill/references/master-cycle.md"
 CONTINUITY = "skill/references/continuity.md"
+RUNTIME_PATHS = (SKILL, AUTHORITY, WORKER, MASTER, CONTINUITY)
 
-P1 = ROOT / "benchmarks/phase7/experiments/runtime-dimension-invariants-v2"
-P2 = ROOT / "benchmarks/phase7/experiments/worker-assignment-owner-dedup-v1"
-P3 = ROOT / "benchmarks/phase7/experiments/pending-job-decision-structure-v1"
 P4 = ROOT / "benchmarks/phase7/experiments/write-unknown-canonical-algorithm-v1"
-P5 = ROOT / "benchmarks/phase7/experiments/progressive-recovery-procedure-v1"
+STATE_TOKEN = re.compile(
+    r"\b(?:TaskState|WorkerStatus|WriteState|DeliveryState|MasterBoundary)\.[A-Z_]+\b"
+)
 
 
 def current(path: str) -> str:
@@ -37,87 +38,76 @@ def base(path: str) -> str:
 
 
 def embedded_candidate(path: Path) -> str:
-    """Normalize only the Markdown section separator, not candidate content."""
     return path.read_text(encoding="utf-8").rstrip("\n") + "\n\n"
 
 
-def replace_between(text: str, start: str, end: str, replacement: str) -> str:
+def extract_between(text: str, start: str, end: str) -> str:
     assert text.count(start) == 1, start
     assert text.count(end) == 1, end
     i = text.index(start)
     j = text.index(end)
     assert i < j
-    return text[:i] + replacement + text[j:]
+    return text[i:j]
 
 
-def expected_skill() -> str:
-    return replace_between(
-        base(SKILL),
-        "## 1. Role and runtime state",
-        "## 2. Universal invariants",
-        embedded_candidate(P1 / "candidate-skill-section.md"),
+def mask_regions(text: str, regions: tuple[tuple[str, str], ...]) -> str:
+    """Replace only declared migration surfaces with stable sentinels."""
+    for index, (start, end) in enumerate(regions):
+        assert text.count(start) == 1, start
+        assert text.count(end) == 1, end
+        i = text.index(start)
+        j = text.index(end)
+        assert i < j
+        text = text[:i] + f"<PHASE_C_REGION_{index}>\n" + text[j:]
+    return text
+
+
+def assert_only_regions(path: str, regions: tuple[tuple[str, str], ...]) -> None:
+    assert mask_regions(current(path), regions) == mask_regions(base(path), regions), (
+        f"{path} changed outside declared Phase C representation surfaces"
     )
 
 
-def expected_authority() -> str:
-    text = replace_between(
-        base(AUTHORITY),
-        "## 1. Decision dimensions",
-        "## 2. Applicable effects",
-        embedded_candidate(P1 / "candidate-authority-section.md"),
+def require_all(text: str, fragments: tuple[str, ...]) -> None:
+    for fragment in fragments:
+        assert fragment in text, fragment
+
+
+def test_declared_runtime_scope_only() -> None:
+    assert_only_regions(
+        SKILL,
+        (("## 1. Role and runtime state", "## 2. Universal invariants"),),
     )
-    return replace_between(
-        text,
-        "## 6. `WriteState.UNKNOWN`",
-        "## 7. Optimistic concurrency",
-        embedded_candidate(P4 / "candidate-write-unknown.md"),
+    assert_only_regions(
+        AUTHORITY,
+        (
+            ("## 1. Decision dimensions", "## 2. Applicable effects"),
+            ("## 6. `WriteState.UNKNOWN`", "## 7. Optimistic concurrency"),
+        ),
     )
-
-
-def expected_worker() -> str:
-    return replace_between(
-        base(WORKER),
-        "## 1. Isolation",
-        "## 2. Dispatch prompt",
-        embedded_candidate(P2 / "candidate-worker-isolation.md"),
+    assert_only_regions(
+        WORKER,
+        (("## 1. Isolation", "## 2. Dispatch prompt"),),
     )
-
-
-def expected_master() -> str:
-    marker = "For already-running CI/check/deployment/job, `pending` is dependency state, not failure."
-    return replace_between(
-        base(MASTER),
-        marker,
-        "## 10. Requirement changes",
-        embedded_candidate(P3 / "candidate-pending-job.md"),
+    assert_only_regions(
+        MASTER,
+        (
+            (
+                "For already-running CI/check/deployment/job, `pending` is dependency state, not failure.",
+                "## 10. Requirement changes",
+            ),
+        ),
     )
-
-
-def expected_continuity() -> str:
-    marker = "For multi-repository outcomes, recover the small global coordination spine first:"
-    return replace_between(
-        base(CONTINUITY),
-        "## 2. Recovery sequence",
-        marker,
-        embedded_candidate(P5 / "candidate-recovery.md"),
+    assert_only_regions(
+        CONTINUITY,
+        (
+            (
+                "## 2. Recovery sequence",
+                "For multi-repository outcomes, recover the small global coordination spine first:",
+            ),
+        ),
     )
 
-
-def test_exact_composition() -> None:
-    expected = {
-        SKILL: expected_skill(),
-        AUTHORITY: expected_authority(),
-        WORKER: expected_worker(),
-        MASTER: expected_master(),
-        CONTINUITY: expected_continuity(),
-    }
-    for path, expected_text in expected.items():
-        assert current(path) == expected_text, (
-            f"{path} differs from exact Phase C base plus selected P1-P5 replacements"
-        )
-
-
-def test_runtime_surface() -> None:
     changed = subprocess.run(
         ["git", "diff", "--name-only", BASE, "HEAD", "--", "skill"],
         cwd=ROOT,
@@ -126,7 +116,136 @@ def test_runtime_surface() -> None:
         stderr=subprocess.PIPE,
         text=True,
     ).stdout.splitlines()
-    assert set(changed) == {SKILL, AUTHORITY, WORKER, MASTER, CONTINUITY}
+    assert set(changed) == set(RUNTIME_PATHS)
+
+
+def test_p1_runtime_dimensions_are_lossless_and_owned() -> None:
+    skill = extract_between(current(SKILL), "## 1. Role and runtime state", "## 2. Universal invariants")
+    authority = extract_between(current(AUTHORITY), "## 1. Decision dimensions", "## 2. Applicable effects")
+
+    require_all(
+        skill,
+        (
+            "Retain the current value until the actual assignment basis changes.",
+            "Retain the current value until the actual authorization basis changes.",
+            "may constrain execution but never broaden `ProjectAuthority`",
+            "chat/Master rotation alone never makes it more permissive",
+            "exact action/target/effect grant; never a project-wide authority upgrade",
+            "Retain the current value until the actual coordination basis changes, including across Master rotation.",
+            "`STANDARD` remains compatible with FAST execution and never implies FULL.",
+            "additive only for affected work when risk, policy, or explicit authorized controls justify it",
+            "never removes baseline controls or by itself implies approval or FULL execution",
+            "return to `NORMAL` when that escalation ends",
+            "classified per substantive change only when decision-relevant",
+            "These dimensions remain orthogonal unless a canonical rule explicitly connects them.",
+            "Project/repository size alone does not select `STANDARD` or `HIGH_ASSURANCE`.",
+            "Infer safely instead of asking the user to choose ceremony.",
+        ),
+    )
+    assert "`KEEP` until" not in skill
+
+    require_all(
+        authority,
+        (
+            "as independent inputs to gate evaluation",
+            "Technical capability and environment remain separate execution constraints.",
+            "owns authorization/action-gate interpretation",
+            "`ProjectAuthority` is the project-wide authorization envelope for normal reversible mutation.",
+            "changes only from applicable explicit user or higher-level authorization",
+            "may constrain execution but never grant or widen it",
+            "may authorize that exact action or satisfy only the applicable gate for it",
+            "without converting the broader project to a more permissive `ProjectAuthority`",
+            "`CoordinationBaseline` contributes coordination/persistence controls",
+            "`STANDARD` does not imply FULL execution",
+            "adds evidence/review controls without removing baseline controls",
+            "does not by itself create human approval or a different `ProjectAuthority`",
+            "`RiskLevel` determines proportional gate/evidence depth for the specific change when decision-relevant",
+        ),
+    )
+
+
+def test_p2_worker_schema_and_preedit_behavior_stay_distinct() -> None:
+    worker = extract_between(current(WORKER), "## 1. Isolation", "## 2. Dispatch prompt")
+    require_all(
+        worker,
+        (
+            "Use a dedicated worktree when useful for isolation; its filesystem path is runtime location, not assignment identity.",
+            "[task-contract.md](task-contract.md) §8 owns the persisted Worker assignment/concurrency envelope.",
+            "current assigned-branch/worktree attachment, state, and safety",
+            "verify the current persisted assignment envelope from §8",
+            "current assigned-branch/worktree HEAD = immutable `Start HEAD`",
+            "later authorized same-generation commits may advance beyond it without staleness",
+            "current assigned-branch HEAD = Master-supplied `Checkpoint HEAD`",
+            "Any material identity/checkpoint mismatch -> `WorkerStatus.STALE_ASSIGNMENT`; never guess.",
+            "never broadens assignment because Master is unavailable",
+        ),
+    )
+
+
+def test_p3_pending_job_branches_are_discriminated() -> None:
+    marker = "For already-running CI/check/deployment/job, `pending` is dependency state, not failure."
+    pending = extract_between(current(MASTER), marker, "## 10. Requirement changes")
+    require_all(
+        pending,
+        (
+            "Continue independent useful work first.",
+            "Once no independent useful work remains and `pending` is the sole dependency",
+            "independent useful work still exists | Continue it before waiting",
+            "no independent useful work remains; `pending` is the sole dependency; a safe autonomous continuation path is available and still reasonable",
+            "without inventing precedence",
+            "bounded, non-tight authoritative rechecks only when a transition is plausibly due",
+            "a suitable real event/condition resume primitive",
+            "dependency resolves successfully | Immediately continue the existing workflow; do not require a user nudge.",
+            "dependency fails | Stop waiting immediately, classify the failure",
+            "dependency is still pending; no independent useful work remains; it is the sole remaining blocker; safe autonomous continuation is unavailable, no longer reasonable, or exhausted",
+            "Never tight-poll, sleep indefinitely, fabricate background monitoring/resume, or manufacture work.",
+            "`DeliveryState.PENDING` remains a lifecycle state, not a terminal boundary label",
+            "never use `MasterBoundary.NO_READY_WORK` merely because an already-running required dependency is unfinished",
+        ),
+    )
+
+
+def test_p4_write_unknown_remains_exact_selected_algorithm() -> None:
+    current_fragment = extract_between(
+        current(AUTHORITY),
+        "## 6. `WriteState.UNKNOWN`",
+        "## 7. Optimistic concurrency",
+    )
+    assert current_fragment == embedded_candidate(P4 / "candidate-write-unknown.md")
+
+
+def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
+    recovery = extract_between(
+        current(CONTINUITY),
+        "## 2. Recovery sequence",
+        "For multi-repository outcomes, recover the small global coordination spine first:",
+    )
+    require_all(
+        recovery,
+        (
+            "Recover progressively: start with orientation, enter the active path normally, and widen only when a concrete trigger makes deeper context decision-relevant.",
+            "`Triggered depth` is a conditional side path that may become necessary from orientation or from the active path; it is not a mandatory third phase.",
+            "**Orientation spine — always first.**",
+            "Project Map or equivalent truth-location index",
+            "active project outcome/completion condition",
+            "recover `ProjectAuthority` and `CoordinationBaseline` independently",
+            "recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`",
+            "chat loss alone is not a trigger",
+            "enter only that needed triggered depth now rather than forcing unrelated active-path reading first",
+            "**Active-path context — normal next layer.**",
+            "**Triggered depth — conditional side path.**",
+            "Load the root specification when project-level intent cannot be established safely from current downstream authoritative state or when material contradiction/change makes it decision-relevant.",
+            "Stop recovery reading once repository/target identity, active outcome, controlling dependencies/blockers",
+            "Continue the valid plan instead of rebuilding it because chat history is absent.",
+            "A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.",
+        ),
+    )
+    assert "| Recovery layer | Required work |" not in recovery
+
+
+def test_state_namespaces_and_machine_relay_stay_unchanged() -> None:
+    for path in RUNTIME_PATHS:
+        assert set(STATE_TOKEN.findall(current(path))) == set(STATE_TOKEN.findall(base(path))), path
 
     baseline_relay = (
         "Every machine relay emitted in a user-visible response is automatically a copy/paste artifact: "
@@ -137,9 +256,14 @@ def test_runtime_surface() -> None:
 
 
 def main() -> None:
-    test_exact_composition()
-    test_runtime_surface()
-    print("Phase C P1-P5 runtime migration composition: PASS")
+    test_declared_runtime_scope_only()
+    test_p1_runtime_dimensions_are_lossless_and_owned()
+    test_p2_worker_schema_and_preedit_behavior_stay_distinct()
+    test_p3_pending_job_branches_are_discriminated()
+    test_p4_write_unknown_remains_exact_selected_algorithm()
+    test_p5_recovery_is_progressive_without_forcing_a_third_phase()
+    test_state_namespaces_and_machine_relay_stay_unchanged()
+    print("Phase C refined P1-P5 runtime migration guards: PASS")
 
 
 if __name__ == "__main__":
