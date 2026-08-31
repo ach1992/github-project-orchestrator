@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "experiment_id": "write-unknown-canonical-algorithm-v1",
+  "issue": 58,
+  "source_ref": "f161c1b3d30b148b0418c585531dfbeaf7ffec04",
+  "semantic_baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "semantic_change_allowed": false,
+  "canonical_runtime_changed_during_prototype": false,
+  "isolated_variable": "single canonical representation of WriteState.UNKNOWN recovery semantics",
+  "replacement": {
+    "path": "skill/references/authority-gates.md",
+    "start_heading": "## 6. `WriteState.UNKNOWN`",
+    "end_heading_exclusive": "## 7. Optimistic concurrency",
+    "candidate_section": "benchmarks/phase7/experiments/write-unknown-canonical-algorithm-v1/candidate-write-unknown.md"
+  },
+  "protected_eval_anchors": ["C", "DD", "AU"],
+  "acceptance": {
+    "non_target_runtime_byte_identity_required": true,
+    "state_boundary_surface_unchanged": true,
+    "optimistic_concurrency_and_later_sections_unchanged": true,
+    "new_runtime_state_allowed": false,
+    "actual_model_trial_required": false,
+    "semantic_ledger_required": true,
+    "source_grounded_operational_analysis_required": true
+  }
+}
