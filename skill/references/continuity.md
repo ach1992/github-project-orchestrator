@@ -20,24 +20,15 @@ Never create `MASTER_STATE`, `manager-memory/`, `checkpoints/`, `handoffs/`, or 
 
 ## 2. Recovery sequence
 
-A new/replacement Master enters `RECOVER` before consequential project mutation:
+A new/replacement Master enters `RECOVER` before consequential project mutation. Recover progressively and stop reading as soon as current authoritative state is decision-valid for the next action:
 
-1. identify repository, target/default branches, checkout/worktrees, repository rules, and current capabilities;
-2. read an existing lightweight Project Map/index if present, then only durable docs relevant to current work; consult the canonical root project specification only when project-level intent cannot be established safely from current downstream authoritative state or when material contradiction/change makes it decision-relevant;
-3. inspect active Issues/milestones/Projects/risks/assignments;
-4. inspect open PRs/reviews/checks/branches/dependencies;
-5. inspect recent Git/release/deployment state only as needed;
-6. reconcile contradictions/stale assignments;
-7. determine active outcome/completion condition, review queue, blockers, `DeliveryRequirement`/`DeliveryTarget`/`DeliveryState`, and next executable action; recover `ProjectAuthority` and `CoordinationBaseline` independently, plus any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`;
-8. continue the valid plan instead of rebuilding it because chat history is absent.
+| Recovery layer | Required work |
+|---|---|
+| **Orientation spine** | Identify repository/repositories, target/default branches, checkout/worktrees, repository rules, and current capabilities. Read an existing lightweight Project Map/index if present, then only durable docs relevant to current work. Establish the current project outcome/completion model, recover `ProjectAuthority` and `CoordinationBaseline` independently, recover any affected `AssuranceLevel` and exact current `ScopedAuthorization`, and identify the active critical path/workstream. Treat the canonical root project specification as triggered depth: do not load it merely because chat is absent. |
+| **Active-path context** | Inspect active Issues/milestones/Projects/risks/assignments and open PRs/reviews/checks/branches/dependencies; inspect recent Git/release/deployment state only as needed. Enter only the current Issue/contract, PR/branch/CI, direct dependencies/interfaces, blockers/risks, and integration/delivery state needed for the next decision. Reconcile contradictions and stale assignments. Determine the review queue, controlling blockers, `DeliveryRequirement`/`DeliveryTarget`/`DeliveryState`, current candidate/review state, and next executable action. |
+| **Triggered depth** | Load broader architecture, other workstreams, the canonical root project specification, historical decisions, or release history only when a contradiction, dependency, interface, risk, or project-level decision makes that context materially relevant. Load the root specification when project-level intent cannot be established safely from current downstream authoritative state or when material contradiction/change makes it decision-relevant. |
 
-Keep cold recovery progressive and bounded:
-
-- **Orientation spine:** establish repository/repositories, current project outcome/completion, Project Map or equivalent truth-location index, `ProjectAuthority`, `CoordinationBaseline`, any currently affected `AssuranceLevel`, and the active critical path/workstream.
-- **Active-path context:** enter only the repository/workstream sources needed for the next decision: current Issue/contract, PR/branch/CI, direct dependencies/interfaces, blockers/risks, and integration/delivery state.
-- **Triggered depth:** load broader architecture, other workstreams, root specification, historical decisions, or release history only when a contradiction, dependency, interface, risk, or project-level decision makes that context materially relevant.
-
-Stop recovery reading once repository/target identity, active outcome, controlling dependencies/blockers, current `ProjectAuthority`/`CoordinationBaseline`/affected `AssuranceLevel`, current candidate/review/delivery state, and the next executable action are decision-valid. A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.
+Once repository/target identity, active outcome, controlling dependencies/blockers, current `ProjectAuthority`/`CoordinationBaseline`/affected `AssuranceLevel`, current candidate/review/delivery state, and the next executable action are decision-valid, continue the valid plan instead of rebuilding it because chat history is absent. A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.
 
 For multi-repository outcomes, recover the small global coordination spine first: outcome/completion, repository/workstream ownership, cross-repository dependencies/interfaces, integration/release order, and delivery target. Then enter only the local repository contexts on the active critical path. Local Issues/PRs/CI/repository rules remain authoritative; do not reconstruct them in a central recovery snapshot.
 
