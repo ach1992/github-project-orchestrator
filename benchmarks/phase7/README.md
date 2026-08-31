@@ -12,8 +12,9 @@ This lane does not rewrite the historical `v1.0.0 -> v1.1.0` evidence above. It 
 
 - `runtime-optimization-baseline.json` — exact baseline identity and the mechanical semantic surfaces/predicate owners checked by `tools/check_runtime_equivalence.py`;
 - `traces-v1.2.2.json` — source-grounded v1.2.2 policy-simulation traces for the existing eight Phase 7 scenarios;
-- `runtime-optimization-scenarios.json` — the minimum representation-comparison classes, including the hot FAST path, consequential authority path, Worker resume, cold recovery, review freshness, pending dependency continuation, integration/delivery separation, and namespace/effect isolation;
-- `MODEL-TRIAL-PROTOCOL.md` and `model-trial-cases.json` — the observable paired actual-model/runtime A/B contract that is the only benchmark lane eligible to prove practical representation improvement;
+- `runtime-optimization-scenarios.json` — the single semantic owner for the representation-comparison classes, protected behavior, eval anchors, and diagnostic measurements;
+- `MODEL-TRIAL-PROTOCOL.md` — the observable paired actual-model/runtime A/B protocol that is the only benchmark lane eligible to prove practical representation improvement;
+- `model-trial-cases.json` — the non-semantic scoring/selection manifest that references `runtime-optimization-scenarios.json` and selects the same canonical case IDs without duplicating their meaning;
 - `tools/score_model_trials.py` — the deterministic scorer for supplied paired observable A/B records;
 - `../../tests/test_runtime_equivalence.py` and `../../tests/test_model_trial_scorer.py` — adversarial fixtures for the mechanical and real-trial evidence gates.
 
@@ -60,6 +61,8 @@ Historical Phase 7 legitimately uses its source-grounded traces to document the 
 
 `MODEL-TRIAL-PROTOCOL.md` defines the evidence needed for a current representation-optimization claim. Each paired run compares the exact immutable v1.2.2 representation and one exact candidate on the same case under equivalent runtime identity/settings/tool availability. Only observable run behavior is scored.
 
+`runtime-optimization-scenarios.json` remains the semantic owner for those cases. `model-trial-cases.json` only selects their IDs and defines scoring parameters such as minimum pair count, primary metrics, and sign-test alpha; CI requires both manifests to remain aligned.
+
 Primary metrics are:
 
 - protected-behavior violation count;
@@ -78,13 +81,13 @@ Optional token/latency measurements may be kept in a separate diagnostic artifac
 - `traces-current.json` — historical refactored source-grounded traces pinned to immutable prerelease commit `53182d5db086eef98ebaba757bb820b86e465845`; the filename is phase-relative and does not mean the traces follow later release candidates.
 - `runtime-optimization-baseline.json` — immutable v1.2.2 representation-comparison baseline configuration.
 - `traces-v1.2.2.json` — immutable v1.2.2 source-grounded policy-simulation baseline for representation candidates.
-- `runtime-optimization-scenarios.json` — current representation-comparison semantic/diagnostic case contract.
+- `runtime-optimization-scenarios.json` — canonical representation-comparison semantic/diagnostic case contract.
 - `MODEL-TRIAL-PROTOCOL.md` — actual model/runtime A/B evidence protocol.
-- `model-trial-cases.json` — machine-readable actual model/runtime case and acceptance contract.
+- `model-trial-cases.json` — scoring/selection manifest referencing the canonical semantic case contract; not a second semantic owner.
 - `RESULTS.md` — checked-in historical Phase 7 interpretation and acceptance result.
 - `LIVE-EVIDENCE.md` — real GitHub delivery evidence from integrated refactor phases.
 - `../../tests/test_phase7_benchmark.py` — adversarial fixtures for historical and source-grounded representation-comparison behavior.
-- `../../tests/test_runtime_equivalence.py` — adversarial fixtures for the immutable runtime-equivalence gate.
+- `../../tests/test_runtime_equivalence.py` — adversarial fixtures for the immutable runtime-equivalence gate and semantic-case manifest alignment.
 - `../../tests/test_model_trial_scorer.py` — adversarial fixtures for observable paired model/runtime evidence scoring.
 
 ## Run
