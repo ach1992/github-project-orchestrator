@@ -76,6 +76,9 @@ jobs:
       - name: Test runtime equivalence gate
         run: python3 tests/test_runtime_equivalence.py
 
+      - name: Test observable model trial scorer
+        run: python3 tests/test_model_trial_scorer.py
+
       - name: Test release intent decisions
         run: python3 tests/test_release_intent.py
 
