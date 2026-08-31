@@ -54,9 +54,16 @@ if lane.get("schema_version") != 1:
     raise AssertionError("runtime optimization lane schema_version must be 1")
 if lane.get("baseline_ref") != config["baseline_ref"]:
     raise AssertionError("runtime optimization lane must use the immutable configured baseline")
-if lane.get("evidence_policy", {}).get("source_grounded_trace_is_model_performance_proof") is not False:
+evidence_policy = lane.get("evidence_policy", {})
+if evidence_policy.get("source_grounded_trace_is_model_performance_proof") is not False:
     raise AssertionError("source-grounded evidence must not claim independent model-performance proof")
-if lane.get("evidence_policy", {}).get("protected_behavior_is_hard_gate") is not True:
+if evidence_policy.get("source_grounded_friction_is_diagnostic_only") is not True:
+    raise AssertionError("source-grounded friction must remain diagnostic-only")
+if evidence_policy.get("practical_improvement_requires_actual_model_runtime_ab") is not True:
+    raise AssertionError("practical improvement must require actual model/runtime A/B evidence")
+if evidence_policy.get("candidate_requires_material_improvement_before_migration") is not True:
+    raise AssertionError("candidate must still prove material improvement before migration")
+if evidence_policy.get("protected_behavior_is_hard_gate") is not True:
     raise AssertionError("protected behavior must remain a hard gate")
 required_cases = {
     "hot-fast-master-path",
