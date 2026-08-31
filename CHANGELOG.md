@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented here.
 
+## [1.2.3] - 2026-08-31
+
+### Fixed
+
+- Every user-visible machine relay is now automatically emitted as the complete response in exactly one fenced copy target, so Worker handoffs, independent-review prompts/results, and Master recovery relays no longer depend on a separate copy/paste-formatting request.
+
+### Runtime compatibility
+
+- This patch changes only the canonical machine-relay copy-target condition and its regression/evaluation coverage. Existing relay language/literal-preservation/redaction semantics and all role, authority, lifecycle, Worker, review-result, integration, release, delivery, and recovery semantics remain unchanged.
+- Packaged runtime contents remain structurally identical to v1.2.2: only `SKILL.md` and `references/eval-scenarios.md` differ; no runtime script, domain reference, parser, registry, dependency, or platform-specific behavior is added or changed.
+- Repository-only benchmark/equivalence tooling added after v1.2.2 remains outside all distributed Skill archives and does not alter packaged runtime behavior.
+
 ## [1.2.2] - 2026-08-31
 
 ### Changed
