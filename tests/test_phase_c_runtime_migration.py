@@ -40,6 +40,11 @@ def candidate(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def embedded_candidate(path: Path) -> str:
+    """Normalize only the Markdown section separator, not candidate content."""
+    return candidate(path).rstrip("\n") + "\n\n"
+
+
 def split_between(text: str, start: str, end: str) -> tuple[str, str, str]:
     assert text.count(start) == 1, start
     assert text.count(end) == 1, end
@@ -62,13 +67,13 @@ def test_p1() -> None:
         SKILL,
         "## 1. Role and runtime state",
         "## 2. Universal invariants",
-        candidate(P1 / "candidate-skill-section.md"),
+        embedded_candidate(P1 / "candidate-skill-section.md"),
     )
     assert_one_replacement(
         AUTHORITY,
         "## 1. Decision dimensions",
         "## 2. Applicable effects",
-        candidate(P1 / "candidate-authority-section.md"),
+        embedded_candidate(P1 / "candidate-authority-section.md"),
     )
 
 
@@ -77,7 +82,7 @@ def test_p2() -> None:
         WORKER,
         "## 1. Isolation",
         "## 2. Dispatch prompt",
-        candidate(P2 / "candidate-worker-isolation.md"),
+        embedded_candidate(P2 / "candidate-worker-isolation.md"),
     )
 
 
@@ -87,7 +92,7 @@ def test_p3() -> None:
         MASTER,
         marker,
         "## 10. Requirement changes",
-        candidate(P3 / "candidate-pending-job.md"),
+        embedded_candidate(P3 / "candidate-pending-job.md"),
     )
 
 
@@ -96,7 +101,7 @@ def test_p4() -> None:
         AUTHORITY,
         "## 6. `WriteState.UNKNOWN`",
         "## 7. Optimistic concurrency",
-        candidate(P4 / "candidate-write-unknown.md"),
+        embedded_candidate(P4 / "candidate-write-unknown.md"),
     )
 
 
@@ -106,7 +111,7 @@ def test_p5() -> None:
         CONTINUITY,
         "## 2. Recovery sequence",
         marker,
-        candidate(P5 / "candidate-recovery.md"),
+        embedded_candidate(P5 / "candidate-recovery.md"),
     )
 
 
