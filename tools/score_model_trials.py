@@ -48,6 +48,7 @@ REQUIRED_RUN_FIELDS = {
     "run_id",
     "pair_id",
     "case_id",
+    "input_fingerprint",
     "representation",
     "order",
     "transcript_ref",
@@ -217,6 +218,7 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
 
     pair_rows: dict[str, list[dict]] = defaultdict(list)
     seen_run_ids: set[str] = set()
+    seen_transcript_refs: set[str] = set()
     for row in runs:
         if not isinstance(row, dict) or set(row) != REQUIRED_RUN_FIELDS:
             raise ValueError(
@@ -230,6 +232,7 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
         seen_run_ids.add(run_id)
         pair_id = row["pair_id"]
         case_id = row["case_id"]
+        input_fingerprint = row["input_fingerprint"]
         representation = row["representation"]
         order = row["order"]
         transcript_ref = row["transcript_ref"]
@@ -237,12 +240,17 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
             raise ValueError(f"run {run_id} requires pair_id")
         if case_id not in case_id_set:
             raise ValueError(f"run {run_id} uses unknown case_id: {case_id}")
+        if not isinstance(input_fingerprint, str) or not input_fingerprint.strip():
+            raise ValueError(f"run {run_id} requires non-empty input_fingerprint")
         if representation not in {"baseline", "candidate"}:
             raise ValueError(f"run {run_id} representation must be baseline or candidate")
         if order not in {1, 2}:
             raise ValueError(f"run {run_id} order must be 1 or 2")
         if not isinstance(transcript_ref, str) or not transcript_ref.strip():
             raise ValueError(f"run {run_id} requires auditable transcript_ref")
+        if transcript_ref in seen_transcript_refs:
+            raise ValueError(f"duplicate transcript_ref is not auditable per run: {transcript_ref}")
+        seen_transcript_refs.add(transcript_ref)
         observed = row["observed"]
         if not isinstance(observed, dict):
             raise ValueError(f"run {run_id} requires observed object")
@@ -262,6 +270,8 @@ def evaluate(cases_doc: dict, trials_doc: dict) -> dict:
             raise ValueError(f"pair {pair_id} must use complementary order 1/2")
         if len({row["case_id"] for row in rows}) != 1:
             raise ValueError(f"pair {pair_id} must use one case_id")
+        if len({row["input_fingerprint"] for row in rows}) != 1:
+            raise ValueError(f"pair {pair_id} baseline/candidate inputs do not match")
         by_rep = {row["representation"]: row for row in rows}
         baseline_row = by_rep["baseline"]
         candidate_row = by_rep["candidate"]
