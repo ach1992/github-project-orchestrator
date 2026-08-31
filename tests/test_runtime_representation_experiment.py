@@ -16,6 +16,11 @@ BASELINE = "f98e8a242c720931e34aa7c4e8a799090e3d0495"
 EXPERIMENT = ROOT / "benchmarks" / "phase7" / "experiments" / "decision-frame-v1" / "experiment.json"
 MATERIALIZER = ROOT / "tools" / "materialize_runtime_experiment.py"
 EQUIVALENCE = ROOT / "tools" / "check_runtime_equivalence.py"
+TRACEABILITY_CONTEXT = (
+    "design/RULE-MAP.md",
+    "design/GOAL-MAP.md",
+    "docs/PROJECT-SPEC.md",
+)
 
 
 def load_module(name: str, path: Path):
@@ -25,6 +30,22 @@ def load_module(name: str, path: Path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def materialize_baseline_traceability_context(output: Path) -> None:
+    """Provide the immutable repo-level sources required by normal validate_skill.py."""
+    for relative in TRACEABILITY_CONTEXT:
+        target = output / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(
+            subprocess.run(
+                ["git", "show", f"{BASELINE}:{relative}"],
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            ).stdout
+        )
 
 
 materializer = load_module("runtime_experiment_materializer", MATERIALIZER)
@@ -112,6 +133,10 @@ with tempfile.TemporaryDirectory(prefix="decision-frame-v1-") as tmp:
         raise AssertionError("candidate frame must remain transient/non-persisted")
     print("PASS explicit-transient-keep-frame")
 
+    # validate_skill.py intentionally checks repo-level Rule/Goal/project traceability
+    # through skill_dir.parent. The experiment materializer copies only runtime skill/
+    # so supply those exact immutable baseline sources solely as validation context.
+    materialize_baseline_traceability_context(output)
     subprocess.run(
         [sys.executable, str(ROOT / "tools" / "validate_skill.py"), str(candidate_skill)],
         cwd=ROOT,
