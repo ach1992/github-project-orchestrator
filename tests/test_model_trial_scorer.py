@@ -23,6 +23,21 @@ cases = json.loads(CASES_PATH.read_text(encoding="utf-8"))
 score.validate_cases(copy.deepcopy(cases))
 print("PASS model-trial-case-contract")
 
+if score.selected_case_ids(copy.deepcopy(cases), "screening") != score.SCREENING_CASE_IDS:
+    raise AssertionError("screening suite drifted from the frozen Phase B screening subset")
+if score.selected_case_ids(copy.deepcopy(cases), "selection") != tuple(cases["case_ids"]):
+    raise AssertionError("selection suite must remain the full canonical case set")
+print("PASS model-trial-suite-selection")
+
+try:
+    score.selected_case_ids(copy.deepcopy(cases), "custom")
+except ValueError as exc:
+    if "unsupported model-trial evaluation suite" not in str(exc):
+        raise
+    print("PASS arbitrary-suite-rejected")
+else:
+    raise AssertionError("arbitrary model-trial suite unexpectedly accepted")
+
 sign = score.one_sided_sign_test([1, 1, 1, 1, 1])
 if sign["p_value"] != 0.03125:
     raise AssertionError(sign)
@@ -41,9 +56,10 @@ def observed(*, refs: int = 0, steps: int = 5, correct: bool = True, violations=
     }
 
 
-def make_trials(*, improve_refs: bool = False) -> dict:
+def make_trials(*, improve_refs: bool = False, case_ids=None) -> dict:
     runs = []
-    for case_id in cases["case_ids"]:
+    selected = list(case_ids if case_ids is not None else cases["case_ids"])
+    for case_id in selected:
         for index in range(cases["minimum_pairs_per_case"]):
             pair_id = f"{case_id}-{index + 1}"
             input_fingerprint = f"input:{pair_id}:fixture-v1"
@@ -111,6 +127,36 @@ if not improved["ok"]:
 if "avoidable_events" not in improved["improved_metrics"]:
     raise AssertionError(improved)
 print("PASS observable-paired-improvement")
+
+screening_doc = make_trials(improve_refs=True, case_ids=score.SCREENING_CASE_IDS)
+screening = score.evaluate(copy.deepcopy(cases), copy.deepcopy(screening_doc), suite="screening")
+if not screening["ok"]:
+    raise AssertionError(screening)
+if screening["evaluated_case_ids"] != list(score.SCREENING_CASE_IDS):
+    raise AssertionError(screening)
+if screening["pair_count"] != len(score.SCREENING_CASE_IDS) * cases["minimum_pairs_per_case"]:
+    raise AssertionError(screening)
+print("PASS frozen-screening-subset-can-be-scored")
+
+selection_from_screening = score.evaluate(copy.deepcopy(cases), copy.deepcopy(screening_doc))
+if selection_from_screening["ok"] or not any(
+    "has 0 pairs" in error for error in selection_from_screening["acceptance_errors"]
+):
+    raise AssertionError("partial screening evidence unexpectedly satisfied full selection")
+print("PASS screening-does-not-satisfy-selection")
+
+screening_with_extra = copy.deepcopy(screening_doc)
+extra_case = next(case_id for case_id in cases["case_ids"] if case_id not in score.SCREENING_CASE_IDS)
+extra_pair = make_trials(improve_refs=True, case_ids=[extra_case])["runs"]
+screening_with_extra["runs"].extend(extra_pair)
+try:
+    score.evaluate(copy.deepcopy(cases), screening_with_extra, suite="screening")
+except ValueError as exc:
+    if "outside screening suite" not in str(exc):
+        raise
+    print("PASS screening-extra-case-rejected")
+else:
+    raise AssertionError("screening accepted a case outside the frozen subset")
 
 unsafe = copy.deepcopy(improved_doc)
 unsafe_candidate = next(row for row in unsafe["runs"] if row["representation"] == "candidate")
@@ -230,3 +276,14 @@ except ValueError as exc:
     print("PASS model-trial-baseline-drift-rejected")
 else:
     raise AssertionError("model-trial baseline drift unexpectedly accepted")
+
+missing_screening_case = copy.deepcopy(cases)
+missing_screening_case["case_ids"].remove(score.SCREENING_CASE_IDS[0])
+try:
+    score.validate_cases(missing_screening_case)
+except ValueError as exc:
+    if "frozen screening case" not in str(exc):
+        raise
+    print("PASS frozen-screening-case-drift-rejected")
+else:
+    raise AssertionError("canonical case set unexpectedly dropped a frozen screening case")
