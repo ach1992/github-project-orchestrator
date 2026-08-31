@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "experiment_id": "worker-assignment-owner-dedup-v1",
+  "issue": 54,
+  "source_ref": "af4b2aa86d8a13ca5f45ecf6ed4aadc8f741c386",
+  "semantic_baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "semantic_change_allowed": false,
+  "canonical_runtime_changed_during_prototype": false,
+  "isolated_variable": "ownership locality of Worker assignment identity versus Worker-specific pre-edit verification",
+  "replacement": {
+    "path": "skill/references/worker-protocol.md",
+    "start_heading": "## 1. Isolation",
+    "end_heading_exclusive": "## 2. Dispatch prompt",
+    "candidate_section": "benchmarks/phase7/experiments/worker-assignment-owner-dedup-v1/candidate-worker-isolation.md"
+  },
+  "canonical_assignment_owner": "skill/references/task-contract.md#8-worker-assignment-identity",
+  "protected_eval_anchors": ["AK", "AM", "AV", "CR", "DG", "DB", "CP"],
+  "acceptance": {
+    "non_target_runtime_byte_identity_required": true,
+    "dispatch_handoff_schema_unchanged": true,
+    "worker_status_classifier_unchanged": true,
+    "direct_runtime_routing_unchanged": true,
+    "new_runtime_state_allowed": false,
+    "actual_model_trial_required": false,
+    "semantic_ledger_required": true,
+    "source_grounded_operational_analysis_required": true
+  }
+}
