@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "suite_id": "lossless-runtime-representation-v1",
+  "baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
+  "minimum_pairs_per_case": 3,
+  "sign_test_alpha": 0.05,
+  "evidence_kind": "actual-model-runtime-ab",
+  "primary_metrics": [
+    "protected_violation_count",
+    "decision_error",
+    "steps_to_first_useful_action",
+    "avoidable_events"
+  ],
+  "observable_only": true,
+  "cases": [
+    {
+      "id": "hot-fast-master-path",
+      "class": "hot-path",
+      "protect": [
+        "reuse still-valid stable dimensions rather than ceremonially reclassifying them",
+        "FAST remains available for bounded reversible Master work",
+        "no unnecessary confirmation or persistent contract is introduced"
+      ]
+    },
+    {
+      "id": "consequential-mutation-authority-path",
+      "class": "gate",
+      "protect": [
+        "actual deterministic effects are classified before mutation",
+        "multi-effect obligations remain a union",
+        "capability or a scoped grant never broadens unrelated Authority"
+      ]
+    },
+    {
+      "id": "worker-dispatch-and-resume",
+      "class": "delegation",
+      "protect": [
+        "Worker assignment remains bounded and complete",
+        "StartHEAD and CheckpointHEAD remain distinct",
+        "Worker stop never automatically becomes Master stop"
+      ]
+    },
+    {
+      "id": "cold-master-recovery",
+      "class": "recovery",
+      "protect": [
+        "authoritative state outranks old chat",
+        "Authority and effective coordination/assurance recover losslessly",
+        "ordinary planned transitions do not restart broad recovery"
+      ]
+    },
+    {
+      "id": "review-integration-freshness",
+      "class": "review",
+      "protect": [
+        "review remains bound to exact current effective change",
+        "material drift invalidates affected approval",
+        "incomplete independent review cannot issue an overall verdict"
+      ]
+    },
+    {
+      "id": "pending-external-job-continuation",
+      "class": "flow",
+      "protect": [
+        "independent useful work proceeds before waiting",
+        "healthy pending state is not failure or NO_READY_WORK",
+        "terminal response is not allowed while executable outcome-linked work remains"
+      ]
+    },
+    {
+      "id": "integration-versus-delivery",
+      "class": "release",
+      "protect": [
+        "integration never implies delivered",
+        "delivery target and delivery state remain independent",
+        "wrong or unknown production artifact identity cannot be called delivered"
+      ]
+    },
+    {
+      "id": "namespace-and-effect-isolation",
+      "class": "adversarial",
+      "protect": [
+        "TaskState.BLOCKED, WorkerStatus.BLOCKED, WriteState.UNKNOWN, and MasterBoundary remain independent",
+        "multi-effect actions retain every independently applicable obligation",
+        "matching token text never creates a cross-namespace edge"
+      ]
+    }
+  ]
+}
