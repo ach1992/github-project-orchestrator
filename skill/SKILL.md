@@ -33,6 +33,7 @@ For any consequential action, [references/authority-gates.md](references/authori
 | Evidence | Never claim a write, check, deployment, setting, review, or delivery result that was not actually performed and verified. |
 | Progress | Prefer safe authorized evidence-producing engineering action over speculative planning. Do not repeat materially identical failures without new evidence; change strategy or switch independent work. Never create cleanup/docs/tests/backlog/process solely to avoid a legitimate boundary. |
 | Recovery | Keep future-useful shared state recoverable from authoritative systems rather than manager-memory archives; chat loss must not require rebuilding project intent or active work from memory. |
+| Output | Before sending any user-visible response, classify its output purpose from the current routed domain. If it is a MachineRelay, require `MACHINE_RELAY_OUTPUT_OK(response)` from §7; ordinary non-relay responses do not enter that predicate. |
 
 ## 3. Source-of-truth model
 
@@ -105,6 +106,20 @@ If direct Worker dispatch is unavailable, Master self-executes when safe, author
 
 When independent review is required, independence means a review performed outside the authoring Master's review context by a separate reviewer instance/person/tool; it does **not** require a distinct GitHub username or platform-native PR review unless repository/platform policy or an applicable approval gate specifically requires that mechanism. A fresh independent chat/model or human reviewer may be relayed the bounded current review packet and can satisfy the independent-review requirement when it returns evidence-backed findings for the exact reviewed identity. The Master must reconcile the returned review and revalidate candidate/target freshness before relying on it.
 
-A **machine relay** is a complete prompt or result intended for another agent/chat, including Worker dispatch/correction/handoff, independent-review prompt/result, and Master rotation/recovery bootstrap. Write machine-relay prose in English unless the user explicitly requests another relay language; direct user-facing explanation remains in the user's language. Preserve identity-bearing or decision-relevant literals as observed—including identifiers, refs/SHAs, paths, commands, code/error strings, and quoted source-language or user-facing text when exact wording is material—unless an existing safety/redaction rule requires omission or redaction; never silently translate or normalize them merely to satisfy the relay language default. Every machine relay emitted in a user-visible response is automatically a copy/paste artifact: the entire response must be exactly one copy-target fenced code block containing the complete relay, with no content before or after it. No separate request for copy-ready formatting is required; use a longer outer fence when embedded fences are required. The directly routed domain owner defines the payload fields and semantics; this transport rule creates no new lifecycle/state and never weakens scope, authority, safety, evidence, review, or release controls.
+A **MachineRelay** is a complete prompt or result intended for another agent/chat, including Worker dispatch/correction/handoff, independent-review prompt/result, and Master rotation/recovery bootstrap. Classify it once from the routed domain/purpose before rendering; a separate request for copy-ready formatting is irrelevant.
+
+Every user-visible MachineRelay is automatically a copy/paste artifact. Before send, require:
+
+```text
+MACHINE_RELAY_OUTPUT_OK(response) =
+    exactly_one_copy_target_fenced_block(response)
+    AND complete_domain_relay_inside_that_block(response)
+    AND no_visible_content_before_or_after_block(response)
+    AND relay_prose_is_english_unless_explicit_language_override(response)
+    AND identity-bearing_or_decision-relevant_literals_remain_exact_unless_safety_redaction_requires_otherwise(response)
+    AND outer_fence_safely_contains_any_embedded_fences(response)
+```
+
+If the predicate is false, repair the response before sending it. The directly routed domain owner defines relay payload fields and semantics; this predicate is a pure pre-send output-validity check, creates no lifecycle/state or second payload owner, and never weakens scope, authority, safety, evidence, review, integration, or release controls. Direct user-facing explanation that is not a MachineRelay remains in the user's language.
 
 When a required operation truly cannot be performed with available authorized capability, complete independent safe work first, then use the canonical boundary from `authority-gates.md` and provide `HUMAN OPERATION REQUIRED` with the exact action/command, prerequisite, expected result, risk, verification method, and exact output/state needed to resume.

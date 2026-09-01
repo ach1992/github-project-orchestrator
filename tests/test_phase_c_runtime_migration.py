@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scope and semantic guards for the refined Phase C P1-P5 runtime migration."""
+"""Scope and semantic guards for refined Phase C P1-P5 plus bounded #64 hardening."""
 from __future__ import annotations
 
 import re
@@ -8,13 +8,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "0165bc2a26bdf7452f05160c3e91f47b4fa7ae9c"
+CHECKPOINT = "4058f66a1be5e0cb405e849687171831780df1fd"
 
 SKILL = "skill/SKILL.md"
 AUTHORITY = "skill/references/authority-gates.md"
 WORKER = "skill/references/worker-protocol.md"
 MASTER = "skill/references/master-cycle.md"
 CONTINUITY = "skill/references/continuity.md"
-RUNTIME_PATHS = (SKILL, AUTHORITY, WORKER, MASTER, CONTINUITY)
+REVIEW = "skill/references/review-integration.md"
+EVAL = "skill/references/eval-scenarios.md"
+RUNTIME_PATHS = (SKILL, AUTHORITY, WORKER, MASTER, CONTINUITY, REVIEW, EVAL)
 
 P4 = ROOT / "benchmarks/phase7/experiments/write-unknown-canonical-algorithm-v1"
 STATE_TOKEN = re.compile(
@@ -29,6 +32,17 @@ def current(path: str) -> str:
 def base(path: str) -> str:
     return subprocess.run(
         ["git", "show", f"{BASE}:{path}"],
+        cwd=ROOT,
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    ).stdout
+
+
+def checkpoint(path: str) -> str:
+    return subprocess.run(
+        ["git", "show", f"{CHECKPOINT}:{path}"],
         cwd=ROOT,
         check=True,
         stdout=subprocess.PIPE,
@@ -75,10 +89,6 @@ def require_all(text: str, fragments: tuple[str, ...]) -> None:
 
 def test_declared_runtime_scope_only() -> None:
     assert_only_regions(
-        SKILL,
-        (("## 1. Role and runtime state", "## 2. Universal invariants"),),
-    )
-    assert_only_regions(
         AUTHORITY,
         (
             ("## 1. Decision dimensions", "## 2. Applicable effects"),
@@ -117,6 +127,42 @@ def test_declared_runtime_scope_only() -> None:
         text=True,
     ).stdout.splitlines()
     assert set(changed) == set(RUNTIME_PATHS)
+
+
+def test_machine_relay_hardening_is_bounded_from_checkpoint() -> None:
+    # #64 must not perturb accepted P2-P5 files at all.
+    for path in (AUTHORITY, WORKER, MASTER, CONTINUITY):
+        assert current(path) == checkpoint(path), f"{path} changed beyond accepted checkpoint"
+
+    checkpoint_skill = checkpoint(SKILL)
+    recovery_row = "| Recovery | Keep future-useful shared state recoverable from authoritative systems rather than manager-memory archives; chat loss must not require rebuilding project intent or active work from memory. |\n"
+    output_row = "| Output | Before sending any user-visible response, classify its output purpose from the current routed domain. If it is a MachineRelay, require `MACHINE_RELAY_OUTPUT_OK(response)` from §7; ordinary non-relay responses do not enter that predicate. |\n"
+    assert checkpoint_skill.count(recovery_row) == 1
+    expected_skill = checkpoint_skill.replace(recovery_row, recovery_row + output_row, 1)
+    old_relay_start = "A **machine relay** is a complete prompt or result intended for another agent/chat"
+    relay_end = "When a required operation truly cannot be performed with available authorized capability"
+    old_region = extract_between(expected_skill, old_relay_start, relay_end)
+    new_region = extract_between(current(SKILL), "A **MachineRelay** is a complete prompt or result intended for another agent/chat", relay_end)
+    expected_skill = expected_skill.replace(old_region, new_region, 1)
+    assert current(SKILL) == expected_skill, "SKILL.md changed outside the declared #64 pointer/owner surfaces"
+
+    old_review = "Formatting defects alone do not manufacture a code finding: if the semantic result is safely recoverable, normalize it for reconciliation; never normalize missing identity/evidence into approval."
+    new_review = "Formatting defects in a received external review result do not manufacture a code finding: during Master reconciliation, if the semantic result is safely recoverable, normalize that received result for reconciliation; never normalize missing identity/evidence into approval. This receive-side normalization never authorizes malformed relay emission by the Skill; any emitted independent-review prompt/result is a MachineRelay and must satisfy `MACHINE_RELAY_OUTPUT_OK(response)` from `SKILL.md` §7 before send."
+    assert checkpoint(REVIEW).count(old_review) == 1
+    assert current(REVIEW) == checkpoint(REVIEW).replace(old_review, new_review, 1)
+
+    at_old = "**Expected:** treat every machine relay emitted in a user-visible response as an automatic copy/paste artifact;"
+    at_new = "**Expected:** classify the output once from the routed domain/purpose and require `MACHINE_RELAY_OUTPUT_OK(response)` immediately before send;"
+    di_old = "The returned independent-review result is itself a machine relay and therefore follows the canonical `SKILL.md` transport contract automatically, without requiring a separate copy-ready request."
+    di_new = "The returned independent-review result is itself a MachineRelay; classify it from the review-domain purpose and require `MACHINE_RELAY_OUTPUT_OK(response)` before send, without requiring a separate copy-ready request."
+    cp_eval = checkpoint(EVAL)
+    assert cp_eval.count(at_old) == 1 and cp_eval.count(di_old) == 1
+    # AT intentionally rewrites the full Expected sentence, so compare all bytes outside AT + the exact DI sentence.
+    cp_at = extract_between(cp_eval, "**Expected:** treat every machine relay emitted", "\n\n### AU.")
+    cur_at = extract_between(current(EVAL), "**Expected:** classify the output once", "\n\n### AU.")
+    expected_eval = cp_eval.replace(cp_at, cur_at, 1).replace(di_old, di_new, 1)
+    assert current(EVAL) == expected_eval, "eval scenarios changed outside declared AT/DI #64 surfaces"
+    assert at_new in current(EVAL) and di_new in current(EVAL)
 
 
 def test_p1_runtime_dimensions_are_lossless_and_owned() -> None:
@@ -275,27 +321,40 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
     assert "| Recovery layer | Required work |" not in recovery
 
 
-def test_state_namespaces_and_machine_relay_stay_unchanged() -> None:
+def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:
     for path in RUNTIME_PATHS:
         assert set(STATE_TOKEN.findall(current(path))) == set(STATE_TOKEN.findall(base(path))), path
 
-    baseline_relay = (
-        "Every machine relay emitted in a user-visible response is automatically a copy/paste artifact: "
-        "the entire response must be exactly one copy-target fenced code block containing the complete relay"
+    require_all(
+        current(SKILL),
+        (
+            "MACHINE_RELAY_OUTPUT_OK(response) =",
+            "exactly_one_copy_target_fenced_block(response)",
+            "complete_domain_relay_inside_that_block(response)",
+            "no_visible_content_before_or_after_block(response)",
+            "relay_prose_is_english_unless_explicit_language_override(response)",
+            "identity-bearing_or_decision-relevant_literals_remain_exact_unless_safety_redaction_requires_otherwise(response)",
+            "outer_fence_safely_contains_any_embedded_fences(response)",
+            "creates no lifecycle/state or second payload owner",
+            "Direct user-facing explanation that is not a MachineRelay remains in the user's language.",
+        ),
     )
-    assert baseline_relay in base(SKILL)
-    assert baseline_relay in current(SKILL)
+    assert current(SKILL).count("MACHINE_RELAY_OUTPUT_OK(response) =") == 1
+    assert "Every machine relay emitted in a user-visible response is automatically a copy/paste artifact" in checkpoint(SKILL)
+    assert "No separate request for copy-ready formatting is required" in checkpoint(SKILL)
+
 
 
 def main() -> None:
     test_declared_runtime_scope_only()
+    test_machine_relay_hardening_is_bounded_from_checkpoint()
     test_p1_runtime_dimensions_are_lossless_and_owned()
     test_p2_worker_schema_and_preedit_behavior_stay_distinct()
     test_p3_pending_job_branches_are_discriminated()
     test_p4_write_unknown_remains_exact_selected_algorithm()
     test_p5_recovery_is_progressive_without_forcing_a_third_phase()
-    test_state_namespaces_and_machine_relay_stay_unchanged()
-    print("Phase C refined P1-P5 runtime migration guards: PASS")
+    test_state_namespaces_and_machine_relay_are_lossless_hardened()
+    print("Phase C refined P1-P5 + bounded #64 runtime guards: PASS")
 
 
 if __name__ == "__main__":

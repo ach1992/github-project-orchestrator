@@ -166,17 +166,34 @@ P5's final form is intentionally **not a table**. The semantic is progressive re
 
 Protected scenario families: `I`, `AH`, `BG`, `BH`, `BY`, `DA` and the existing multi-repository/large-repository recovery cases.
 
+## Owner-directed #64 additive MachineRelay hardening
+
+Checkpoint `4058f66a1be5e0cb405e849687171831780df1fd` remains the accepted P1-P5 representation baseline for this final addition. The Owner explicitly superseded the earlier KEEP-SEPARATE ordering so the last known MachineRelay output-salience defect is corrected before merge on the same branch. This does **not** reopen P1-P5 design.
+
+The additive #64 representation is deliberately narrow:
+
+| Existing behavior / observed gap | Final representation | Lossless / activation check |
+|---|---|---|
+| MachineRelay classification existed but final rendering could miss it | one short always-loaded Output pointer classifies from routed domain/purpose before send | fixes salience without a new lifecycle/state or second router |
+| complete copy-ready transport semantics lived in `SKILL.md` prose | one named pure `MACHINE_RELAY_OUTPUT_OK(response)` predicate in the same canonical owner | semantics remain singular; domain refs point back rather than own transport |
+| ordinary user-facing explanation must remain ordinary | non-relay responses explicitly bypass the predicate | guards against false-positive fenced output |
+| received external review formatting can be normalized for reconciliation | `review-integration.md` now scopes normalization to received results and requires emitted review relays to pass the predicate | prevents receive-side tolerance from becoming emit-side permission |
+| AT/DI described correct behavior but did not name a pre-send checkpoint | AT/DI now activate the canonical predicate on generic and independent-review-result paths | directly protects the observed failure family |
+| Phase C guard previously required MachineRelay text to remain unchanged | guard now pins P1-P5 to checkpoint `4058...` and permits only the declared #64 SKILL/review/eval surfaces | scope protection is widened explicitly, not weakened |
+
+No project-level requirement changes: `docs/PROJECT-SPEC.md` remains untouched. No new Rule ID is created; `MACHINE-RELAY-PORTABLE` simply points to the named canonical predicate.
+
 ## Composition and regression safeguards
 
 `tests/test_phase_c_runtime_migration.py` now reflects the stronger evidence boundary:
 
-1. every byte outside the five declared canonical migration surfaces must remain equal to exact Phase C base;
-2. only those five runtime paths may differ under `skill/`;
+1. P2-P5 canonical runtime files must remain byte-identical to checkpoint `4058f66a...`, while P1 remains protected by its existing semantic/base guards;
+2. beyond the five accepted P1-P5 runtime paths, only `skill/references/review-integration.md` and `skill/references/eval-scenarios.md` may newly differ under `skill/`, and `SKILL.md` may differ from checkpoint only in the exact Output-pointer + MachineRelay-owner surfaces;
 3. P4 must still equal the exact selected P4 prototype;
 4. refined P1/P2/P3/P5 must contain the semantic discriminators identified by this self-audit, including negative/non-implication guards; P3 additionally rejects terminal-transition overlap with the pending+independent row, and P5 asserts minimum live discovery precedes dependent Orientation conclusions;
 5. P5 must not regress to the long-cell recovery table;
 6. state/boundary namespace token sets must remain unchanged per runtime file;
-7. accepted v1.2.3 complete-response machine-relay copy-target behavior must remain present unchanged.
+7. accepted v1.2.3 MachineRelay semantics must remain lossless while the single canonical predicate adds an explicit pre-send activation/validity check; receive-side review normalization must not authorize malformed emission.
 
 The existing immutable-runtime equivalence, eval/adversarial, package, runtime-cleanliness, prototype-isolation, helper/scorer, and repository validation suites remain independently required. Prototype tests prove their frozen experiment claims; they no longer force Phase C to retain exact P1/P2/P3/P5 wording after the deeper self-audit found a better representation of the same selected concepts.
 
