@@ -179,7 +179,7 @@ The additive #64 representation is deliberately narrow:
 | ordinary user-facing explanation must remain ordinary | non-relay responses explicitly bypass the predicate | guards against false-positive fenced output |
 | received external review formatting can be normalized for reconciliation | `review-integration.md` now scopes normalization to received results and requires emitted review relays to pass the predicate | prevents receive-side tolerance from becoming emit-side permission |
 | AT/DI described correct behavior but did not name a pre-send checkpoint | AT/DI now activate the canonical predicate on generic and independent-review-result paths | directly protects the observed failure family |
-| Phase C guard previously required MachineRelay text to remain unchanged | guard now pins P1-P5 to checkpoint `4058...` and permits only the declared #64 SKILL/review/eval surfaces | scope protection is widened explicitly, not weakened |
+| Phase C guard previously required MachineRelay text to remain unchanged | guard now pins accepted checkpoint behavior with durable full/normalized SHA-256 fingerprints and permits only the declared #64 SKILL/review/eval surfaces | scope protection is widened explicitly, not weakened, and does not depend on an untagged checkpoint object remaining fetchable |
 
 No project-level requirement changes: `docs/PROJECT-SPEC.md` remains untouched. No new Rule ID is created; `MACHINE-RELAY-PORTABLE` simply points to the named canonical predicate.
 
@@ -187,8 +187,8 @@ No project-level requirement changes: `docs/PROJECT-SPEC.md` remains untouched. 
 
 `tests/test_phase_c_runtime_migration.py` now reflects the stronger evidence boundary:
 
-1. P2-P5 canonical runtime files must remain byte-identical to checkpoint `4058f66a...`, while P1 remains protected by its existing semantic/base guards;
-2. beyond the five accepted P1-P5 runtime paths, only `skill/references/review-integration.md` and `skill/references/eval-scenarios.md` may newly differ under `skill/`, and `SKILL.md` may differ from checkpoint only in the exact Output-pointer + MachineRelay-owner surfaces;
+1. P2-P5 canonical runtime files must match durable SHA-256 fingerprints of checkpoint `4058f66a...`, while P1 remains protected by its existing semantic/base guards and the SKILL file is normalized only across the declared #64 surfaces;
+2. beyond the five accepted P1-P5 runtime paths, only `skill/references/review-integration.md` and `skill/references/eval-scenarios.md` may newly differ under `skill/`; normalized SHA-256 guards prove those files and `SKILL.md` differ from checkpoint only in the declared #64 surfaces without requiring future CI to fetch the untagged checkpoint commit;
 3. P4 must still equal the exact selected P4 prototype;
 4. refined P1/P2/P3/P5 must contain the semantic discriminators identified by this self-audit, including negative/non-implication guards; P3 additionally rejects terminal-transition overlap with the pending+independent row, and P5 asserts minimum live discovery precedes dependent Orientation conclusions;
 5. P5 must not regress to the long-cell recovery table;

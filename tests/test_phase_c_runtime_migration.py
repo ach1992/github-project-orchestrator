@@ -2,13 +2,14 @@
 """Scope and semantic guards for refined Phase C P1-P5 plus bounded #64 hardening."""
 from __future__ import annotations
 
+import hashlib
 import re
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "0165bc2a26bdf7452f05160c3e91f47b4fa7ae9c"
-CHECKPOINT = "4058f66a1be5e0cb405e849687171831780df1fd"
+CHECKPOINT = "4058f66a1be5e0cb405e849687171831780df1fd"  # provenance only; no runtime fetch dependency
 
 SKILL = "skill/SKILL.md"
 AUTHORITY = "skill/references/authority-gates.md"
@@ -18,6 +19,19 @@ CONTINUITY = "skill/references/continuity.md"
 REVIEW = "skill/references/review-integration.md"
 EVAL = "skill/references/eval-scenarios.md"
 RUNTIME_PATHS = (SKILL, AUTHORITY, WORKER, MASTER, CONTINUITY, REVIEW, EVAL)
+
+# Durable byte-equivalence fingerprints of accepted checkpoint 4058f66a... .
+# These avoid making future main CI depend on an untagged historical Git object that
+# may become unreachable after squash/rebase integration and branch deletion.
+CHECKPOINT_FULL_SHA256 = {
+    AUTHORITY: "fccd2a98221f1927cd9e330984cbc9d674b6bc5a80b7fe8a7bc61281a9e9f5fd",
+    WORKER: "2d54bd580ef8de5451cd37a8d8e6475af413bd8f8f97f91dcaaf84903e7b672a",
+    MASTER: "d56a8577104aed505d1219d383a7315bc0e14b688882711bda835af402d5ad38",
+    CONTINUITY: "386d5ede4a549c7efa9d5dca6db7afb705eddce5110b9d5a622bbeb6215dbdc3",
+}
+CHECKPOINT_SKILL_NORMALIZED_SHA256 = "3e1b9089172479f97e863b4aa36021e30a07b2dc7158883b68129bb5b36f272c"
+CHECKPOINT_REVIEW_NORMALIZED_SHA256 = "58ad6a362f28a5dfb3686618b44524d9faf815611b57c61419d2c71b6f21299a"
+CHECKPOINT_EVAL_NORMALIZED_SHA256 = "9b4050275e643b8c2894c94fe10faa3a80f901b51317fba3d4b173c305782a44"
 
 P4 = ROOT / "benchmarks/phase7/experiments/write-unknown-canonical-algorithm-v1"
 STATE_TOKEN = re.compile(
@@ -40,15 +54,48 @@ def base(path: str) -> str:
     ).stdout
 
 
-def checkpoint(path: str) -> str:
-    return subprocess.run(
-        ["git", "show", f"{CHECKPOINT}:{path}"],
-        cwd=ROOT,
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    ).stdout
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def normalize_skill_for_checkpoint(text: str) -> str:
+    output_row = "| Output | Before sending any user-visible response, classify its output purpose from the current routed domain. If it is a MachineRelay, require `MACHINE_RELAY_OUTPUT_OK(response)` from §7; ordinary non-relay responses do not enter that predicate. |\n"
+    if output_row in text:
+        assert text.count(output_row) == 1
+        text = text.replace(output_row, "", 1)
+    relay_end = "When a required operation truly cannot be performed with available authorized capability"
+    starts = (
+        "A **machine relay** is a complete prompt or result intended for another agent/chat",
+        "A **MachineRelay** is a complete prompt or result intended for another agent/chat",
+    )
+    found = [start for start in starts if start in text]
+    assert len(found) == 1, found
+    region = extract_between(text, found[0], relay_end)
+    return text.replace(region, "<MACHINE_RELAY_OWNER_REGION>\n\n", 1)
+
+
+def normalize_review_for_checkpoint(text: str) -> str:
+    old = "Master verifies the candidate/target/contract and reviewed effective change have not materially drifted, checks result-contract completeness, and independently reconciles every finding before relying on the result. Formatting defects alone do not manufacture a code finding: if the semantic result is safely recoverable, normalize it for reconciliation; never normalize missing identity/evidence into approval."
+    new = "Master verifies the candidate/target/contract and reviewed effective change have not materially drifted, checks result-contract completeness, and independently reconciles every finding before relying on the result. Formatting defects in a received external review result do not manufacture a code finding: during Master reconciliation, if the semantic result is safely recoverable, normalize that received result for reconciliation; never normalize missing identity/evidence into approval. This receive-side normalization never authorizes malformed relay emission by the Skill; any emitted independent-review prompt/result is a MachineRelay and must satisfy `MACHINE_RELAY_OUTPUT_OK(response)` from `SKILL.md` §7 before send."
+    found = [fragment for fragment in (old, new) if fragment in text]
+    assert len(found) == 1, found
+    return text.replace(found[0], "<RECEIVED_REVIEW_NORMALIZATION_REGION>", 1)
+
+
+def normalize_eval_for_checkpoint(text: str) -> str:
+    starts = (
+        "**Expected:** treat every machine relay emitted",
+        "**Expected:** classify the output once from the routed domain/purpose",
+    )
+    found = [start for start in starts if start in text]
+    assert len(found) == 1, found
+    at_region = extract_between(text, found[0], "\n\n### AU.")
+    text = text.replace(at_region, "<AT_MACHINE_RELAY_EXPECTED_REGION>", 1)
+    old_di = "The returned independent-review result is itself a machine relay and therefore follows the canonical `SKILL.md` transport contract automatically, without requiring a separate copy-ready request."
+    new_di = "The returned independent-review result is itself a MachineRelay; classify it from the review-domain purpose and require `MACHINE_RELAY_OUTPUT_OK(response)` before send, without requiring a separate copy-ready request."
+    found_di = [fragment for fragment in (old_di, new_di) if fragment in text]
+    assert len(found_di) == 1, found_di
+    return text.replace(found_di[0], "<DI_MACHINE_RELAY_SENTENCE>", 1)
 
 
 def embedded_candidate(path: Path) -> str:
@@ -130,39 +177,28 @@ def test_declared_runtime_scope_only() -> None:
 
 
 def test_machine_relay_hardening_is_bounded_from_checkpoint() -> None:
-    # #64 must not perturb accepted P2-P5 files at all.
-    for path in (AUTHORITY, WORKER, MASTER, CONTINUITY):
-        assert current(path) == checkpoint(path), f"{path} changed beyond accepted checkpoint"
+    # #64 must not perturb accepted P2-P5 files at all. Fingerprints are durable
+    # even if integration later squashes/rebases and the feature branch is deleted.
+    for path, expected_hash in CHECKPOINT_FULL_SHA256.items():
+        assert sha256_text(current(path)) == expected_hash, f"{path} changed beyond accepted checkpoint {CHECKPOINT}"
 
-    checkpoint_skill = checkpoint(SKILL)
-    recovery_row = "| Recovery | Keep future-useful shared state recoverable from authoritative systems rather than manager-memory archives; chat loss must not require rebuilding project intent or active work from memory. |\n"
-    output_row = "| Output | Before sending any user-visible response, classify its output purpose from the current routed domain. If it is a MachineRelay, require `MACHINE_RELAY_OUTPUT_OK(response)` from §7; ordinary non-relay responses do not enter that predicate. |\n"
-    assert checkpoint_skill.count(recovery_row) == 1
-    expected_skill = checkpoint_skill.replace(recovery_row, recovery_row + output_row, 1)
-    old_relay_start = "A **machine relay** is a complete prompt or result intended for another agent/chat"
-    relay_end = "When a required operation truly cannot be performed with available authorized capability"
-    old_region = extract_between(expected_skill, old_relay_start, relay_end)
-    new_region = extract_between(current(SKILL), "A **MachineRelay** is a complete prompt or result intended for another agent/chat", relay_end)
-    expected_skill = expected_skill.replace(old_region, new_region, 1)
-    assert current(SKILL) == expected_skill, "SKILL.md changed outside the declared #64 pointer/owner surfaces"
+    assert sha256_text(normalize_skill_for_checkpoint(current(SKILL))) == CHECKPOINT_SKILL_NORMALIZED_SHA256, (
+        "SKILL.md changed outside the declared #64 Output-pointer/MachineRelay-owner surfaces"
+    )
+    assert sha256_text(normalize_review_for_checkpoint(current(REVIEW))) == CHECKPOINT_REVIEW_NORMALIZED_SHA256, (
+        "review-integration.md changed outside the declared received-review normalization surface"
+    )
+    assert sha256_text(normalize_eval_for_checkpoint(current(EVAL))) == CHECKPOINT_EVAL_NORMALIZED_SHA256, (
+        "eval-scenarios.md changed outside declared AT/DI #64 surfaces"
+    )
 
-    old_review = "Formatting defects alone do not manufacture a code finding: if the semantic result is safely recoverable, normalize it for reconciliation; never normalize missing identity/evidence into approval."
-    new_review = "Formatting defects in a received external review result do not manufacture a code finding: during Master reconciliation, if the semantic result is safely recoverable, normalize that received result for reconciliation; never normalize missing identity/evidence into approval. This receive-side normalization never authorizes malformed relay emission by the Skill; any emitted independent-review prompt/result is a MachineRelay and must satisfy `MACHINE_RELAY_OUTPUT_OK(response)` from `SKILL.md` §7 before send."
-    assert checkpoint(REVIEW).count(old_review) == 1
-    assert current(REVIEW) == checkpoint(REVIEW).replace(old_review, new_review, 1)
-
-    at_old = "**Expected:** treat every machine relay emitted in a user-visible response as an automatic copy/paste artifact;"
-    at_new = "**Expected:** classify the output once from the routed domain/purpose and require `MACHINE_RELAY_OUTPUT_OK(response)` immediately before send;"
-    di_old = "The returned independent-review result is itself a machine relay and therefore follows the canonical `SKILL.md` transport contract automatically, without requiring a separate copy-ready request."
-    di_new = "The returned independent-review result is itself a MachineRelay; classify it from the review-domain purpose and require `MACHINE_RELAY_OUTPUT_OK(response)` before send, without requiring a separate copy-ready request."
-    cp_eval = checkpoint(EVAL)
-    assert cp_eval.count(at_old) == 1 and cp_eval.count(di_old) == 1
-    # AT intentionally rewrites the full Expected sentence, so compare all bytes outside AT + the exact DI sentence.
-    cp_at = extract_between(cp_eval, "**Expected:** treat every machine relay emitted", "\n\n### AU.")
-    cur_at = extract_between(current(EVAL), "**Expected:** classify the output once", "\n\n### AU.")
-    expected_eval = cp_eval.replace(cp_at, cur_at, 1).replace(di_old, di_new, 1)
-    assert current(EVAL) == expected_eval, "eval scenarios changed outside declared AT/DI #64 surfaces"
-    assert at_new in current(EVAL) and di_new in current(EVAL)
+    require_all(
+        current(EVAL),
+        (
+            "**Expected:** classify the output once from the routed domain/purpose and require `MACHINE_RELAY_OUTPUT_OK(response)` immediately before send;",
+            "The returned independent-review result is itself a MachineRelay; classify it from the review-domain purpose and require `MACHINE_RELAY_OUTPUT_OK(response)` before send, without requiring a separate copy-ready request.",
+        ),
+    )
 
 
 def test_p1_runtime_dimensions_are_lossless_and_owned() -> None:
@@ -340,8 +376,11 @@ def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:
         ),
     )
     assert current(SKILL).count("MACHINE_RELAY_OUTPUT_OK(response) =") == 1
-    assert "Every machine relay emitted in a user-visible response is automatically a copy/paste artifact" in checkpoint(SKILL)
-    assert "No separate request for copy-ready formatting is required" in checkpoint(SKILL)
+    # The accepted pre-#64 transport semantics must exist in the immutable Phase C base/history,
+    # while the final representation may strengthen activation without retaining exact prose.
+    historical_skill = base(SKILL)
+    assert "Every machine relay emitted in a user-visible response is automatically a copy/paste artifact" in historical_skill
+    assert "No separate request for copy-ready formatting is required" in historical_skill
 
 
 
