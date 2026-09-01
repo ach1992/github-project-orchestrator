@@ -190,7 +190,7 @@ def test_p3_pending_job_branches_are_discriminated() -> None:
         (
             "Continue independent useful work first.",
             "Once no independent useful work remains and `pending` is the sole dependency",
-            "independent useful work still exists | Continue it before waiting",
+            "dependency is still pending; independent useful work still exists | Continue it before waiting",
             "no independent useful work remains; `pending` is the sole dependency; a safe runtime-supported continuation path is available and still reasonable",
             "without inventing precedence",
             "bounded, non-tight authoritative rechecks only when a transition is plausibly due",
@@ -203,6 +203,22 @@ def test_p3_pending_job_branches_are_discriminated() -> None:
             "never use `MasterBoundary.NO_READY_WORK` merely because an already-running required dependency is unfinished",
         ),
     )
+    # Combined transitions must remain disjoint without relying on row order:
+    # PENDING+independent, PENDING+continuation, SUCCESS+independent,
+    # FAILED+independent, and PENDING+exhausted each have one condition class.
+    conditions = {
+        match.strip()
+        for match in re.findall(r"^\| ([^|]+?) \|", pending, flags=re.MULTILINE)
+        if match.strip() not in {"Current condition", "---"}
+    }
+    assert conditions == {
+        "dependency is still pending; independent useful work still exists",
+        "no independent useful work remains; `pending` is the sole dependency; a safe runtime-supported continuation path is available and still reasonable",
+        "dependency resolves successfully",
+        "dependency fails",
+        "dependency is still pending; no independent useful work remains; it is the sole remaining blocker; bounded autonomous continuation is unavailable, no longer reasonable, or exhausted",
+    }
+    assert "independent useful work still exists" not in conditions
 
 
 def test_p4_write_unknown_remains_exact_selected_algorithm() -> None:
@@ -227,6 +243,9 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
             "`Triggered depth` is a conditional side path that may become necessary from orientation or from the active path; it is not a mandatory third phase.",
             "**Orientation spine — always first.**",
             "Project Map or equivalent truth-location index",
+            "Before establishing any still-unresolved conclusion below, follow only the minimum live control-plane pointers",
+            "active Issue/Project/milestone and PR/branch/check/dependency state",
+            "Then establish the active project outcome/completion condition",
             "active project outcome/completion condition",
             "recover `ProjectAuthority` and `CoordinationBaseline` independently",
             "recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`",
@@ -240,6 +259,19 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
             "A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.",
         ),
     )
+    orientation = extract_between(
+        recovery,
+        "- **Orientation spine — always first.**",
+        "- **Active-path context — normal next layer.**",
+    )
+    discovery = "Before establishing any still-unresolved conclusion below"
+    conclusion = "Then establish the active project outcome/completion condition"
+    # Zero chat + no useful status hint + Project Map as pointers only must still read
+    # the minimum live control plane before deriving outcome/Authority/critical path.
+    assert orientation.index("Project Map or equivalent truth-location index") < orientation.index(discovery)
+    assert orientation.index(discovery) < orientation.index(conclusion)
+    assert "from the applicable authoritative evidence" in orientation
+    assert "chat loss alone is not a trigger" in orientation
     assert "| Recovery layer | Required work |" not in recovery
 
 

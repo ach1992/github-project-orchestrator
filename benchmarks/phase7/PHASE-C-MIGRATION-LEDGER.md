@@ -25,15 +25,24 @@ The first exact Phase C candidate `2f36f3287629c1de71255c29ed04a6bef012b834` pas
 
 The withdrawn SHA is historical evidence only and must not be reviewed or integrated.
 
+## Post-review negative-assurance correction boundary
+
+Candidate `64bc6a12b65b220a9a9c9b8f5f1231a5e0e883e5` later received an independent `COMPLETE / APPROVE`, but a subsequent Owner-requested hostile read-order/transition audit found two REQUIRED representation defects that invalidate that candidate for integration while preserving its historical review evidence:
+
+- **MR-001 / P5 prerequisite ordering:** Orientation required outcome/operating-dimension/critical-path conclusions before the live Issue/Project/PR/check/dependency evidence that may be the only authoritative source for those conclusions in zero-chat recovery. The correction keeps the single progressive recovery representation but makes minimum live control-plane discovery an explicit prerequisite to those Orientation conclusions. Project Map remains a truth-location index, not a live status report, and chat loss alone still does not trigger the root specification.
+- **MR-002 / P3 terminal-transition discrimination:** the first table row matched `independent useful work still exists` without also requiring the dependency to remain pending, so a `PENDING -> SUCCESS/FAILED` transition with independent work could satisfy both that row and a terminal-transition row unless precedence was inferred. The correction adds the missing still-pending predicate and no new lifecycle/state machine.
+
+Fresh re-evaluation found no corresponding regression requiring changes to P1, P2, or P4. The remediation therefore remains limited to P3/P5 plus directly affected evidence/tests.
+
 ## Final-family disposition after clause-level self-audit
 
 | Family | Baseline semantic shape | Phase B selected concept | Phase C final representation | Self-audit disposition | Why final form is preferable to baseline |
 |---|---|---|---|---|---|
 | P1 | six fixed runtime dimensions + stability/non-implication rules + gate-local authorization semantics | localize stability/non-implication beside dimensions and deduplicate gate ontology | three-column kernel dimension matrix plus concise canonical authorization/gate bridge | **REFINED / KEEP CONCEPT** | fixed dimensions remain matrix-shaped; stable-state and false-inference rules are local; `authority-gates.md` remains canonical for authorization interpretation instead of becoming a second full ontology |
 | P2 | persisted assignment schema mixed with Worker pre-edit procedure | one schema owner + one Worker verification owner | `task-contract.md` §8 remains schema owner; Worker §1 is ordered pre-edit verification with explicit worktree state/safety | **REFINED / KEEP CONCEPT** | removes competing field enumeration while preserving every pre-edit concurrency/isolation check locally |
-| P3 | dense branching pending-job paragraph | condition -> action decision structure | principle + discriminated condition/action table + namespace/anti-spin guard | **REFINED / KEEP CONCEPT** | branch predicates now encode independent-work precedence and safe-continuation versus terminal-blocked distinction rather than depending on row overlap or prose reconstruction |
+| P3 | dense branching pending-job paragraph | condition -> action decision structure | principle + discriminated condition/action table + namespace/anti-spin guard | **REFINED / KEEP CONCEPT** | branch predicates now encode pending-state, terminal-transition, independent-work, safe-continuation, and terminal-blocked distinctions without hidden row precedence |
 | P4 | one safety-critical recovery algorithm represented twice | one guarded canonical algorithm | one six-step present/proven-absent/incomplete algorithm | **KEEP EXACT P4** | eliminates duplicate symbolic shorthand and makes the dangerous `incomplete != absent` rule local to its branch |
-| P5 | eight-step recovery checklist plus overlapping three-layer progressive retrieval model | one progressive recovery procedure | Orientation + Active-path normal progression with Triggered-depth as an explicit conditional side path | **REFINED / KEEP CONCEPT** | removes two competing organizations without forcing a long-cell table or falsely making Triggered depth a mandatory third phase |
+| P5 | eight-step recovery checklist plus overlapping three-layer progressive retrieval model | one progressive recovery procedure | Orientation + Active-path normal progression with Triggered-depth as an explicit conditional side path | **REFINED / KEEP CONCEPT** | removes two competing organizations while preserving prerequisite live discovery before dependent Orientation conclusions and keeping Triggered depth conditional |
 
 ## P1 — runtime dimensions and authority ownership
 
@@ -99,7 +108,7 @@ Protected scenario families: `AK`, `AM`, `AV`, `CR`, `DB`, `DG`, `CP`, plus dirt
 | Baseline condition/consequence | Final representation | Lossless / precedence check |
 |---|---|---|
 | pending is dependency state, not failure | opening principle | retained |
-| independent useful work precedes waiting | opening + first row | explicit |
+| independent useful work precedes waiting while the dependency remains pending | opening + first row | explicit still-pending discriminator; terminal success/failure cannot also satisfy this row |
 | only after independent work is exhausted and pending is sole dependency should autonomous continuation be considered | opening + safe-continuation row predicate | discriminator added during self-audit; no row-order inference required |
 | bounded non-tight authoritative rechecks allowed only when transition plausibly due and synchronous waiting safe/proportionate | safe-continuation row alternative (a) | every guard retained locally |
 | bound continuation by expected duration, tool/runtime limits, diminishing value | same row | retained |
@@ -132,11 +141,12 @@ Protected scenario families: `C`, `AU`, `DD`.
 | new/replacement Master enters RECOVER before consequential mutation | opening sentence | retained |
 | progressive/bounded recovery rather than exhaustive reload | opening + three labeled layers | retained |
 | Orientation first: repository/repositories, target/default, checkout/worktrees, rules, capabilities | Orientation | retained |
-| Project Map **or equivalent truth-location index** if present; only relevant durable docs | Orientation | exact broader alternative restored |
-| establish active outcome/completion condition | Orientation | retained |
-| recover ProjectAuthority + Coordination independently | Orientation | retained |
-| recover affected-chain Assurance + exact ScopedAuthorization | Orientation | affected-chain scope restored explicitly |
-| identify active critical path/workstream | Orientation | retained |
+| Project Map **or equivalent truth-location index** if present; only relevant durable docs | Orientation | exact broader alternative restored; index is not treated as live status |
+| minimum live Issue/Project/milestone + PR/branch/check/dependency discovery needed for decision-valid Orientation conclusions | Orientation prerequisite | explicit MR-001 ordering guard; facts are read before conclusions that may depend on them |
+| establish active outcome/completion condition | Orientation after minimum live discovery | retained and now source-ordered |
+| recover ProjectAuthority + Coordination independently | Orientation after minimum live discovery | retained; no inference from capability/risk/assurance |
+| recover affected-chain Assurance + exact ScopedAuthorization | Orientation after minimum live discovery | affected-chain scope restored explicitly |
+| identify active critical path/workstream | Orientation after minimum live discovery | retained and now source-ordered |
 | chat loss alone never triggers root-spec load | Orientation guard | retained |
 | if project-level intent is already unresolved/materially contradicted at Orientation, root spec may be needed immediately | Orientation -> Triggered-depth side path | prevents a naive `1 -> 2 -> 3` rewrite from delaying required project-intent evidence |
 | active Issues/milestones/Projects/risks/assignments | Active-path | retained |
@@ -152,7 +162,7 @@ Protected scenario families: `C`, `AU`, `DD`.
 | large/long-lived repo narrows by workstream | final stop paragraph | retained |
 | later multi-repo/legacy/preflight/planned-transition/route-failure/material-drift safeguards | unchanged bytes after replacement boundary | protected outside migration region |
 
-P5's final form is intentionally **not a table**. The semantic is progressive retrieval with a conditional widening branch; long multi-purpose table cells obscure that flow and violate the methodology's own warning against tables whose cells become paragraphs. The refined labeled procedure exposes the normal path and conditional side path without turning recovery into a new state machine.
+P5's final form is intentionally **not a table**. The semantic is progressive retrieval with a conditional widening branch; long multi-purpose table cells obscure that flow and violate the methodology's own warning against tables whose cells become paragraphs. The refined labeled procedure exposes the normal path and conditional side path without turning recovery into a new state machine, and the MR-001 correction makes the prerequisite edge explicit: minimum live control-plane discovery precedes outcome/operating-dimension/critical-path conclusions.
 
 Protected scenario families: `I`, `AH`, `BG`, `BH`, `BY`, `DA` and the existing multi-repository/large-repository recovery cases.
 
@@ -163,7 +173,7 @@ Protected scenario families: `I`, `AH`, `BG`, `BH`, `BY`, `DA` and the existing 
 1. every byte outside the five declared canonical migration surfaces must remain equal to exact Phase C base;
 2. only those five runtime paths may differ under `skill/`;
 3. P4 must still equal the exact selected P4 prototype;
-4. refined P1/P2/P3/P5 must contain the semantic discriminators identified by this self-audit, including negative/non-implication guards;
+4. refined P1/P2/P3/P5 must contain the semantic discriminators identified by this self-audit, including negative/non-implication guards; P3 additionally rejects terminal-transition overlap with the pending+independent row, and P5 asserts minimum live discovery precedes dependent Orientation conclusions;
 5. P5 must not regress to the long-cell recovery table;
 6. state/boundary namespace token sets must remain unchanged per runtime file;
 7. accepted v1.2.3 complete-response machine-relay copy-target behavior must remain present unchanged.

@@ -175,7 +175,7 @@ For already-running CI/check/deployment/job, `pending` is dependency state, not 
 
 | Current condition | Required action |
 |---|---|
-| independent useful work still exists | Continue it before waiting; do not stop or wait solely because the dependency is pending. |
+| dependency is still pending; independent useful work still exists | Continue it before waiting; do not stop or wait solely because the dependency is pending. |
 | no independent useful work remains; `pending` is the sole dependency; a safe runtime-supported continuation path is available and still reasonable | Use either suitable runtime-supported path without inventing precedence: (a) bounded, non-tight authoritative rechecks only when a transition is plausibly due and synchronous waiting is safe/proportionate, bounded by expected job duration, tool/runtime limits, and diminishing value; or (b) a suitable real event/condition resume primitive. |
 | dependency resolves successfully | Immediately continue the existing workflow; do not require a user nudge. |
 | dependency fails | Stop waiting immediately, classify the failure, and continue the applicable remediation or independent-work path. |
