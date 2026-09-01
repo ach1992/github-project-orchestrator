@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "purpose": "Semantic/protected-behavior and diagnostic comparison contract for v1.2.2-baseline versus candidate decision representations inside the existing Phase 7 benchmark system; practical improvement requires separate actual-model-runtime A/B evidence.",
+  "purpose": "Semantic/protected-behavior and diagnostic comparison contract for v1.2.2-baseline versus candidate decision representations inside the existing Phase 7 benchmark system; actual-model/runtime A/B evidence is optional corroboration under the current program proof policy.",
   "baseline_ref": "f98e8a242c720931e34aa7c4e8a799090e3d0495",
   "evidence_policy": {
     "protected_behavior_is_hard_gate": true,
     "token_or_line_count_is_success_metric": false,
     "source_grounded_trace_is_model_performance_proof": false,
     "source_grounded_friction_is_diagnostic_only": true,
-    "practical_improvement_requires_actual_model_runtime_ab": true,
+    "actual_model_runtime_ab_is_optional_corroboration": true,
     "candidate_requires_material_improvement_before_migration": true
   },
   "comparison_cases": [

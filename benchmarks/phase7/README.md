@@ -13,7 +13,7 @@ This lane does not rewrite the historical `v1.0.0 -> v1.1.0` evidence above. It 
 - `runtime-optimization-baseline.json` — exact baseline identity and the mechanical semantic surfaces/predicate owners checked by `tools/check_runtime_equivalence.py`;
 - `traces-v1.2.2.json` — source-grounded v1.2.2 policy-simulation traces for the existing eight Phase 7 scenarios;
 - `runtime-optimization-scenarios.json` — the single semantic owner for the representation-comparison classes, protected behavior, eval anchors, exact model-trial inputs, and diagnostic measurements;
-- `MODEL-TRIAL-PROTOCOL.md` — the observable paired actual-model/runtime A/B protocol that is the only benchmark lane eligible to prove practical representation improvement;
+- `MODEL-TRIAL-PROTOCOL.md` — the observable paired actual-model/runtime A/B protocol for optional measured corroboration when a trustworthy controlled environment is available;
 - `model-trial-cases.json` — the non-semantic scoring/selection manifest that references `runtime-optimization-scenarios.json` and selects the same canonical case IDs without duplicating their meaning;
 - `tools/run_model_trials.py` — the auditable dry-run/live OpenAI-compatible paired execution and raw-evidence layer; it never self-scores semantic correctness;
 - `tools/score_model_trials.py` — the deterministic scorer for explicitly annotated paired observable A/B records;
@@ -23,7 +23,7 @@ This lane does not rewrite the historical `v1.0.0 -> v1.1.0` evidence above. It 
 
 `tools/score_phase7_benchmark.py --comparison-mode candidate` compares two full-SHA-pinned **source-grounded policy simulations**. In the representation-optimization program this mode checks protected behavior and reports diagnostic friction/context deltas only. It always reports `optimization_claim_eligible: false`. An identical baseline/candidate trace can therefore be valid, and a manually shortened candidate trace can be diagnostically smaller, without either result proving that an LLM is faster, more accurate, or less error-prone.
 
-Practical improvement may be accepted only from the separate paired actual-model/runtime A/B lane described in `MODEL-TRIAL-PROTOCOL.md`. That lane keeps model/runtime/settings/toolset identity fixed, alternates which representation runs first across pairs, scores only observable behavior, requires auditable transcript/tool-log references, hard-fails protected regressions, and requires a material paired improvement. It never requests or scores private chain-of-thought.
+The source-grounded comparison lane cannot by itself establish measured model/runtime performance. Current #35/#38/#39 policy may establish practical model-execution benefit from the broader structural, semantic, deterministic, scenario, maintenance/routing, and independent-review evidence model; the paired actual-model/runtime A/B lane in `MODEL-TRIAL-PROTOCOL.md` is optional corroboration when a trustworthy controlled environment is available. If used, that lane keeps model/runtime/settings/toolset identity fixed, alternates which representation runs first across pairs, scores only observable behavior, requires auditable transcript/tool-log references, hard-fails protected regressions, and requires a material paired improvement. It never requests or scores private chain-of-thought.
 
 `tools/run_model_trials.py` is intentionally below that scoring boundary: it validates and freezes pair construction, exact candidate/baseline identities, runtime/settings/toolset identity, input fingerprints and balanced order; it then captures only audit-safe observable execution evidence. Its scorer-shaped annotation template contains `null` observed judgments and cannot pass `score_model_trials.py` until a reviewer explicitly annotates the raw evidence.
 
@@ -62,7 +62,7 @@ Historical Phase 7 legitimately uses its source-grounded traces to document the 
 
 ### Actual model/runtime paired A/B evidence
 
-`MODEL-TRIAL-PROTOCOL.md` defines the evidence needed for a current representation-optimization claim. Each paired run compares the exact immutable v1.2.2 representation and one exact candidate on the same case under equivalent runtime identity/settings/tool availability. Only observable run behavior is scored.
+`MODEL-TRIAL-PROTOCOL.md` defines the evidence needed to claim a passing optional measured actual-model/runtime A/B result. Each paired run compares the exact immutable v1.2.2 representation and one exact candidate on the same case under equivalent runtime identity/settings/tool availability. Only observable run behavior is scored.
 
 `runtime-optimization-scenarios.json` remains the semantic owner for those cases and for the exact `trial_input` delivered to both sides of each pair. `model-trial-cases.json` only selects their IDs and defines scoring parameters such as minimum pair count, primary metrics, and sign-test alpha; CI requires both manifests to remain aligned.
 
@@ -155,4 +155,4 @@ python3 tests/test_run_model_trials.py
 python3 tests/test_model_trial_scorer.py
 ```
 
-A historical passing score still requires zero protected-behavior violations in both historical trace sets, full `G01`-`G16` scenario coverage, correct proportional coordination, and the historical friction result. A current representation candidate must preserve the immutable v1.2.2 semantic/protected-behavior gate **and separately pass actual comparable model/runtime A/B evidence before any practical optimization claim or migration is accepted**.
+A historical passing score still requires zero protected-behavior violations in both historical trace sets, full `G01`-`G16` scenario coverage, correct proportional coordination, and the historical friction result. A current representation candidate must preserve the immutable v1.2.2 semantic/protected-behavior gate. Actual comparable model/runtime A/B evidence is optional corroboration under the current #35/#38/#39 proof policy; absence of that optional lane is not a migration blocker, and source-grounded structural evidence must not be mislabeled as measured model performance.

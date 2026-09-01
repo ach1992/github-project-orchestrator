@@ -1,10 +1,10 @@
 # Runtime Representation Model-Trial Protocol
 
-Tracking: #35, #36 Contract Revision 2, #37, #47
+Tracking: #35 Contract Revision 3, #36, #37, #47, #38 Contract Revision 3, #39 Contract Revision 2
 
 ## Purpose
 
-Use actual comparable model/runtime executions to decide whether a lossless representation change makes the Skill materially easier and more reliable for an LLM to execute.
+Use actual comparable model/runtime executions as optional empirical corroboration when a trustworthy controlled environment is available, without making this lane a prerequisite for migration or final assurance.
 
 This protocol exists because a source-grounded policy simulation cannot prove model-performance improvement. If two representations preserve the same semantics, the prescribed correct behavior may legitimately be identical. Manually shortening a synthetic trace would therefore be evidence about the trace author, not evidence that a model executes the candidate better.
 
@@ -12,8 +12,10 @@ The evidence hierarchy is:
 
 1. **Mechanical equivalence** — objective baseline-derived invariants and regression tests.
 2. **Source-grounded policy simulation** — expected protected behavior and diagnostic structural/context deltas; never practical-performance proof by itself.
-3. **Actual model/runtime A/B trials** — the only evidence lane that may satisfy the practical-improvement requirement.
-4. **Semantic/high-assurance review** — checks that measured gains did not hide behavior loss, benchmark gaming, or maintenance/routing regressions.
+3. **Actual model/runtime A/B trials** — optional measured corroboration that may strengthen or challenge a structural/model-execution benefit assessment when the environment is trustworthy.
+4. **Semantic/high-assurance review** — checks that claimed gains did not hide behavior loss, benchmark gaming, or maintenance/routing regressions.
+
+Under the current #35/#38/#39 proof policy, live A/B is optional corroboration rather than a mandatory migration gate. Source-grounded structural evidence must still never be described as measured model/runtime performance, and any live A/B result that is used must satisfy this protocol.
 
 ## Trial unit
 
@@ -95,7 +97,7 @@ The default selection suite requires at least three paired runs per case. More r
 
 ## Hard gates
 
-A candidate cannot pass when any is true:
+A claimed passing empirical A/B result cannot satisfy this protocol when any is true:
 
 - candidate produces any protected-behavior violation in the selection suite;
 - candidate worsens wrong-next-action decisions or any other primary metric in **any required case**;
@@ -136,4 +138,4 @@ Therefore final adoption also requires:
 - review of trial construction/order/settings and input-fingerprint provenance;
 - repeat or broader trials when results are marginal, model-specific, or unstable.
 
-If no candidate passes this protocol, the correct Phase B result is **no runtime migration**.
+If no candidate passes this protocol, no passing empirical A/B corroboration has been established. Under the current program proof policy that absence does not by itself block migration; the governing structural/equivalence/review evidence must still independently justify any practical-benefit conclusion.

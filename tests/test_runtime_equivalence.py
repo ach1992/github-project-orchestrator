@@ -60,8 +60,10 @@ if evidence_policy.get("source_grounded_trace_is_model_performance_proof") is no
     raise AssertionError("source-grounded evidence must not claim independent model-performance proof")
 if evidence_policy.get("source_grounded_friction_is_diagnostic_only") is not True:
     raise AssertionError("source-grounded friction must remain diagnostic-only")
-if evidence_policy.get("practical_improvement_requires_actual_model_runtime_ab") is not True:
-    raise AssertionError("practical improvement must require actual model/runtime A/B evidence")
+if "practical_improvement_requires_actual_model_runtime_ab" in evidence_policy:
+    raise AssertionError("obsolete mandatory actual model/runtime A/B policy must not remain active")
+if evidence_policy.get("actual_model_runtime_ab_is_optional_corroboration") is not True:
+    raise AssertionError("actual model/runtime A/B must remain optional corroboration")
 if evidence_policy.get("candidate_requires_material_improvement_before_migration") is not True:
     raise AssertionError("candidate must still prove material improvement before migration")
 if evidence_policy.get("protected_behavior_is_hard_gate") is not True:
