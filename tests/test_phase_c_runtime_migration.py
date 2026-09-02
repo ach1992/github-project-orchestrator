@@ -326,14 +326,18 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
             "Recover progressively: start with orientation, enter the active path normally, and widen only when a concrete trigger makes deeper context decision-relevant.",
             "`Triggered depth` is a conditional side path that may become necessary from orientation or from the active path; it is not a mandatory third phase.",
             "**Orientation spine — always first.**",
+            "1. **Execution identity.** Identify repository/repositories, target/default branches, checkout/worktrees, repository rules, and current capabilities.",
+            "2. **Truth locations and minimum live evidence.**",
             "Project Map or equivalent truth-location index",
-            "Before establishing any still-unresolved conclusion below, follow only the minimum live control-plane pointers",
+            "Before establishing any still-unresolved conclusion in steps 3–4, follow only the minimum live control-plane pointers",
             "active Issue/Project/milestone and PR/branch/check/dependency state",
-            "Then establish the active project outcome/completion condition",
-            "active project outcome/completion condition",
+            "3. **Control state.** Establish the active project outcome/completion condition",
             "recover `ProjectAuthority` and `CoordinationBaseline` independently",
             "recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`",
+            "4. **Active workstream identity.** Identify the active critical path/workstream from the applicable authoritative evidence.",
+            "**Triggered-depth interrupt.**",
             "chat loss alone is not a trigger",
+            "already present during orientation",
             "enter only that needed depth now rather than forcing unrelated active-path reading first",
             "**Active-path context — normal next layer.**",
             "**Triggered depth — conditional side path.**",
@@ -345,17 +349,25 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
     )
     orientation = extract_between(
         recovery,
-        "- **Orientation spine — always first.**",
+        "**Orientation spine — always first.**",
         "- **Active-path context — normal next layer.**",
     )
-    discovery = "Before establishing any still-unresolved conclusion below"
-    conclusion = "Then establish the active project outcome/completion condition"
+    identity = "1. **Execution identity.**"
+    truth = "2. **Truth locations and minimum live evidence.**"
+    discovery = "Before establishing any still-unresolved conclusion in steps 3–4"
+    conclusion = "3. **Control state.** Establish the active project outcome/completion condition"
+    workstream = "4. **Active workstream identity.**"
+    interrupt = "**Triggered-depth interrupt.**"
     # Zero chat + no useful status hint + Project Map as pointers only must still read
     # the minimum live control plane before deriving outcome/Authority/critical path.
+    assert orientation.index(identity) < orientation.index(truth)
     assert orientation.index("Project Map or equivalent truth-location index") < orientation.index(discovery)
     assert orientation.index(discovery) < orientation.index(conclusion)
+    assert orientation.index(conclusion) < orientation.index(workstream)
+    assert orientation.index(workstream) < orientation.index(interrupt)
     assert "from the applicable authoritative evidence" in orientation
     assert "chat loss alone is not a trigger" in orientation
+    assert "already present during orientation" in orientation
     assert "| Recovery layer | Required work |" not in recovery
 
 
