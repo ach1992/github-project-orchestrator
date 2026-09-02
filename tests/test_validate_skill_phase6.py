@@ -8,7 +8,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.dont_write_bytecode = True
+sys.dont_writebytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "tools" / "validate_skill.py"
@@ -234,6 +234,7 @@ def worker_contract_tests() -> None:
     )
 
 
+
 def machine_relay_transport_regression_tests() -> None:
     skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
     project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
@@ -304,13 +305,9 @@ def coordination_baseline_governance_regression_tests() -> None:
     if required not in lightweight:
         raise AssertionError("LIGHTWEIGHT no longer ties migration/security/release exclusions to material coordination")
 
-    forbidden = (
-        "no material multi-item dependency, migration",
-        "security/data blast radius",
-    )
-    for phrase in forbidden:
-        if phrase in lightweight:
-            raise AssertionError(f"legacy concern=>STANDARD implication returned: {phrase}")
+    legacy = "no material multi-item dependency, migration, production/release coordination, or security/data blast radius"
+    if legacy in lightweight:
+        raise AssertionError("legacy concern=>STANDARD implication returned")
 
     if "`LIGHTWEIGHT` for bounded low-coordination outcomes" not in skill_text:
         raise AssertionError("canonical CoordinationBaseline ontology no longer defines LIGHTWEIGHT by coordination shape")
