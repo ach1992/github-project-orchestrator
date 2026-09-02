@@ -1,6 +1,6 @@
 # Refactor Migration Plan
 
-Status: **completed historical migration record** for the v1.0.0 -> v1.1.0 refactor. Phases 0-8 are complete; `v1.1.0-rc.1` was independently reviewed and delivered. Current stable-release readiness is tracked in GitHub Issue #19 rather than by reopening these phases.
+Status: **completed historical migration record** for the v1.0.0 -> v1.1.0 refactor. Phases 0-8 are complete; `v1.1.0-rc.1` was independently reviewed and delivered. Historical stable-release readiness after that candidate was tracked in GitHub Issue #19; current release state lives in `CHANGELOG.md`, GitHub Releases, and any active release Issue rather than by reopening these phases.
 
 The phase descriptions and exit gates below are retained as design provenance. Their imperative wording records what each phase was required to achieve; it is not a current backlog.
 
