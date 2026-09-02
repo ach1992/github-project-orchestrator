@@ -94,11 +94,23 @@ For substantive self-authored work:
 |---|---|
 | `MANAGE` | Confirm outcome and explicit contract when present; verify dependencies, RiskLevel, CoordinationBaseline/AssuranceLevel, ProjectAuthority/ScopedAuthorization as relevant, base/branch, acceptance, validation. FAST may use request + repository evidence. For dirty worktree, identify pre-task paths/hunks before editing. Never stash/reset/clean/checkout-overwrite/amend/absorb unrelated changes; if ownership ambiguous, safely isolate branch/worktree or edit only verified-safe files. |
 | `TRACE` | Before editing, inspect execution path, tests, interfaces, and conventions enough to distinguish root cause from symptom. |
-| `IMPLEMENT` | Make the smallest correct change that satisfies the accepted requirement or fixes the evidenced root cause. Reuse existing architecture when it remains fit and preserve compatibility obligations required by accepted scope. When a structural change is materially relevant to accepted work, keep it bounded to that work and use it only when necessary for correct implementation or supported by current evidence that its material benefit to that work outweighs implementation, maintenance, complexity, and regression risk. Avoid unrelated cleanup/abstraction. Verify primary docs for version-sensitive APIs/dependencies/platform behavior. Performance work: establish representative baseline/constraint, identify bottleneck with profiling/high-signal evidence when practical, compare same workload after change; never trade correctness/security/maintainability for unmeasured optimization. |
+| `IMPLEMENT` | Apply the implementation rule set below; its rows keep distinct concepts separate, and row order does not create precedence. |
 | `VALIDATE` | Narrowest high-signal checks first, then broader required checks; separate baseline failures from regressions. Pre-existing failure/debt/warning/unrelated defect enters scope only if it blocks acceptance/integration, creates material safety risk, or belongs to active outcome; otherwise follow up only when actionable/worth tracking. Inspect working tree + full relevant diff. |
 | `REVIEW` | Reviewer mindset; re-read acceptance; inspect correctness, security, compatibility, data/migration, operations, tests, unintended scope, and fit with existing behavior. |
 | `CORRECT / RE-REVIEW` | Fix required findings; material scope/RiskLevel change returns to MANAGE. |
 | `INTEGRATE` | Repository-normal path/policy + canonical ApplicableEffects/gates. |
+
+**`IMPLEMENT` rule set — apply every applicable row; row order does not define precedence.**
+
+| Implementation facet | Required behavior |
+|---|---|
+| Correctness / root cause | Make the smallest correct change that satisfies the accepted requirement or fixes the evidenced root cause. |
+| Architecture fitness | Reuse existing architecture when it remains fit. |
+| Structural change | When a structural change is materially relevant to accepted work, keep it bounded to that work and use it only when necessary for correct implementation or supported by current evidence that its material benefit to that work outweighs implementation, maintenance, complexity, and regression risk. |
+| Compatibility | Preserve compatibility obligations required by accepted scope. |
+| Scope discipline | Avoid unrelated cleanup/abstraction. |
+| Version-sensitive contracts | Verify primary docs for version-sensitive APIs/dependencies/platform behavior. |
+| Performance work | Establish a representative baseline/constraint, identify the bottleneck with profiling/high-signal evidence when practical, and compare the same workload after the change; never trade correctness/security/maintainability for unmeasured optimization. |
 
 Self-review is not independent review; obtain separation only when policy, RiskLevel, or AssuranceLevel requires it.
 
