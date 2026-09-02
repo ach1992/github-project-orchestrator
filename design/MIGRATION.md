@@ -161,7 +161,7 @@ Primary goals: `G03`, `G04`, `G06`, `G08`, `G12`, `G13`, `G14`, `G15`.
 
 Strengthen behaviors that are present in v1.0.0 but need explicit operational coverage:
 - continuous/event-driven plan validity and project-health reassessment;
-- architecture evolution and developer-feedback-loop improvement when justified;
+- architecture and engineering-system fitness correction when accepted work or evidence-backed material net value justifies it;
 - component/workstream ownership boundaries for large projects;
 - multi-repository dependency/release coherence without duplicate central backlog;
 - bounded cold-recovery cost;
