@@ -289,11 +289,43 @@ def machine_relay_transport_regression_tests() -> None:
         raise AssertionError("review output path does not point back to the canonical predicate")
     print("PASS machine-relay-pre-send-canonical-owner")
 
+
+def coordination_baseline_governance_regression_tests() -> None:
+    governance_text = (ROOT / "skill" / "references" / "governance.md").read_text(encoding="utf-8")
+    skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
+    engineering_text = (ROOT / "skill" / "references" / "engineering-quality.md").read_text(encoding="utf-8")
+
+    lightweight = governance_text.split("### `CoordinationBaseline=LIGHTWEIGHT`", 1)[1].split(
+        "### `CoordinationBaseline=STANDARD`", 1
+    )[0]
+    required = (
+        "no material multi-item dependency or material coordination arising from migration, "
+        "production/release, or security/data concerns"
+    )
+    if required not in lightweight:
+        raise AssertionError("LIGHTWEIGHT no longer ties migration/security/release exclusions to material coordination")
+
+    legacy = "no material multi-item dependency, migration, production/release coordination, or security/data blast radius"
+    if legacy in lightweight:
+        raise AssertionError("legacy concern=>STANDARD implication returned")
+
+    if "`LIGHTWEIGHT` for bounded low-coordination outcomes" not in skill_text:
+        raise AssertionError("canonical CoordinationBaseline ontology no longer defines LIGHTWEIGHT by coordination shape")
+    if (
+        "Concern selection by itself never changes accepted scope, `RiskLevel`, `AssuranceLevel`, `ExecutionPath`, "
+        "`CoordinationBaseline`, `ProjectAuthority`, or approval requirements."
+        not in engineering_text
+    ):
+        raise AssertionError("engineering concern selection no longer preserves dimension orthogonality")
+    print("PASS coordination-baseline-concern-orthogonality")
+
+
 def main() -> None:
     traceability_tests()
     state_tests()
     worker_contract_tests()
     machine_relay_transport_regression_tests()
+    coordination_baseline_governance_regression_tests()
 
 
 if __name__ == "__main__":

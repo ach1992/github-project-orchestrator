@@ -165,15 +165,9 @@ def test_declared_runtime_scope_only() -> None:
         ),
     )
 
-    changed = subprocess.run(
-        ["git", "diff", "--name-only", BASE, "HEAD", "--", "skill"],
-        cwd=ROOT,
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    ).stdout.splitlines()
-    assert set(changed) == set(RUNTIME_PATHS)
+    # The original candidate-only BASE..HEAD changed-path equality served Phase C
+    # scope review, but current HEAD can legitimately contain later Skill evolution.
+    # Keep the per-owner region/fingerprint guards below as the durable semantic tripwire.
 
 
 def test_machine_relay_hardening_is_bounded_from_checkpoint() -> None:

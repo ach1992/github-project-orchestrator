@@ -160,7 +160,7 @@ Do not turn `AGENTS.md` into a live backlog, worker registry, or Master handoff 
 
 ### `CoordinationBaseline=LIGHTWEIGHT`
 
-Use for a bounded outcome with low coordination overhead and no material multi-item dependency, migration, production/release coordination, or security/data blast radius. One bounded delegated workstream may fit when delegation materially improves specialization or throughput without creating material coordination; it still uses the full Worker contract/READY/identity envelope and `ExecutionPath=FULL`. Prefer existing repo docs, transient or compact persisted work descriptions only when useful, targeted tests, and minimal labels. Use PRs for code when practical or when repository policy requires them. Avoid Projects/ADRs/process docs unless they solve a real need.
+Use for a bounded outcome with low coordination overhead and no material multi-item dependency or material coordination arising from migration, production/release, or security/data concerns. One bounded delegated workstream may fit when delegation materially improves specialization or throughput without creating material coordination; it still uses the full Worker contract/READY/identity envelope and `ExecutionPath=FULL`. Prefer existing repo docs, transient or compact persisted work descriptions only when useful, targeted tests, and minimal labels. Use PRs for code when practical or when repository policy requires them. Avoid Projects/ADRs/process docs unless they solve a real need.
 
 ### `CoordinationBaseline=STANDARD`
 
