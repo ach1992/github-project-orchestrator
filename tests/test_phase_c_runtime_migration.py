@@ -377,6 +377,7 @@ def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:
     assert "No separate request for copy-ready formatting is required" in historical_skill
 
 
+
 def main() -> None:
     test_declared_runtime_scope_only()
     test_machine_relay_hardening_is_bounded_from_checkpoint()
