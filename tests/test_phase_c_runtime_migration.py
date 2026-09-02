@@ -165,15 +165,9 @@ def test_declared_runtime_scope_only() -> None:
         ),
     )
 
-    changed = subprocess.run(
-        ["git", "diff", "--name-only", BASE, "HEAD", "--", "skill"],
-        cwd=ROOT,
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    ).stdout.splitlines()
-    assert set(changed) == set(RUNTIME_PATHS)
+    # The original candidate-only BASE..HEAD changed-path equality served Phase C
+    # scope review, but current HEAD can legitimately contain later Skill evolution.
+    # Keep the per-owner region/fingerprint guards below as the durable semantic tripwire.
 
 
 def test_machine_relay_hardening_is_bounded_from_checkpoint() -> None:
@@ -381,7 +375,6 @@ def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:
     historical_skill = base(SKILL)
     assert "Every machine relay emitted in a user-visible response is automatically a copy/paste artifact" in historical_skill
     assert "No separate request for copy-ready formatting is required" in historical_skill
-
 
 
 def main() -> None:
