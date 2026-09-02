@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.1] - 2026-09-02
+
+### Changed
+
+- Reframed architecture handling around **fitness for accepted work** rather than preservation or novelty: reuse existing architecture when it remains fit, and permit bounded structural change when correct implementation requires it or current evidence shows material net benefit to that accepted work.
+- Expanded the implementation rule from root-cause-only structural exceptions to accepted-requirement-aware engineering, so a legitimate feature can evolve an internal boundary without first pretending the existing structure is itself a defect.
+- Reconciled `G05`, `G06`, and `G15` traceability and Scenario `BA` so architecture-fit implementation, engineering-system enabling work, and proactive improvement remain distinct owners instead of overlapping objectives.
+
+### Fixed
+
+- Removed the over-broad architecture-preservation wording that could bias the Master toward keeping an unfit internal boundary or internal contract merely because it already existed.
+- Tightened the architecture-fitness hot path so cross-task `repeated outcome-linked work` no longer becomes an extra refactor justification inside normal `IMPLEMENT`; recurring delivery/review/analysis friction remains covered by the existing outcome-linked enabling-work path with remaining-outcome and near-term-payback constraints.
+- Bound historical Phase C scope/fingerprint checks to the immutable published `v1.3.0@52a9c56210e9ecd1bbc91170de40131658dbd4e9` snapshot rather than future current HEAD, so later legitimate Skill evolution cannot create a false historical-composition failure while current semantic guards continue to inspect current runtime behavior.
+
+### Runtime compatibility
+
+- No new lifecycle/status namespace, `ProjectAuthority`/`ScopedAuthorization` rule, approval-effect gate, Worker lifecycle, FAST/FULL selector, review/integration rule, release/delivery state, parser, registry, or external runtime dependency is introduced.
+- Existing architecture remains preferred when fit; theoretical elegance alone is not sufficient reason to refactor, and material adjacent improvements remain outside accepted scope unless separately accepted.
+- No controlled live actual-model A/B performance claim is made. Release confidence is based on source-grounded adversarial behavior review plus deterministic repository validation, CI, packaging, and exact release-identity checks.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.3.0] - 2026-09-02
 
 ### Changed
