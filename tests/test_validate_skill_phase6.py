@@ -131,6 +131,101 @@ def traceability_tests() -> None:
         )
 
 
+def supplemental_eval_index_tests() -> None:
+    index = (
+        "### Supplemental retrieval index\n\n"
+        "Rule/Goal anchors are seeds.\n\n"
+        "| Change surface | Supplemental eval IDs |\n"
+        "|---|---|\n"
+        "| fixture | `C` |\n\n"
+    )
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        skill, eval_path, rule_path, goal_path = write_trace_fixture(root)
+        base = "### A. One\n\n### B. Two\n\n### C. Three\n"
+
+        eval_path.write_text(index + base, encoding="utf-8")
+        validator.validate_traceability(root, skill)
+        print("PASS supplemental-eval-valid")
+
+        eval_path.write_text(base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-missing-index",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios require a supplemental retrieval index",
+        )
+
+        legacy_base = "### A. One\n\n### B. Two\n\n### C. Three\n"
+        eval_path.write_text(legacy_base, encoding="utf-8")
+        validator.validate_traceability(root, skill, allow_legacy_unindexed_evals=True)
+        print("PASS supplemental-eval-legacy-pre-dk-compatibility")
+
+        # Build contiguous AA..DK headings without relying on repository content.
+        def eval_id(value: int) -> str:
+            chars = []
+            while value:
+                value, remainder = divmod(value - 1, 26)
+                chars.append(chr(ord("A") + remainder))
+            return "".join(reversed(chars))
+
+        current_like = "".join(f"### {eval_id(i)}. Fixture {i}\n\n" for i in range(1, validator.eval_id_to_int("DK") + 1))
+        eval_path.write_text(current_like, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-legacy-flag-rejected-for-current-inventory",
+            lambda: validator.validate_traceability(
+                root, skill, allow_legacy_unindexed_evals=True
+            ),
+            "Legacy unindexed-eval compatibility is allowed only for pre-v1.3.2 eval inventories ending at or before DJ",
+        )
+
+        eval_path.write_text(index.replace("`C`", "`D`") + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-missing-id",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs",
+        )
+
+        eval_path.write_text(index + base + "\n### D. Four\n", encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-new-unindexed-scenario",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
+        )
+
+        duplicate_index = index.replace("| fixture | `C` |", "| fixture | `C` |\n| duplicate | `C` |")
+        eval_path.write_text(duplicate_index + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-duplicate-id",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index contains duplicate evaluation IDs",
+        )
+
+        eval_path.write_text(index.replace("`C`", "`C1`") + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-invalid-id",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index contains invalid evaluation ID syntax",
+        )
+
+        anchored_rules = rule_path.read_text(encoding="utf-8").replace("| B |", "| B, C |")
+        rule_path.write_text(anchored_rules, encoding="utf-8")
+        eval_path.write_text(index + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-anchored-duplication",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index must contain only Rule/Goal-unanchored evaluation IDs",
+        )
+
+        rule_path.write_text(anchored_rules.replace("| B, C |", "| B |"), encoding="utf-8")
+        eval_path.write_text(index + "### A. One\n\n### B. Two\n", encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-deleted-scenario",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs",
+        )
+
+
 def state_tests() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         skill = Path(tmp) / "skill"
@@ -322,6 +417,7 @@ def coordination_baseline_governance_regression_tests() -> None:
 
 def main() -> None:
     traceability_tests()
+    supplemental_eval_index_tests()
     state_tests()
     worker_contract_tests()
     machine_relay_transport_regression_tests()

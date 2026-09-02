@@ -136,7 +136,7 @@ def main() -> None:
             dst = root / path
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_bytes(git_bytes("show", f"{SOURCE_REF}:{path}"))
-        result = subprocess.run([sys.executable, str(ROOT / "tools" / "validate_skill.py"), str(root / "skill")], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run([sys.executable, str(ROOT / "tools" / "validate_skill.py"), str(root / "skill"), "--allow-legacy-unindexed-evals"], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode:
             raise AssertionError(result.stderr.strip() or result.stdout.strip())
     print("PASS progressive-recovery isolation-state-surface-validation")

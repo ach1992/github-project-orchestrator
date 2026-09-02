@@ -259,7 +259,7 @@ def main() -> None:
         for source_path in ("design/RULE-MAP.md", "design/GOAL-MAP.md", "docs/PROJECT-SPEC.md"):
             write_source_file(SOURCE_REF, source_path, temp_root / source_path)
         validation = subprocess.run(
-            [sys.executable, str(ROOT / "tools" / "validate_skill.py"), str(temp_root / "skill")],
+            [sys.executable, str(ROOT / "tools" / "validate_skill.py"), str(temp_root / "skill"), "--allow-legacy-unindexed-evals"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,

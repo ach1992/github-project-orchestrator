@@ -34,6 +34,8 @@ FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
 LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|mailto:|#)([^)]+)\)")
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 EVAL_HEADING_RE = re.compile(r"^###\s+([A-Z]+)\.\s+", re.MULTILINE)
+SUPPLEMENTAL_EVAL_HEADING = "### Supplemental retrieval index"
+LEGACY_UNINDEXED_EVAL_MAX_ID = "DJ"
 PROJECT_GOAL_ROW_RE = re.compile(r"^\|\s*`(G\d{2})`(?:\s+[^|]*)?\s*\|", re.MULTILINE)
 GOAL_ROW_RE = re.compile(
     r"^\|\s*`(?P<goal>G\d{2})`(?:\s+[^|]*)?\s*\|\s*(?P<rules>.*?)\s*\|\s*(?P<evals>.*?)\s*\|\s*(?P<coverage>.*?)\s*\|\s*$",
@@ -207,7 +209,50 @@ def parse_eval_anchors(cell: str, context: str) -> set[str]:
     return set(values)
 
 
-def validate_traceability(repo_root: Path, skill_dir: Path) -> None:
+def parse_supplemental_eval_ids(text: str) -> set[str] | None:
+    marker = f"{SUPPLEMENTAL_EVAL_HEADING}\n"
+    count = text.count(marker)
+    if count == 0:
+        return None
+    if count != 1:
+        fail("Supplemental retrieval index must appear exactly once")
+
+    section = text.split(marker, 1)[1]
+    next_h2 = re.search(r"(?m)^##\s+", section)
+    if next_h2:
+        section = section[: next_h2.start()]
+
+    observed: list[str] = []
+    for line in section.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) != 2:
+            fail(f"Supplemental retrieval index row must have exactly two columns: {line}")
+        surface, eval_cell = cells
+        if surface == "Change surface":
+            continue
+        if all(set(cell) <= {"-", ":", " "} for cell in cells):
+            continue
+        if not surface:
+            fail("Supplemental retrieval index surface must not be empty")
+        ids = [part.strip().strip("`") for part in eval_cell.split(",") if part.strip()]
+        if not ids:
+            fail(f"Supplemental retrieval index row {surface!r} must include evaluation IDs")
+        invalid = [value for value in ids if not re.fullmatch(r"[A-Z]+", value)]
+        if invalid:
+            fail(f"Supplemental retrieval index contains invalid evaluation ID syntax: {invalid}")
+        observed.extend(ids)
+
+    duplicates = sorted(value for value, count in Counter(observed).items() if count > 1)
+    if duplicates:
+        fail(f"Supplemental retrieval index contains duplicate evaluation IDs: {duplicates}")
+    return set(observed)
+
+
+def validate_traceability(
+    repo_root: Path, skill_dir: Path, *, allow_legacy_unindexed_evals: bool = False
+) -> None:
     rule_map_path = repo_root / "design" / "RULE-MAP.md"
     goal_map_path = repo_root / "design" / "GOAL-MAP.md"
     project_spec_path = repo_root / "docs" / "PROJECT-SPEC.md"
@@ -217,7 +262,8 @@ def validate_traceability(repo_root: Path, skill_dir: Path) -> None:
     if missing_files:
         fail(f"Traceability source files are missing: {missing_files}")
 
-    eval_ids = validate_eval_ids(eval_path.read_text(encoding="utf-8"))
+    eval_text = eval_path.read_text(encoding="utf-8")
+    eval_ids = validate_eval_ids(eval_text)
 
     rule_text = rule_map_path.read_text(encoding="utf-8")
     rule_matches = list(RULE_ROW_RE.finditer(rule_text))
@@ -229,12 +275,14 @@ def validate_traceability(repo_root: Path, skill_dir: Path) -> None:
         fail(f"Duplicate canonical Rule rows/owners in design/RULE-MAP.md: {duplicate_rules}")
 
     rule_id_set = set(rule_ids)
+    rule_eval_ids: set[str] = set()
     for match in rule_matches:
         rule_id = match.group("rule")
         owner = match.group("owner").strip().strip("`").strip()
         if not owner:
             fail(f"Rule {rule_id} is missing a canonical owner")
         anchors = parse_eval_anchors(match.group("evals"), f"Rule {rule_id}")
+        rule_eval_ids.update(anchors)
         missing_anchors = sorted(anchors - eval_ids, key=eval_id_to_int)
         if missing_anchors:
             fail(f"Rule {rule_id} references missing evaluation IDs: {missing_anchors}")
@@ -266,6 +314,7 @@ def validate_traceability(repo_root: Path, skill_dir: Path) -> None:
         )
 
     mapped_rules: set[str] = set()
+    goal_eval_ids: set[str] = set()
     for match in goal_matches:
         goal_id = match.group("goal")
         referenced_rules = set(INLINE_RULE_RE.findall(match.group("rules")))
@@ -275,6 +324,7 @@ def validate_traceability(repo_root: Path, skill_dir: Path) -> None:
         mapped_rules.update(referenced_rules)
 
         anchors = parse_eval_anchors(match.group("evals"), f"Goal {goal_id}")
+        goal_eval_ids.update(anchors)
         missing_anchors = sorted(anchors - eval_ids, key=eval_id_to_int)
         if missing_anchors:
             fail(f"Goal {goal_id} references missing evaluation IDs: {missing_anchors}")
@@ -282,6 +332,44 @@ def validate_traceability(repo_root: Path, skill_dir: Path) -> None:
     orphan_rules = sorted(rule_id_set - mapped_rules)
     if orphan_rules:
         fail(f"Canonical Rule IDs are not mapped to any Goal in design/GOAL-MAP.md: {orphan_rules}")
+
+
+    anchored_eval_ids = rule_eval_ids | goal_eval_ids
+    unanchored_eval_ids = eval_ids - anchored_eval_ids
+    supplemental_eval_ids = parse_supplemental_eval_ids(eval_text)
+    if supplemental_eval_ids is None:
+        if unanchored_eval_ids:
+            if allow_legacy_unindexed_evals:
+                if max(eval_id_to_int(value) for value in eval_ids) > eval_id_to_int(
+                    LEGACY_UNINDEXED_EVAL_MAX_ID
+                ):
+                    fail(
+                        "Legacy unindexed-eval compatibility is allowed only for pre-v1.3.2 eval inventories ending at or before DJ"
+                    )
+            else:
+                fail(
+                    "Unanchored evaluation scenarios require a supplemental retrieval index: "
+                    f"{sorted(unanchored_eval_ids, key=eval_id_to_int)}"
+                )
+    else:
+        unknown_supplemental = supplemental_eval_ids - eval_ids
+        if unknown_supplemental:
+            fail(
+                "Supplemental retrieval index references missing evaluation IDs: "
+                f"{sorted(unknown_supplemental, key=eval_id_to_int)}"
+            )
+        duplicate_anchor_coverage = supplemental_eval_ids & anchored_eval_ids
+        if duplicate_anchor_coverage:
+            fail(
+                "Supplemental retrieval index must contain only Rule/Goal-unanchored evaluation IDs: "
+                f"{sorted(duplicate_anchor_coverage, key=eval_id_to_int)}"
+            )
+        missing_supplemental = unanchored_eval_ids - supplemental_eval_ids
+        if missing_supplemental:
+            fail(
+                "Unanchored evaluation scenarios are missing from the supplemental retrieval index: "
+                f"{sorted(missing_supplemental, key=eval_id_to_int)}"
+            )
 
 
 def validate_state_tokens(skill_dir: Path) -> None:
@@ -333,6 +421,14 @@ def main() -> int:
         type=Path,
         help="Compare the supplied Skill source exactly against this SHA-256 baseline manifest.",
     )
+    parser.add_argument(
+        "--allow-legacy-unindexed-evals",
+        action="store_true",
+        help=(
+            "Compatibility only for frozen pre-v1.3.2 prototype fixtures whose eval inventory predates DK; "
+            "never valid for current v1.3.2+ Skill validation."
+        ),
+    )
     args = parser.parse_args()
 
     skill_dir = args.skill_dir.resolve()
@@ -342,7 +438,11 @@ def main() -> int:
     if args.baseline_manifest is None:
         validate_direct_router(skill_dir)
         validate_state_tokens(skill_dir)
-        validate_traceability(skill_dir.parent, skill_dir)
+        validate_traceability(
+            skill_dir.parent,
+            skill_dir,
+            allow_legacy_unindexed_evals=args.allow_legacy_unindexed_evals,
+        )
     validate_python(skill_dir)
     if args.baseline_manifest is not None:
         validate_baseline(skill_dir, args.baseline_manifest.resolve())

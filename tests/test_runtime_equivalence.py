@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Adversarial fixtures for the immutable v1.2.2 runtime-equivalence gate."""
+"""Adversarial fixtures for historical v1.2.2 and current v1.3.2 representation controls."""
 from __future__ import annotations
 
 import copy
@@ -27,6 +27,24 @@ result = eq.check_repository(ROOT, copy.deepcopy(config))
 if not result["ok"]:
     raise AssertionError(result)
 print("PASS immutable-v1.2.2-baseline-equivalence")
+if result["current_eval_control"]["ref"] != eq.CURRENT_EVAL_CONTROL_REF:
+    raise AssertionError("current eval control ref mismatch")
+if "DK" not in result["current_eval_control"]["eval_ids"]:
+    raise AssertionError("v1.3.2 current eval control must include DK")
+if "DK" in result["baseline_inventory"]["eval_ids"]:
+    raise AssertionError("historical v1.2.2 baseline unexpectedly includes DK")
+print("PASS immutable-v1.3.2-current-eval-control")
+
+bad_config = copy.deepcopy(config)
+bad_config["schema_version"] = 1
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "unsupported runtime optimization baseline schema_version" not in str(exc):
+        raise
+    print("PASS baseline-config-schema-v1-rejected")
+else:
+    raise AssertionError("baseline-config-schema-v1: unexpectedly passed")
 
 bad_config = copy.deepcopy(config)
 bad_config["baseline_ref"] = "0" * 40
@@ -49,6 +67,35 @@ except ValueError as exc:
     print("PASS baseline-version-drift-rejected")
 else:
     raise AssertionError("baseline-version-drift: unexpectedly passed")
+
+bad_config = copy.deepcopy(config)
+bad_config["current_eval_control"]["ref"] = "0" * 40
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "current eval control ref must remain pinned" not in str(exc):
+        raise
+    print("PASS current-eval-control-ref-drift-rejected")
+else:
+    raise AssertionError("current-eval-control-ref-drift: unexpectedly passed")
+
+bad_config = copy.deepcopy(config)
+bad_config["current_eval_control"]["version"] = "9.9.9"
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "current eval control version must remain pinned" not in str(exc):
+        raise
+    print("PASS current-eval-control-version-drift-rejected")
+else:
+    raise AssertionError("current-eval-control-version-drift: unexpectedly passed")
+
+control_ids = result["current_eval_control"]["eval_ids"]
+without_dk = [value for value in control_ids if value != "DK"]
+current_errors, _current_notes = eq.compare_current_eval_control(control_ids, without_dk)
+if not any("current v1.3.2 evaluation scenarios removed: ['DK']" in error for error in current_errors):
+    raise AssertionError(f"current eval control did not reject DK loss: {current_errors}")
+print("PASS current-v1.3.2-dk-loss-rejected")
 
 lane = json.loads(LANE.read_text(encoding="utf-8"))
 if lane.get("schema_version") != 1:
