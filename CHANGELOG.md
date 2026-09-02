@@ -2,6 +2,32 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.0] - 2026-09-02
+
+### Changed
+
+- Completed the Phase C lossless runtime decision-representation migration across the selected P1-P5 families: runtime-dimension stability/non-implication locality, Worker assignment-owner deduplication, discriminated pending-job continuation, one canonical `WriteState.UNKNOWN` recovery algorithm, and progressive cold recovery with conditional triggered depth.
+- Hardened MachineRelay rendering with one canonical pre-send `MACHINE_RELAY_OUTPUT_OK(response)` predicate while keeping domain payload ownership singular and ordinary direct user-facing responses outside the relay predicate.
+- Reframed actual model/runtime A/B trials as optional corroboration under the accepted proof policy; deterministic equivalence, source-grounded structural evidence, protected-behavior gates, and independent review remain required without mislabeling structural evidence as measured model performance.
+- Added auditable model-trial runner/scorer infrastructure, Phase C migration evidence/experiments, composition guards, and broader CI coverage for the migrated representation families.
+
+### Fixed
+
+- `CoordinationBaseline=LIGHTWEIGHT` is now selected from actual coordination shape: migration, production/release, or security/data concerns require `STANDARD` only when they create material coordination needs, while their independent Risk/Assurance/Execution/Release controls remain fully applicable.
+- Retired only the obsolete candidate-era Phase C changed-path equality so future legitimate Skill evolution does not fail a historical composition assumption; P1-P5/#64 fingerprints, semantic guards, and state-namespace protections remain intact.
+- Reconciled release-facing documentation so the public README reports the current release and historical migration/design documents no longer present closed readiness work as current.
+
+### Runtime compatibility
+
+- This release is intentionally lossless with respect to protected orchestration semantics: no new lifecycle/status namespace, ProjectAuthority/ScopedAuthorization expansion, approval-effect shortcut, Worker lifecycle, delivery-state model, integration/release gate, parser, registry, or external runtime dependency is introduced.
+- `LIGHTWEIGHT + FULL`, `LIGHTWEIGHT + HIGH_ASSURANCE`, and other independently valid dimension combinations remain supported when their canonical criteria require them.
+- The immutable `v1.2.2@f98e8a242c720931e34aa7c4e8a799090e3d0495` representation baseline remains historical comparison evidence and is not rebased to this release.
+- No controlled live actual-model A/B performance claim is made; the release evidence is semantic, structural, deterministic, CI/package, and independent-review evidence.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.2.3] - 2026-08-31
 
 ### Fixed

@@ -120,7 +120,7 @@ An abstraction replaces prose only when it reduces ambiguity, duplication, execu
 
 ## 6. Runtime loading and decision-friction target
 
-The future `SKILL.md` should remain a compact control kernel containing only the state/role model, universal invariants, Master control loop, source-of-truth model, event router, and terminal rules necessary for orientation.
+`SKILL.md` should remain a compact control kernel containing only the state/role model, universal invariants, Master control loop, source-of-truth model, event router, and terminal rules necessary for orientation.
 
 Detailed domains should load when their event becomes decision-relevant, for example:
 - governance/readiness when repository or project structure needs assessment or repair;
