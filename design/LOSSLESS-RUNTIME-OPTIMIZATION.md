@@ -8,7 +8,7 @@ Migration task: #38
 Final proof/integration task: #39
 Post-v1.3.1 representation follow-up: #82
 
-Status: **core program completed and integrated; bounded post-v1.3.1 follow-up tracked under #82**. Phase C was integrated through PR #63, with the bounded coordination-baseline follow-up completed through Issue #65 / PR #66. Current release state is tracked by `CHANGELOG.md`, GitHub Releases, and any active release Issue.
+Status: **completed and integrated, including the bounded post-v1.3.1 representation follow-up #82 / PR #83**. Phase C was integrated through PR #63, with the bounded coordination-baseline follow-up completed through Issue #65 / PR #66. Current release state is tracked by `CHANGELOG.md`, GitHub Releases, and any active release Issue.
 
 ## 1. Purpose
 
