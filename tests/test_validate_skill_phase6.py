@@ -8,7 +8,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.dont_writebytecode = True
+sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "tools" / "validate_skill.py"
