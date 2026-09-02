@@ -6,8 +6,9 @@ Phase B: #37
 Research/audit task: #50  
 Migration task: #38  
 Final proof/integration task: #39
+Post-v1.3.1 representation follow-up: #82
 
-Status: **completed and integrated**. Phase C was integrated through PR #63, with the bounded coordination-baseline follow-up completed through Issue #65 / PR #66. Current release state is tracked by `CHANGELOG.md`, GitHub Releases, and any active release Issue.
+Status: **core program completed and integrated; bounded post-v1.3.1 follow-up tracked under #82**. Phase C was integrated through PR #63, with the bounded coordination-baseline follow-up completed through Issue #65 / PR #66. Current release state is tracked by `CHANGELOG.md`, GitHub Releases, and any active release Issue.
 
 ## 1. Purpose
 
@@ -426,13 +427,15 @@ Explain why the semantic shape, locality, fragility, and current evidence favor 
 
 ### 9.3 One-to-one semantic ledger
 
-Map every affected baseline semantic to its candidate form. Detect:
+Map every affected baseline semantic to its candidate form. A paragraph boundary is presentation, not a semantic-unit boundary: one paragraph may contain several independently operative rules, conditions, modifiers, defaults, or overrides. A structured candidate must map each such atom separately and must not imply mutual exclusivity, precedence, exhaustiveness, or shared activation unless the baseline semantics already do.
 
-- omitted conditions;
-- new implications;
-- precedence changes;
-- state/effect collapse;
-- hidden exception loss;
+Detect:
+
+- omitted conditions or independently meaningful concepts;
+- new implications or artificial branch exclusivity;
+- precedence/default/override changes;
+- state/effect/concept collapse;
+- hidden exception or qualifier loss;
 - duplicate canonical owners;
 - new reference dependencies.
 

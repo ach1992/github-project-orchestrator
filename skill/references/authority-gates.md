@@ -182,6 +182,24 @@ If state changed unexpectedly, enter the local reconcile-before-write condition:
 
 ## 8. Human approval or operation
 
-When approval is required and has not already been satisfied by a still-current exact ScopedAuthorization/human instruction, normally ask for the smallest exact decision **after** all safe independent work that materially advances the active outcome without depending on/prejudging that decision. If delaying the human decision or containment would materially increase risk, do **not** delay escalation for unrelated independent work: first perform only immediate safe authorized risk-reducing containment, verify it, and do the minimum decision-ready reconciliation that does not prejudge the human choice, then request the decision. Include action, target, material risk, evidence, and rollback/roll-forward where applicable. For `MasterBoundary.MATERIAL_DECISION_REQUIRED`, recommend when evidence supports it, show only materially distinct alternatives/trade-off, and request the exact answer; do not push ordinary reversible technical choices to owner.
+When human approval/decision or a human operation is required, determine **interaction content** and **escalation timing** separately. Apply every applicable content row, then apply the applicable timing row when a human decision/approval is still required. A missing-capability operation is not an approval request.
 
-When capability—not approval—is missing, the canonical boundary remains `MasterBoundary.MISSING_CAPABILITY`; present `HUMAN OPERATION REQUIRED` with exact command/action, prerequisite, expected result, risk, verification method, and exact output/state to return. It is presentation, not a new stop condition.
+**Interaction content**
+
+| Condition | Required content |
+|---|---|
+| Approval is required and has not already been satisfied by a still-current exact `ScopedAuthorization`/human instruction. | Ask for the smallest exact decision. |
+| `MasterBoundary.MATERIAL_DECISION_REQUIRED` applies. | Recommend when evidence supports it, show only materially distinct alternatives/trade-off, and request the exact answer; do not push ordinary reversible technical choices to owner. |
+| Capability—not approval—is missing. | The canonical boundary remains `MasterBoundary.MISSING_CAPABILITY`; present `HUMAN OPERATION REQUIRED` with exact command/action, prerequisite, expected result, risk, verification method, and exact output/state to return. It is presentation, not a new stop condition. |
+
+For any human decision/approval request, include action, target, material risk, evidence, and rollback/roll-forward where applicable.
+
+**Escalation timing for a required human decision/approval**
+
+The canonical Master stop rules remain authoritative for whether a detected boundary becomes terminal; this timing table must not defer any earlier escalation they require.
+
+| Condition | Required timing/action |
+|---|---|
+| No canonical earlier-stop condition applies and delaying the decision does not materially increase risk. | **Default:** request the decision **after** all safe independent work that materially advances the active outcome without depending on/prejudging that decision. |
+| Delaying the human decision or containment would materially increase risk. | **Urgent override:** do **not** delay escalation for unrelated independent work. First perform only immediate safe authorized risk-reducing containment, verify it, and do the minimum decision-ready reconciliation that does not prejudge the human choice; then request the decision. |
+| The canonical Master stop rules require earlier terminal escalation for another reason, such as a project-wide controlling boundary. | Follow that canonical stop decision; do not use the default timing row to defer it. |
