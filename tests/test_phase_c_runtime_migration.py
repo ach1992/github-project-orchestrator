@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = "0165bc2a26bdf7452f05160c3e91f47b4fa7ae9c"
+ACCEPTED_PHASE_C = "52a9c56210e9ecd1bbc91170de40131658dbd4e9"  # immutable published v1.3.0 snapshot
 CHECKPOINT = "4058f66a1be5e0cb405e849687171831780df1fd"  # provenance only; no runtime fetch dependency
 
 SKILL = "skill/SKILL.md"
@@ -43,15 +44,23 @@ def current(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
-def base(path: str) -> str:
+def snapshot(ref: str, path: str) -> str:
     return subprocess.run(
-        ["git", "show", f"{BASE}:{path}"],
+        ["git", "show", f"{ref}:{path}"],
         cwd=ROOT,
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
     ).stdout
+
+
+def base(path: str) -> str:
+    return snapshot(BASE, path)
+
+
+def accepted_phase_c(path: str) -> str:
+    return snapshot(ACCEPTED_PHASE_C, path)
 
 
 def sha256_text(text: str) -> str:
@@ -124,8 +133,8 @@ def mask_regions(text: str, regions: tuple[tuple[str, str], ...]) -> str:
 
 
 def assert_only_regions(path: str, regions: tuple[tuple[str, str], ...]) -> None:
-    assert mask_regions(current(path), regions) == mask_regions(base(path), regions), (
-        f"{path} changed outside declared Phase C representation surfaces"
+    assert mask_regions(accepted_phase_c(path), regions) == mask_regions(base(path), regions), (
+        f"{path} changed outside declared Phase C representation surfaces in accepted snapshot {ACCEPTED_PHASE_C}"
     )
 
 
@@ -165,24 +174,23 @@ def test_declared_runtime_scope_only() -> None:
         ),
     )
 
-    # The original candidate-only BASE..HEAD changed-path equality served Phase C
-    # scope review, but current HEAD can legitimately contain later Skill evolution.
-    # Keep the per-owner region/fingerprint guards below as the durable semantic tripwire.
+    # Historical scope evidence is checked against the immutable accepted Phase C
+    # snapshot, while the semantic tests below intentionally continue to inspect current HEAD.
 
 
 def test_machine_relay_hardening_is_bounded_from_checkpoint() -> None:
     # #64 must not perturb accepted P2-P5 files at all. Fingerprints are durable
     # even if integration later squashes/rebases and the feature branch is deleted.
     for path, expected_hash in CHECKPOINT_FULL_SHA256.items():
-        assert sha256_text(current(path)) == expected_hash, f"{path} changed beyond accepted checkpoint {CHECKPOINT}"
+        assert sha256_text(accepted_phase_c(path)) == expected_hash, f"{path} changed beyond accepted checkpoint {CHECKPOINT}"
 
-    assert sha256_text(normalize_skill_for_checkpoint(current(SKILL))) == CHECKPOINT_SKILL_NORMALIZED_SHA256, (
+    assert sha256_text(normalize_skill_for_checkpoint(accepted_phase_c(SKILL))) == CHECKPOINT_SKILL_NORMALIZED_SHA256, (
         "SKILL.md changed outside the declared #64 Output-pointer/MachineRelay-owner surfaces"
     )
-    assert sha256_text(normalize_review_for_checkpoint(current(REVIEW))) == CHECKPOINT_REVIEW_NORMALIZED_SHA256, (
+    assert sha256_text(normalize_review_for_checkpoint(accepted_phase_c(REVIEW))) == CHECKPOINT_REVIEW_NORMALIZED_SHA256, (
         "review-integration.md changed outside the declared received-review normalization surface"
     )
-    assert sha256_text(normalize_eval_for_checkpoint(current(EVAL))) == CHECKPOINT_EVAL_NORMALIZED_SHA256, (
+    assert sha256_text(normalize_eval_for_checkpoint(accepted_phase_c(EVAL))) == CHECKPOINT_EVAL_NORMALIZED_SHA256, (
         "eval-scenarios.md changed outside declared AT/DI #64 surfaces"
     )
 
