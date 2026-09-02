@@ -110,7 +110,7 @@ For substantive self-authored work:
 | Compatibility | Preserve compatibility obligations required by accepted scope. |
 | Scope discipline | Avoid unrelated cleanup/abstraction. |
 | Version-sensitive contracts | Verify primary docs for version-sensitive APIs/dependencies/platform behavior. |
-| Performance work | Establish a representative baseline/constraint, identify the bottleneck with profiling/high-signal evidence when practical, and compare the same workload after the change; never trade correctness/security/maintainability for unmeasured optimization. |
+| Performance work | Establish representative baseline/constraint, identify bottleneck with profiling/high-signal evidence when practical, compare same workload after change; never trade correctness/security/maintainability for unmeasured optimization. |
 
 Self-review is not independent review; obtain separation only when policy, RiskLevel, or AssuranceLevel requires it.
 

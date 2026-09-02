@@ -190,13 +190,16 @@ When human approval/decision or a human operation is required, determine **inter
 |---|---|
 | Approval is required and has not already been satisfied by a still-current exact `ScopedAuthorization`/human instruction. | Ask for the smallest exact decision. |
 | `MasterBoundary.MATERIAL_DECISION_REQUIRED` applies. | Recommend when evidence supports it, show only materially distinct alternatives/trade-off, and request the exact answer; do not push ordinary reversible technical choices to owner. |
-| Capability—not approval—is missing. | Keep the canonical boundary `MasterBoundary.MISSING_CAPABILITY`; present `HUMAN OPERATION REQUIRED` with exact command/action, prerequisite, expected result, risk, verification method, and exact output/state to return. This is presentation, not a new stop condition. |
+| Capability—not approval—is missing. | The canonical boundary remains `MasterBoundary.MISSING_CAPABILITY`; present `HUMAN OPERATION REQUIRED` with exact command/action, prerequisite, expected result, risk, verification method, and exact output/state to return. It is presentation, not a new stop condition. |
 
 For any human decision/approval request, include action, target, material risk, evidence, and rollback/roll-forward where applicable.
 
 **Escalation timing for a required human decision/approval**
 
+The canonical Master stop rules remain authoritative for whether a detected boundary becomes terminal; this timing table must not defer any earlier escalation they require.
+
 | Condition | Required timing/action |
 |---|---|
-| Delay does not materially increase risk. | Request the decision **after** all safe independent work that materially advances the active outcome without depending on or prejudging that decision. |
-| Delaying the human decision or containment would materially increase risk. | Do **not** delay escalation for unrelated independent work. First perform only immediate safe authorized risk-reducing containment, verify it, and do the minimum decision-ready reconciliation that does not prejudge the human choice; then request the decision. |
+| No canonical earlier-stop condition applies and delaying the decision does not materially increase risk. | **Default:** request the decision **after** all safe independent work that materially advances the active outcome without depending on/prejudging that decision. |
+| Delaying the human decision or containment would materially increase risk. | **Urgent override:** do **not** delay escalation for unrelated independent work. First perform only immediate safe authorized risk-reducing containment, verify it, and do the minimum decision-ready reconciliation that does not prejudge the human choice; then request the decision. |
+| The canonical Master stop rules require earlier terminal escalation for another reason, such as a project-wide controlling boundary. | Follow that canonical stop decision; do not use the default timing row to defer it. |
