@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.2] - 2026-09-03
+
+### Changed
+
+- Re-expressed cold-recovery orientation as an explicit four-step execution-identity -> truth/live-evidence -> control-state -> active-workstream sequence, with Triggered depth kept as a conditional interrupt rather than a mandatory extra phase.
+- Decomposed the dense Master `IMPLEMENT` cell into independently applicable correctness/root-cause, architecture-fitness, structural-change, compatibility, scope, version-sensitive-contract, and performance facets; all applicable facets still apply and row order creates no precedence.
+- Separated human handling into orthogonal interaction-content and escalation-timing surfaces while keeping canonical `MASTER_STOP(...)` terminality authoritative, so ordinary, material-decision, urgent-risk, project-wide, and missing-capability cases compose without inventing a second stop owner.
+- Strengthened the lossless-representation methodology and regression coverage so structured rewrites must preserve independently operative rules, conditions, qualifiers, defaults, overrides, scope, and ownership without inventing exclusivity, precedence, exhaustiveness, or shared activation.
+
+### Validation
+
+- An independent HIGH_ASSURANCE adversarial review compared exact `v1.3.1@f8dfdbd95bb9e2ccabd4244d921613bf94c1a9b9` semantics with the integrated representation candidate and returned `COMPLETE / APPROVE` with `CURRENT_BETTER`: no lost, narrowed, or broadened protected concepts; no new material implication/precedence/exclusivity; no canonical-owner drift; and no harmful duplication found across the audited runtime/reference surfaces.
+- Repository validation, exact-head CI, deterministic packaging, immutable-baseline checks, and runtime-cleanliness checks remain supporting evidence; no controlled live actual-model A/B percentage claim is made.
+
+### Runtime compatibility
+
+- This is a representation-focused patch release. It introduces no new lifecycle/status namespace, `ProjectAuthority`/`ScopedAuthorization` rule, approval-effect gate, Worker lifecycle, FAST/FULL selector, review/integration rule, release/delivery state, parser, registry, or external runtime dependency.
+- The protected orchestration decisions from v1.3.1 remain decision-equivalent while clause segmentation, ordering reconstruction, mixed-purpose parsing, and human-timing composition are made more explicit.
+- Further refactoring of these reviewed surfaces should now be evidence-triggered by observed application failure or recurring friction rather than continued for visual consistency or theoretical elegance.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.3.1] - 2026-09-02
 
 ### Changed
