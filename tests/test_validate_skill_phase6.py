@@ -163,6 +163,43 @@ def supplemental_eval_index_tests() -> None:
             "Supplemental retrieval index references missing evaluation IDs: ['C']",
         )
 
+        cross_line = "###\nC. False-positive paragraph, not an eval heading\n"
+        if validator.parse_eval_ids(cross_line):
+            raise AssertionError("eval ID must not cross a physical line boundary")
+        print("PASS supplemental-eval-cross-line-pseudo-heading-not-counted")
+
+        eval_path.write_text(
+            index + "### A. One\n\n### B. Two\n\n" + cross_line,
+            encoding="utf-8",
+        )
+        expect_failure(
+            "supplemental-eval-cross-line-pseudo-heading-cannot-satisfy-index",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        uppercase_cdata = "<![CDATA[\n### C. Hidden fake\n]]>\n"
+        if validator.parse_eval_ids(uppercase_cdata):
+            raise AssertionError("uppercase CDATA contents must remain hidden")
+        print("PASS supplemental-eval-uppercase-cdata-heading-not-counted")
+
+        for cdata_name, cdata_start in (
+            ("lowercase", "<![cdata["),
+            ("mixed-case", "<![CdAtA["),
+        ):
+            visible_cdata = cdata_start + "\n### C. Visible future scenario\n]]>\n"
+            if validator.parse_eval_ids(visible_cdata) != ["C"]:
+                raise AssertionError(f"{cdata_name} CDATA-like text incorrectly hid visible C")
+            eval_path.write_text(
+                "### A. One\n\n### B. Two\n\n" + visible_cdata,
+                encoding="utf-8",
+            )
+            expect_failure(
+                f"supplemental-eval-{cdata_name}-cdata-visible-unanchored-rejected",
+                lambda: validator.validate_traceability(root, skill),
+                "Unanchored evaluation scenarios require a supplemental retrieval index: ['C']",
+            )
+
         eval_path.write_text("### A. One\n\n### B. Two\n\n  ### C. Visible unanchored\n", encoding="utf-8")
         expect_failure(
             "supplemental-eval-indented-unanchored-requires-index",

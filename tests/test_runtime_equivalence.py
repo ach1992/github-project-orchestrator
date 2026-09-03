@@ -194,6 +194,79 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
                     f"{hidden_name} hidden-DK end-to-end error missing: {payload.get('errors')}"
                 )
             print(f"PASS current-v1.3.2-{hidden_name}-dk-end-to-end-rejected")
+
+        candidate_text = (ROOT / config["surfaces"]["eval_scenarios"]).read_text(encoding="utf-8")
+        real_dk_start = candidate_text.index("### DK. ")
+        real_guard_start = candidate_text.index("\n## 4. Regression guard", real_dk_start)
+        without_real_dk = candidate_text[:real_dk_start] + candidate_text[real_guard_start:]
+        cross_line_fake = without_real_dk.replace(
+            "## 4. Regression guard",
+            "###\nDK. False-positive paragraph, not an eval heading\n\n## 4. Regression guard",
+            1,
+        )
+        eval_path = temp_root / config["surfaces"]["eval_scenarios"]
+        eval_path.write_text(cross_line_fake, encoding="utf-8")
+        completed = subprocess.run(
+            [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+            cwd=temp_root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        if completed.returncode != 1:
+            raise AssertionError(
+                "cross-line fake DK unexpectedly satisfied current control: "
+                f"{completed.returncode}: {completed.stdout} {completed.stderr}"
+            )
+        payload = json.loads(completed.stdout)
+        expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+        if expected not in payload.get("errors", []):
+            raise AssertionError(
+                f"cross-line fake DK missing exact rejection: {payload.get('errors')}"
+            )
+        print("PASS current-v1.3.2-cross-line-fake-dk-end-to-end-rejected")
+
+        for cdata_name, cdata_start in (
+            ("lowercase", "<![cdata["),
+            ("mixed-case", "<![CdAtA["),
+        ):
+            additive_text = candidate_text.replace(
+                "\n## 4. Regression guard",
+                f"\n{cdata_start}\n### DL. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
+                1,
+            )
+            eval_path.write_text(additive_text, encoding="utf-8")
+            validation = subprocess.run(
+                [sys.executable, "tools/validate_skill.py", "skill"],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if validation.returncode != 1 or "Unanchored evaluation scenarios are missing from the supplemental retrieval index: ['DL']" not in validation.stderr:
+                raise AssertionError(
+                    f"{cdata_name} CDATA-like DL did not fail supplemental validation: "
+                    f"{validation.returncode}: {validation.stdout} {validation.stderr}"
+                )
+            equivalence = subprocess.run(
+                [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if equivalence.returncode != 0:
+                raise AssertionError(
+                    f"{cdata_name} CDATA-like additive DL equivalence failed: "
+                    f"{equivalence.returncode}: {equivalence.stdout} {equivalence.stderr}"
+                )
+            eq_payload = json.loads(equivalence.stdout)
+            if "DL" not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
+                raise AssertionError(f"{cdata_name} CDATA-like DL was omitted from candidate inventory")
+            print(f"PASS current-v1.3.2-{cdata_name}-cdata-additive-dl-visible")
     finally:
         subprocess.run(
             ["git", "worktree", "remove", "--force", str(temp_root)],

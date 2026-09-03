@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-EVAL_HEADING_RE = re.compile(r"^ {0,3}###\s+([A-Z]+)\.\s+", re.MULTILINE)
+EVAL_HEADING_RE = re.compile(r"^ {0,3}###[ \t]+([A-Z]+)\.[ \t]+", re.MULTILINE)
 FENCE_OPEN_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
 HTML_TYPE1_RE = re.compile(r"^(?:script|pre|style)(?=[\t >]|$)", re.IGNORECASE)
 HTML_TYPE1_END_RE = re.compile(r"</(?:script|pre|style)>", re.IGNORECASE)
@@ -42,14 +42,13 @@ def _content_after_indent(body: str) -> str | None:
 
 def _raw_html_start(content: str) -> tuple[str, re.Pattern[str] | None] | None:
     """Classify supported GFM raw-HTML block starts; unknown tag-like starts fail closed."""
-    lowered = content.lower()
     if HTML_TYPE1_RE.match(content[1:]) if content.startswith("<") else False:
         return "until_match", HTML_TYPE1_END_RE
     if content.startswith("<?"):
         return "until_match", re.compile(r"\?>")
     if re.match(r"<![A-Z]", content):
         return "until_match", re.compile(r">")
-    if lowered.startswith("<![cdata["):
+    if content.startswith("<![CDATA["):
         return "until_match", re.compile(r"\]\]>")
     if content.startswith("<") and HTML_TYPE6_RE.match(content[1:]):
         return "until_blank", None
