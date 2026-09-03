@@ -131,6 +131,265 @@ def traceability_tests() -> None:
         )
 
 
+def supplemental_eval_index_tests() -> None:
+    index = (
+        "### Supplemental retrieval index\n\n"
+        "Rule/Goal anchors are seeds.\n\n"
+        "| Change surface | Supplemental eval IDs |\n"
+        "|---|---|\n"
+        "| fixture | `C` |\n\n"
+    )
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        skill, eval_path, rule_path, goal_path = write_trace_fixture(root)
+        base = "### A. One\n\n### B. Two\n\n### C. Three\n"
+
+        eval_path.write_text(index + base, encoding="utf-8")
+        validator.validate_traceability(root, skill)
+        print("PASS supplemental-eval-valid")
+
+        for spaces in range(4):
+            visible = f"### A. One\n\n### B. Two\n\n{' ' * spaces}### C. Three\n"
+            eval_path.write_text(index + visible, encoding="utf-8")
+            validator.validate_traceability(root, skill)
+            print(f"PASS supplemental-eval-visible-heading-indent-{spaces}")
+
+        four_space_code = "### A. One\n\n### B. Two\n\n    ### C. Code, not heading\n"
+        eval_path.write_text(index + four_space_code, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-four-space-heading-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        cross_line = "###\nC. False-positive paragraph, not an eval heading\n"
+        if validator.parse_eval_ids(cross_line):
+            raise AssertionError("eval ID must not cross a physical line boundary")
+        print("PASS supplemental-eval-cross-line-pseudo-heading-not-counted")
+
+        eval_path.write_text(
+            index + "### A. One\n\n### B. Two\n\n" + cross_line,
+            encoding="utf-8",
+        )
+        expect_failure(
+            "supplemental-eval-cross-line-pseudo-heading-cannot-satisfy-index",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        for separator_name, separator in (("spaces", "   "), ("tabs", "\t\t")):
+            titleless = f"### C.{separator}\nFalse-positive paragraph, not a titled eval heading\n"
+            if validator.parse_eval_ids(titleless):
+                raise AssertionError(f"{separator_name} titleless eval heading was incorrectly counted")
+            eval_path.write_text(
+                index + "### A. One\n\n### B. Two\n\n" + titleless,
+                encoding="utf-8",
+            )
+            expect_failure(
+                f"supplemental-eval-titleless-{separator_name}-heading-cannot-satisfy-index",
+                lambda: validator.validate_traceability(root, skill),
+                "Supplemental retrieval index references missing evaluation IDs: ['C']",
+            )
+
+        uppercase_cdata = "<![CDATA[\n### C. Hidden fake\n]]>\n"
+        if validator.parse_eval_ids(uppercase_cdata):
+            raise AssertionError("uppercase CDATA contents must remain hidden")
+        print("PASS supplemental-eval-uppercase-cdata-heading-not-counted")
+
+        for cdata_name, cdata_start in (
+            ("lowercase", "<![cdata["),
+            ("mixed-case", "<![CdAtA["),
+        ):
+            visible_cdata = cdata_start + "\n### C. Visible future scenario\n]]>\n"
+            if validator.parse_eval_ids(visible_cdata) != ["C"]:
+                raise AssertionError(f"{cdata_name} CDATA-like text incorrectly hid visible C")
+            eval_path.write_text(
+                "### A. One\n\n### B. Two\n\n" + visible_cdata,
+                encoding="utf-8",
+            )
+            expect_failure(
+                f"supplemental-eval-{cdata_name}-cdata-visible-unanchored-rejected",
+                lambda: validator.validate_traceability(root, skill),
+                "Unanchored evaluation scenarios require a supplemental retrieval index: ['C']",
+            )
+
+        eval_path.write_text("### A. One\n\n### B. Two\n\n  ### C. Visible unanchored\n", encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-indented-unanchored-requires-index",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios require a supplemental retrieval index: ['C']",
+        )
+
+        comment_with_fence = (
+            index
+            + "### A. One\n\n### B. Two\n\n<!--\n```text\ninside comment\n-->\n### C. Three\n"
+        )
+        eval_path.write_text(comment_with_fence, encoding="utf-8")
+        validator.validate_traceability(root, skill)
+        print("PASS supplemental-eval-comment-fence-state-isolated")
+
+        for html_name, html in (
+            ("pre", "<pre>\n### C. Hidden fake\n</pre>\n"),
+            ("div", "<div>\n### C. Hidden fake\n</div>\n\n"),
+        ):
+            eval_path.write_text(index + "### A. One\n\n### B. Two\n" + html, encoding="utf-8")
+            expect_failure(
+                f"supplemental-eval-{html_name}-html-heading-not-counted",
+                lambda: validator.validate_traceability(root, skill),
+                "Supplemental retrieval index references missing evaluation IDs: ['C']",
+            )
+
+        index_without_row = index.replace("| fixture | `C` |\n", "")
+        commented_row = index_without_row.replace(
+            "|---|---|\n",
+            "|---|---|\n<!--\n| fixture | `C` |\n-->\n",
+        )
+        eval_path.write_text(commented_row + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-commented-row-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
+        )
+
+        fenced_row = index_without_row.replace(
+            "|---|---|\n",
+            "|---|---|\n```text\n| fixture | `C` |\n```\n",
+        )
+        eval_path.write_text(fenced_row + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-fenced-row-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
+        )
+
+        fenced_tilde_row = index_without_row.replace(
+            "|---|---|\n",
+            "|---|---|\n~~~text\n| fixture | `C` |\n~~~\n",
+        )
+        eval_path.write_text(fenced_tilde_row + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-tilde-fenced-row-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
+        )
+
+        stray_row = index_without_row + "Narrative only.\n\n| fixture | `C` |\n\n"
+        eval_path.write_text(stray_row + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-stray-row-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
+        )
+
+        base_without_c = "### A. One\n\n### B. Two\n"
+        eval_path.write_text(
+            index + base_without_c + "<!--\n### C. Hidden fake\n-->\n",
+            encoding="utf-8",
+        )
+        expect_failure(
+            "supplemental-eval-commented-heading-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        eval_path.write_text(
+            index + base_without_c + "```text\n### C. Hidden fake\n```\n",
+            encoding="utf-8",
+        )
+        expect_failure(
+            "supplemental-eval-fenced-heading-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        eval_path.write_text(
+            index + base_without_c + "~~~text\n### C. Hidden fake\n~~~\n",
+            encoding="utf-8",
+        )
+        expect_failure(
+            "supplemental-eval-tilde-fenced-heading-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        eval_path.write_text(base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-missing-index",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios require a supplemental retrieval index",
+        )
+
+        legacy_base = "### A. One\n\n### B. Two\n\n### C. Three\n"
+        eval_path.write_text(legacy_base, encoding="utf-8")
+        validator.validate_traceability(root, skill, allow_legacy_unindexed_evals=True)
+        print("PASS supplemental-eval-legacy-pre-dk-compatibility")
+
+        # Build contiguous AA..DK headings without relying on repository content.
+        def eval_id(value: int) -> str:
+            chars = []
+            while value:
+                value, remainder = divmod(value - 1, 26)
+                chars.append(chr(ord("A") + remainder))
+            return "".join(reversed(chars))
+
+        current_like = "".join(f"### {eval_id(i)}. Fixture {i}\n\n" for i in range(1, validator.eval_id_to_int("DK") + 1))
+        eval_path.write_text(current_like, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-legacy-flag-rejected-for-current-inventory",
+            lambda: validator.validate_traceability(
+                root, skill, allow_legacy_unindexed_evals=True
+            ),
+            "Legacy unindexed-eval compatibility is allowed only for pre-v1.3.2 eval inventories ending at or before DJ",
+        )
+
+        eval_path.write_text(index.replace("`C`", "`D`") + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-missing-id",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs",
+        )
+
+        eval_path.write_text(index + base + "\n### D. Four\n", encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-new-unindexed-scenario",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
+        )
+
+        duplicate_index = index.replace("| fixture | `C` |", "| fixture | `C` |\n| duplicate | `C` |")
+        eval_path.write_text(duplicate_index + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-duplicate-id",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index contains duplicate evaluation IDs",
+        )
+
+        eval_path.write_text(index.replace("`C`", "`C1`") + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-invalid-id",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index contains invalid evaluation ID syntax",
+        )
+
+        anchored_rules = rule_path.read_text(encoding="utf-8").replace("| B |", "| B, C |")
+        rule_path.write_text(anchored_rules, encoding="utf-8")
+        eval_path.write_text(index + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-anchored-duplication",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index must contain only Rule/Goal-unanchored evaluation IDs",
+        )
+
+        rule_path.write_text(anchored_rules.replace("| B, C |", "| B |"), encoding="utf-8")
+        eval_path.write_text(index + "### A. One\n\n### B. Two\n", encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-deleted-scenario",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs",
+        )
+
+
 def state_tests() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         skill = Path(tmp) / "skill"
@@ -322,6 +581,7 @@ def coordination_baseline_governance_regression_tests() -> None:
 
 def main() -> None:
     traceability_tests()
+    supplemental_eval_index_tests()
     state_tests()
     worker_contract_tests()
     machine_relay_transport_regression_tests()

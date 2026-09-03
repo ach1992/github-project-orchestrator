@@ -194,7 +194,7 @@ def main() -> None:
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(git_bytes("show", f"{SOURCE_REF}:{source_path}"))
         validation = subprocess.run(
-            [sys.executable, str(ROOT / "tools" / "validate_skill.py"), str(temp_root / "skill")],
+            [sys.executable, str(ROOT / "tools" / "validate_skill.py"), str(temp_root / "skill"), "--allow-legacy-unindexed-evals"],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,

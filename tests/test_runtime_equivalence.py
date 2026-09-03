@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Adversarial fixtures for the immutable v1.2.2 runtime-equivalence gate."""
+"""Adversarial fixtures for historical v1.2.2 and current v1.3.2 representation controls."""
 from __future__ import annotations
 
 import copy
 import importlib.util
 import json
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -27,6 +29,24 @@ result = eq.check_repository(ROOT, copy.deepcopy(config))
 if not result["ok"]:
     raise AssertionError(result)
 print("PASS immutable-v1.2.2-baseline-equivalence")
+if result["current_eval_control"]["ref"] != eq.CURRENT_EVAL_CONTROL_REF:
+    raise AssertionError("current eval control ref mismatch")
+if "DK" not in result["current_eval_control"]["eval_ids"]:
+    raise AssertionError("v1.3.2 current eval control must include DK")
+if "DK" in result["baseline_inventory"]["eval_ids"]:
+    raise AssertionError("historical v1.2.2 baseline unexpectedly includes DK")
+print("PASS immutable-v1.3.2-current-eval-control")
+
+bad_config = copy.deepcopy(config)
+bad_config["schema_version"] = 1
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "unsupported runtime optimization baseline schema_version" not in str(exc):
+        raise
+    print("PASS baseline-config-schema-v1-rejected")
+else:
+    raise AssertionError("baseline-config-schema-v1: unexpectedly passed")
 
 bad_config = copy.deepcopy(config)
 bad_config["baseline_ref"] = "0" * 40
@@ -49,6 +69,279 @@ except ValueError as exc:
     print("PASS baseline-version-drift-rejected")
 else:
     raise AssertionError("baseline-version-drift: unexpectedly passed")
+
+bad_config = copy.deepcopy(config)
+bad_config["current_eval_control"]["ref"] = "0" * 40
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "current eval control ref must remain pinned" not in str(exc):
+        raise
+    print("PASS current-eval-control-ref-drift-rejected")
+else:
+    raise AssertionError("current-eval-control-ref-drift: unexpectedly passed")
+
+bad_config = copy.deepcopy(config)
+bad_config["current_eval_control"]["version"] = "9.9.9"
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "current eval control version must remain pinned" not in str(exc):
+        raise
+    print("PASS current-eval-control-version-drift-rejected")
+else:
+    raise AssertionError("current-eval-control-version-drift: unexpectedly passed")
+
+control_ids = result["current_eval_control"]["eval_ids"]
+without_dk = [value for value in control_ids if value != "DK"]
+current_errors, _current_notes = eq.compare_current_eval_control(control_ids, without_dk)
+if not any("current v1.3.2 evaluation scenarios removed: ['DK']" in error for error in current_errors):
+    raise AssertionError(f"current eval control did not reject DK loss: {current_errors}")
+print("PASS current-v1.3.2-dk-loss-rejected")
+
+current_eval_text = eq.git_text(
+    ROOT, eq.CURRENT_EVAL_CONTROL_REF, config["surfaces"]["eval_scenarios"]
+)
+dk_start = current_eval_text.index("### DK. ")
+guard_start = current_eval_text.index("\n## 4. Regression guard", dk_start)
+without_real_dk = current_eval_text[:dk_start] + current_eval_text[guard_start:]
+for hidden_name, hidden_dk in (
+    ("commented", "<!--\n### DK. Hidden fake\n-->\n"),
+    ("fenced", "```text\n### DK. Hidden fake\n```\n"),
+):
+    hostile_text = without_real_dk.replace(
+        "## 4. Regression guard", hidden_dk + "\n## 4. Regression guard", 1
+    )
+    hostile_ids = eq.parse_eval_ids(hostile_text)
+    if "DK" in hostile_ids:
+        raise AssertionError(f"{hidden_name} hidden DK heading incorrectly counted")
+    hostile_errors, _hostile_notes = eq.compare_current_eval_control(control_ids, hostile_ids)
+    expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+    if expected not in hostile_errors:
+        raise AssertionError(
+            f"{hidden_name} hidden-DK bypass was not rejected: {hostile_errors}"
+        )
+    print(f"PASS current-v1.3.2-{hidden_name}-dk-bypass-rejected")
+
+def hostile_eval_text(hidden_payload: str) -> str:
+    candidate_text = (ROOT / config["surfaces"]["eval_scenarios"]).read_text(encoding="utf-8")
+    real_dk_start = candidate_text.index("### DK. ")
+    real_guard_start = candidate_text.index("\n## 4. Regression guard", real_dk_start)
+    candidate_text = candidate_text[:real_dk_start] + candidate_text[real_guard_start:]
+
+    visible_row = "| representation-only semantic preservation | `DK` |\n"
+    if candidate_text.count(visible_row) != 1:
+        raise AssertionError("candidate must contain exactly one visible DK supplemental row")
+    candidate_text = candidate_text.replace(visible_row, "", 1)
+    marker = "This table is navigation only; it defines no runtime policy or scenario semantics.\n\n"
+    if candidate_text.count(marker) != 1:
+        raise AssertionError("candidate supplemental navigation marker drifted")
+    return candidate_text.replace(marker, marker + hidden_payload + "\n", 1)
+
+
+with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent_name:
+    temp_root = Path(parent_name) / "candidate"
+    subprocess.run(
+        ["git", "worktree", "add", "--quiet", "--detach", str(temp_root), "HEAD"],
+        cwd=ROOT,
+        check=True,
+    )
+    try:
+        for hidden_name, hidden_payload in (
+            (
+                "commented",
+                "<!--\n### DK. Hidden fake scenario\n"
+                "| representation-only semantic preservation | `DK` |\n-->",
+            ),
+            (
+                "fenced-backtick",
+                "```text\n### DK. Hidden fake scenario\n"
+                "| representation-only semantic preservation | `DK` |\n```",
+            ),
+            (
+                "fenced-tilde",
+                "~~~text\n### DK. Hidden fake scenario\n"
+                "| representation-only semantic preservation | `DK` |\n~~~",
+            ),
+            (
+                "raw-html-pre",
+                "<pre>\n### DK. Hidden fake scenario\n</pre>\n",
+            ),
+            (
+                "raw-html-div",
+                "<div>\n### DK. Hidden fake scenario\n</div>\n\n",
+            ),
+        ):
+            eval_path = temp_root / config["surfaces"]["eval_scenarios"]
+            eval_path.write_text(hostile_eval_text(hidden_payload), encoding="utf-8")
+            completed = subprocess.run(
+                [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if completed.returncode != 1:
+                raise AssertionError(
+                    f"{hidden_name} hidden-DK end-to-end bypass unexpectedly returned "
+                    f"{completed.returncode}: {completed.stdout} {completed.stderr}"
+                )
+            payload = json.loads(completed.stdout)
+            expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+            if expected not in payload.get("errors", []):
+                raise AssertionError(
+                    f"{hidden_name} hidden-DK end-to-end error missing: {payload.get('errors')}"
+                )
+            print(f"PASS current-v1.3.2-{hidden_name}-dk-end-to-end-rejected")
+
+        candidate_text = (ROOT / config["surfaces"]["eval_scenarios"]).read_text(encoding="utf-8")
+        real_dk_start = candidate_text.index("### DK. ")
+        real_guard_start = candidate_text.index("\n## 4. Regression guard", real_dk_start)
+        without_real_dk = candidate_text[:real_dk_start] + candidate_text[real_guard_start:]
+        cross_line_fake = without_real_dk.replace(
+            "## 4. Regression guard",
+            "###\nDK. False-positive paragraph, not an eval heading\n\n## 4. Regression guard",
+            1,
+        )
+        eval_path = temp_root / config["surfaces"]["eval_scenarios"]
+        eval_path.write_text(cross_line_fake, encoding="utf-8")
+        completed = subprocess.run(
+            [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+            cwd=temp_root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        if completed.returncode != 1:
+            raise AssertionError(
+                "cross-line fake DK unexpectedly satisfied current control: "
+                f"{completed.returncode}: {completed.stdout} {completed.stderr}"
+            )
+        payload = json.loads(completed.stdout)
+        expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+        if expected not in payload.get("errors", []):
+            raise AssertionError(
+                f"cross-line fake DK missing exact rejection: {payload.get('errors')}"
+            )
+        print("PASS current-v1.3.2-cross-line-fake-dk-end-to-end-rejected")
+
+        for separator_name, separator in (("spaces", "   "), ("tabs", "\t\t")):
+            titleless_fake = without_real_dk.replace(
+                "## 4. Regression guard",
+                f"### DK.{separator}\nFalse-positive paragraph, not a titled eval scenario\n\n## 4. Regression guard",
+                1,
+            )
+            eval_path.write_text(titleless_fake, encoding="utf-8")
+            validation = subprocess.run(
+                [sys.executable, "tools/validate_skill.py", "skill"],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if validation.returncode != 1:
+                raise AssertionError(
+                    f"titleless-{separator_name} fake DK unexpectedly passed validator: "
+                    f"{validation.returncode}: {validation.stdout} {validation.stderr}"
+                )
+            completed = subprocess.run(
+                [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if completed.returncode != 1:
+                raise AssertionError(
+                    f"titleless-{separator_name} fake DK unexpectedly satisfied current control: "
+                    f"{completed.returncode}: {completed.stdout} {completed.stderr}"
+                )
+            payload = json.loads(completed.stdout)
+            expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+            if expected not in payload.get("errors", []):
+                raise AssertionError(
+                    f"titleless-{separator_name} fake DK missing exact rejection: {payload.get('errors')}"
+                )
+            if "DK" in payload.get("candidate_inventory", {}).get("eval_ids", []):
+                raise AssertionError(f"titleless-{separator_name} fake DK remained in candidate inventory")
+            print(f"PASS current-v1.3.2-titleless-{separator_name}-dk-end-to-end-rejected")
+
+        for cdata_name, cdata_start in (
+            ("lowercase", "<![cdata["),
+            ("mixed-case", "<![CdAtA["),
+        ):
+            additive_text = candidate_text.replace(
+                "\n## 4. Regression guard",
+                f"\n{cdata_start}\n### DL. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
+                1,
+            )
+            eval_path.write_text(additive_text, encoding="utf-8")
+            validation = subprocess.run(
+                [sys.executable, "tools/validate_skill.py", "skill"],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if validation.returncode != 1 or "Unanchored evaluation scenarios are missing from the supplemental retrieval index: ['DL']" not in validation.stderr:
+                raise AssertionError(
+                    f"{cdata_name} CDATA-like DL did not fail supplemental validation: "
+                    f"{validation.returncode}: {validation.stdout} {validation.stderr}"
+                )
+            equivalence = subprocess.run(
+                [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if equivalence.returncode != 0:
+                raise AssertionError(
+                    f"{cdata_name} CDATA-like additive DL equivalence failed: "
+                    f"{equivalence.returncode}: {equivalence.stdout} {equivalence.stderr}"
+                )
+            eq_payload = json.loads(equivalence.stdout)
+            if "DL" not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
+                raise AssertionError(f"{cdata_name} CDATA-like DL was omitted from candidate inventory")
+            print(f"PASS current-v1.3.2-{cdata_name}-cdata-additive-dl-visible")
+    finally:
+        subprocess.run(
+            ["git", "worktree", "remove", "--force", str(temp_root)],
+            cwd=ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+
+for spaces in range(4):
+    indented = current_eval_text.replace(
+        "### DK. Structured rewrite preserves independent prose semantics",
+        f"{' ' * spaces}### DK. Structured rewrite preserves independent prose semantics",
+        1,
+    )
+    if "DK" not in eq.parse_eval_ids(indented):
+        raise AssertionError(f"visible DK heading with {spaces} leading spaces was not counted")
+    print(f"PASS current-v1.3.2-visible-dk-indent-{spaces}")
+
+four_space = current_eval_text.replace(
+    "### DK. Structured rewrite preserves independent prose semantics",
+    "    ### DK. Structured rewrite preserves independent prose semantics",
+    1,
+)
+if "DK" in eq.parse_eval_ids(four_space):
+    raise AssertionError("four-space indented DK pseudo-heading was incorrectly counted")
+print("PASS current-v1.3.2-four-space-dk-not-counted")
+
+comment_fence_text = "<!--\n```text\ninside comment\n-->\n### DK. Visible after comment\n"
+if eq.parse_eval_ids(comment_fence_text) != ["DK"]:
+    raise AssertionError("fence opener inside HTML comment suppressed a later visible heading")
+print("PASS current-v1.3.2-comment-fence-state-isolated")
 
 lane = json.loads(LANE.read_text(encoding="utf-8"))
 if lane.get("schema_version") != 1:

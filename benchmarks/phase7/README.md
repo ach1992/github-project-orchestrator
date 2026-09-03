@@ -10,7 +10,7 @@ Issue #35 reuses this Phase 7 benchmark system for a different comparison: immut
 
 This lane does not rewrite the historical `v1.0.0 -> v1.1.0` evidence above. It adds:
 
-- `runtime-optimization-baseline.json` — exact baseline identity and the mechanical semantic surfaces/predicate owners checked by `tools/check_runtime_equivalence.py`;
+- `runtime-optimization-baseline.json` — exact historical v1.2.2 baseline identity plus the additive v1.3.2 eval-inventory control and the mechanical semantic surfaces/predicate owners checked by `tools/check_runtime_equivalence.py`;
 - `traces-v1.2.2.json` — source-grounded v1.2.2 policy-simulation traces for the existing eight Phase 7 scenarios;
 - `runtime-optimization-scenarios.json` — the single semantic owner for the representation-comparison classes, protected behavior, eval anchors, exact model-trial inputs, and diagnostic measurements;
 - `MODEL-TRIAL-PROTOCOL.md` — the observable paired actual-model/runtime A/B protocol for optional measured corroboration when a trustworthy controlled environment is available;
@@ -82,7 +82,7 @@ Optional token/latency measurements may be kept in a separate diagnostic artifac
 - `scenarios.json` — fixed historical Phase 7 scenario contract and Goal coverage.
 - `traces-v1.0.0.json` — historical baseline source-grounded traces pinned to `v1.0.0`.
 - `traces-current.json` — historical refactored source-grounded traces pinned to immutable prerelease commit `53182d5db086eef98ebaba757bb820b86e465845`; the filename is phase-relative and does not mean the traces follow later release candidates.
-- `runtime-optimization-baseline.json` — immutable v1.2.2 representation-comparison baseline configuration.
+- `runtime-optimization-baseline.json` — immutable v1.2.2 representation-comparison baseline configuration plus an additive immutable v1.3.2 eval-inventory control; the latter does not replace or weaken the historical baseline.
 - `traces-v1.2.2.json` — immutable v1.2.2 source-grounded policy-simulation baseline for representation candidates.
 - `runtime-optimization-scenarios.json` — canonical representation-comparison semantic/input/diagnostic case contract.
 - `MODEL-TRIAL-PROTOCOL.md` — actual model/runtime A/B evidence protocol and executable runner boundary.
@@ -90,7 +90,7 @@ Optional token/latency measurements may be kept in a separate diagnostic artifac
 - `RESULTS.md` — checked-in historical Phase 7 interpretation and acceptance result.
 - `LIVE-EVIDENCE.md` — real GitHub delivery evidence from integrated refactor phases.
 - `../../tests/test_phase7_benchmark.py` — adversarial fixtures for historical and source-grounded representation-comparison behavior.
-- `../../tests/test_runtime_equivalence.py` — adversarial fixtures for the immutable runtime-equivalence gate and semantic-case manifest alignment.
+- `../../tests/test_runtime_equivalence.py` — adversarial fixtures for the historical v1.2.2 runtime-equivalence gate, additive v1.3.2 eval-inventory control, and semantic-case manifest alignment.
 - `../../tests/test_run_model_trials.py` — mocked transport/identity/order/secret/fail-closed fixtures for the executable trial lane.
 - `../../tests/test_model_trial_scorer.py` — adversarial fixtures for observable paired model/runtime evidence scoring.
 

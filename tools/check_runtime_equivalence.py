@@ -11,19 +11,28 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
+
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from markdown_eval import parse_eval_ids as parse_markdown_eval_ids
 
 RULE_ROW_RE = re.compile(r"^`([A-Z][A-Z0-9-]+)`$")
 GOAL_RE = re.compile(r"\bG\d{2}\b")
 STATE_RE = re.compile(
     r"\b(TaskState|WorkerStatus|WriteState|DeliveryState|MasterBoundary)\.([A-Z][A-Z0-9_]*)\b"
 )
-EVAL_RE = re.compile(r"^###\s+([A-Z]{1,3})\.\s+", re.MULTILINE)
 DIRECT_REF_RE = re.compile(r"\((references/[A-Za-z0-9._/-]+\.md)\)")
 FULL_SHA_RE = re.compile(r"[0-9a-f]{40}")
 TEXT_SUFFIXES = {".md", ".py", ".yaml", ".yml", ".json"}
 PROGRAM_BASELINE_REF = "f98e8a242c720931e34aa7c4e8a799090e3d0495"
 PROGRAM_BASELINE_VERSION = "1.2.2"
+CURRENT_EVAL_CONTROL_REF = "45bdabd2fd131daec3c630b45c16bdced670cc57"
+CURRENT_EVAL_CONTROL_VERSION = "1.3.2"
+BASELINE_CONFIG_SCHEMA_VERSION = 2
 
 
 def run_git(repo: Path, *args: str) -> str:
@@ -105,7 +114,7 @@ def parse_direct_refs(skill_text: str) -> list[str]:
 
 
 def parse_eval_ids(text: str) -> list[str]:
-    ids = EVAL_RE.findall(text)
+    ids = parse_markdown_eval_ids(text)
     if len(ids) != len(set(ids)):
         duplicates = sorted({item for item in ids if ids.count(item) > 1})
         raise ValueError(f"duplicate evaluation scenario IDs: {duplicates}")
@@ -204,8 +213,22 @@ def compare_inventories(baseline: dict, candidate: dict) -> tuple[list[str], lis
     return errors, notes
 
 
+def compare_current_eval_control(control_ids: list[str], candidate_ids: list[str]) -> tuple[list[str], list[str]]:
+    errors: list[str] = []
+    notes: list[str] = []
+    control = set(control_ids)
+    candidate = set(candidate_ids)
+    missing = sorted(control - candidate)
+    added = sorted(candidate - control)
+    if missing:
+        errors.append(f"current v1.3.2 evaluation scenarios removed: {missing}")
+    if added:
+        notes.append(f"candidate adds evaluation scenarios beyond current v1.3.2 control: {added}")
+    return errors, notes
+
+
 def validate_config(config: dict) -> None:
-    if config.get("schema_version") != 1:
+    if config.get("schema_version") != BASELINE_CONFIG_SCHEMA_VERSION:
         raise ValueError("unsupported runtime optimization baseline schema_version")
     baseline_ref = config.get("baseline_ref", "")
     if not FULL_SHA_RE.fullmatch(baseline_ref):
@@ -220,6 +243,17 @@ def validate_config(config: dict) -> None:
     if baseline_version != PROGRAM_BASELINE_VERSION:
         raise ValueError(
             f"baseline_version must remain pinned to program baseline {PROGRAM_BASELINE_VERSION}"
+        )
+    current_eval_control = config.get("current_eval_control")
+    if not isinstance(current_eval_control, dict) or set(current_eval_control) != {"ref", "version"}:
+        raise ValueError("current_eval_control must contain exactly ref and version")
+    if current_eval_control["ref"] != CURRENT_EVAL_CONTROL_REF:
+        raise ValueError(
+            f"current eval control ref must remain pinned to {CURRENT_EVAL_CONTROL_REF}"
+        )
+    if current_eval_control["version"] != CURRENT_EVAL_CONTROL_VERSION:
+        raise ValueError(
+            f"current eval control version must remain pinned to {CURRENT_EVAL_CONTROL_VERSION}"
         )
     required_surfaces = {
         "rule_map", "goal_map", "project_spec", "skill_entrypoint", "eval_scenarios"
@@ -247,12 +281,28 @@ def check_repository(repo: Path, config: dict) -> dict:
             f"baseline version mismatch: config={config['baseline_version']} git={version}"
         )
 
-    # The candidate must descend from the immutable comparison baseline. This does not
-    # require current main to remain at the baseline SHA.
+    current_control = config["current_eval_control"]
+    current_control_ref = current_control["ref"]
+    current_resolved = run_git(repo, "rev-parse", f"{current_control_ref}^{{commit}}").strip()
+    if current_resolved != current_control_ref:
+        raise ValueError(f"current eval control ref resolved unexpectedly: {current_resolved}")
+    current_version = git_text(repo, current_control_ref, "VERSION").strip()
+    if current_version != current_control["version"]:
+        raise ValueError(
+            f"current eval control version mismatch: config={current_control['version']} git={current_version}"
+        )
+
+    # The candidate must descend from both immutable controls. This preserves the
+    # historical v1.2.2 comparison and the accepted current v1.3.2 eval inventory
+    # without requiring current main to remain at either control SHA.
     try:
         run_git(repo, "merge-base", "--is-ancestor", baseline_ref, "HEAD")
     except ValueError as exc:
-        raise ValueError("candidate HEAD does not descend from the immutable baseline") from exc
+        raise ValueError("candidate HEAD does not descend from the immutable historical baseline") from exc
+    try:
+        run_git(repo, "merge-base", "--is-ancestor", current_control_ref, "HEAD")
+    except ValueError as exc:
+        raise ValueError("candidate HEAD does not descend from the immutable v1.3.2 eval control") from exc
 
     surfaces = config["surfaces"]
     baseline_read = lambda path: git_text(repo, baseline_ref, path)
@@ -281,10 +331,19 @@ def check_repository(repo: Path, config: dict) -> dict:
         read_text=candidate_read,
     )
     errors, notes = compare_inventories(baseline, candidate)
+    current_eval_ids = parse_eval_ids(git_text(repo, current_control_ref, surfaces["eval_scenarios"]))
+    current_errors, current_notes = compare_current_eval_control(current_eval_ids, candidate["eval_ids"])
+    errors.extend(current_errors)
+    notes.extend(current_notes)
     return {
         "ok": not errors,
         "baseline_ref": baseline_ref,
         "baseline_version": config["baseline_version"],
+        "current_eval_control": {
+            "ref": current_control_ref,
+            "version": current_control["version"],
+            "eval_ids": current_eval_ids,
+        },
         "errors": errors,
         "notes": notes,
         "counts": {

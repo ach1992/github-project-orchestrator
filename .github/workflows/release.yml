@@ -50,7 +50,7 @@ jobs:
       - name: Test Phase 6 deterministic lint
         run: python3 tests/test_validate_skill_phase6.py
 
-      - name: Check immutable v1.2.2 runtime equivalence
+      - name: Check historical v1.2.2 and current v1.3.2 representation controls
         run: python3 tools/check_runtime_equivalence.py --repo-root .
 
       - name: Score Phase 7 operational benchmark
