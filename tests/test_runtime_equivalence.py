@@ -5,7 +5,9 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -120,6 +122,78 @@ for hidden_name, hidden_dk in (
             f"{hidden_name} hidden-DK bypass was not rejected: {hostile_errors}"
         )
     print(f"PASS current-v1.3.2-{hidden_name}-dk-bypass-rejected")
+
+def hostile_eval_text(hidden_payload: str) -> str:
+    candidate_text = (ROOT / config["surfaces"]["eval_scenarios"]).read_text(encoding="utf-8")
+    real_dk_start = candidate_text.index("### DK. ")
+    real_guard_start = candidate_text.index("\n## 4. Regression guard", real_dk_start)
+    candidate_text = candidate_text[:real_dk_start] + candidate_text[real_guard_start:]
+
+    visible_row = "| representation-only semantic preservation | `DK` |\n"
+    if candidate_text.count(visible_row) != 1:
+        raise AssertionError("candidate must contain exactly one visible DK supplemental row")
+    candidate_text = candidate_text.replace(visible_row, "", 1)
+    marker = "This table is navigation only; it defines no runtime policy or scenario semantics.\n\n"
+    if candidate_text.count(marker) != 1:
+        raise AssertionError("candidate supplemental navigation marker drifted")
+    return candidate_text.replace(marker, marker + hidden_payload + "\n", 1)
+
+
+with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent_name:
+    temp_root = Path(parent_name) / "candidate"
+    subprocess.run(
+        ["git", "worktree", "add", "--quiet", "--detach", str(temp_root), "HEAD"],
+        cwd=ROOT,
+        check=True,
+    )
+    try:
+        for hidden_name, hidden_payload in (
+            (
+                "commented",
+                "<!--\n### DK. Hidden fake scenario\n"
+                "| representation-only semantic preservation | `DK` |\n-->",
+            ),
+            (
+                "fenced-backtick",
+                "```text\n### DK. Hidden fake scenario\n"
+                "| representation-only semantic preservation | `DK` |\n```",
+            ),
+            (
+                "fenced-tilde",
+                "~~~text\n### DK. Hidden fake scenario\n"
+                "| representation-only semantic preservation | `DK` |\n~~~",
+            ),
+        ):
+            eval_path = temp_root / config["surfaces"]["eval_scenarios"]
+            eval_path.write_text(hostile_eval_text(hidden_payload), encoding="utf-8")
+            completed = subprocess.run(
+                [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if completed.returncode != 1:
+                raise AssertionError(
+                    f"{hidden_name} hidden-DK end-to-end bypass unexpectedly returned "
+                    f"{completed.returncode}: {completed.stdout} {completed.stderr}"
+                )
+            payload = json.loads(completed.stdout)
+            expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+            if expected not in payload.get("errors", []):
+                raise AssertionError(
+                    f"{hidden_name} hidden-DK end-to-end error missing: {payload.get('errors')}"
+                )
+            print(f"PASS current-v1.3.2-{hidden_name}-dk-end-to-end-rejected")
+    finally:
+        subprocess.run(
+            ["git", "worktree", "remove", "--force", str(temp_root)],
+            cwd=ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
 
 lane = json.loads(LANE.read_text(encoding="utf-8"))
 if lane.get("schema_version") != 1:

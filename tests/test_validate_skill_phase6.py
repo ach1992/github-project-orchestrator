@@ -172,6 +172,17 @@ def supplemental_eval_index_tests() -> None:
             "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
         )
 
+        fenced_tilde_row = index_without_row.replace(
+            "|---|---|\n",
+            "|---|---|\n~~~text\n| fixture | `C` |\n~~~\n",
+        )
+        eval_path.write_text(fenced_tilde_row + base, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-tilde-fenced-row-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios are missing from the supplemental retrieval index",
+        )
+
         stray_row = index_without_row + "Narrative only.\n\n| fixture | `C` |\n\n"
         eval_path.write_text(stray_row + base, encoding="utf-8")
         expect_failure(
@@ -197,6 +208,16 @@ def supplemental_eval_index_tests() -> None:
         )
         expect_failure(
             "supplemental-eval-fenced-heading-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        eval_path.write_text(
+            index + base_without_c + "~~~text\n### C. Hidden fake\n~~~\n",
+            encoding="utf-8",
+        )
+        expect_failure(
+            "supplemental-eval-tilde-fenced-heading-not-counted",
             lambda: validator.validate_traceability(root, skill),
             "Supplemental retrieval index references missing evaluation IDs: ['C']",
         )
