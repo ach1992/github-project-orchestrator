@@ -97,6 +97,30 @@ if not any("current v1.3.2 evaluation scenarios removed: ['DK']" in error for er
     raise AssertionError(f"current eval control did not reject DK loss: {current_errors}")
 print("PASS current-v1.3.2-dk-loss-rejected")
 
+current_eval_text = eq.git_text(
+    ROOT, eq.CURRENT_EVAL_CONTROL_REF, config["surfaces"]["eval_scenarios"]
+)
+dk_start = current_eval_text.index("### DK. ")
+guard_start = current_eval_text.index("\n## 4. Regression guard", dk_start)
+without_real_dk = current_eval_text[:dk_start] + current_eval_text[guard_start:]
+for hidden_name, hidden_dk in (
+    ("commented", "<!--\n### DK. Hidden fake\n-->\n"),
+    ("fenced", "```text\n### DK. Hidden fake\n```\n"),
+):
+    hostile_text = without_real_dk.replace(
+        "## 4. Regression guard", hidden_dk + "\n## 4. Regression guard", 1
+    )
+    hostile_ids = eq.parse_eval_ids(hostile_text)
+    if "DK" in hostile_ids:
+        raise AssertionError(f"{hidden_name} hidden DK heading incorrectly counted")
+    hostile_errors, _hostile_notes = eq.compare_current_eval_control(control_ids, hostile_ids)
+    expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+    if expected not in hostile_errors:
+        raise AssertionError(
+            f"{hidden_name} hidden-DK bypass was not rejected: {hostile_errors}"
+        )
+    print(f"PASS current-v1.3.2-{hidden_name}-dk-bypass-rejected")
+
 lane = json.loads(LANE.read_text(encoding="utf-8"))
 if lane.get("schema_version") != 1:
     raise AssertionError("runtime optimization lane schema_version must be 1")

@@ -11,14 +11,20 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
+
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from markdown_eval import parse_eval_ids as parse_markdown_eval_ids
 
 RULE_ROW_RE = re.compile(r"^`([A-Z][A-Z0-9-]+)`$")
 GOAL_RE = re.compile(r"\bG\d{2}\b")
 STATE_RE = re.compile(
     r"\b(TaskState|WorkerStatus|WriteState|DeliveryState|MasterBoundary)\.([A-Z][A-Z0-9_]*)\b"
 )
-EVAL_RE = re.compile(r"^###\s+([A-Z]{1,3})\.\s+", re.MULTILINE)
 DIRECT_REF_RE = re.compile(r"\((references/[A-Za-z0-9._/-]+\.md)\)")
 FULL_SHA_RE = re.compile(r"[0-9a-f]{40}")
 TEXT_SUFFIXES = {".md", ".py", ".yaml", ".yml", ".json"}
@@ -108,7 +114,7 @@ def parse_direct_refs(skill_text: str) -> list[str]:
 
 
 def parse_eval_ids(text: str) -> list[str]:
-    ids = EVAL_RE.findall(text)
+    ids = parse_markdown_eval_ids(text)
     if len(ids) != len(set(ids)):
         duplicates = sorted({item for item in ids if ids.count(item) > 1})
         raise ValueError(f"duplicate evaluation scenario IDs: {duplicates}")

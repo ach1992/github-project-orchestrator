@@ -10,6 +10,12 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from markdown_eval import effective_markdown, parse_eval_ids
+
 REQUIRED_RUNTIME_PATHS = (
     "SKILL.md",
     "agents/openai.yaml",
@@ -33,7 +39,6 @@ REQUIRED_DIRECT_ROUTER_TARGETS = tuple(
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
 LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|mailto:|#)([^)]+)\)")
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-EVAL_HEADING_RE = re.compile(r"^###\s+([A-Z]+)\.\s+", re.MULTILINE)
 SUPPLEMENTAL_EVAL_HEADING = "### Supplemental retrieval index"
 LEGACY_UNINDEXED_EVAL_MAX_ID = "DJ"
 PROJECT_GOAL_ROW_RE = re.compile(r"^\|\s*`(G\d{2})`(?:\s+[^|]*)?\s*\|", re.MULTILINE)
@@ -178,10 +183,6 @@ def int_to_eval_id(value: int) -> str:
     return "".join(reversed(chars))
 
 
-def parse_eval_ids(text: str) -> list[str]:
-    return EVAL_HEADING_RE.findall(text)
-
-
 def validate_eval_ids(text: str) -> set[str]:
     eval_ids = parse_eval_ids(text)
     if not eval_ids:
@@ -209,31 +210,53 @@ def parse_eval_anchors(cell: str, context: str) -> set[str]:
     return set(values)
 
 
+def parse_table_cells(line: str) -> list[str] | None:
+    if not line.startswith("|") or not line.endswith("|"):
+        return None
+    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+
+
 def parse_supplemental_eval_ids(text: str) -> set[str] | None:
+    visible = effective_markdown(text)
     marker = f"{SUPPLEMENTAL_EVAL_HEADING}\n"
-    count = text.count(marker)
+    count = visible.count(marker)
     if count == 0:
         return None
     if count != 1:
         fail("Supplemental retrieval index must appear exactly once")
 
-    section = text.split(marker, 1)[1]
+    section = visible.split(marker, 1)[1]
     next_h2 = re.search(r"(?m)^##\s+", section)
     if next_h2:
         section = section[: next_h2.start()]
 
+    lines = section.splitlines()
+    expected_header = ["Change surface", "Supplemental eval IDs"]
+    header_indexes = [
+        index for index, line in enumerate(lines) if parse_table_cells(line) == expected_header
+    ]
+    if len(header_indexes) != 1:
+        fail("Supplemental retrieval index must contain exactly one navigation table")
+
+    header_index = header_indexes[0]
+    if header_index + 1 >= len(lines):
+        fail("Supplemental retrieval index table is missing its separator row")
+    separator = parse_table_cells(lines[header_index + 1])
+    if separator is None or len(separator) != 2 or not all(
+        re.fullmatch(r":?-{3,}:?", cell) for cell in separator
+    ):
+        fail("Supplemental retrieval index table has an invalid separator row")
+
     observed: list[str] = []
-    for line in section.splitlines():
-        if not line.startswith("|"):
-            continue
-        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+    for line in lines[header_index + 2 :]:
+        if not line.strip():
+            break
+        cells = parse_table_cells(line)
+        if cells is None:
+            break
         if len(cells) != 2:
             fail(f"Supplemental retrieval index row must have exactly two columns: {line}")
         surface, eval_cell = cells
-        if surface == "Change surface":
-            continue
-        if all(set(cell) <= {"-", ":", " "} for cell in cells):
-            continue
         if not surface:
             fail("Supplemental retrieval index surface must not be empty")
         ids = [part.strip().strip("`") for part in eval_cell.split(",") if part.strip()]
