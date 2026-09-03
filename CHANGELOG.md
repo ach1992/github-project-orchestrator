@@ -2,6 +2,35 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.3] - 2026-09-03
+
+### Changed
+
+- Added a compact supplemental retrieval index for the 24 evaluation scenarios not reachable through existing Rule/Goal eval anchors, while keeping Rule/Goal IDs as seed anchors rather than treating the supplemental index as exhaustive semantic ownership.
+- Added explicit self-modification retrieval guidance: combine affected Rule/Goal anchors with matching supplemental scenarios, exact predicate/state/helper/field searches, relevant Regression Guard clauses, and `DK` for representation-only rewrites; widen the set whenever relevance is uncertain.
+- Kept all 115 evaluation scenario bodies and their physical ordering intact; normal project runtime routing and canonical Rule/Goal/state/gate behavior are unchanged.
+
+### Fixed
+
+- Closed a deterministic regression-control gap where removing the accepted `DK` scenario from v1.3.2 could still pass both `validate_skill.py` and the historical runtime-equivalence check. Current releases now retain an immutable v1.3.2 eval-inventory control in addition to the historical v1.2.2 semantic baseline.
+- `validate_skill.py` now requires every Rule/Goal-unanchored scenario to appear in the supplemental retrieval surface, rejects missing/unknown/duplicate coverage, and prevents the bounded pre-v1.3.2 compatibility flag from bypassing current inventories.
+- Centralized eval-heading discovery in a bounded shared Markdown parser and hardened it against headings hidden in comments, fenced code, supported raw-HTML blocks, cross-line heading tricks, titleless headings, indentation ambiguity, and CDATA case mistakes.
+
+### Validation
+
+- Independent HIGH_ASSURANCE review of PR #95 completed with `APPROVE` after multiple adversarial remediation rounds covering hidden Markdown, raw HTML, GFM fence boundaries, physical-line parsing, CDATA handling, and non-empty eval titles.
+- The former v1.3.2 failure mode was reproduced again before release: deleting `DK` passed both old controls, while the new current-control path rejects equivalent scenario removal; an added unanchored scenario is also rejected until retrieval coverage is registered.
+- Exact merged-tree validation passes with 115 eval scenarios, deterministic Skill validation, runtime-equivalence controls, regression suites, packaging tests, and runtime-cleanliness checks. No controlled live-model speed/accuracy percentage claim is made.
+
+### Runtime compatibility
+
+- This patch improves Skill self-modification/evaluation retrieval and release-time regression assurance; it does not change ordinary Master/Worker orchestration semantics, authority gates, lifecycle namespaces, review/integration behavior, release/delivery behavior, or normal routing.
+- The distributed Skill adds only the small retrieval index/guidance in `references/eval-scenarios.md`; the parser, current-control logic, and expanded adversarial tests are repository tooling and are not part of the normal always-loaded runtime path.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.3.2] - 2026-09-03
 
 ### Changed
