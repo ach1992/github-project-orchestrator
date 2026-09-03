@@ -178,6 +178,20 @@ def supplemental_eval_index_tests() -> None:
             "Supplemental retrieval index references missing evaluation IDs: ['C']",
         )
 
+        for separator_name, separator in (("spaces", "   "), ("tabs", "\t\t")):
+            titleless = f"### C.{separator}\nFalse-positive paragraph, not a titled eval heading\n"
+            if validator.parse_eval_ids(titleless):
+                raise AssertionError(f"{separator_name} titleless eval heading was incorrectly counted")
+            eval_path.write_text(
+                index + "### A. One\n\n### B. Two\n\n" + titleless,
+                encoding="utf-8",
+            )
+            expect_failure(
+                f"supplemental-eval-titleless-{separator_name}-heading-cannot-satisfy-index",
+                lambda: validator.validate_traceability(root, skill),
+                "Supplemental retrieval index references missing evaluation IDs: ['C']",
+            )
+
         uppercase_cdata = "<![CDATA[\n### C. Hidden fake\n]]>\n"
         if validator.parse_eval_ids(uppercase_cdata):
             raise AssertionError("uppercase CDATA contents must remain hidden")

@@ -227,6 +227,49 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
             )
         print("PASS current-v1.3.2-cross-line-fake-dk-end-to-end-rejected")
 
+        for separator_name, separator in (("spaces", "   "), ("tabs", "\t\t")):
+            titleless_fake = without_real_dk.replace(
+                "## 4. Regression guard",
+                f"### DK.{separator}\nFalse-positive paragraph, not a titled eval scenario\n\n## 4. Regression guard",
+                1,
+            )
+            eval_path.write_text(titleless_fake, encoding="utf-8")
+            validation = subprocess.run(
+                [sys.executable, "tools/validate_skill.py", "skill"],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if validation.returncode != 1:
+                raise AssertionError(
+                    f"titleless-{separator_name} fake DK unexpectedly passed validator: "
+                    f"{validation.returncode}: {validation.stdout} {validation.stderr}"
+                )
+            completed = subprocess.run(
+                [sys.executable, "tools/check_runtime_equivalence.py", "--repo-root", "."],
+                cwd=temp_root,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if completed.returncode != 1:
+                raise AssertionError(
+                    f"titleless-{separator_name} fake DK unexpectedly satisfied current control: "
+                    f"{completed.returncode}: {completed.stdout} {completed.stderr}"
+                )
+            payload = json.loads(completed.stdout)
+            expected = "current v1.3.2 evaluation scenarios removed: ['DK']"
+            if expected not in payload.get("errors", []):
+                raise AssertionError(
+                    f"titleless-{separator_name} fake DK missing exact rejection: {payload.get('errors')}"
+                )
+            if "DK" in payload.get("candidate_inventory", {}).get("eval_ids", []):
+                raise AssertionError(f"titleless-{separator_name} fake DK remained in candidate inventory")
+            print(f"PASS current-v1.3.2-titleless-{separator_name}-dk-end-to-end-rejected")
+
         for cdata_name, cdata_start in (
             ("lowercase", "<![cdata["),
             ("mixed-case", "<![CdAtA["),

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-EVAL_HEADING_RE = re.compile(r"^ {0,3}###[ \t]+([A-Z]+)\.[ \t]+", re.MULTILINE)
+EVAL_HEADING_RE = re.compile(r"^ {0,3}###[ \t]+([A-Z]+)\.[ \t]+[^ \t\r\n]", re.MULTILINE)
 FENCE_OPEN_RE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
 HTML_TYPE1_RE = re.compile(r"^(?:script|pre|style)(?=[\t >]|$)", re.IGNORECASE)
 HTML_TYPE1_END_RE = re.compile(r"</(?:script|pre|style)>", re.IGNORECASE)
