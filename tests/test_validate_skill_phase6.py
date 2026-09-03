@@ -149,6 +149,46 @@ def supplemental_eval_index_tests() -> None:
         validator.validate_traceability(root, skill)
         print("PASS supplemental-eval-valid")
 
+        for spaces in range(4):
+            visible = f"### A. One\n\n### B. Two\n\n{' ' * spaces}### C. Three\n"
+            eval_path.write_text(index + visible, encoding="utf-8")
+            validator.validate_traceability(root, skill)
+            print(f"PASS supplemental-eval-visible-heading-indent-{spaces}")
+
+        four_space_code = "### A. One\n\n### B. Two\n\n    ### C. Code, not heading\n"
+        eval_path.write_text(index + four_space_code, encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-four-space-heading-not-counted",
+            lambda: validator.validate_traceability(root, skill),
+            "Supplemental retrieval index references missing evaluation IDs: ['C']",
+        )
+
+        eval_path.write_text("### A. One\n\n### B. Two\n\n  ### C. Visible unanchored\n", encoding="utf-8")
+        expect_failure(
+            "supplemental-eval-indented-unanchored-requires-index",
+            lambda: validator.validate_traceability(root, skill),
+            "Unanchored evaluation scenarios require a supplemental retrieval index: ['C']",
+        )
+
+        comment_with_fence = (
+            index
+            + "### A. One\n\n### B. Two\n\n<!--\n```text\ninside comment\n-->\n### C. Three\n"
+        )
+        eval_path.write_text(comment_with_fence, encoding="utf-8")
+        validator.validate_traceability(root, skill)
+        print("PASS supplemental-eval-comment-fence-state-isolated")
+
+        for html_name, html in (
+            ("pre", "<pre>\n### C. Hidden fake\n</pre>\n"),
+            ("div", "<div>\n### C. Hidden fake\n</div>\n\n"),
+        ):
+            eval_path.write_text(index + "### A. One\n\n### B. Two\n" + html, encoding="utf-8")
+            expect_failure(
+                f"supplemental-eval-{html_name}-html-heading-not-counted",
+                lambda: validator.validate_traceability(root, skill),
+                "Supplemental retrieval index references missing evaluation IDs: ['C']",
+            )
+
         index_without_row = index.replace("| fixture | `C` |\n", "")
         commented_row = index_without_row.replace(
             "|---|---|\n",

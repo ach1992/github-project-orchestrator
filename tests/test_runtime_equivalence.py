@@ -163,6 +163,14 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
                 "~~~text\n### DK. Hidden fake scenario\n"
                 "| representation-only semantic preservation | `DK` |\n~~~",
             ),
+            (
+                "raw-html-pre",
+                "<pre>\n### DK. Hidden fake scenario\n</pre>\n",
+            ),
+            (
+                "raw-html-div",
+                "<div>\n### DK. Hidden fake scenario\n</div>\n\n",
+            ),
         ):
             eval_path = temp_root / config["surfaces"]["eval_scenarios"]
             eval_path.write_text(hostile_eval_text(hidden_payload), encoding="utf-8")
@@ -194,6 +202,30 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
             stderr=subprocess.PIPE,
             check=False,
         )
+
+for spaces in range(4):
+    indented = current_eval_text.replace(
+        "### DK. Structured rewrite preserves independent prose semantics",
+        f"{' ' * spaces}### DK. Structured rewrite preserves independent prose semantics",
+        1,
+    )
+    if "DK" not in eq.parse_eval_ids(indented):
+        raise AssertionError(f"visible DK heading with {spaces} leading spaces was not counted")
+    print(f"PASS current-v1.3.2-visible-dk-indent-{spaces}")
+
+four_space = current_eval_text.replace(
+    "### DK. Structured rewrite preserves independent prose semantics",
+    "    ### DK. Structured rewrite preserves independent prose semantics",
+    1,
+)
+if "DK" in eq.parse_eval_ids(four_space):
+    raise AssertionError("four-space indented DK pseudo-heading was incorrectly counted")
+print("PASS current-v1.3.2-four-space-dk-not-counted")
+
+comment_fence_text = "<!--\n```text\ninside comment\n-->\n### DK. Visible after comment\n"
+if eq.parse_eval_ids(comment_fence_text) != ["DK"]:
+    raise AssertionError("fence opener inside HTML comment suppressed a later visible heading")
+print("PASS current-v1.3.2-comment-fence-state-isolated")
 
 lane = json.loads(LANE.read_text(encoding="utf-8"))
 if lane.get("schema_version") != 1:
