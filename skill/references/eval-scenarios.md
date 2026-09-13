@@ -26,7 +26,6 @@ This table is navigation only; it defines no runtime policy or scenario semantic
 | multi-effect / unknown-write / lifecycle-namespace non-propagation | `DC`, `DD`, `DE`, `DF` |
 | Worker correction identity | `DG` |
 | representation-only semantic preservation | `DK` |
-| repository/worktree reuse and task-resource cleanup | `B`, `X`, `AI`, `BG`, `DL` |
 
 ## 2. Core scenarios
 
