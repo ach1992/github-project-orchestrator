@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.4] - 2026-09-14
+
+### Changed
+
+- Made repository/workspace handling explicitly reuse-first: reuse a suitable existing repository/worktree before provisioning another, prefer `git worktree` when branch/task isolation is sufficient, and use a separate full clone only when repository-level isolation or tooling genuinely requires it.
+- Made cleanup of task-created checkouts/worktrees, generated artifacts, test environments, and containers explicitly ownership- and state-safe so temporary resources are removed only after their purpose ends and no useful uncommitted, unpushed, ambiguous, or unrelated state can be lost.
+
+### Validation
+
+- A repository-wide runtime audit confirmed the new workspace-provisioning and disposable-resource decisions have one canonical owner in `skill/SKILL.md`; existing Master, Worker, continuity, and authority references retain only their distinct identity/isolation/recovery responsibilities rather than duplicating the new policy.
+- PR #97 and the post-merge `main` workflow both completed the full deterministic validation, runtime-equivalence, benchmark, packaging, publisher, immutable-baseline, and runtime-cleanliness suites successfully before this release preparation.
+
+### Runtime compatibility
+
+- This patch specializes the existing `MUTATION-IDEMPOTENT` and `PROTECT-UNRELATED` invariants; it adds no lifecycle/status namespace, canonical Rule ID, authority/gate change, FAST/FULL or persistence change, review/release-state change, external runtime dependency, or parallel cleanup subsystem.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.3.3] - 2026-09-03
 
 ### Changed
