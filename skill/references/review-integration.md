@@ -36,7 +36,7 @@ REVIEW_VALID(envelope) =
 
 `ApplicableContractRevisionIsCurrent` is true when no explicit Task Contract applies; it requires an exact current revision only when the review is contract-bound. When `REVIEW_VALID=false`, refresh the affected evidence and re-review the changed effective surface before integration. Current CI/checks, required approvals, unresolved findings, repository rules, and applicable action gates are separate integration-gate inputs; they are not hidden inside review freshness.
 
-A changed candidate that still requires independent review needs a **fresh verdict bound to the new exact candidate**, but freshness does not require throwing away sound analysis of an unchanged surface. A reviewer may use the prior exact reviewed candidate as a baseline, inspect the exact prior-candidate-to-current-candidate delta plus every interaction/assumption/evidence surface that delta can affect, and reuse prior findings/evidence only where those assumptions remain valid. Re-read unchanged files or repeat full-surface analysis when the delta can invalidate their behavior, architecture, security/data assumptions, acceptance proof, or review completeness. Prior approval never transfers automatically to the new candidate.
+A changed candidate that still requires independent review needs a **fresh verdict bound to the new exact candidate**, but freshness does not require throwing away sound analysis of an unchanged surface. A reviewer may use the prior exact reviewed candidate as a baseline, inspect the exact prior-candidate-to-current-candidate delta plus every interaction/assumption/evidence surface that delta can affect, and reuse prior analysis/evidence only where those assumptions remain valid. If the delta changes a shared interface, control flow, dependency, architecture boundary, security/data assumption, acceptance proof, or other fact on which an unchanged surface depended, widen review to that affected surface. Prior analysis may transfer when still valid; the prior verdict/approval never does.
 
 ### Integration path selection
 
@@ -111,7 +111,7 @@ Use the source authoritative for the question and verify it is current for the s
 
 Worker/human summaries and old chat are locators only. On conflict, test staleness, SHA/environment mismatch, and scope before deciding a source is wrong.
 
-Reuse green validation/review evidence while the exact identity/environment/contract assumptions it proves are unchanged and repository policy does not require a new run. Do not rerun broad validation merely to make evidence look newer. When a new candidate SHA must satisfy repository-required CI, run that required CI; when local broad validation would only duplicate the same proof without earlier differential value, prefer focused local feedback plus the authoritative exact-candidate CI.
+At review/integration, evaluate the **freshness of evidence already produced** rather than redesigning the validation plan: reuse only evidence whose proof identity and material assumptions remain current, and never transfer a verdict/approval to a changed candidate. Repository-required checks bound to the current candidate remain mandatory. Do not rerun broad validation solely to make otherwise-current evidence look newer.
 
 ## 4. CI failures
 
@@ -126,7 +126,7 @@ Classify before code change, then take the action implied by evidence:
 | `INTEGRATION_FAILURE` | inspect candidate x current-target interaction, conflict, dependency, and compatibility; reconcile effective change before editing |
 | `UNKNOWN` | gather the smallest discriminating evidence before changing code or weakening checks |
 
-Never disable/skip/loosen/rewrite checks merely to get green CI unless the check itself is demonstrably wrong and its correction is separately justified/reviewed. Apply `master-cycle.md` anti-spin rules to retries. After classification, prefer the narrowest check/job that can discriminate the suspected cause before paying for another broad suite when repository policy allows; a new SHA still runs every repository-required gate. If a local validation route has already proved incompatible with the unchanged environment, do not repeat that route as a substitute for compatible CI/test infrastructure.
+Never disable/skip/loosen/rewrite checks merely to get green CI unless the check itself is demonstrably wrong and its correction is separately justified/reviewed. Apply `master-cycle.md` anti-spin rules to retries. After classification, prefer the narrowest check/job that can discriminate the suspected cause before paying for another broad suite when repository policy allows; a new SHA still runs every repository-required gate.
 
 ## 5. Conflicts
 

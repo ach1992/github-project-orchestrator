@@ -15,14 +15,14 @@ Status: current development traceability map for the refactored runtime, preserv
 
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
-| `OUTCOME-STABLE` | Preserve accepted outcome/success criteria; do not shrink for convenience or expand to manufacture work. | `SKILL.md` outcome kernel | `SKILL.md:40`; `master-cycle.md:174+` | AY, BA, CB, CY |
+| `OUTCOME-STABLE` | Preserve accepted outcome/success criteria; do not shrink for convenience or expand to manufacture work. | `SKILL.md` outcome kernel | `SKILL.md:40`; `master-cycle.md:174+` | AY, BA, CB, CY, DO |
 | `TRUTH-ONE-OWNER` | One authoritative owner per kind of live truth; avoid competing manager-memory artifacts. | `SKILL.md` truth model | `SKILL.md:41,61-73`; `governance.md:47+` | A, I, Z |
 | `EVIDENCE-BEATS-NARRATIVE` | Current Git/GitHub/CI/deployment evidence outranks summaries/chat. | `SKILL.md` truth model | `SKILL.md:42,59-79` | E, I, BH, CO |
 | `MUTATION-IDEMPOTENT` | Discover/reuse/update/create-only-if-absent/verify; incomplete discovery is not absence. | `SKILL.md` mutation invariant | `SKILL.md:43` | B, AU |
 | `DRIFT-RECONCILE` | Re-read and reconcile before overwrite-sensitive/integration/release/production writes. | `SKILL.md` mutation invariant | `SKILL.md:44`; `authority-gates.md:156+` | E, BH |
 | `PROTECT-UNRELATED` | Never destroy/absorb unrelated user/contributor work to simplify execution. | `SKILL.md` safety invariant | `SKILL.md:50` | X |
 | `NO-FABRICATION` | Never claim actions/evidence that were not performed and verified. | `SKILL.md` evidence invariant | `SKILL.md:52` | P, CO |
-| `ANTI-SPIN` | Do not repeat materially identical failed actions without new evidence; change strategy or work. | `SKILL.md` execution invariant | `SKILL.md:53`; `master-cycle.md:157+` | T, BG |
+| `ANTI-SPIN` | Do not repeat materially identical failed actions without new evidence; change strategy or work. | `SKILL.md` execution invariant | `SKILL.md:53`; `master-cycle.md:157+` | T, BG, DP |
 | `MACHINE-RELAY-PORTABLE` | AI-to-AI relay prose is English by default, identity-bearing/decision-relevant literals stay exact unless safety/redaction requires otherwise, and every user-visible machine relay is the complete response as one copy target without requiring a separate copy-ready request, while domain owners retain payload semantics and no workflow state/control is weakened. | `SKILL.md` human-relay kernel | post-v1.2.0 requirement, clarified after v1.2.2: `docs/PROJECT-SPEC.md` §3.2 | AT, BC, CK, DI |
 | `LEAN-ORCHESTRATION` | Create project/process artifacts only when they improve a future decision, execution, safety, or recovery. | `governance.md` | `SKILL.md:49`; `governance.md:9+` | K, AB, BT |
 | `SUCCESSION-RECOVERABLE` | End at canonical boundaries with authoritative state sufficient for a replacement Master, subject to explicit USER_STOP. | `continuity.md` | `SKILL.md:56`; `continuity.md:49+` | I, Z, AI, BB |
@@ -51,14 +51,14 @@ Status: current development traceability map for the refactored runtime, preserv
 | `DIMENSIONS-ORTHOGONAL` | Coordination, assurance, risk, execution path, persistence, strategy, capability, and Authority are independent inputs unless an explicit rule connects them. | `SKILL.md` state ontology | `SKILL.md:12-31`; `authority-gates.md:9-20`; `task-contract.md:19-36` | AD, CE, CF, CM, CU |
 | `RISK-SCOPED` | Reclassify change risk only when decision-relevant; risk is change-specific and not importance/project size. | `task-contract.md` | `SKILL.md:21`; `task-contract.md:87-98` | AC, AJ, CW |
 | `WORK-CLEAR-ENOUGH` | Outcome, acceptance, validation, dependencies, and material risk must be clear enough for the next change; formalize only when useful. | `task-contract.md` | `SKILL.md:46`; `task-contract.md:19+` | K, L, BE |
-| `ENGINEERING-CONCERNS-PROPORTIONAL` | Activate only engineering concerns material to the actual change/failure surface and carry them through implementation/evidence without a universal checklist, state field, artifact, dimension change, or new gate by default. | `engineering-quality.md` | post-v1.1.1 requirement: `docs/PROJECT-SPEC.md` §3.1 | G, K, L, M, AB, AC, BS, BT, BU, CO, DH |
+| `ENGINEERING-CONCERNS-PROPORTIONAL` | Activate only engineering concerns material to the actual change/failure surface and carry them through implementation/evidence without a universal checklist, state field, artifact, dimension change, or new gate by default. | `engineering-quality.md` | post-v1.1.1 requirement: `docs/PROJECT-SPEC.md` §3.1 | G, K, L, M, AB, AC, BS, BT, BU, CO, DH, DM |
 | `DEFENSIVE-SECURITY-CONTINUATION` | Security-sensitive AI work states only evidence-backed defensive authorization/scope, preserves provider/platform policy and safety boundaries, uses approved secret/runtime mechanisms without relaying raw secret values when authorized credentialed access is needed, and continues safely allowed analysis/remediation/testing when a detail is restricted. | `engineering-quality.md` | post-v1.2.0 requirement: `docs/PROJECT-SPEC.md` §3.2 | DJ |
 | `FAST-FULL-SELECT` | FAST/FULL is selected from ambiguity/dependency/review/control need; routine behavior changes may remain FAST. | `master-cycle.md` | `master-cycle.md:61-73`; `task-contract.md:23-36` | K, L, AB, CF, CM |
 | `CONTRACT-PERSISTENCE-INDEPENDENT` | FULL does not imply persistence; persistence depends on recovery/coordination value. Existing persistence does not imply FULL. | `task-contract.md` | `task-contract.md:23-36` | CM |
 | `DELEGATION-PROPORTIONAL` | Delegate only when specialization/throughput/parallelism materially helps; bounded single delegation can remain LIGHTWEIGHT while still using full Worker envelope. | `master-cycle.md` | `SKILL.md:27`; `master-cycle.md:74-85`; `worker-protocol.md:58-60` | Q, AN |
 | `SELF-EXECUTION-FALLBACK` | If direct Worker dispatch is unavailable, Master self-executes safe authorized work rather than stopping. | `master-cycle.md` | `SKILL.md:113`; `master-cycle.md:74-102` | Q |
-| `WIP-FLOW` | Prefer review/integration/unblocking when they bottleneck; parallelize only genuinely independent surfaces. | `master-cycle.md` | `SKILL.md:48`; `master-cycle.md:119-130` | J, R |
-| `SYNTHESIZE-WORK` | Outcome incomplete + no READY item triggers refine/unblock/split/investigate, not automatic NO_READY_WORK. | `master-cycle.md` | `SKILL.md:93-94`; `master-cycle.md:131-156` | O, AX |
+| `WIP-FLOW` | Prefer review/integration/unblocking when they bottleneck; parallelize only genuinely independent surfaces. | `master-cycle.md` | `SKILL.md:48`; `master-cycle.md:119-130` | J, R, DL |
+| `SYNTHESIZE-WORK` | Outcome incomplete + no READY item triggers refine/unblock/split/investigate, not automatic NO_READY_WORK. | `master-cycle.md` | `SKILL.md:93-94`; `master-cycle.md:131-156` | O, AX, DL, DO |
 | `MASTER-STOP-CANONICAL` | Chat turn, commit, PR update, review, Worker handoff, tool batch, or missing delegation is not a Master stop; stop only at canonical boundary after continuation test. | `master-cycle.md` | `SKILL.md:55,83-95`; `authority-gates.md:115-139`; `master-cycle.md:186+` | O, P, R, AW, AX, AP, CN, CQ |
 
 ## 5. Worker and assignment
@@ -79,9 +79,9 @@ Status: current development traceability map for the refactored runtime, preserv
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
 | `REVIEW-EFFECTIVE-CHANGE` | Review current target-to-candidate effective change, not stale narrative or only author intent. | `review-integration.md` | `SKILL.md:106`; `review-integration.md:9-77` | E |
-| `REVIEW-IDENTITY-FRESH` | Approval/evidence is bound to target, candidate, contract, and relevant SHA; material drift invalidates transfer. | `review-integration.md` | `review-integration.md:9-21,78-91` | E, CJ |
+| `REVIEW-IDENTITY-FRESH` | Approval/evidence is bound to target, candidate, contract, and relevant SHA; material drift invalidates transfer. | `review-integration.md` | `review-integration.md:9-21,78-91` | E, CJ, DN |
 | `UNTRUSTED-EXECUTION-SURFACE` | Inspect changed hooks/scripts/workflows/supply-chain surfaces before executing untrusted candidate code. | `review-integration.md` | `SKILL.md:106`; `review-integration.md:55-77` | M |
-| `CI-CLASSIFY` | CI failure is classified by candidate/baseline/environment/transient cause before deciding the next action. | `review-integration.md` | `review-integration.md:92-106` | F, CL |
+| `CI-CLASSIFY` | CI failure is classified by candidate/baseline/environment/transient cause before deciding the next action. | `review-integration.md` | `review-integration.md:92-106` | F, CL, DM |
 | `CONFLICT-RECONCILE` | Resolve conflicts against fresh target/effective change and revalidate affected evidence. | `review-integration.md` | `review-integration.md:107-116` | E |
 | `INTEGRATION-GATE` | Integrate only after current acceptance, review, CI/policy, target/candidate identity, and applicable action gates are satisfied. | `review-integration.md` | `review-integration.md:117-147` | H, CI, CJ |
 | `SELF-AUTHORED-FRESH-REVIEW` | Master-authored work still receives a fresh diff/acceptance review; independent review only when risk/profile requires it. | `review-integration.md` | `SKILL.md:47`; `review-integration.md:148-166` | BC |

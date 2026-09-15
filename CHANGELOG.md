@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.5] - 2026-09-15
+
+### Changed
+
+- Right-sized orchestration around a **minimum meaningful slice** so reviewable sibling work that shares one accepted behavior and materially aligned dependency/ownership/risk/rollback/release/validation boundaries can travel together, while materially different acceptance/control boundaries remain split.
+- Reframed validation as a **minimum sufficient evidence plan**: remove duplicate proof without dropping independent acceptance, risk, compatibility, security/data, repository-policy, or current-candidate CI guarantees.
+- Made remediation review delta-focused without weakening freshness: every changed candidate that requires independent review still needs a fresh exact-candidate verdict, prior verdicts never transfer, and review widens whenever a delta can invalidate assumptions on unchanged surfaces.
+- Added event-driven phase cutlines that preserve all accepted completion work while moving only newly discovered outside-gate non-blocking work to follow-up, and expanded anti-spin to successful-but-nonprogressing assurance loops.
+
+### Validation
+
+- Added direct adversarial scenarios `DL`-`DP` for work-package right-sizing, proportional validation/evidence reuse, delta-focused fresh re-review, phase-cutline scope preservation, and assurance-overhead anti-spin.
+- Extended existing Rule Map anchors to those scenarios without introducing a new Rule ID, lifecycle/status namespace, or canonical owner.
+- The final semantic package was reconstructed twice with byte-identical `skill.zip` output before repository integration validation; exact-head repository CI and the existing HIGH_ASSURANCE review/integration gates remain mandatory for the release candidate.
+
+### Runtime compatibility
+
+- Existing authority/effect gates, Worker lifecycle, FAST/FULL selection, contract persistence, review separation, integration controls, and release/delivery semantics remain intact.
+- The changes reduce repeated Issue/PR/CI/review and environment-mismatch overhead only when doing so preserves accepted scope, reviewability, independent guarantees, repository-required gates, and exact-candidate review freshness.
+- No universal PR-size, test-count, retry-count, or elapsed-time threshold is introduced.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.3.4] - 2026-09-14
 
 ### Changed

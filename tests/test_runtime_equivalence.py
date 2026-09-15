@@ -147,6 +147,13 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
         check=True,
     )
     try:
+        # These end-to-end hostile eval fixtures mutate the current candidate eval inventory.
+        # Carry the candidate Rule Map into the detached control worktree so newly anchored
+        # current scenarios remain anchored while the fixture perturbs only eval parsing.
+        candidate_rule_map = ROOT / "design" / "RULE-MAP.md"
+        temp_rule_map = temp_root / "design" / "RULE-MAP.md"
+        temp_rule_map.write_text(candidate_rule_map.read_text(encoding="utf-8"), encoding="utf-8")
+
         for hidden_name, hidden_payload in (
             (
                 "commented",
@@ -276,7 +283,7 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
         ):
             additive_text = candidate_text.replace(
                 "\n## 4. Regression guard",
-                f"\n{cdata_start}\n### DL. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
+                f"\n{cdata_start}\n### DQ. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
                 1,
             )
             eval_path.write_text(additive_text, encoding="utf-8")
@@ -288,9 +295,9 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
                 stderr=subprocess.PIPE,
                 check=False,
             )
-            if validation.returncode != 1 or "Unanchored evaluation scenarios are missing from the supplemental retrieval index: ['DL']" not in validation.stderr:
+            if validation.returncode != 1 or "Unanchored evaluation scenarios are missing from the supplemental retrieval index: ['DQ']" not in validation.stderr:
                 raise AssertionError(
-                    f"{cdata_name} CDATA-like DL did not fail supplemental validation: "
+                    f"{cdata_name} CDATA-like DQ did not fail supplemental validation: "
                     f"{validation.returncode}: {validation.stdout} {validation.stderr}"
                 )
             equivalence = subprocess.run(
@@ -303,13 +310,13 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
             )
             if equivalence.returncode != 0:
                 raise AssertionError(
-                    f"{cdata_name} CDATA-like additive DL equivalence failed: "
+                    f"{cdata_name} CDATA-like additive DQ equivalence failed: "
                     f"{equivalence.returncode}: {equivalence.stdout} {equivalence.stderr}"
                 )
             eq_payload = json.loads(equivalence.stdout)
-            if "DL" not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
-                raise AssertionError(f"{cdata_name} CDATA-like DL was omitted from candidate inventory")
-            print(f"PASS current-v1.3.2-{cdata_name}-cdata-additive-dl-visible")
+            if "DQ" not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
+                raise AssertionError(f"{cdata_name} CDATA-like DQ was omitted from candidate inventory")
+            print(f"PASS current-v1.3.2-{cdata_name}-cdata-additive-dq-visible")
     finally:
         subprocess.run(
             ["git", "worktree", "remove", "--force", str(temp_root)],
