@@ -138,9 +138,10 @@ Do not mirror WorkerStatus labels into MasterBoundary without Master-level recon
 - a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
 - reconcile stale assignments before replacement dispatch;
 - create out-of-contract follow-up only when actionable and not required for current acceptance;
+- right-size work to a **minimum meaningful slice**: split work that crosses materially different dependency, ownership, risk, rollback, release, or validation boundaries, but batch homogeneous serial changes when those boundaries align and the combined effective diff remains reviewable; do not pay a full Issue/PR/CI/review cycle for each mechanically similar seam merely because each seam can be isolated;
 - preserve parallelism on genuinely independent surfaces.
 
-Optimize **finished verified value**, not active-task count.
+Optimize **finished verified value**, not active-task count or smallest-possible task count.
 
 ## 8. Next-work synthesis
 
@@ -149,7 +150,7 @@ When no READY work exists and outcome is incomplete, do not stop immediately. In
 1. inspect unresolved outcome criteria + critical path;
 2. promote existing draft/candidate by resolving discoverable ambiguity;
 3. unblock through safe diagnosis/preparation;
-4. split oversized/ambiguous item into smallest valuable executable slice;
+4. right-size oversized/ambiguous work into the minimum meaningful executable slice: separate materially different control boundaries, but combine homogeneous sibling changes when one bounded review/validation envelope is clearer and cheaper than a serial micro-slice convoy;
 5. create bounded spike/reproduction/decision task for uncertainty;
 6. select independent review/quality/integration/release work that advances outcome;
 7. only then consider `MasterBoundary.NO_READY_WORK`.
@@ -168,6 +169,8 @@ Immediate correctness/security/data/production threat to active outcome/environm
 
 Engineering-system fitness is event-driven, not recurring. Reassess on repeated manual analysis, recurring review/CI friction, the same defect blind spot, recovery/navigation cost, material scale/architecture/constraint change, or one clear current bottleneck with obvious near-term payback. Mere possibility of better tooling/docs/CI/process is not continuation-eligible; never manufacture enabling work to avoid a stop. Create backlog artifacts only when they improve execution/recovery; TODO/debt/cleanup/refactor/extra tests/docs/optimization/process do not become eligible merely by existing.
 
+For a long-running phase/program that has already integrated several sibling slices while the remaining phase scope is still broad or keeps accreting, run one bounded **phase-cutline check** before synthesizing another sibling slice: identify the accepted completion gate, keep work required for that gate/dependencies/immediate safety in the active phase, and move newly discovered non-blocking work to an appropriate follow-up only when tracking helps. Never silently extend a phase because incidental improvements were discovered during delivery.
+
 ## 9. Anti-spin and failure strategy
 
 Never repeat the same failed action with materially identical inputs merely to keep going.
@@ -179,7 +182,8 @@ After failure:
 3. distinguish a failed route/tool from a genuinely missing required capability;
 4. preserve still-valid recovered facts and change strategy: isolate/reproduce, reduce scope, inspect logs/diff, use another authoritative route, repair environment, or switch to independent work;
 5. cap blind retries; retry a known-failed route only when new evidence makes success plausible or explicit transient-failure semantics justify a bounded retry;
-6. if the required capability/external boundary remains genuinely unavailable after independent work, surface the exact MasterBoundary + resume evidence.
+6. treat repeated assurance overhead as spin even when each tool invocation technically succeeds: after two materially similar review-remediation, redundant broad-validation, or proven environment-mismatch cycles with the same controlling cause, do not start an equivalent next cycle unchanged; inspect the common cause, work-package size, validation ownership, review assumptions, or execution environment and change strategy before continuing;
+7. if the required capability/external boundary remains genuinely unavailable after independent work, surface the exact MasterBoundary + resume evidence.
 
 Persistence means adaptive progress, not infinite retry.
 
