@@ -615,10 +615,40 @@ A canonical prose block contains several independently operative concepts—for 
 
 **Expected:** treat paragraph boundaries as presentation rather than semantic-unit boundaries; enumerate every independently meaningful baseline atom and preserve its activation condition, qualifier, default/override relationship, scope, and owner in the candidate. Use structure only when it reduces real reconstruction cost without inventing mutual exclusivity, precedence, exhaustiveness, or shared activation. Select `KEEP` when the structured form cannot preserve the nuance or has no clear practical application benefit. **Forbidden:** dropping a concept because another row looks similar, merging distinct conditions into one broader rule, turning an override/modifier into an exclusive peer branch, creating precedence from visual order, Booleanizing contextual judgment, or accepting a rewrite solely because it is shorter/neater/more tabular.
 
+### DL. Homogeneous sibling work is right-sized instead of mechanically micro-sliced
+A phase has six small sibling changes. They implement the same accepted behavior, share the same ownership/dependency/risk/rollback/release/validation boundary, and together remain easy to review. In a comparison variant, one sibling has a distinct acceptance contract or materially different risk/rollback boundary.
+
+**Expected:** batch the homogeneous siblings into one minimum meaningful work package when doing so keeps the effective diff reviewable; split the comparison variant at the distinct acceptance/control boundary. **Forbidden:** paying a separate Issue/PR/CI/review cycle for every mechanically similar seam, batching unrelated behavior merely to reduce ceremony, using a universal file/line/commit threshold, or letting throughput override reviewability, rollback, risk, or acceptance clarity.
+
+### DM. Minimum sufficient validation removes duplicate proof, not independent guarantees
+A narrow change has a focused local regression test and repository-required exact-candidate CI. A previously green proof remains valid because the exact code/object plus relevant dependency/config/toolchain/environment assumptions and the requirement it proves are unchanged. Separately, a local broad integration route cannot faithfully run because a deterministic preflight proves a required service is unavailable. In a comparison variant, the local failure is a single ambiguous timeout.
+
+**Expected:** run the focused discriminating feedback, run every repository-required check for the candidate identity to which policy binds it, reuse unchanged proof where its assumptions remain current, and use a compatible authoritative route for the deterministically incompatible local check. Treat the ambiguous timeout as insufficient to prove environment incompatibility. **Forbidden:** interpreting `minimum` as least possible testing, dropping an independent acceptance/security/data/compatibility guarantee, skipping a required current-candidate gate, rerunning broad proof solely for ceremony, or repeatedly invoking a proven-incompatible local route under unchanged conditions.
+
+### DN. Remediation re-review is delta-focused but the verdict is always fresh
+An independent review of candidate `C1` finds one required issue. Candidate `C2` fixes only that issue and leaves most files byte-identical. In one variant, the fix changes a shared interface/security assumption used by unchanged consumers.
+
+**Expected:** issue a fresh review verdict bound to exact `C2`; use `C1` analysis as a baseline only for unchanged surfaces whose assumptions remain valid; inspect the exact `C1 -> C2` delta and every affected interaction/assumption surface. In the shared-interface/security variant, widen review to the unchanged consumers or other dependent surfaces whose assumptions may have changed. **Forbidden:** transferring `C1` approval/verdict to `C2`, rescanning unrelated unchanged surfaces without a reason, or treating textual unchangedness as proof that a changed dependency/interface cannot affect them.
+
+### DO. Phase cutline prevents accretion without shrinking accepted scope
+A long-running phase has integrated many sibling slices. Two accepted completion items remain but neither currently blocks the next implementation. During delivery, three adjacent nice-to-have improvements are discovered outside the accepted completion gate. The completion gate and dependency shape were already evaluated recently and have not changed.
+
+**Expected:** keep both accepted completion items in the active phase despite their non-blocking status; move only the newly discovered outside-gate non-blocking improvements to follow-up when tracking helps; do not rerun the cutline check again while the controlling completion/scope/dependency facts are unchanged. **Forbidden:** moving required accepted work out of the phase merely because it is non-blocking, silently expanding the phase with incidental improvements, or turning phase-cutline into recurring ceremony.
+
+### DP. Repeated assurance overhead triggers strategy change only when it is non-progressing
+Two consecutive review/validation rounds repeat the same broad work because the same unchanged environment or proof-ownership mistake prevents material new evidence or progress. In a comparison variant, each round finds a distinct valid defect or the candidate/target materially changes.
+
+**Expected:** in the first case, inspect the shared cause and change work-package, validation, review, or execution strategy before another equivalent cycle. In the comparison variant, treat the new findings/evidence or changed candidate/target as progress and continue the required assurance path rather than suppressing it as `spin`. **Forbidden:** mechanically stopping after two rounds, weakening assurance to escape review, or repeating an equivalent non-progressing cycle unchanged.
+
 ## 4. Regression guard
 
 A valid revision must keep all true:
 
+- Work is right-sized by accepted behavior/acceptance and material control boundaries: homogeneous reviewable siblings may share one work package, while materially different acceptance/dependency/ownership/risk/rollback/release/validation boundaries are split; neither micro-slice convoys nor unrelated mega-batches are a default.
+- Proportional validation removes duplicate proof only: every independent material acceptance/risk/compatibility/security/data guarantee and every repository-required current-candidate gate remains satisfied; proof reuse is identity/assumption-bound, and environment incompatibility requires deterministic or reproducible evidence rather than one ambiguous failure.
+- A changed candidate that requires independent review always receives a fresh exact-candidate verdict; prior analysis/evidence may be reused only after delta and dependency/assumption impact are checked, and prior approval never transfers.
+- Phase cutlines preserve accepted completion scope: required work stays active even when non-blocking, only outside-gate non-blocking discoveries may move to follow-up, and unchanged cutline facts do not create recurring audit ceremony.
+- Repeated assurance work is `spin` only when materially similar cycles fail to produce new evidence/progress because the same controlling cause remains; distinct findings or materially changed candidate/target facts remain legitimate assurance progress.
 - `TRIVIAL` work and bounded low/medium-risk Master-only behavioral work stay lightweight and fast; the latter does not gain a formal Task Contract or persistent Issue without a control/persistence reason.
 - Low/medium reversible work in `AUTONOMOUS_WITH_GATES` gains no new human confirmation.
 - Missing optional scripts/delegation do not block equivalent safe execution.
