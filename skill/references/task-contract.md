@@ -85,7 +85,11 @@ Choose the strongest practical evidence for the change:
 | migration/data | forward behavior, compatibility window, partial failure, rollback/restore/roll-forward proportional to risk |
 | security-sensitive | permission/abuse/input/error-path checks + happy path |
 
-Never weaken tests/checks to manufacture a pass.
+Treat validation as a **minimum sufficient evidence plan**, not an inventory of every check that could run. Prefer fast local discriminating feedback for the changed surface, then rely on repository-required/current CI or other authoritative gates for the broader proof they own. Do not duplicate a broad local suite merely to reproduce exact-candidate CI evidence when the local run adds no material differential signal. Green evidence may be reused while its exact code/object/environment identity and the requirement it proves remain unchanged; freshness does not mean rerunning an unchanged proof for ceremony.
+
+If the current local environment is proven unable to execute a required check faithfully (for example missing required service/extension, incompatible database semantics, or a reproducible resource ceiling), record that limitation once for the unchanged conditions and use an available compatible authoritative environment/CI route. Do not repeatedly invoke the same incompatible local route unless relevant conditions changed.
+
+Never weaken tests/checks to manufacture a pass. Repository-required checks remain mandatory; evidence reuse or route substitution never bypasses a required gate.
 
 ## 6. Change risk
 
