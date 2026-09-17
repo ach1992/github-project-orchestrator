@@ -2,6 +2,29 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.6] - 2026-09-17
+
+### Fixed
+
+- Made security-sensitive independent/read-only review evidence acquisition explicitly source/diff/evidence-based so reviewers use authoritative code, repository-owned existing tests, current CI/log/artifact evidence, and safe read-only inspection instead of inventing new adversarial payloads or synthetic security probes merely to demonstrate robustness.
+- Made insufficient inspectable security evidence produce an evidence-backed review finding or explicit incomplete-review limitation rather than manufactured proof or silent approval, while preserving the same security acceptance bar and provider/platform policy boundary.
+- Preserved bounded defensive regression testing for explicitly scoped implementation/remediation when it is required, authorized, isolated/reversible, and policy-permitted; the reviewer-only evidence boundary does not suppress legitimate security engineering.
+
+### Validation
+
+- Issue #101 / PR #103 completed full local workflow-equivalent validation, exact-head GitHub Actions, a separate HIGH_ASSURANCE independent review with `COMPLETE / APPROVE` and no findings, and successful post-merge `main` validation in run `35186429792`.
+- Added deterministic cross-surface regression coverage (`PASS defensive-security-review-evidence-boundary`) spanning the project specification, canonical engineering-quality owner, independent-review handoff, existing `DJ` eval, and Rule Map traceability.
+- The integrated runtime keeps `DEFENSIVE-SECURITY-CONTINUATION` as the single canonical Rule owner and adds no parallel security-policy layer.
+
+### Runtime compatibility
+
+- No lifecycle/status namespace, Role/ProjectAuthority/ScopedAuthorization rule, effect gate, Worker lifecycle, FAST/FULL selector, Task Contract persistence rule, integration/release state, or external runtime dependency is introduced.
+- Existing repository-owned security tests remain reviewable/runnable, and implementation/remediation behavior remains available inside the accepted authorization and platform-policy boundary.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.3.5] - 2026-09-15
 
 ### Changed
