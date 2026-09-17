@@ -549,6 +549,64 @@ def machine_relay_transport_regression_tests() -> None:
     print("PASS machine-relay-pre-send-canonical-owner")
 
 
+def defensive_security_review_evidence_regression_tests() -> None:
+    project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
+    engineering_text = (ROOT / "skill" / "references" / "engineering-quality.md").read_text(encoding="utf-8")
+    review_text = (ROOT / "skill" / "references" / "review-integration.md").read_text(encoding="utf-8")
+    eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
+    rule_text = (ROOT / "design" / "RULE-MAP.md").read_text(encoding="utf-8")
+
+    required = {
+        "project": (
+            project_text,
+            (
+                "For independent/read-only review, evidence acquisition defaults to authoritative source/diff",
+                "report an evidence-backed finding or explicit review limitation instead of manufacturing a new probe",
+                "Bounded defensive regression tests remain available during explicitly scoped implementation/remediation",
+            ),
+        ),
+        "engineering": (
+            engineering_text,
+            (
+                "For an independent/read-only reviewer relay, default evidence acquisition to authoritative source/diff",
+                "Do not ask the reviewer to invent, generate, mutate, or execute novel adversarial payloads/probes",
+                "the reviewer should report an evidence-backed `BLOCKER`/`REQUIRED` finding or `INCOMPLETE / NOT_ISSUED`",
+                "This reviewer boundary does not prohibit bounded defensive regression tests during explicitly scoped implementation/remediation",
+            ),
+        ),
+        "review": (
+            review_text,
+            (
+                "for independent/read-only review also carry the reviewer evidence-acquisition boundary",
+                "do not request novel adversarial payload/probe generation or execution merely to prove robustness",
+                "missing required evidence becomes a finding or explicit review limitation rather than a reviewer-created probe",
+            ),
+        ),
+        "eval": (
+            eval_text,
+            (
+                "In the independent/read-only review variant",
+                "novel adversarial payload/probe generation or execution by a reviewer solely to prove bypassability/robustness",
+                "Explicitly scoped, authorized, isolated defensive implementation/remediation may still add bounded regression tests",
+            ),
+        ),
+        "rule-map": (
+            rule_text,
+            (
+                "`DEFENSIVE-SECURITY-CONTINUATION`",
+                "Independent/read-only reviewers prefer source/diff, repository-owned existing tests, current CI/log/artifact evidence",
+                "explicitly scoped defensive implementation/remediation testing remains available when authorized and policy-permitted",
+            ),
+        ),
+    }
+
+    for surface, (text, phrases) in required.items():
+        for phrase in phrases:
+            if phrase not in text:
+                raise AssertionError(f"{surface} lost defensive-review evidence boundary: {phrase}")
+
+    print("PASS defensive-security-review-evidence-boundary")
+
 def coordination_baseline_governance_regression_tests() -> None:
     governance_text = (ROOT / "skill" / "references" / "governance.md").read_text(encoding="utf-8")
     skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
@@ -585,6 +643,7 @@ def main() -> None:
     state_tests()
     worker_contract_tests()
     machine_relay_transport_regression_tests()
+    defensive_security_review_evidence_regression_tests()
     coordination_baseline_governance_regression_tests()
 
 
