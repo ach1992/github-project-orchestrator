@@ -66,7 +66,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
 | `WORKER-BOUNDED` | Worker owns exactly one assignment and never reprioritizes, broadens scope, upgrades envelope, integrates target, or owns release. | `worker-protocol.md` | `SKILL.md:16`; `worker-protocol.md:9-15,58+` | CC, CP |
-| `ASSIGNMENT-IDENTITY` | Dispatch persists exact assignment generation, contract revision, repository/base/branch/target/Worker/envelope identity before editing. | `task-contract.md` | `task-contract.md:104-123`; `worker-protocol.md:13-60` | AK, AM, AV |
+| `ASSIGNMENT-IDENTITY` | Dispatch persists exact assignment generation, contract revision, repository/base/branch/target/Worker/envelope identity before editing. | `task-contract.md` | `task-contract.md` §8; `worker-protocol.md` §1-5 | AK, AM, AV |
 | `START-HEAD-HISTORICAL` | Initial `Expected Starting HEAD` is verified once; authorized Worker commits do not make the assignment stale. | `worker-protocol.md` | `task-contract.md:119-123`; `worker-protocol.md:13,95` | CR |
 | `CORRECTION-CHECKPOINT` | Same-generation correction/resume uses a fresh reviewed/current HEAD checkpoint as the concurrency guard. | `worker-protocol.md` | `task-contract.md:119`; `worker-protocol.md:13,145+` | CR |
 | `STALE-ASSIGNMENT` | Material assignment/envelope invalidation or uncertain materiality stops Worker with STALE_ASSIGNMENT; Worker never guesses/overwrites. | `worker-protocol.md` | `worker-protocol.md:79-97` | D, AV |
