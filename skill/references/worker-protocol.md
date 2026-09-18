@@ -12,7 +12,7 @@ One Worker = one Task Contract + one assigned branch at a time. Use a dedicated 
 
 [task-contract.md](task-contract.md) §8 owns the persisted Worker assignment/concurrency envelope. Before editing:
 
-1. verify repository/working directory, current assigned-branch/worktree attachment, state, and safety, repository rules, required validation, and task risk/release constraints;
+1. verify the exact assigned repository identity and working directory, current assigned-branch/worktree attachment, state, and safety, repository rules, required validation, and task risk/release constraints; never treat another repository named by a dependency or note as writable;
 2. verify the current persisted assignment envelope from §8;
 3. on initial dispatch before the first contracted edit, require current assigned-branch/worktree HEAD = immutable `Start HEAD`; later authorized same-generation commits may advance beyond it without staleness;
 4. on same-generation correction/resume, require current assigned-branch HEAD = Master-supplied `Checkpoint HEAD` before editing.
@@ -64,6 +64,8 @@ Push/update only the assigned branch/PR. Never push directly to the Integration 
 Return only the structured handoff defined in section 5 under the canonical `SKILL.md` machine-relay transport contract.
 ```
 
+The dispatch `Repository:` is the Worker's entire repository mutation scope for that assignment. Repositories mentioned in dependencies, interfaces, links, tests, or notes are read-only context unless a new valid assignment explicitly targets them; the Worker reports required cross-repository changes to Master instead of editing another repository.
+
 Worker inherits supplied `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, and any exact `ScopedAuthorization` only inside this bounded assignment and remains under the canonical gate matrix; Worker role still forbids Integration Target integration/release ownership. Never dispatch implementation Worker under `ProjectAuthority=ADVISORY`; first establish implementation-capable authority consistent with the matrix.
 
 Prefer Master self-execution for `TRIVIAL` work. One materially useful bounded delegated workstream may keep `CoordinationBaseline=LIGHTWEIGHT` when overall coordination remains lightweight, but still uses FULL PATH + full compact Contract/READY/assignment identity. Multiple/overlapping Workers or material delegation coordination require `CoordinationBaseline=STANDARD`. If this assigned work is escalated to `AssuranceLevel=HIGH_ASSURANCE`, retain every control implied by that coordination baseline and add only the stronger task-specific assurance controls. Never relax Worker safety/recovery fields because diff is small.
@@ -79,7 +81,7 @@ Prefer Master self-execution for `TRIVIAL` work. One materially useful bounded d
 | 5 | run required validation |
 | 6 | inspect relevant diff + worktree state before commit |
 | 7 | before push/PR update, re-read/match current Assignment ID, Worker identity, Assignment Status, Contract Revision, assigned branch/ref, Integration Target identity, ProjectAuthority/CoordinationBaseline/AssuranceLevel/ScopedAuthorization/risk/release envelope |
-| 8 | commit/push only assigned work and update only assigned PR; never push directly to the Integration Target or force-push uncertain state |
+| 8 | commit/push only assigned work inside the assigned repository and update only the assigned PR; never mutate another repository, push directly to the Integration Target, or force-push uncertain state |
 | 9 | stop rather than invent material product/architecture/security/risk/release decision |
 | 10 | never merge or begin another task after handoff; direct Integration Target integration always remains Master-owned |
 
@@ -95,6 +97,7 @@ Treat assignment identity as an optimistic-concurrency envelope. Return `WorkerS
 | Assignment Status is no longer active | `WorkerStatus.STALE_ASSIGNMENT` |
 | Contract Revision materially changed | `WorkerStatus.STALE_ASSIGNMENT` |
 | Base SHA / Start HEAD assumption is no longer valid | `WorkerStatus.STALE_ASSIGNMENT` |
+| Assigned repository identity differs from the dispatch repository | `WorkerStatus.STALE_ASSIGNMENT` |
 | Assigned Branch or Integration Target identity changed | `WorkerStatus.STALE_ASSIGNMENT` |
 | ProjectAuthority/CoordinationBaseline/AssuranceLevel/ScopedAuthorization/risk/release envelope materially changed | `WorkerStatus.STALE_ASSIGNMENT` |
 | same-generation correction/resume current HEAD differs from Master-supplied Checkpoint HEAD | `WorkerStatus.STALE_ASSIGNMENT` |
