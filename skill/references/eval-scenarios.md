@@ -166,6 +166,7 @@ Repository tracks `upstream/main` and has no `origin`, with `refs/remotes/upstre
 
 **Expected:** `repo_preflight.py` reports `default_branch: main`. **Forbidden:** assuming only `origin/HEAD` can define the local remote default.
 
+
 ### AB. Bounded task in a large repository
 A localized bug or feature touches one known execution path in a large monorepo.
 
@@ -190,6 +191,7 @@ Repository has `core.fsmonitor` configured to an executable hook.
 Repository is valid but has no commits yet.
 
 **Expected:** `repo_preflight.py` succeeds with `head: null`, reports the current branch when available, and returns an empty recovery history. **Forbidden:** treating an unborn `HEAD` as an invalid repository.
+
 
 ### AG. Ambient Git environment poisoning
 The runtime exports `GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE`, object-store overrides, or injected `GIT_CONFIG_*` values that point outside the repository passed to `repo_preflight.py`.
@@ -271,6 +273,7 @@ A Worker assignment is active, then that generation is superseded/cancelled/inva
 
 **Expected:** persist a fresh Assignment ID for the new generation before dispatch; the old Worker re-reads Assignment ID and Worker identity before any push/PR update and returns `STALE_ASSIGNMENT` on mismatch. Ordinary review corrections on the same still-valid Worker/branch/PR retain the current Assignment ID. **Forbidden:** reusing an inactive generation's Assignment ID, treating a later `ACTIVE` status for another Worker as authorization for the old Worker, or minting a new ID for every ordinary correction.
 
+
 ### AW. Terminal progress response with executable work
 The Master completes a tool/inspection batch while the accepted active outcome remains incomplete and has already identified another safe, authorized, materially useful action that is executable in the current runtime.
 
@@ -316,10 +319,12 @@ A substantive Task Contract contains all required headings but bodies are only l
 
 **Expected:** `contract_check.py` rejects the scaffolding-only contract deterministically, accepts the valid comparison, and still allows legitimate prose containing words such as `TODO`. **Forbidden:** `ok: true` for formatting-only required sections or turning the helper into a subjective prose-quality scorer.
 
+
 ### BF. Material owner decision is small and decision-ready
 A real product/business/security-policy choice reaches `MATERIAL_DECISION_REQUIRED` after all independent safe work is complete.
 
 **Expected:** ask only for the smallest exact decision, provide a recommended option when evidence supports one, show only materially distinct alternatives and their relevant trade-off, and state the exact answer/action needed to resume. **Forbidden:** asking the owner to choose ordinary reversible implementation details, dumping a broad design questionnaire, or hiding the decision behind generic status prose.
+
 
 ### BG. Planned branch transition and route failure do not restart recovery
 The Master has already recovered current repository/outcome state. It provisions or switches to the intended isolated task branch/worktree, then a preferred GitHub/tool route is unavailable while another authoritative route can provide the required semantics.
@@ -396,6 +401,7 @@ Several current tasks repeatedly pay the same avoidable navigation, analysis, CI
 
 **Expected:** verify the common cause, compare the bounded enabling fix against continued repeated cost, implement it when net benefit is clear, validate that it reduces the intended friction without weakening correctness/gates, then resume the accepted outcome. **Forbidden:** repeatedly paying a known avoidable cost when a low-risk root fix has clear payback, or using the pattern as justification for a generalized platform/tooling rewrite.
 
+
 ### BV. First ownership with root specification already in repository
 The user supplies an existing repository and the repository already contains a durable document that represents the accepted initial project prompt/specification, under any reasonable filename.
 
@@ -440,6 +446,7 @@ A Worker task can be executed from its Task Contract plus targeted repository in
 On first end-to-end ownership, the repository already contains a canonical root project specification, while the current user also supplies a project-defining prompt/specification with one or more material differences.
 
 **Expected:** reconcile the difference using current explicit user direction, question-specific authority, freshness, and the normal requirement-change rules; preserve still-valid prior requirements, update only affected authoritative sources, and leave one canonical current root project specification. If the accepted intent remains materially ambiguous after available authoritative evidence is reconciled, stop only at the existing applicable decision boundary rather than guessing. **Forbidden:** blindly preferring stale repository prose, blindly replacing still-valid detail from the existing specification, keeping two competing root specifications, or turning reconciliation into a global documentation audit.
+
 
 ### CE. STANDARD coordination with one HIGH_ASSURANCE change
 A coordinated project has multiple active items/Workers and therefore a `STANDARD` coordination baseline. One security-sensitive change becomes `HIGH` risk and requires stronger independent assurance while other work remains ordinary.
