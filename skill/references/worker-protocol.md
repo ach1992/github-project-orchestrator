@@ -28,7 +28,7 @@ Use a standalone prompt. When it is relayed between chats/agents, apply the cano
 
 Use `github-project-orchestrator` as `WORKER`.
 Role: implementation Worker. Do not reprioritize, merge, or expand scope.
-Repository: <repo>
+Repository: <exact canonical Repository persisted in the current assignment>
 Issue: <url/number>
 Assignment ID: <current assignment-generation ID, e.g. 184-r3-g2-a7f91de>
 Contract Revision: <integer>
@@ -64,7 +64,7 @@ Push/update only the assigned branch/PR. Never push directly to the Integration 
 Return only the structured handoff defined in section 5 under the canonical `SKILL.md` machine-relay transport contract.
 ```
 
-The dispatch `Repository:` is the Worker's entire repository mutation scope for that assignment. Repositories mentioned in dependencies, interfaces, links, tests, or notes are read-only context unless a new valid assignment explicitly targets them; the Worker reports required cross-repository changes to Master instead of editing another repository.
+The dispatch `Repository:` must equal the canonical persisted `Repository` from [task-contract.md](task-contract.md) §8 and is the Worker's entire repository mutation scope for that assignment. Repositories mentioned in dependencies, interfaces, links, tests, or notes are read-only context unless a new valid assignment explicitly targets them; the Worker reports required cross-repository changes to Master instead of editing another repository.
 
 Worker inherits supplied `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, and any exact `ScopedAuthorization` only inside this bounded assignment and remains under the canonical gate matrix; Worker role still forbids Integration Target integration/release ownership. Never dispatch implementation Worker under `ProjectAuthority=ADVISORY`; first establish implementation-capable authority consistent with the matrix.
 
