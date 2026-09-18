@@ -12,6 +12,8 @@ Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `Coordination
 
 `ProjectAuthority` is the project-wide authorization envelope for normal reversible mutation. It changes only from applicable explicit user or higher-level authorization; access/capability, environment, risk, coordination, or assurance may constrain execution but never grant or widen it. Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants.
 
+`RepositoryMutationScope` is the exact repository allowlist inside that authorization envelope. Derive it only from explicit, unambiguous owner/higher-level instructions or an exact assignment: one clearly assigned repository creates a singleton mutation scope; a clearly authorized multi-repository assignment contains only those named repositories. A repository being mentioned, linked, depended on, discovered, technically accessible, or part of the same project/outcome does **not** add it. If the writable set is materially ambiguous, keep mutation blocked for the ambiguous repository while using safe read-only reconciliation and ask the smallest exact repository-scope question needed. Expanding the set requires a new explicit authorization that names the added repository or an exact action in it. Read-only inspection of an out-of-scope related repository remains allowed when it is necessary, access/policy permit it, and no mutation is performed.
+
 An exact one-off instruction/approval is `ScopedAuthorization`: where the canonical matrix permits scoped authorization, it may authorize that exact action or satisfy only the applicable gate for it, without converting the broader project to a more permissive `ProjectAuthority`. `CoordinationBaseline` contributes coordination/persistence controls; `STANDARD` does not imply FULL execution. `AssuranceLevel=HIGH_ASSURANCE` adds evidence/review controls without removing baseline controls and does not by itself create human approval or a different `ProjectAuthority`. `RiskLevel` determines proportional gate/evidence depth for the specific change when decision-relevant.
 
 Use the lightest safe controls. Importance alone does not make risk high; consider blast radius, reversibility, security/data impact, compatibility, and production consequences.
@@ -62,6 +64,7 @@ Use one canonical execution predicate instead of independently re-deriving the s
 ```text
 CAN_EXECUTE(action) =
     AcceptedScopeAllows(action)
+    AND RepositoryMutationScopeAllows(action)
     AND RoleAllows(action)
     AND ProjectAuthorityAllows(action)
     AND RepositoryAndPlatformPolicyAllow(action)
@@ -71,6 +74,8 @@ CAN_EXECUTE(action) =
     AND RequiredCapabilityIsAvailable(action)
     AND RequiredMutableIdentityEvidenceIsFresh(action)
 ```
+
+For `READ_ONLY`, `RepositoryMutationScopeAllows(action)` is satisfied because no repository mutation occurs. For any mutation, the target repository must be known and inside `RepositoryMutationScope`, or be covered by a still-current exact authorization for that repository/action; related-repository context or technical access is never sufficient.
 
 Interpret each term only when it is applicable to the proposed action, using this file's matrix plus authoritative repository/platform state. `CAN_EXECUTE=false` is not itself a terminal Master boundary: reconcile uncertainty, use an authorized equivalent path, or classify the actual canonical boundary while independent useful work continues. `ADVISORY` does not become mutation-capable through technical access; `ScopedAuthorization` satisfies only the exact gate it covers; uncertain `ApplicableEffects` or stale required mutable identity must be reconciled before mutation.
 
@@ -84,18 +89,22 @@ PROPOSED ACTION
   +-- no mutation? ------------------------------------> ApplicableEffects={READ_ONLY}
   |
   `-- mutation:
-        start ApplicableEffects={}
+        +-- target repository unknown/outside RepositoryMutationScope?
+        |     -> RECONCILE / HAND OFF; DO NOT MUTATE
         |
-        +-- ordinary reversible management/doc mutation? -> add REVERSIBLE_MANAGEMENT
-        +-- implementation/validation mutation? ----------> add REVERSIBLE_IMPLEMENTATION when its own effect is reversible
-        +-- updates canonical Integration Target? --------> add INTEGRATION
-        +-- production-facing or deterministic auto-prod? -> add PRODUCTION
-        +-- destructive/irreversible/access/protected-data
-        |   effect or difficult recovery? ----------------> add DESTRUCTIVE_OR_IRREVERSIBLE
-        +-- material cost/legal/public/vendor/business
-        |   commitment? ----------------------------------> add EXTERNAL_COMMITMENT
-        |
-        `-- any effect materially uncertain? --------------> RECONCILE BEFORE MUTATION
+        `-- repository target allowed:
+              start ApplicableEffects={}
+              |
+              +-- ordinary reversible management/doc mutation? -> add REVERSIBLE_MANAGEMENT
+              +-- implementation/validation mutation? ----------> add REVERSIBLE_IMPLEMENTATION when its own effect is reversible
+              +-- updates canonical Integration Target? --------> add INTEGRATION
+              +-- production-facing or deterministic auto-prod? -> add PRODUCTION
+              +-- destructive/irreversible/access/protected-data
+              |   effect or difficult recovery? ----------------> add DESTRUCTIVE_OR_IRREVERSIBLE
+              +-- material cost/legal/public/vendor/business
+              |   commitment? ----------------------------------> add EXTERNAL_COMMITMENT
+              |
+              `-- any effect materially uncertain? --------------> RECONCILE BEFORE MUTATION
 
 REQUIRED CONTROLS = union of obligations for every applicable effect
 ```
