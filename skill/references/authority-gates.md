@@ -98,7 +98,7 @@ PROPOSED ACTION
   +-- no mutation? ------------------------------------> ApplicableEffects={READ_ONLY}
   |
   `-- mutation:
-        +-- any direct/deterministic repository mutation target unknown/outside RepositoryMutationScope?
+        +-- any direct/deterministic repository mutation target unknown, or outside RepositoryMutationScope without still-current exact authorization for that repository/action?
         |     -> RECONCILE / HAND OFF; DO NOT MUTATE
         |
         `-- repository target allowed:
