@@ -15,6 +15,7 @@ REQUIRED_SECTIONS = ("Goal", "Scope", "Acceptance", "Validation", "Dependencies"
 WORKER_REQUIRED_FIELDS = (
     "Assignment ID",
     "Contract Revision",
+    "Repository",
     "Base SHA",
     "Assigned Branch",
     "Integration Target",
