@@ -32,7 +32,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
 | `AUTHORITY-STABLE` | Project Authority changes only from applicable explicit/higher authorization, never merely from access/risk/profile/environment. | `authority-gates.md` | `SKILL.md:21`; `authority-gates.md:16-20` | AH, CU |
-| `AUTHORIZATION-SCOPED` | Exact one-off approval/grant applies only to its scope and does not upgrade project-wide Authority. | `authority-gates.md` | `SKILL.md:21`; `authority-gates.md:20` | CX |
+| `AUTHORIZATION-SCOPED` | Authorization remains exact to what was granted: one-off action grants do not upgrade project-wide Authority, and repository mutation is limited to the explicitly authorized repository set; relationships, dependencies, discovery, project membership, technical access, and delegation never widen it, ambiguous repository scope remains read-only until clarified, and required out-of-scope changes are handed off. | `authority-gates.md` | `SKILL.md` §2 Repository scope; `authority-gates.md` §1 and `CAN_EXECUTE(action)` | CX, DQ |
 | `CAPABILITY-NOT-AUTHORITY` | Capability affects feasibility and may constrain execution but cannot grant Authority. | `authority-gates.md` | `SKILL.md:77-79`; `authority-gates.md:20` | N, CU |
 | `EFFECT-ACTUAL` | Classify by actual deterministic consequence, not labels, branch names, or nominal environment. | `authority-gates.md` | `authority-gates.md:22-97` | H, BD, BO, CG, CH |
 | `EFFECT-MULTI` | Preserve every independently applicable effect/control when one mutation has multiple consequences. | `authority-gates.md` | `authority-gates.md:50-97` | H, CV |
@@ -66,7 +66,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
 | `WORKER-BOUNDED` | Worker owns exactly one assignment and never reprioritizes, broadens scope, upgrades envelope, integrates target, or owns release. | `worker-protocol.md` | `SKILL.md:16`; `worker-protocol.md:9-15,58+` | CC, CP |
-| `ASSIGNMENT-IDENTITY` | Dispatch persists exact assignment generation, contract revision, repository/base/branch/target/Worker/envelope identity before editing. | `task-contract.md` | `task-contract.md:104-123`; `worker-protocol.md:13-60` | AK, AM, AV |
+| `ASSIGNMENT-IDENTITY` | Dispatch persists exact assignment generation, contract revision, repository/base/branch/target/Worker/envelope identity before editing. | `task-contract.md` | `task-contract.md` §8; `worker-protocol.md` §1-5 | AK, AM, AV |
 | `START-HEAD-HISTORICAL` | Initial `Expected Starting HEAD` is verified once; authorized Worker commits do not make the assignment stale. | `worker-protocol.md` | `task-contract.md:119-123`; `worker-protocol.md:13,95` | CR |
 | `CORRECTION-CHECKPOINT` | Same-generation correction/resume uses a fresh reviewed/current HEAD checkpoint as the concurrency guard. | `worker-protocol.md` | `task-contract.md:119`; `worker-protocol.md:13,145+` | CR |
 | `STALE-ASSIGNMENT` | Material assignment/envelope invalidation or uncertain materiality stops Worker with STALE_ASSIGNMENT; Worker never guesses/overwrites. | `worker-protocol.md` | `worker-protocol.md:79-97` | D, AV |

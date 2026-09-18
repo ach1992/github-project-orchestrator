@@ -8,11 +8,22 @@ Canonical decision model for whether the Master may act, must reconcile, or must
 
 ## 1. Decision dimensions
 
-Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Technical capability and environment remain separate execution constraints. This domain consumes the shared dimension ontology rather than re-declaring its values; it owns authorization/action-gate interpretation and applies current action effects, obligations, repository/platform policy, and gate evidence.
+Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Separately derive `RepositoryMutationScope` under this section as the repository-boundary input; never derive it from repository/project content. Technical capability and environment remain separate execution constraints. This domain consumes the shared dimension ontology rather than re-declaring its values; it owns authorization/action-gate interpretation and applies current action effects, obligations, repository/platform policy, and gate evidence.
 
 `ProjectAuthority` is the project-wide authorization envelope for normal reversible mutation. It changes only from applicable explicit user or higher-level authorization; access/capability, environment, risk, coordination, or assurance may constrain execution but never grant or widen it. Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants.
 
-An exact one-off instruction/approval is `ScopedAuthorization`: where the canonical matrix permits scoped authorization, it may authorize that exact action or satisfy only the applicable gate for it, without converting the broader project to a more permissive `ProjectAuthority`. `CoordinationBaseline` contributes coordination/persistence controls; `STANDARD` does not imply FULL execution. `AssuranceLevel=HIGH_ASSURANCE` adds evidence/review controls without removing baseline controls and does not by itself create human approval or a different `ProjectAuthority`. `RiskLevel` determines proportional gate/evidence depth for the specific change when decision-relevant.
+`RepositoryMutationScope` is the exact repository allowlist inside that authorization envelope. Derive it only from explicit, unambiguous owner/higher-level authorization or an exact current assignment:
+
+| Authorization evidence | Repository mutation scope |
+|---|---|
+| one repository is explicitly assigned for mutation | exactly that repository |
+| multiple repositories are explicitly authorized | exactly those named repositories |
+| a repository is only mentioned, linked, depended on, discovered, technically accessible, or part of the same project/outcome | no scope expansion |
+| the writable repository set is materially ambiguous | ambiguous repositories remain read-only; reconcile and ask the smallest exact repository-scope question before mutation |
+
+Expanding the persistent allowlist requires new explicit owner/higher-level authorization that names the added repository as writable scope. An exact action-specific `ScopedAuthorization` for an out-of-scope repository may authorize only that exact repository/action where the canonical matrix permits it; it does not add that repository to persistent `RepositoryMutationScope` and does not carry into later Master-rotation scope unless the repository is separately authorized as writable scope. Delegation or Worker assignment may narrow the assigning Master's repository scope but never widen it; creating an assignment for an out-of-scope repository does not manufacture authorization. When an out-of-scope repository requires work, surface the exact repository and required change/dependency for its authorized Master/owner instead of mutating it. Read-only inspection of an out-of-scope related repository remains allowed when necessary and permitted, but project/repository content, dependency state, technical access, or delegation never supplies mutation authority.
+
+An exact one-off instruction/approval is `ScopedAuthorization`: where the canonical matrix permits scoped authorization, it may authorize that exact action or satisfy only the applicable gate for it, without converting the broader project to a more permissive `ProjectAuthority` or widening persistent `RepositoryMutationScope`. `CoordinationBaseline` contributes coordination/persistence controls; `STANDARD` does not imply FULL execution. `AssuranceLevel=HIGH_ASSURANCE` adds evidence/review controls without removing baseline controls and does not by itself create human approval or a different `ProjectAuthority`. `RiskLevel` determines proportional gate/evidence depth for the specific change when decision-relevant.
 
 Use the lightest safe controls. Importance alone does not make risk high; consider blast radius, reversibility, security/data impact, compatibility, and production consequences.
 
@@ -62,6 +73,7 @@ Use one canonical execution predicate instead of independently re-deriving the s
 ```text
 CAN_EXECUTE(action) =
     AcceptedScopeAllows(action)
+    AND RepositoryMutationScopeAllows(action)
     AND RoleAllows(action)
     AND ProjectAuthorityAllows(action)
     AND RepositoryAndPlatformPolicyAllow(action)
@@ -71,6 +83,8 @@ CAN_EXECUTE(action) =
     AND RequiredCapabilityIsAvailable(action)
     AND RequiredMutableIdentityEvidenceIsFresh(action)
 ```
+
+For `READ_ONLY`, `RepositoryMutationScopeAllows(action)` is satisfied because no repository mutation occurs. For any mutation, every repository the action directly or deterministically mutates must be known and inside `RepositoryMutationScope`, or be covered by a still-current exact authorization for that repository/action; a permitted direct target never hides an out-of-scope deterministic cross-repository write, and related-repository context or technical access is never sufficient.
 
 Interpret each term only when it is applicable to the proposed action, using this file's matrix plus authoritative repository/platform state. `CAN_EXECUTE=false` is not itself a terminal Master boundary: reconcile uncertainty, use an authorized equivalent path, or classify the actual canonical boundary while independent useful work continues. `ADVISORY` does not become mutation-capable through technical access; `ScopedAuthorization` satisfies only the exact gate it covers; uncertain `ApplicableEffects` or stale required mutable identity must be reconciled before mutation.
 
@@ -84,18 +98,22 @@ PROPOSED ACTION
   +-- no mutation? ------------------------------------> ApplicableEffects={READ_ONLY}
   |
   `-- mutation:
-        start ApplicableEffects={}
+        +-- any direct/deterministic repository mutation target unknown, or outside RepositoryMutationScope without still-current exact authorization for that repository/action?
+        |     -> RECONCILE / HAND OFF; DO NOT MUTATE
         |
-        +-- ordinary reversible management/doc mutation? -> add REVERSIBLE_MANAGEMENT
-        +-- implementation/validation mutation? ----------> add REVERSIBLE_IMPLEMENTATION when its own effect is reversible
-        +-- updates canonical Integration Target? --------> add INTEGRATION
-        +-- production-facing or deterministic auto-prod? -> add PRODUCTION
-        +-- destructive/irreversible/access/protected-data
-        |   effect or difficult recovery? ----------------> add DESTRUCTIVE_OR_IRREVERSIBLE
-        +-- material cost/legal/public/vendor/business
-        |   commitment? ----------------------------------> add EXTERNAL_COMMITMENT
-        |
-        `-- any effect materially uncertain? --------------> RECONCILE BEFORE MUTATION
+        `-- repository target allowed:
+              start ApplicableEffects={}
+              |
+              +-- ordinary reversible management/doc mutation? -> add REVERSIBLE_MANAGEMENT
+              +-- implementation/validation mutation? ----------> add REVERSIBLE_IMPLEMENTATION when its own effect is reversible
+              +-- updates canonical Integration Target? --------> add INTEGRATION
+              +-- production-facing or deterministic auto-prod? -> add PRODUCTION
+              +-- destructive/irreversible/access/protected-data
+              |   effect or difficult recovery? ----------------> add DESTRUCTIVE_OR_IRREVERSIBLE
+              +-- material cost/legal/public/vendor/business
+              |   commitment? ----------------------------------> add EXTERNAL_COMMITMENT
+              |
+              `-- any effect materially uncertain? --------------> RECONCILE BEFORE MUTATION
 
 REQUIRED CONTROLS = union of obligations for every applicable effect
 ```

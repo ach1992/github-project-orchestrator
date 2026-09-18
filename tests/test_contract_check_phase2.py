@@ -42,6 +42,7 @@ Risk: LOW
 Issue: ach1992/github-project-orchestrator#5
 Assignment ID: 5-g1
 Contract Revision: 1
+Repository: ach1992/github-project-orchestrator
 Base SHA: {SHA0}
 Assigned Branch: worker/5
 Integration Target: main
@@ -130,6 +131,20 @@ Assurance Level: NORMAL
 """,
         False,
         "use Project Authority or legacy Authority",
+    )
+
+    check(
+        "missing-repository",
+        BASE.replace("Repository: ach1992/github-project-orchestrator\n", ""),
+        False,
+        "Missing or placeholder Worker assignment field: Repository",
+    )
+
+    check(
+        "placeholder-repository",
+        BASE.replace("Repository: ach1992/github-project-orchestrator", "Repository: <repo>"),
+        False,
+        "Missing or placeholder Worker assignment field: Repository",
     )
 
     check(
