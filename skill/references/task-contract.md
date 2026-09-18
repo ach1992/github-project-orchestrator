@@ -116,7 +116,7 @@ Before any Worker dispatch, bind/persist:
 |---|---|
 | `Assignment ID` | unique current generation; stable during that generation; fresh generation/nonce after replacement/reissue/invalidation (e.g. `184-r3-g2-a7f91de`); never reuse superseded/cancelled/replaced ID |
 | Work item / revision | Issue/work-item identity + numeric `Contract Revision` |
-| `Repository` | exact canonical repository identity used at dispatch; this is the Worker's entire repository mutation scope for the assignment and must not be inferred from Issue, dependency, project, or surrounding repository context |
+| `Repository` | exact canonical repository identity used at dispatch and persisted as assignment identity; must not be inferred from Issue, dependency, project, or surrounding repository context; `worker-protocol.md` consumes this exact value as the Worker's repository mutation boundary |
 | Git start | exact `Base SHA`; `Assigned Branch` as local branch or `refs/heads/<branch>` (never worktree path/remote-tracking ref); exact immutable `Start HEAD` (Base SHA when no divergence is intended) |
 | `Integration Target` | distinct canonical repository branch: simple name such as `main`, or `refs/heads/<branch>` when name contains `/`; never `origin/main` or `refs/remotes/origin/main` |
 | Execution envelope | Worker identity; `Assignment Status: ACTIVE` at dispatch, later reconciled to the repository's completed/superseded/cancelled equivalent; inherited `Project Authority` (`MANAGED` or `AUTONOMOUS_WITH_GATES`); `Coordination Baseline` (`LIGHTWEIGHT` or `STANDARD`); `Assurance Level` (`NORMAL` or `HIGH_ASSURANCE`); exact `Scoped Authorization` when one applies; required validation + risk/release constraints |
