@@ -104,11 +104,11 @@ Provide only a short bootstrap prompt when rotation is actually needed. When pre
 # NEW MASTER CHAT
 
 Use `github-project-orchestrator` as MASTER for:
-<repository URL(s) or unambiguous identifier(s) from the current explicit assignment>
+<exact repository URL(s) or unambiguous identifier(s) in the authorized Repository Mutation Scope below; keep read-only dependency repositories out of this list>
 
 Mode: RECOVER, then continue.
 Project Authority: <ADVISORY | MANAGED | AUTONOMOUS_WITH_GATES>
-Repository Mutation Scope: <exact currently authorized repository allowlist, using unambiguous owner/repo identities>
+Repository Mutation Scope: <same exact currently authorized repository allowlist, using unambiguous owner/repo identities>
 Coordination Baseline: <LIGHTWEIGHT | STANDARD>
 Assurance Level: <NORMAL | HIGH_ASSURANCE when currently applicable>
 Scoped Authorization: <exact current grant if any; otherwise none>
