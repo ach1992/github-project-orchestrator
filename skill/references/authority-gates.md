@@ -84,7 +84,7 @@ CAN_EXECUTE(action) =
     AND RequiredMutableIdentityEvidenceIsFresh(action)
 ```
 
-For `READ_ONLY`, `RepositoryMutationScopeAllows(action)` is satisfied because no repository mutation occurs. For any mutation, the target repository must be known and inside `RepositoryMutationScope`, or be covered by a still-current exact authorization for that repository/action; related-repository context or technical access is never sufficient.
+For `READ_ONLY`, `RepositoryMutationScopeAllows(action)` is satisfied because no repository mutation occurs. For any mutation, every repository the action directly or deterministically mutates must be known and inside `RepositoryMutationScope`, or be covered by a still-current exact authorization for that repository/action; a permitted direct target never hides an out-of-scope deterministic cross-repository write, and related-repository context or technical access is never sufficient.
 
 Interpret each term only when it is applicable to the proposed action, using this file's matrix plus authoritative repository/platform state. `CAN_EXECUTE=false` is not itself a terminal Master boundary: reconcile uncertainty, use an authorized equivalent path, or classify the actual canonical boundary while independent useful work continues. `ADVISORY` does not become mutation-capable through technical access; `ScopedAuthorization` satisfies only the exact gate it covers; uncertain `ApplicableEffects` or stale required mutable identity must be reconciled before mutation.
 
@@ -98,7 +98,7 @@ PROPOSED ACTION
   +-- no mutation? ------------------------------------> ApplicableEffects={READ_ONLY}
   |
   `-- mutation:
-        +-- target repository unknown/outside RepositoryMutationScope?
+        +-- any direct/deterministic repository mutation target unknown/outside RepositoryMutationScope?
         |     -> RECONCILE / HAND OFF; DO NOT MUTATE
         |
         `-- repository target allowed:
