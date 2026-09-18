@@ -80,7 +80,7 @@ Prefer Master self-execution for `TRIVIAL` work. One materially useful bounded d
 | 4 | add/update meaningful tests where appropriate |
 | 5 | run required validation |
 | 6 | inspect relevant diff + worktree state before commit |
-| 7 | before push/PR update, re-read/match current Assignment ID, Worker identity, Assignment Status, Contract Revision, assigned branch/ref, Integration Target identity, ProjectAuthority/CoordinationBaseline/AssuranceLevel/ScopedAuthorization/risk/release envelope |
+| 7 | before push/PR update, re-read/match the dispatch `Repository:` against current canonical repository identity, then current Assignment ID, Worker identity, Assignment Status, Contract Revision, assigned branch/ref, Integration Target identity, ProjectAuthority/CoordinationBaseline/AssuranceLevel/ScopedAuthorization/risk/release envelope |
 | 8 | commit/push only assigned work inside the assigned repository and update only the assigned PR; never mutate another repository, push directly to the Integration Target, or force-push uncertain state |
 | 9 | stop rather than invent material product/architecture/security/risk/release decision |
 | 10 | never merge or begin another task after handoff; direct Integration Target integration always remains Master-owned |
@@ -97,7 +97,7 @@ Treat assignment identity as an optimistic-concurrency envelope. Return `WorkerS
 | Assignment Status is no longer active | `WorkerStatus.STALE_ASSIGNMENT` |
 | Contract Revision materially changed | `WorkerStatus.STALE_ASSIGNMENT` |
 | Base SHA / Start HEAD assumption is no longer valid | `WorkerStatus.STALE_ASSIGNMENT` |
-| Assigned repository identity differs from the dispatch repository | `WorkerStatus.STALE_ASSIGNMENT` |
+| current canonical repository identity differs from the dispatch `Repository:` | `WorkerStatus.STALE_ASSIGNMENT` |
 | Assigned Branch or Integration Target identity changed | `WorkerStatus.STALE_ASSIGNMENT` |
 | ProjectAuthority/CoordinationBaseline/AssuranceLevel/ScopedAuthorization/risk/release envelope materially changed | `WorkerStatus.STALE_ASSIGNMENT` |
 | same-generation correction/resume current HEAD differs from Master-supplied Checkpoint HEAD | `WorkerStatus.STALE_ASSIGNMENT` |
