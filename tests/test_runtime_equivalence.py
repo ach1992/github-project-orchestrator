@@ -283,7 +283,7 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
         ):
             additive_text = candidate_text.replace(
                 "\n## 4. Regression guard",
-                f"\n{cdata_start}\n### DR. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
+                f"\n{cdata_start}\n### DS. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
                 1,
             )
             eval_path.write_text(additive_text, encoding="utf-8")
@@ -295,9 +295,9 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
                 stderr=subprocess.PIPE,
                 check=False,
             )
-            if validation.returncode != 1 or "Unanchored evaluation scenarios are missing from the supplemental retrieval index: ['DR']" not in validation.stderr:
+            if validation.returncode != 1 or "Unanchored evaluation scenarios are missing from the supplemental retrieval index: ['DS']" not in validation.stderr:
                 raise AssertionError(
-                    f"{cdata_name} CDATA-like DR did not fail supplemental validation: "
+                    f"{cdata_name} CDATA-like DS did not fail supplemental validation: "
                     f"{validation.returncode}: {validation.stdout} {validation.stderr}"
                 )
             equivalence = subprocess.run(
@@ -310,13 +310,13 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
             )
             if equivalence.returncode != 0:
                 raise AssertionError(
-                    f"{cdata_name} CDATA-like additive DR equivalence failed: "
+                    f"{cdata_name} CDATA-like additive DS equivalence failed: "
                     f"{equivalence.returncode}: {equivalence.stdout} {equivalence.stderr}"
                 )
             eq_payload = json.loads(equivalence.stdout)
-            if "DR" not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
-                raise AssertionError(f"{cdata_name} CDATA-like DR was omitted from candidate inventory")
-            print(f"PASS current-v1.3.2-{cdata_name}-cdata-additive-dr-visible")
+            if "DS" not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
+                raise AssertionError(f"{cdata_name} CDATA-like DS was omitted from candidate inventory")
+            print(f"PASS current-v1.3.2-{cdata_name}-cdata-additive-ds-visible")
     finally:
         subprocess.run(
             ["git", "worktree", "remove", "--force", str(temp_root)],

@@ -637,6 +637,42 @@ def coordination_baseline_governance_regression_tests() -> None:
         raise AssertionError("engineering concern selection no longer preserves dimension orthogonality")
     print("PASS coordination-baseline-concern-orthogonality")
 
+def lower_friction_master_hot_path_regression_tests() -> None:
+    skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
+    master_text = (ROOT / "skill" / "references" / "master-cycle.md").read_text(encoding="utf-8")
+    state_text = (ROOT / "design" / "STATE-MODEL.md").read_text(encoding="utf-8")
+    rule_text = (ROOT / "design" / "RULE-MAP.md").read_text(encoding="utf-8")
+
+    forbidden = "When `Role=MASTER`, load [references/master-cycle.md](references/master-cycle.md)"
+    if forbidden in skill_text:
+        raise AssertionError("routine Master path still mandates master-cycle loading")
+
+    required_skill = (
+        "Do not load `master-cycle.md` merely to classify routine bounded work",
+        "execute directly from repository evidence without loading `master-cycle.md` or creating a new Task Contract",
+        "This is the existing FAST behavior applied implicitly; do not materialize a path label merely to proceed.",
+        "`master-cycle.md` is not a default load",
+    )
+    for phrase in required_skill:
+        if phrase not in skill_text:
+            raise AssertionError(f"lower-friction Master hot path lost: {phrase}")
+
+    required_master = (
+        "compare expected finished-throughput gain with dispatch/review/reconciliation cost",
+        "lower expected implementation critical path after coordination overhead",
+        "when the difference is marginal or uncertain, prefer the lower-coordination/lower-risk assignment",
+    )
+    for phrase in required_master:
+        if phrase not in master_text:
+            raise AssertionError(f"delegation objective lost: {phrase}")
+
+    if "Routine bounded Master work may apply FAST semantics implicitly" not in state_text:
+        raise AssertionError("state model does not preserve implicit FAST semantics")
+    if "routine clear Master-only work may apply FAST behavior implicitly" not in rule_text:
+        raise AssertionError("rule map does not trace the lower-friction hot path")
+
+    print("PASS lower-friction-master-hot-path")
+
 
 def main() -> None:
     traceability_tests()
@@ -646,6 +682,7 @@ def main() -> None:
     machine_relay_transport_regression_tests()
     defensive_security_review_evidence_regression_tests()
     coordination_baseline_governance_regression_tests()
+    lower_friction_master_hot_path_regression_tests()
 
 
 if __name__ == "__main__":
