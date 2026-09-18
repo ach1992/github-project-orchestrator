@@ -2,6 +2,33 @@
 
 All notable changes to this project are documented here.
 
+## [1.3.7] - 2026-09-18
+
+### Fixed
+
+- Added an explicit persistent `RepositoryMutationScope` boundary under the existing `AUTHORIZATION-SCOPED` owner so related, linked, dependent, discovered, or merely accessible repositories never inherit mutation authority.
+- Kept cross-repository coordination and read-only dependency inspection available while requiring out-of-scope writes to become exact handoffs for the target repository's authorized Master/owner.
+- Made direct and deterministic cross-repository mutation targets part of the same pre-action authorization decision, preventing an authorized action in repository A from silently causing an unauthorized write in repository B.
+- Clarified that exact action-specific `ScopedAuthorization` can cover only the exact repository/action it names where the canonical matrix permits it; it never persistently widens `RepositoryMutationScope` or later Master-rotation scope.
+- Persisted exact Worker `Repository` identity before dispatch under the existing `ASSIGNMENT-IDENTITY` owner, and reused that identity for execution, pre-push validation, handoff, correction/resume, and zero-chat Master recovery.
+
+### Validation
+
+- Issue #106 / PR #107 completed exact-candidate GitHub Actions run `35302533355` successfully, including contract compatibility, repository preflight, deterministic lint/traceability, representation controls, runtime equivalence/prototypes, benchmark, Phase C composition, model-trial tooling, release-intent, packaging/publisher, immutable-baseline, and clean-runtime checks.
+- A fresh separate HIGH_ASSURANCE independent review of candidate `f6183e49280a1d8811639f53c98b5064b0c944d9` returned `COMPLETE / APPROVE` with no findings after independently confirming both prior REQUIRED findings and the predicate/decision-flow interaction fix were resolved.
+- All 12 requested repository-scope decision variants passed independent semantic review, including one-off non-persistent authorization, deterministic A-to-B effects, pre-handoff Worker repository recovery, and stale-repository detection.
+- PR #107 merged as `main@d4352d9a8db1428de662d520c8da63717aa408af`; post-merge main validation run `35303488962` completed successfully.
+
+### Runtime compatibility
+
+- No new Role, lifecycle/status namespace, ProjectAuthority mode, Worker status, release/delivery state, or parallel repository-permission Rule was introduced.
+- `AUTHORIZATION-SCOPED` remains the canonical repository-authorization owner, while `ASSIGNMENT-IDENTITY` remains the canonical persisted Worker assignment owner.
+- Existing FAST/FULL selection, effect/approval gates, independent-review semantics, Worker lifecycle, MachineRelay transport, release behavior, and ordinary authorized single-repository autonomy remain intact.
+
+### Distribution
+
+- ChatGPT, Manus, Qwen, and Claude.ai packages continue to be generated from the single canonical `skill/` runtime and published together with matching SHA-256 checksum assets by the exact-SHA fail-closed release workflow.
+
 ## [1.3.6] - 2026-09-17
 
 ### Fixed
