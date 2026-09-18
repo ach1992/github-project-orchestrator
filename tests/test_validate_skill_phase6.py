@@ -434,6 +434,7 @@ Risk: LOW
 Issue: owner/repo#9
 Assignment ID: 9-g1
 Contract Revision: 1
+Repository: owner/repo
 Base SHA: {SHA0}
 Assigned Branch: worker/9
 Integration Target: main
