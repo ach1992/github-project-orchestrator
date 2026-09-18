@@ -24,9 +24,9 @@ A new/replacement Master enters `RECOVER` before consequential project mutation.
 
 **Orientation spine — always first.**
 
-1. **Execution identity.** Identify repository/repositories, target/default branches, checkout/worktrees, repository rules, and current capabilities. Establish the exact current `RepositoryMutationScope` from explicit owner/higher-level authorization or the active assignment; never infer writable repositories from dependencies, links, project membership, or technical access.
+1. **Execution identity.** Identify repository/repositories, target/default branches, checkout/worktrees, repository rules, and current capabilities.
 2. **Truth locations and minimum live evidence.** Read an existing lightweight Project Map or equivalent truth-location index if present, then only durable docs relevant to current work. Before establishing any still-unresolved conclusion in steps 3–4, follow only the minimum live control-plane pointers from those truth locations needed to make it decision-valid, for example the relevant active Issue/Project/milestone and PR/branch/check/dependency state.
-3. **Control state.** Establish the active project outcome/completion condition, recover `ProjectAuthority` and `CoordinationBaseline` independently, and recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`; also recover the current repository mutation boundary needed for the active work.
+3. **Control state.** Establish the active project outcome/completion condition, recover `ProjectAuthority` and `CoordinationBaseline` independently, and recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`. Derive the current `RepositoryMutationScope` only from the replacement Master's current explicit owner/higher-level authorization or exact assignment; never reconstruct writable scope from repository/project artifacts. If that authorization basis is missing or materially ambiguous, keep ambiguous repositories read-only and ask the smallest exact repository-scope question before mutation.
 4. **Active workstream identity.** Identify the active critical path/workstream from the applicable authoritative evidence.
 
 **Triggered-depth interrupt.** Treat the canonical root project specification as triggered depth: chat loss alone is not a trigger. If a Triggered-depth condition below is already present during orientation, enter only that needed depth now rather than forcing unrelated active-path reading first.
@@ -61,7 +61,7 @@ When state is stale or contradictory:
 A replacement Master with no chat history should be able to find, when relevant:
 
 - project purpose, active outcome/success model/non-goals/durable constraints, with the canonical root project specification discoverable as the repository-level source for initial/project-level intent when needed;
-- current milestone/backlog, dependencies, blockers, ownership, material risks, and—when multiple repositories are in view—the exact repositories this Master may mutate versus read-only/handoff repositories;
+- current milestone/backlog, dependencies, blockers, ownership, material risks, and—when multiple repositories are in view—enough repository identity/ownership/dependency context to apply the replacement Master's current explicit `RepositoryMutationScope` and distinguish read-only/handoff repositories without treating project data as authorization;
 - current architecture and development/validation/release rules;
 - active Task Contracts and PR/review state, including persisted Worker assignment identity when delegation is active: current-generation `Assignment ID`, revision, `Base SHA`, Assigned Branch, immutable `Start HEAD`, Integration Target, Worker, `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, exact current `ScopedAuthorization` when any, risk/release constraints, current Assignment Status, and same-generation `Checkpoint HEAD` when a correction/resume is active;
 - unresolved lasting decisions;
