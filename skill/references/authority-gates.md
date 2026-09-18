@@ -8,11 +8,20 @@ Canonical decision model for whether the Master may act, must reconcile, or must
 
 ## 1. Decision dimensions
 
-Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Technical capability and environment remain separate execution constraints. This domain consumes the shared dimension ontology rather than re-declaring its values; it owns authorization/action-gate interpretation and applies current action effects, obligations, repository/platform policy, and gate evidence.
+Use the current `Role`, `ProjectAuthority`, `RepositoryMutationScope`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` as independent inputs to gate evaluation; derive `RepositoryMutationScope` under this section rather than from repository/project content. Technical capability and environment remain separate execution constraints. This domain consumes the shared dimension ontology rather than re-declaring its values; it owns authorization/action-gate interpretation and applies current action effects, obligations, repository/platform policy, and gate evidence.
 
 `ProjectAuthority` is the project-wide authorization envelope for normal reversible mutation. It changes only from applicable explicit user or higher-level authorization; access/capability, environment, risk, coordination, or assurance may constrain execution but never grant or widen it. Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants.
 
-`RepositoryMutationScope` is the exact repository allowlist inside that authorization envelope. Derive it only from explicit, unambiguous owner/higher-level instructions or an exact assignment: one clearly assigned repository creates a singleton mutation scope; a clearly authorized multi-repository assignment contains only those named repositories. A repository being mentioned, linked, depended on, discovered, technically accessible, or part of the same project/outcome does **not** add it. If the writable set is materially ambiguous, keep mutation blocked for the ambiguous repository while using safe read-only reconciliation and ask the smallest exact repository-scope question needed. Expanding the set requires a new explicit authorization that names the added repository or an exact action in it. Read-only inspection of an out-of-scope related repository remains allowed when it is necessary, access/policy permit it, and no mutation is performed.
+`RepositoryMutationScope` is the exact repository allowlist inside that authorization envelope. Derive it only from explicit, unambiguous owner/higher-level authorization or an exact current assignment:
+
+| Authorization evidence | Repository mutation scope |
+|---|---|
+| one repository is explicitly assigned for mutation | exactly that repository |
+| multiple repositories are explicitly authorized | exactly those named repositories |
+| a repository is only mentioned, linked, depended on, discovered, technically accessible, or part of the same project/outcome | no scope expansion |
+| the writable repository set is materially ambiguous | ambiguous repositories remain read-only; reconcile and ask the smallest exact repository-scope question before mutation |
+
+Expanding the allowlist requires new explicit authorization naming the added repository or an exact action in it. Read-only inspection of an out-of-scope related repository remains allowed when necessary and permitted, but project/repository content, dependency state, or technical access never supplies mutation authority.
 
 An exact one-off instruction/approval is `ScopedAuthorization`: where the canonical matrix permits scoped authorization, it may authorize that exact action or satisfy only the applicable gate for it, without converting the broader project to a more permissive `ProjectAuthority`. `CoordinationBaseline` contributes coordination/persistence controls; `STANDARD` does not imply FULL execution. `AssuranceLevel=HIGH_ASSURANCE` adds evidence/review controls without removing baseline controls and does not by itself create human approval or a different `ProjectAuthority`. `RiskLevel` determines proportional gate/evidence depth for the specific change when decision-relevant.
 
