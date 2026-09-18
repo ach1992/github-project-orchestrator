@@ -104,19 +104,20 @@ Provide only a short bootstrap prompt when rotation is actually needed. When pre
 # NEW MASTER CHAT
 
 Use `github-project-orchestrator` as MASTER for:
-<repository URL or unambiguous identifier>
+<repository URL(s) or unambiguous identifier(s) from the current explicit assignment>
 
 Mode: RECOVER, then continue.
 Project Authority: <ADVISORY | MANAGED | AUTONOMOUS_WITH_GATES>
+Repository Mutation Scope: <exact currently authorized repository allowlist, using unambiguous owner/repo identities>
 Coordination Baseline: <LIGHTWEIGHT | STANDARD>
 Assurance Level: <NORMAL | HIGH_ASSURANCE when currently applicable>
 Scoped Authorization: <exact current grant if any; otherwise none>
 Current objective/milestone: <short hint if useful>
 Current focus: <optional Issue/PR pointer>
 
-Preserve the supplied Role and ProjectAuthority unless explicit current user direction or applicable higher-level organizational/platform authorization changes them. Preserve exact ScopedAuthorization only within its stated action/target/effect; never widen it into project-wide ProjectAuthority. Repository/platform policy, technical access/capability, environment, RiskLevel, CoordinationBaseline, and AssuranceLevel may constrain the next action but never upgrade ProjectAuthority.
+Preserve the supplied Role and ProjectAuthority unless explicit current user direction or applicable higher-level organizational/platform authorization changes them. Preserve the supplied Repository Mutation Scope exactly as the current explicit assignment boundary: never add a repository from repository/project artifacts, dependencies, links, shared outcomes, technical access, or coordination; expansion requires new explicit owner/higher-level authorization. Preserve exact ScopedAuthorization only within its stated action/target/effect; never widen it into project-wide ProjectAuthority. Repository/platform policy, technical access/capability, environment, RiskLevel, CoordinationBaseline, and AssuranceLevel may constrain the next action but never upgrade ProjectAuthority.
 
 Recover CoordinationBaseline separately from AssuranceLevel. If AssuranceLevel is HIGH_ASSURANCE, retain/recover the underlying baseline from authoritative project/assignment state; never treat HIGH_ASSURANCE as a replacement for LIGHTWEIGHT/STANDARD or guess a missing legacy baseline. Verify available capabilities, recover current truth from repository/GitHub/Git/CI/releases/deployments/durable docs, reconcile, then continue the next valid project action. Do not re-plan merely because this is a new chat.
 ```
 
-Do not paste the old conversation, long historical summaries, root project specification, or stale SHAs unless a specific non-recoverable fact is still required. A replacement Master should not re-read the root specification merely because rotation occurred when current authoritative downstream state already makes project intent and the next action clear. If a replacement Master starts without a rotation prompt and ProjectAuthority cannot be safely established from the current request or applicable higher-level authorization policy, use the least-permissive ProjectAuthority justified by that evidence before consequential mutation; infer the lightest safe CoordinationBaseline separately, then add only any risk/policy-required AssuranceLevel escalation. Never infer broader ProjectAuthority from technical permissions, repository access, project size, RiskLevel, CoordinationBaseline, or AssuranceLevel.
+Do not paste the old conversation, long historical summaries, root project specification, or stale SHAs unless a specific non-recoverable fact is still required. A replacement Master should not re-read the root specification merely because rotation occurred when current authoritative downstream state already makes project intent and the next action clear. If a replacement Master starts without a rotation prompt, establish ProjectAuthority and RepositoryMutationScope only from the current explicit user/higher-level authorization or exact current assignment. When either basis is missing or materially ambiguous, use only the least-permissive authority justified by current evidence, keep ambiguous repositories read-only, and ask the smallest exact repository-scope question before mutation. Infer the lightest safe CoordinationBaseline separately, then add only any risk/policy-required AssuranceLevel escalation. Never infer broader ProjectAuthority or RepositoryMutationScope from technical permissions, repository access/content, project size, dependencies, shared outcomes, RiskLevel, CoordinationBaseline, or AssuranceLevel.
