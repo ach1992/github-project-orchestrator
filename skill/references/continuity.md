@@ -63,7 +63,7 @@ A replacement Master with no chat history should be able to find, when relevant:
 - project purpose, active outcome/success model/non-goals/durable constraints, with the canonical root project specification discoverable as the repository-level source for initial/project-level intent when needed;
 - current milestone/backlog, dependencies, blockers, ownership, material risks, and—when multiple repositories are in view—enough repository identity/ownership/dependency context to apply the replacement Master's current explicit `RepositoryMutationScope` and distinguish read-only/handoff repositories without treating project data as authorization;
 - current architecture and development/validation/release rules;
-- active Task Contracts and PR/review state, including persisted Worker assignment identity when delegation is active: current-generation `Assignment ID`, revision, `Base SHA`, Assigned Branch, immutable `Start HEAD`, Integration Target, Worker, `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, exact current `ScopedAuthorization` when any, risk/release constraints, current Assignment Status, and same-generation `Checkpoint HEAD` when a correction/resume is active;
+- active Task Contracts and PR/review state, including persisted Worker assignment identity when delegation is active: current-generation `Assignment ID`, revision, exact `Repository`, `Base SHA`, Assigned Branch, immutable `Start HEAD`, Integration Target, Worker, `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, exact current `ScopedAuthorization` when any, risk/release constraints, current Assignment Status, and same-generation `Checkpoint HEAD` when a correction/resume is active;
 - unresolved lasting decisions;
 - release/deployment state including independent `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState`, plus next valid action;
 - authoritative locations and material relationships without chat history.
@@ -94,7 +94,7 @@ Before rotation:
 - ensure no critical work exists only as uncommitted/unpushed local changes or chat instructions;
 - run the recoverability test.
 
-Workers may continue across Master rotation only when their Task Contract and persisted assignment identity are recoverable: Assignment ID, revision, Base SHA, Assigned Branch, immutable Start HEAD, Integration Target, Worker identity, ProjectAuthority, CoordinationBaseline, AssuranceLevel, applicable ScopedAuthorization, current Assignment Status, risk/release constraints, and current correction/resume Checkpoint HEAD when any, plus PR when one exists. Do not rely on the old Master chat to reconstruct an active assignment.
+Workers may continue across Master rotation only when their Task Contract and persisted assignment identity are recoverable: Assignment ID, revision, exact Repository, Base SHA, Assigned Branch, immutable Start HEAD, Integration Target, Worker identity, ProjectAuthority, CoordinationBaseline, AssuranceLevel, applicable ScopedAuthorization, current Assignment Status, risk/release constraints, and current correction/resume Checkpoint HEAD when any, plus PR when one exists. Do not rely on the old Master chat, Issue/dependency context, or surrounding repository/project artifacts to reconstruct the Worker's repository identity.
 
 ## 7. New Master prompt
 
