@@ -201,3 +201,114 @@ The removable owner-like overlaps found by this pass were the independent-review
 - **Reorder `SKILL.md` solely for aesthetics:** rejected. The entrypoint is materialized as one unit, so moving the router earlier would not reduce tokens or reference hops; the current Role → invariants → truth → role kernel/router organization is coherent and changing order without behavioral evidence would create review churn.
 
 This structural analysis supports a theoretical **general decision-cost improvement** across distinct task families while preserving the same rule/state/eval inventory. It is not a measured claim about GPT latency, token billing, or decision-quality percentage; live-model A/B evidence would still be required for such claims.
+## Third-pass format and decision-representation audit
+
+This pass asks a different question from the earlier routing audit: **is each rule expressed in the form that makes its decision easiest to recover correctly?** It treats Markdown form as part of runtime representation rather than presentation style.
+
+### Format-selection rule
+
+Use the smallest form that matches the semantic shape:
+
+| Semantic shape | Preferred representation | Why |
+|---|---|---|
+| mutually distinguishable cases, classifications, mappings, precedence | table | exposes alternatives and their discriminators side-by-side |
+| ordered recovery/correction/mutation algorithm | numbered steps or compact pseudocode | preserves sequence and stop/retry order |
+| strict predicate, relay/result schema, machine-facing contract | fenced block | preserves exact field/operator structure |
+| unordered inventory/checklist with independent items | bullets | avoids hiding independent obligations inside prose |
+| invariant, exception, or tightly coupled nuance | short prose | keeps causal/exception semantics together without manufacturing pseudo-states |
+
+The audit does **not** convert prose to tables merely to reduce sentence length. Long security, production-gate, sanitation, and compatibility paragraphs remain prose where their exceptions/causal relationships are more important than categorical lookup.
+
+### Changes retained
+
+1. **Remove redundant operational TOCs.** Eight fully materialized 100–250-line operational references repeated their own headings in manual `## Contents` blocks. No runtime tool/test depended on those anchor lists. They were removed; the very large cold `eval-scenarios.md` keeps navigation because it serves evidence maintenance rather than ordinary execution.
+2. **Recovery becomes one progressive representation.** `continuity.md` §2 now uses the already-evidenced three-layer table—Orientation spine → Active-path context → Triggered depth—adapted to current `RepositoryMutationScope` semantics. This removes mixed numbered/prose/bullet routing and keeps one decision-valid stopping condition. The existing progressive-recovery experiment already exercised zero-chat, tool/branch transition, material drift, multi-repository, large-project, and authority/profile variants.
+3. **Repository-scope transitions become a case table.** `authority-gates.md` distinguishes persistent expansion, one-off scoped authorization, delegation, and out-of-scope handoff without asking the model to reconstruct four branches from one paragraph.
+4. **Selected Master boundaries use explicit guards.** `MISSING_CAPABILITY`, `NO_READY_WORK`, and `USER_STOP` are represented as Boundary → Guard mappings; full namespace tokens remain explicit.
+5. **Engineering concern propagation becomes role mapping.** Master/Worker/Reviewer/Release behavior is one table instead of four repeated prose subsections. Role-specific consequences remain unchanged and no new ceremony/state is introduced.
+6. **Review delta reuse becomes a decision table.** Fresh verdict, safe evidence reuse, and review widening are separated by the effect of the candidate delta. Prior evidence may transfer only while assumptions remain valid; prior verdict never transfers.
+7. **Assignment identity owns data; Worker protocol owns classification.** `task-contract.md` no longer re-classifies every stale-assignment condition. Its schema is explicitly the input to `worker-protocol.md` §4, which remains the single staleness classifier.
+8. **Worker handoff status has one classifier.** The precedence table carries fully qualified `WorkerStatus.*` values and absorbs environment/dirty-work/approval variants. The following prose now only states the cross-namespace Master-absorption nuance.
+9. **Worker correction is sequential.** Correction/resume is four numbered steps: generation validity → checkpoint handoff/pre-edit verification → relay delta → new generation when invalidated. This better exposes the concurrency checkpoint than a 174-word paragraph.
+10. **Validation plan separates independent obligations.** `task-contract.md` now uses three bullets for minimum evidence, execution order, and evidence-reuse freshness rather than combining them in one long paragraph.
+11. **Retention/preflight guards become independent bullets.** Positive retention, transient cleanup, Master-only persistence, negative retention, and incomplete-preflight interpretations are no longer hidden in multi-clause prose.
+12. **Traceability uses section anchors, not line numbers.** Remaining runtime line-number references in `design/RULE-MAP.md` were replaced with stable section references so representation-only formatting changes do not silently stale the map.
+13. **Skill description is compressed without narrowing triggers.** The frontmatter still covers start/manage/continue/finish/recover, Worker dispatch/execution, and end-to-end orchestration while spending fewer always-loaded words.
+
+### Changes deliberately not made
+
+- **Do not table every long paragraph.** Security reviewer evidence boundaries, root-spec sanitation, destructive/production authorization nuance, cross-repository governance, and pending-delivery semantics retain prose because independent rows would obscure exception/causal relationships.
+- **Do not split safety-coupled authority logic into more files.** File-hop reduction is subordinate to keeping action effects, gate obligations, boundary meaning, unknown-write recovery, and concurrency reasoning locally coherent.
+- **Do not remove assignment field repetition from Worker transport.** Persisted schema and dispatch/handoff transport legitimately carry the same identity fields; this is producer/consumer repetition, not competing semantic ownership.
+- **Do not add another format/representation Rule or state.** These are representation changes under existing Rule owners and eval families.
+
+### Duplicate and cognitive-structure diagnostics
+
+Comparing the exact prior candidate `88729e211873440542bd2dbd74a3cc2dc16a1441` with this working representation:
+
+| Diagnostic | `88729e2` | third-pass working representation |
+|---|---:|---:|
+| exact repeated operational line groups across files | 0 | **0** |
+| semantic-similarity cross-file pairs ≥ 0.40 | 88 | **79** |
+| high-similarity pairs ≥ 0.60 | 12 | **11** |
+| prose paragraphs ≥ 65 words | 45 | **35** |
+| words inside those long paragraphs | 4,062 | **2,923** |
+| manual `## Contents` blocks in normal operational refs | 8 | **0** |
+| Rule IDs | 69 | **69** |
+| canonical Rule-owner drift | 0 | **0** |
+| standalone eval IDs | 121 | **121** |
+| state namespace value sets | baseline-preserved | **unchanged** |
+
+The largest remaining similarity cluster is still assignment identity in `task-contract.md` versus the exact identity consumed/carried by `worker-protocol.md`; that overlap is intentional transport/schema coupling, not a second decision owner.
+
+### Multi-scenario materialization check after format changes
+
+These counts are the actual words in the real runtime files selected by each archetype. They measure **representation/context materialization**, not model latency or decision-quality percentage.
+
+| Scenario archetype | v1.3.7 | exact prior `88729e2` | third-pass working | delta vs prior |
+|---|---:|---:|---:|---:|
+| routine bounded Master | 5,118 | 1,513 | **1,493** | **-20** |
+| normal review | 7,950 | 3,502 | **3,462** | **-40** |
+| integration gate | 10,669 | 6,221 | **6,120** | **-101** |
+| CI failure triage | 7,950 | 3,502 | **3,462** | **-40** |
+| independent HIGH_ASSURANCE review + relay | 7,950 | 4,392 | **4,352** | **-40** |
+| FULL planning + contract | 7,148 | 6,704 | **6,548** | **-156** |
+| Worker execution | 5,611 | 5,217 | **4,997** | **-220** |
+| Worker handoff MachineRelay | 5,611 | 5,331 | **5,111** | **-220** |
+| human-relayed Worker dispatch | 8,893 | 8,559 | **8,311** | **-248** |
+| first ownership + planning | 7,678 | 7,301 | **7,220** | **-81** |
+| recovery/resume | 7,246 | 3,606 | **3,413** | **-193** |
+| Master rotation MachineRelay | 7,246 | 3,720 | **3,527** | **-193** |
+| release/production gate | 9,118 | 5,513 | **5,413** | **-100** |
+| CI/automation fitness + review | 9,668 | 5,254 | **5,142** | **-112** |
+
+No sampled archetype regresses in materialized word count versus the prior exact candidate.
+
+### Whole operational representation
+
+| Surface | v1.3.7 | `88729e2` | third-pass working |
+|---|---:|---:|---:|
+| always-loaded kernel | 1,836 words | 1,513 | **1,493** |
+| operational refs excluding eval | 20,295 | 20,216 | **19,610** |
+| kernel + operational refs | 22,131 | 21,729 | **21,103** |
+| all refs including cold eval evidence | 32,926 | 33,295 | **32,689** |
+| kernel + all refs | 34,762 | 34,808 | **34,182** |
+
+Unlike the earlier structural candidate, the third-pass representation is now smaller than v1.3.7 even when the cold eval corpus is included.
+
+### Behavioral/evidence coverage
+
+No new eval ID is needed. Existing scenario families directly exercise the changed decisions:
+
+- recovery/progressive depth: `U`, `BG`, `BH`, `AH` plus the frozen progressive-recovery experiment;
+- Worker staleness/correction/status precedence: `D`, `AV`, `CR`, `CK`;
+- minimum validation and proof reuse/environment fallback: `DM`;
+- exact-candidate review freshness/delta reuse: `E`, `DN`;
+- cross-repository mutation scope and one-off scoped authorization: `DQ`;
+- unknown writes/concurrency and gate semantics remain under their existing authority eval families.
+
+The Phase C regression test now validates the **semantic three-layer recovery representation** rather than requiring the superseded prose phrasing. Worker namespace checks similarly require explicit `WorkerStatus.*` bindings in the classifier table, preventing compression from erasing namespace ownership.
+
+### Proof boundary
+
+The server still has no provisioned live model provider (`RUNTIME_MODEL_API_KEY`, `API_BASE_URL`, `MODEL_ID`, `MODEL_VERSION` unset; no model CLI). Therefore this pass does **not** claim measured GPT-5.6 Sol latency, billed-token, or decision-quality improvement. What is measured here is actual runtime representation/context size plus deterministic behavioral regression coverage. A live paired model trial is still required for a model-performance claim.

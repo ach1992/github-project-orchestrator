@@ -2,10 +2,6 @@
 
 Master owns acceptance and integration decisions. Worker handoff and self-authorship are never proof of correctness.
 
-## Contents
-
-[Review target](#1-establish-review-target) · [Review standard](#2-review-standard) · [Evidence](#3-evidence-authority-and-freshness) · [CI failures](#4-ci-failures) · [Conflicts](#5-conflicts) · [Integration gate](#6-integration-gate) · [Self-authored work](#7-self-authored-work) · [Post-integration](#8-post-integration)
-
 ## 1. Establish review target
 
 Before review, verify:
@@ -38,7 +34,15 @@ REVIEW_VALID(envelope) =
 
 `ApplicableContractRevisionIsCurrent` is true when no explicit Task Contract applies; it requires an exact current revision only when the review is contract-bound. When `REVIEW_VALID=false`, refresh the affected evidence and re-review the changed effective surface before integration. Current CI/checks, required approvals, unresolved findings, repository rules, and applicable action gates are separate integration-gate inputs; they are not hidden inside review freshness.
 
-A changed candidate that still requires independent review needs a **fresh verdict bound to the new exact candidate**, but freshness does not require throwing away sound analysis of an unchanged surface. A reviewer may use the prior exact reviewed candidate as a baseline, inspect the exact prior-candidate-to-current-candidate delta plus every interaction/assumption/evidence surface that delta can affect, and reuse prior analysis/evidence only where those assumptions remain valid. If the delta changes a shared interface, control flow, dependency, architecture boundary, security/data assumption, acceptance proof, or other fact on which an unchanged surface depended, widen review to that affected surface. Prior analysis may transfer when still valid; the prior verdict/approval never does.
+For a changed candidate that still requires independent review, use the prior reviewed candidate only as an evidence baseline:
+
+| Delta effect | Required review action |
+|---|---|
+| exact candidate changed | obtain a fresh verdict bound to the new exact candidate |
+| delta leaves prior assumptions/evidence for an unchanged surface valid | inspect the exact prior-candidate-to-current-candidate delta and affected interactions; reuse still-valid analysis/evidence |
+| delta changes a shared interface, control flow, dependency, architecture boundary, security/data assumption, acceptance proof, or another dependency of an unchanged surface | widen review to that affected surface |
+
+Prior analysis/evidence may transfer only while its assumptions remain valid; prior verdict/approval never transfers.
 
 ### Integration path selection
 

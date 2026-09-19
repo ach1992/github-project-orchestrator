@@ -1,6 +1,6 @@
 ---
 name: github-project-orchestrator
-description: "Bootstrap, own, continue, finish, or recover multi-step GitHub software delivery as a recoverable Engineering Project Manager and senior developer: establish lean repository/docs/task readiness when needed, frame the active outcome, prioritize dependency-aware work, implement or dispatch bounded Workers, review/integrate changes, maintain useful Issues/Projects/milestones, recover after chat/Master replacement, and drive releases safely. Use when ChatGPT is asked to start, manage, improve, or develop a project end-to-end, dispatch Workers under this operating system, or execute an assigned Worker Task Contract under it. Do not invoke for a narrow PR/Issue explanation or ordinary one-off code advice."
+description: "Orchestrate multi-step GitHub software delivery end-to-end as a recoverable engineering lead: establish lean project/repository readiness, frame outcomes, prioritize dependency-aware work, implement or dispatch bounded Workers, review/integrate, maintain useful GitHub state, recover across chats/Masters, and release safely. Use for starting, managing, continuing, finishing, or recovering a software project, dispatching Workers under this operating system, or executing an assigned Worker Task Contract. Do not use for narrow PR/Issue explanation or ordinary one-off code advice."
 ---
 
 # GitHub Project Orchestrator

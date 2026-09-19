@@ -2,10 +2,6 @@
 
 Use a compact Task Contract when explicit coordination/control improves execution; do not require one merely because code behavior changes. Prefer an existing Issue/authoritative work item when the contract must survive delegation, coordination, material risk, or context loss. For bounded low/medium-risk Master-only work whose goal, acceptance, validation, dependencies, and rollback are already clear from user request + repository evidence, use the implicit fast-path contract.
 
-## Contents
-
-[Lifecycle](#1-logical-lifecycle) · [Execution path](#2-execution-path-and-contract-threshold) · [Schema](#3-compact-contract-schema) · [Acceptance](#4-acceptance-criteria) · [Validation](#5-validation-strategy) · [Risk](#6-change-risk) · [Revision](#7-contract-revision) · [Worker identity](#8-worker-assignment-identity) · [READY](#9-ready-gate)
-
 ## 1. Logical lifecycle
 
 Map to existing repository workflow when possible. State names are namespace-qualified so matching tokens in other domains never imply propagation:
@@ -81,7 +77,11 @@ Choose the strongest practical evidence for the change:
 | migration/data | forward behavior, compatibility window, partial failure, rollback/restore/roll-forward proportional to risk |
 | security-sensitive | permission/abuse/input/error-path checks + happy path |
 
-Treat validation as a **minimum sufficient evidence plan**, not an inventory of every check that could run. `Minimum` removes duplicate proof, never an independent acceptance, risk, compatibility, security/data, or repository-policy guarantee: every material requirement still needs adequate evidence. Prefer fast local discriminating feedback for the changed surface, then rely on repository-required/current CI or other authoritative gates for the broader proof they own. Do not duplicate a broad local suite merely to reproduce the same proof when the local run adds no material differential signal. Green evidence may be reused only while the exact code/object plus the dependency/config/toolchain/environment assumptions relevant to that proof and the requirement it proves remain unchanged; freshness does not mean rerunning an unchanged proof for ceremony.
+Treat validation as a **minimum sufficient evidence plan**, not an inventory of every possible check:
+
+- `Minimum` removes duplicate proof, never an independent acceptance/risk/compatibility/security/data/repository-policy guarantee; every material requirement still needs adequate evidence.
+- Prefer fast local discriminating feedback for the changed surface, then rely on repository-required/current CI or other authoritative gates for the broader proof they own. Do not duplicate a broad local suite when it adds no material differential signal.
+- Reuse green evidence only while the exact code/object, relevant dependency/config/toolchain/environment assumptions, and the requirement proved remain unchanged; freshness does not mean rerunning unchanged proof for ceremony.
 
 If the current local environment is **proven** unable to execute a required check faithfully (for example a deterministic preflight shows a missing required service/extension, incompatible database semantics are established, or a resource ceiling is reproducible), record that limitation once for the unchanged conditions and use an available compatible authoritative environment/CI route. One ambiguous or plausibly transient failure is not proof of incompatibility. Do not repeatedly invoke the same proven-incompatible local route unless relevant conditions changed.
 
@@ -126,7 +126,7 @@ Persist this minimum in authoritative existing work item/repo-native equivalent 
 - Assignment ID is correlation/generation aid, not new truth: authoritative work item identifies active generation; Git refs own code state; persisted worker/repository/base/revision/branch/start-HEAD/target preserve dispatch assumptions for stale detection.
 - `ProjectAuthority` is project-wide authority. `ScopedAuthorization`, when present, is an exact grant for its stated action/target/effect and never silently upgrades `ProjectAuthority`, `CoordinationBaseline`, or `AssuranceLevel`.
 
-If Assignment ID/Worker no longer matches, status is not active, Repository/revision/branch/Integration Target/ProjectAuthority/CoordinationBaseline/AssuranceLevel/risk/release constraints change materially, external/material state invalidates the recorded Base SHA/Start HEAD assumptions, or current assigned-branch HEAD unexpectedly diverges from the Master-supplied Checkpoint HEAD on correction/resume, the Worker must stop with `WorkerStatus.STALE_ASSIGNMENT` unless Master explicitly reconciles and creates/reissues valid assignment state. Normal authorized Worker commits that advance current HEAD within the same generation are not staleness.
+The schema above is the canonical assignment-identity input consumed by `worker-protocol.md` §4 for staleness classification. Normal authorized Worker commits may advance current HEAD beyond `Start HEAD`; that field remains the immutable verified generation start.
 
 During Phase 2 compatibility, `scripts/contract_check.py` accepts legacy `Authority` as `Project Authority` and legacy `Expected Starting HEAD` as `Start HEAD`. Legacy `Operating Profile: LIGHTWEIGHT|STANDARD` maps losslessly to the same `CoordinationBaseline` with `AssuranceLevel=NORMAL`. Legacy `Operating Profile: HIGH_ASSURANCE` is accepted only when an authoritative `Coordination Baseline` is also persisted; otherwise the helper rejects the ambiguous state rather than guessing a baseline.
 
@@ -145,4 +145,4 @@ Applies to delegated work and FULL-path Master work. FAST Master work needs no R
 
 Discover safely discoverable missing information read-only instead of asking the user. READY is a decision gate, not a documentation ceremony: do not create extra artifacts merely to represent facts already authoritative and recoverable elsewhere.
 
-Use `scripts/contract_check.py` when a local contract is available and convenient. `--worker` always requires full compact Task Contract + dispatch-ready `ACTIVE` assignment regardless of `--level`; include `Issue:` or pass known identity with `--issue`. Helper ignores fenced examples/HTML comments; rejects duplicate canonical sections/fields, placeholder/empty required sections, placeholder assignment values, invalid/non-local Assigned Branch, invalid/non-canonical/remote-tracking Integration Target, same-branch target, zero object IDs, ambiguous canonical/legacy ontology fields, and legacy `HIGH_ASSURANCE` without a persisted coordination baseline. Branch identity is literal; use actual ref, not presentation markup. Helper does not judge prose or replace READY; it is optional and must not block equivalent manual/tool verification.
+Use `scripts/contract_check.py` when a local contract is available and convenient. `--worker` requires the full compact contract plus dispatch-ready `ACTIVE` assignment and Issue identity; it rejects malformed/placeholder assignment identity, invalid branch/target relationships, duplicate/ambiguous canonical fields, and ambiguous legacy `HIGH_ASSURANCE` without a persisted coordination baseline. Branch identity is literal. The helper is optional, does not judge prose or replace READY, and must not block equivalent manual/tool verification.

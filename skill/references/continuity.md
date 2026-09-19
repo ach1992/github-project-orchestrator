@@ -2,10 +2,6 @@
 
 The project must survive loss of the current chat or Master. Continuity comes from authoritative current state, not a parallel manager-memory archive. Context management must never become an artificial project stop.
 
-## Contents
-
-[Retention](#1-retention-test) · [Recovery](#2-recovery-sequence) · [Reconciliation](#3-reconciliation-rules) · [Recoverability](#4-recoverability-test) · [Rotation](#5-master-rotation) · [Safe boundary](#6-safe-rotation-boundary) · [New Master prompt](#7-new-master-prompt)
-
 ## 1. Retention test
 
 Persist information only when all are true:
@@ -14,26 +10,26 @@ Persist information only when all are true:
 2. it is not already recoverable from a stronger source such as Git, GitHub, CI, or deployment history;
 3. it is likely to matter beyond the current orchestration cycle, **or** it is active delegated-assignment identity needed to survive unexpected Master loss before the first push/PR/handoff.
 
-Persist stable goals/constraints, current architecture/engineering rules, unresolved dependencies/risks, lasting decisions, reusable operational hazards/procedures, and the minimum active Worker assignment identity required for cross-Master reconciliation. Reconcile/remove transient assignment status when the assignment is no longer active rather than retaining a historical manager archive. For bounded transient Master-only work, persist nothing while intent remains safely reconstructable; if ambiguous implementation state would otherwise cross a handoff/rotation/recovery boundary without an interpretable owner, persist only the minimum unresolved intent in the natural PR/Issue/commit/workflow context. Do not persist routine logs, Worker transcripts, merged PR summaries, resolved blockers, periodic snapshots, or chat summaries.
+When the retention test passes:
+
+- persist stable goals/constraints, current architecture/engineering rules, unresolved dependencies/risks, lasting decisions, reusable operational hazards/procedures, and the minimum active Worker assignment identity needed for cross-Master reconciliation;
+- remove/reconcile transient assignment status once inactive rather than keeping a historical manager archive;
+- for bounded transient Master-only work, persist nothing while intent remains safely reconstructable; if ambiguous implementation state would otherwise cross handoff/rotation/recovery without an interpretable owner, persist only the minimum unresolved intent in the natural PR/Issue/commit/workflow context;
+- do **not** persist routine logs, Worker transcripts, merged PR summaries, resolved blockers, periodic snapshots, or chat summaries.
 
 Never create `MASTER_STATE`, `manager-memory/`, `checkpoints/`, `handoffs/`, or similar archives solely for orchestration continuity.
 
 ## 2. Recovery sequence
 
-A new/replacement Master enters `RECOVER` before consequential project mutation. Recover progressively: start with orientation, enter the active path normally, and widen only when a concrete trigger makes deeper context decision-relevant. `Triggered depth` is a conditional side path that may become necessary from orientation or from the active path; it is not a mandatory third phase.
+A new/replacement Master enters `RECOVER` before consequential project mutation. Recover progressively and stop reading as soon as current authoritative state is decision-valid for the next action. The three rows are context-depth layers, not rigid lifecycle states:
 
-**Orientation spine — always first.**
+| Recovery layer | Required work |
+|---|---|
+| **Orientation spine — always first** | Identify repository/repositories, target/default branches, checkout/worktrees, repository rules, and current capabilities. Read an existing lightweight Project Map/truth-location index if present, then only durable docs relevant to current work. Before concluding control/workstream state, follow only the minimum live pointers needed to validate it. Establish active outcome/completion, recover `ProjectAuthority` and `CoordinationBaseline` independently, recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`, derive `RepositoryMutationScope` only from current explicit owner/higher-level authorization or exact assignment, and identify the active critical path/workstream. Ambiguous repositories remain read-only until scope is reconciled. Chat loss alone never triggers root-spec loading. |
+| **Active-path context — normal next layer** | Inspect only decision-relevant current Issues/milestones/Projects/risks/assignments, PRs/reviews/checks/branches/dependencies, and recent Git/release/deployment state when needed. Enter only the current Issue/contract, PR/branch/CI, direct dependencies/interfaces, blockers/risks, integration/delivery state, review queue, controlling blockers, `DeliveryRequirement`/`DeliveryTarget`/`DeliveryState`, candidate/review state, and next executable action needed for the current decision. Reconcile contradictions and stale assignments. |
+| **Triggered depth — conditional side path** | Load broader architecture, other workstreams, the canonical root project specification, historical decisions, or release history only when a contradiction, dependency, interface, risk, or project-level decision makes that context materially relevant. Load the root specification when project-level intent cannot be established safely from current downstream authoritative state or when material contradiction/change makes it decision-relevant. After resolving the trigger, return to the narrowest context sufficient for the next decision. |
 
-1. **Execution identity.** Identify repository/repositories, target/default branches, checkout/worktrees, repository rules, and current capabilities.
-2. **Truth locations and minimum live evidence.** Read an existing lightweight Project Map or equivalent truth-location index if present, then only durable docs relevant to current work. Before establishing any still-unresolved conclusion in steps 3–4, follow only the minimum live control-plane pointers from those truth locations needed to make it decision-valid, for example the relevant active Issue/Project/milestone and PR/branch/check/dependency state.
-3. **Control state.** Establish the active project outcome/completion condition, recover `ProjectAuthority` and `CoordinationBaseline` independently, and recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`. Derive the current `RepositoryMutationScope` only from the replacement Master's current explicit owner/higher-level authorization or exact assignment; never reconstruct writable scope from repository/project artifacts. If that authorization basis is missing or materially ambiguous, keep ambiguous repositories read-only and ask the smallest exact repository-scope question before mutation.
-4. **Active workstream identity.** Identify the active critical path/workstream from the applicable authoritative evidence.
-
-**Triggered-depth interrupt.** Treat the canonical root project specification as triggered depth: chat loss alone is not a trigger. If a Triggered-depth condition below is already present during orientation, enter only that needed depth now rather than forcing unrelated active-path reading first.
-- **Active-path context — normal next layer.** With the active workstream identified, continue only the decision-relevant live inspection of active Issues/milestones/Projects/risks/assignments and open PRs/reviews/checks/branches/dependencies; inspect recent Git/release/deployment state only as needed. Enter only the current Issue/contract, PR/branch/CI, direct dependencies/interfaces, blockers/risks, and integration/delivery state needed for the next decision. Reconcile contradictions and stale assignments. Determine the review queue, controlling blockers, `DeliveryRequirement`/`DeliveryTarget`/`DeliveryState`, current candidate/review state, and next executable action.
-- **Triggered depth — conditional side path.** Load broader architecture, other workstreams, the canonical root project specification, historical decisions, or release history only when a contradiction, dependency, interface, risk, or project-level decision makes that context materially relevant. Load the root specification when project-level intent cannot be established safely from current downstream authoritative state or when material contradiction/change makes it decision-relevant. After the triggered uncertainty is resolved, keep subsequent recovery as narrow as the next decision permits.
-
-Stop recovery reading once repository/target identity, active outcome, controlling dependencies/blockers, current `RepositoryMutationScope`, current `ProjectAuthority`/`CoordinationBaseline`/affected `AssuranceLevel`, current candidate/review/delivery state, and the next executable action are decision-valid. Continue the valid plan instead of rebuilding it because chat history is absent. A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.
+Recovery is decision-valid when repository/target identity, active outcome, controlling dependencies/blockers, current `RepositoryMutationScope`, current `ProjectAuthority`/`CoordinationBaseline`/affected `AssuranceLevel`, current candidate/review/delivery state, and the next executable action are established from current authoritative evidence. Continue the valid plan instead of rebuilding it because chat history is absent. A large/long-lived repository is a reason to narrow by workstream, not to read more by default.
 
 For multi-repository outcomes, recover the small global coordination spine first: outcome/completion, repository/workstream ownership, cross-repository dependencies/interfaces, integration/release order, delivery target, and the exact repository mutation boundary for this Master. Then enter only the local repository contexts on the active critical path. Repositories outside `RepositoryMutationScope` remain read-only context for this Master: discover their dependency state when necessary, but hand off required changes to their authorized Master/owner instead of mutating them. Local Issues/PRs/CI/repository rules remain authoritative; do not reconstruct them in a central recovery snapshot.
 
@@ -41,7 +37,12 @@ Never reconstruct `CoordinationBaseline` from `AssuranceLevel`, risk, project si
 
 After this baseline is established, do not re-enter the full recovery sequence for ordinary progress. A planned branch/worktree create/switch should verify the intended branch, base/HEAD, target relationship, and dirty-state ownership as needed, then resume execution. A failed GitHub/tool route should update transient capability knowledge and trigger an equivalent authoritative route when available; it should not by itself restart repository-wide recovery. Re-enter broader recovery only when concrete evidence materially invalidates the established baseline. When a material dependency, architecture/interface assumption, ownership boundary, risk, or release constraint changes, reconcile the affected workstream/critical-path slice first and widen recovery only when the impact actually crosses that boundary.
 
-Old handoff hints are accelerators only. `scripts/repo_preflight.py --recovery` may accelerate local Git inspection but is transient and incomplete. Treat any explicit completeness flag as authoritative for the helper output: when `status_complete`/`dirty_complete` is false, `dirty: false` means no dirty state was safely observed, not proof that the worktree is clean; when history/tag completeness is false, do not infer absence from the missing local evidence. Its high-cardinality status/branch lists are intentionally bounded; when `*_truncated` is true, use the reported totals plus targeted Git inspection for the paths/refs relevant to recovery rather than treating the returned subset as complete. The helper intentionally avoids implicit lazy fetches and reports replacement/graft history semantics; perform explicit authorized fetches or targeted trusted inspection only when the missing evidence can affect the next decision.
+Old handoff hints are accelerators only. `scripts/repo_preflight.py --recovery` is likewise transient/incomplete; interpret it with these guards:
+
+- `status_complete=false` or `dirty_complete=false`: `dirty: false` means no dirty state was safely observed, not proof of a clean worktree;
+- incomplete history/tag evidence: missing local evidence never proves absence;
+- any `*_truncated=true`: use reported totals plus targeted Git inspection for only the paths/refs relevant to recovery; never treat the returned subset as complete;
+- the helper avoids implicit lazy fetches and reports replacement/graft history semantics; perform explicit authorized fetches or targeted trusted inspection only when missing evidence can affect the next decision.
 
 ## 3. Reconciliation rules
 

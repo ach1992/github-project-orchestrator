@@ -324,52 +324,34 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
     require_all(
         recovery,
         (
-            "Recover progressively: start with orientation, enter the active path normally, and widen only when a concrete trigger makes deeper context decision-relevant.",
-            "`Triggered depth` is a conditional side path that may become necessary from orientation or from the active path; it is not a mandatory third phase.",
-            "**Orientation spine — always first.**",
-            "1. **Execution identity.** Identify repository/repositories, target/default branches, checkout/worktrees, repository rules, and current capabilities.",
-            "2. **Truth locations and minimum live evidence.**",
-            "Project Map or equivalent truth-location index",
-            "Before establishing any still-unresolved conclusion in steps 3–4, follow only the minimum live control-plane pointers",
-            "active Issue/Project/milestone and PR/branch/check/dependency state",
-            "3. **Control state.** Establish the active project outcome/completion condition",
+            "Recover progressively and stop reading as soon as current authoritative state is decision-valid for the next action.",
+            "The three rows are context-depth layers, not rigid lifecycle states",
+            "| Recovery layer | Required work |",
+            "**Orientation spine — always first**",
+            "Project Map/truth-location index",
+            "follow only the minimum live pointers needed to validate it",
             "recover `ProjectAuthority` and `CoordinationBaseline` independently",
             "recover any affected-chain `AssuranceLevel` and exact current `ScopedAuthorization`",
-            "4. **Active workstream identity.** Identify the active critical path/workstream from the applicable authoritative evidence.",
-            "**Triggered-depth interrupt.**",
-            "chat loss alone is not a trigger",
-            "already present during orientation",
-            "enter only that needed depth now rather than forcing unrelated active-path reading first",
-            "**Active-path context — normal next layer.**",
-            "**Triggered depth — conditional side path.**",
+            "derive `RepositoryMutationScope` only from current explicit owner/higher-level authorization or exact assignment",
+            "Ambiguous repositories remain read-only until scope is reconciled.",
+            "Chat loss alone never triggers root-spec loading.",
+            "**Active-path context — normal next layer**",
+            "**Triggered depth — conditional side path**",
             "Load the root specification when project-level intent cannot be established safely from current downstream authoritative state or when material contradiction/change makes it decision-relevant.",
-            "Stop recovery reading once repository/target identity, active outcome, controlling dependencies/blockers",
+            "After resolving the trigger, return to the narrowest context sufficient for the next decision.",
+            "Recovery is decision-valid when repository/target identity, active outcome, controlling dependencies/blockers",
             "Continue the valid plan instead of rebuilding it because chat history is absent.",
-            "A large repository or long-lived project is a reason to narrow recovery by workstream, not to read more by default.",
+            "A large/long-lived repository is a reason to narrow by workstream, not to read more by default.",
         ),
     )
-    orientation = extract_between(
-        recovery,
-        "**Orientation spine — always first.**",
-        "- **Active-path context — normal next layer.**",
-    )
-    identity = "1. **Execution identity.**"
-    truth = "2. **Truth locations and minimum live evidence.**"
-    discovery = "Before establishing any still-unresolved conclusion in steps 3–4"
-    conclusion = "3. **Control state.** Establish the active project outcome/completion condition"
-    workstream = "4. **Active workstream identity.**"
-    interrupt = "**Triggered-depth interrupt.**"
-    # Zero chat + no useful status hint + Project Map as pointers only must still read
-    # the minimum live control plane before deriving outcome/Authority/critical path.
-    assert orientation.index(identity) < orientation.index(truth)
-    assert orientation.index("Project Map or equivalent truth-location index") < orientation.index(discovery)
-    assert orientation.index(discovery) < orientation.index(conclusion)
-    assert orientation.index(conclusion) < orientation.index(workstream)
-    assert orientation.index(workstream) < orientation.index(interrupt)
-    assert "from the applicable authoritative evidence" in orientation
-    assert "chat loss alone is not a trigger" in orientation
-    assert "already present during orientation" in orientation
-    assert "| Recovery layer | Required work |" not in recovery
+    assert recovery.count("| **Orientation spine — always first** |") == 1
+    assert recovery.count("| **Active-path context — normal next layer** |") == 1
+    assert recovery.count("| **Triggered depth — conditional side path** |") == 1
+    assert recovery.index("**Orientation spine — always first**") < recovery.index("**Active-path context — normal next layer**")
+    assert recovery.index("**Active-path context — normal next layer**") < recovery.index("**Triggered depth — conditional side path**")
+    assert "1. **Execution identity.**" not in recovery
+    assert "**Triggered-depth interrupt.**" not in recovery
+
 
 
 def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:

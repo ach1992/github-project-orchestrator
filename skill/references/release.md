@@ -2,10 +2,6 @@
 
 A project is not complete because code integrated. Drive delivery-required work through a verified release outcome appropriate to the project's risk and delivery model, keeping `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState` independent.
 
-## Contents
-
-[Release model](#1-discover-release-model) · [Readiness](#2-release-readiness) · [Deployment safety](#3-deployment-safety) · [Migrations](#4-migration-rules) · [Approval](#5-production-approval-gate) · [Verification](#6-post-release-verification) · [Incident/hotfix](#7-incident-and-hotfix-mode) · [Closeout](#8-closeout)
-
 ## 1. Discover release model
 
 Before prescribing release steps, determine current reality:
