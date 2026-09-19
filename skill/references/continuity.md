@@ -74,15 +74,12 @@ If not, persist only the missing future-useful fact in its proper source. Do not
 
 ## 5. Master rotation
 
-Rotation is a **context optimization**, not a project stop condition.
+Rotation is the context-management face of event-driven recovery, not a project stop. Default to `CONTINUE`; long context or completed cycles alone are insufficient. Rotate only on a concrete reliability/correctness signal, useful major boundary, platform requirement, or explicit user request:
 
-Assess:
+- `ROTATE_SOON`: finish the bounded chain to a safe recoverable boundary, then rotate when useful.
+- `ROTATE_NOW`: context degradation creates correctness risk or platform/user direction requires rotation; make the active work recoverable first when possible.
 
-- `CONTINUE`: current context remains reliable; keep executing authorized work.
-- `ROTATE_SOON`: finish the current bounded execution chain to a safe recoverable boundary, then rotate before a substantially different/high-risk chain when rotation is actually possible/useful.
-- `ROTATE_NOW`: only when context degradation creates a concrete correctness risk, the platform/runtime requires rotation, or the user explicitly requests it. Place active work at a safe recoverable boundary first when possible.
-
-Signals include repeated confusion/stale assumptions, excessive dependence on old chat instead of sources, a clean major milestone boundary, or explicit user/platform need. Several completed cycles alone are not sufficient. Do not stop merely to recommend a fresh chat when the current runtime can continue reliably.
+Do not stop merely to recommend a fresh chat while the current runtime remains reliable.
 
 ## 6. Safe rotation boundary
 
