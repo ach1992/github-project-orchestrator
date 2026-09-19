@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented here.
 
+## [1.5.0] - 2026-09-19
+
+### Changed
+
+- Reworked the orchestration runtime representation to absorb field-proven throughput lessons without adding new canonical Rule IDs, runtime state/lifecycle namespaces, Risk/Assurance modes, or standalone eval IDs.
+- Reduced routine hot-path loading and duplicated decision prose by moving independent-review and MachineRelay transport details behind direct event-driven references, compressing Recovery/review/Worker decision structures, and retaining the trigger coverage and long-reference tables of contents required for reliable progressive loading.
+- Added right-sized minimum-meaningful-slice guidance, cohesive partial-PR Task Contract continuity, conditional Draft/Ready maturity guidance, stale-sensitive acceptance serialization, and isolation-preserving CI sharding guidance without suppressing valid independent parallel work.
+- Corrected `MACHINE-RELAY-PORTABLE` canonical ownership to `relay-transport.md` and added exact fail-closed representation controls so the intentional relocation cannot become a generic Rule-owner bypass.
+
+### Validation
+
+- PR #115 reconciled cleanly with `v1.4.0` main using merge commit `6f6e1b936acd26d7fcd603ae4ed01d3f47e8066e`; the current-main reconciliation changed only 10 platform/release files and no file under `skill/`.
+- Exact reconciled-head workflow `35431139594` completed successfully, including runtime equivalence, Phase C, benchmark/scorer, deterministic canonical/platform packaging, exact publisher, immutable-baseline, and clean-runtime checks.
+- PR #115 merged as `main@1a4493a72f1a14c0beb71946735054a19eb6b52d`; post-merge main workflow `35431190176` also completed successfully.
+- The runtime lineage received independent HIGH_ASSURANCE review before the final remediation. The post-review remediation changed only design/evidence/validation-control files, and the later current-main reconciliation also changed no Skill runtime wording; under the Owner-approved integration criterion, no redundant independent re-review was required for those non-runtime-only deltas.
+- Canonical inventory remains 69 Rule IDs and 121 standalone eval IDs with unchanged runtime state/value sets. The release makes no unsupported numerical claim about model speed, cost, or accuracy.
+
+### Distribution
+
+- The ten-platform distribution matrix introduced in v1.4.0 remains intact; every release artifact continues to be generated from the same canonical runtime with matching SHA-256 checksums.
+
 ## [1.4.0] - 2026-09-19
 
 ### Added
