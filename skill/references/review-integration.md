@@ -20,7 +20,7 @@ Before review, verify:
 
 Keep the review evidence inside an explicit identity envelope: repository, Integration Target/base, candidate/HEAD, relevant Contract Revision, environment when applicable, and evidence freshness. Candidate/target/contract/effective-change drift invalidates affected approval rather than being normalized away by narrative.
 
-For PR-based work on platforms with draft state, keep materially changing implementation/correction work Draft; move to Ready when the candidate has converged enough that acceptance CI/review is intended to count. If material correction resumes after Ready, return to Draft when practical before further pushes. This is presentation of the existing lifecycle—not a new `TaskState`—and never skips required exact-candidate validation/review.
+On platforms with Draft PRs, keep materially changing candidates Draft; mark Ready when acceptance CI/review is intended to count, and return to Draft when practical if material correction resumes. This presentation adds no `TaskState` and skips no exact-candidate gate.
 
 ### `REVIEW_VALID(envelope)`
 
