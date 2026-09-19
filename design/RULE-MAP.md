@@ -57,8 +57,8 @@ Status: current development traceability map for the refactored runtime, preserv
 | `CONTRACT-PERSISTENCE-INDEPENDENT` | FULL does not imply persistence; persistence depends on recovery/coordination value. Existing persistence does not imply FULL. | `task-contract.md` | `task-contract.md:23-36` | CM |
 | `DELEGATION-PROPORTIONAL` | Delegate only when specialization/throughput/parallelism materially helps; bounded single delegation can remain LIGHTWEIGHT while still using full Worker envelope. | `master-cycle.md` | `SKILL.md:27`; `master-cycle.md:74-85`; `worker-protocol.md:58-60` | Q, AN |
 | `SELF-EXECUTION-FALLBACK` | If direct Worker dispatch is unavailable, Master self-executes safe authorized work rather than stopping. | `master-cycle.md` | `SKILL.md:113`; `master-cycle.md:74-102` | Q |
-| `WIP-FLOW` | Prefer review/integration/unblocking when they bottleneck; right-size homogeneous outcomes into reviewable candidates, preserve implementation parallelism, and avoid parallel acceptance paths that would stale each other's required evidence. | `master-cycle.md` | `SKILL.md:48`; `master-cycle.md` §7 | J, R, DL, BU |
-| `SYNTHESIZE-WORK` | Outcome incomplete + no READY item triggers refine/unblock/split/investigate, not automatic NO_READY_WORK; phase decomposition starts from current residual scope rather than speculative seams. | `master-cycle.md` | `SKILL.md:93-94`; `master-cycle.md` §8 | O, AX, DL, DO |
+| `WIP-FLOW` | Prefer review/integration/unblocking when they bottleneck; right-size homogeneous outcomes into reviewable candidates, preserve independent implementation/review work that remains fresh, and avoid parallel final acceptance paths that would stale required evidence. | `master-cycle.md` | `SKILL.md` §4-5; `master-cycle.md` §7 | J, R, DL, BU |
+| `SYNTHESIZE-WORK` | Outcome incomplete + no READY item triggers refine/unblock/split/investigate, not automatic NO_READY_WORK; phase decomposition starts from current residual scope rather than speculative seams. | `master-cycle.md` | `SKILL.md` §4-5; `master-cycle.md` §8 | O, AX, DL, DO |
 | `MASTER-STOP-CANONICAL` | Chat turn, commit, PR update, review, Worker handoff, tool batch, or missing delegation is not a Master stop; stop only at canonical boundary after continuation test. | `master-cycle.md` | `SKILL.md:55,83-95`; `authority-gates.md:115-139`; `master-cycle.md:186+` | O, P, R, AW, AX, AP, CN, CQ |
 
 ## 5. Worker and assignment
@@ -79,7 +79,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
 | `REVIEW-EFFECTIVE-CHANGE` | Review current target-to-candidate effective change, not stale narrative or only author intent. | `review-integration.md` | `SKILL.md:106`; `review-integration.md:9-77` | E |
-| `REVIEW-IDENTITY-FRESH` | Approval/evidence is bound to target, candidate, contract, and relevant SHA; material drift invalidates transfer. | `review-integration.md` | `review-integration.md:9-21,78-91` | E, CJ, DN, BU |
+| `REVIEW-IDENTITY-FRESH` | Approval/evidence is bound to target, candidate, contract, and relevant SHA; material drift invalidates transfer. | `review-integration.md` | `review-integration.md` §1, §3 | E, CJ, DN, BU |
 | `UNTRUSTED-EXECUTION-SURFACE` | Inspect changed hooks/scripts/workflows/supply-chain surfaces before executing untrusted candidate code. | `review-integration.md` | `SKILL.md:106`; `review-integration.md:55-77` | M |
 | `CI-CLASSIFY` | CI failure is classified by candidate/baseline/environment/transient cause before deciding the next action. | `review-integration.md` | `review-integration.md:92-106` | F, CL, DM |
 | `CONFLICT-RECONCILE` | Resolve conflicts against fresh target/effective change and revalidate affected evidence. | `review-integration.md` | `review-integration.md:107-116` | E |

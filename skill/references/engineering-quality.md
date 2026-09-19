@@ -87,7 +87,7 @@ When such a trigger exists, inspect only decision-relevant factors such as:
 - superseded runs/concurrency behavior when stale work materially consumes time/resources or delays current evidence;
 - least-privilege workflow/job permissions and exposure of credentials to changed/untrusted execution surfaces;
 - critical-path CI latency versus parallelism/serialization dependencies;
-- long-suite bottlenecks: prefer isolation-preserving parallelization/sharding over coverage reduction; prove aggregate completeness and isolation, non-overlap where relevant, and same-workload critical-path gain; stop at diminishing returns;
+- for a still-required long-suite bottleneck after duplicate/no-value validation is removed, prefer isolation-preserving parallelization/sharding over weakening required signal; prove aggregate completeness and isolation, non-overlap where relevant, and same-workload critical-path gain; stop at diminishing returns;
 - matrix breadth and whether each dimension protects a supported/relevant environment;
 - caching or artifact reuse only when expected payoff exceeds complexity/staleness/supply-chain risk;
 - runner/compute/storage/network cost and log/artifact retention when material;

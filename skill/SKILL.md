@@ -55,7 +55,7 @@ When combining sources, cross-check repository/object/SHA/environment identity. 
 
 ## 4. Master kernel
 
-When `Role=MASTER`, run the bounded loop below and load only the references triggered by the current decision; `master-cycle.md` is not a default load for routine bounded execution.
+When `Role=MASTER`, run the bounded loop below; load only references triggered by the current decision. `master-cycle.md` is not a default load for routine bounded execution.
 
 ```text
 RECOVER IF TRIGGERED / ASSESS DELTAS
@@ -69,7 +69,7 @@ RECOVER IF TRIGGERED / ASSESS DELTAS
   -> MASTER_STOP(boundary, independent_work)? STOP : CONTINUE
 ```
 
-A commit, PR update, Worker handoff, tool batch, status message, long context, missing delegation route, or absence of a pre-existing READY Issue is not a stop by itself. `master-cycle.md` owns planning/FAST-FULL/strategy/WIP/Worker-absorption/anti-spin/synthesis/terminal semantics when those decisions are active.
+A commit, PR update, Worker handoff, tool batch, status message, long context, missing delegation route, or absence of a pre-existing READY Issue is not a stop by itself. `master-cycle.md` owns planning/FAST-FULL/strategy/WIP/Worker-absorption/anti-spin/synthesis/terminal semantics.
 
 ## 5. One-step role/event router
 
@@ -78,7 +78,7 @@ Load only rows triggered by the current event. Every required domain is directly
 | Trigger | Load directly | Boundary reminder |
 |---|---|---|
 | any consequential mutation; approval/material decision; ambiguous write; overwrite-sensitive remote state | [references/authority-gates.md](references/authority-gates.md) | classify actual effects and use `CAN_EXECUTE(action)`; no invented confirmation gates |
-| material planning/dependency coordination; delegation/parallelism; Worker absorption; no-READY synthesis; anti-spin handling; unresolved boundary/continuation decision | [references/master-cycle.md](references/master-cycle.md) | continue until `MASTER_STOP(...)` is true |
+| material planning/dependency coordination; decision-relevant FAST/FULL or execution strategy; delegation/parallelism; Worker absorption; no-READY synthesis; anti-spin handling; unresolved boundary/continuation decision | [references/master-cycle.md](references/master-cycle.md) | continue until `MASTER_STOP(...)` is true |
 | material cross-cutting engineering concern during framing/implementation/Worker work/review, including privacy, resilience, production diagnosability/observability, capacity/cost, user-facing quality, or CI/automation fitness | [references/engineering-quality.md](references/engineering-quality.md) | select only concerns that can change the current work/evidence; no universal checklist, state field, or artifact |
 | first ownership; repository/project readiness; Issues/Projects/milestones/labels; project navigation; management-system repair | [references/governance.md](references/governance.md) | bootstrap proportionally and stop when readiness is sufficient |
 | explicit contract/READY; persistence decision; task risk/validation; Worker assignment identity | [references/task-contract.md](references/task-contract.md) | formalize only when coordination/delegation/risk/recovery earns it |

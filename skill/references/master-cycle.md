@@ -139,7 +139,7 @@ Do not mirror WorkerStatus labels into MasterBoundary without Master-level recon
 - reconcile stale assignments before replacement dispatch;
 - create out-of-contract follow-up only when actionable and not required for current acceptance;
 - right-size to a **minimum meaningful slice**: combine reviewable siblings only when accepted behavior/acceptance and dependency/ownership/risk/rollback/release/validation boundaries materially align. In PR workflows, normally map one such slice to one reviewable candidate; split for any material boundary or reviewability need, not implementation layers;
-- preserve independent implementation parallelism; if one integration would stale another candidate's required target-bound evidence, normally serialize acceptance/review/integration unless intentional stacking/queue preserves freshness;
+- preserve independent implementation and any review work that remains fresh; if one integration would stale another candidate's required target-bound evidence, serialize only the affected final acceptance/integration path unless intentional stacking/queue preserves freshness;
 
 Optimize **finished verified value**, not active-task count or smallest-possible task count.
 
