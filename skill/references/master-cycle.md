@@ -82,7 +82,7 @@ Promote FAST -> FULL only when new evidence materially increases ambiguity, coor
 
 Decision order: first protect correctness/isolation, then compare expected throughput gain with coordination cost. Never delegate merely to keep Workers busy, and never withhold useful parallelism merely because Master could eventually do everything alone. Priority, acceptance, risk acceptance, contract change, integration approval, and release authorization remain Master-owned.
 
-If direct dispatch is unavailable: self-execute when safe/authorized and capable; otherwise continue independent work; use a human-relayed Worker prompt only when delegation still materially helps and direct execution is unavailable; stop only when `MasterBoundary.MISSING_CAPABILITY` becomes the sole controlling external boundary.
+Unavailable dispatch is not a stop: apply the `SKILL.md` §7 fallback, continue independent work, and use `MasterBoundary.MISSING_CAPABILITY` only when missing capability becomes the sole controlling boundary.
 
 ## 5. Self-execution discipline
 
