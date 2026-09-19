@@ -104,7 +104,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | `ROOT-SPEC-CANONICAL` | First ownership resolves the project-defining prompt/spec and keeps one safe canonical repository copy, excluding unsafe material. | `governance.md` | `SKILL.md:8,87`; `governance.md:15+` | BV, BW, BX, CD, CY |
 | `ROOT-SPEC-OFF-HOT-PATH` | Normal cycles operate from nearer downstream authoritative sources; root spec is reread only when intent conflict/change makes it relevant. | `governance.md` | `SKILL.md:8`; `governance.md:15+` | BY, BZ, CA |
 | `BOOTSTRAP-PROPORTIONAL` | First ownership repairs only readiness that materially helps execution/recovery; stop bootstrapping when its completion test passes. | `governance.md` | `SKILL.md:103`; `governance.md:129-175` | AZ, BS, BT |
-| `ARTIFACT-FITNESS` | Reuse existing engineering systems when fit; repair/replace only when evidence shows material execution value, including CI critical-path improvements that preserve required signal. | `governance.md` | `governance.md` §1, §10; `engineering-quality.md` §4 | BS, BU, DR |
+| `ARTIFACT-FITNESS` | Reuse existing engineering systems when fit; repair/replace only when evidence shows material execution value, including CI critical-path improvements that preserve required signal. | `governance.md` | `governance.md` §1, §10; `engineering-quality.md` §4 | BS, BU |
 | `READY-DONE-SEMANTICS` | READY/DONE represent executable/verified lifecycle semantics, not empty scaffolding or ceremony; PR Draft/Ready presentation must not masquerade as a new TaskState or substitute for final acceptance evidence. | `governance.md` | `governance.md` §7; `task-contract.md` §9; `review-integration.md` §1 | BE, DR |
 
 ## 9. Release and production
