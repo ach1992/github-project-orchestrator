@@ -19,6 +19,7 @@ MASTER = "skill/references/master-cycle.md"
 CONTINUITY = "skill/references/continuity.md"
 REVIEW = "skill/references/review-integration.md"
 EVAL = "skill/references/eval-scenarios.md"
+RELAY = "skill/references/relay-transport.md"
 RUNTIME_PATHS = (SKILL, AUTHORITY, WORKER, MASTER, CONTINUITY, REVIEW, EVAL)
 
 # Durable byte-equivalence fingerprints of accepted checkpoint 4058f66a... .
@@ -378,6 +379,13 @@ def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:
     require_all(
         current(SKILL),
         (
+            "If it is a MachineRelay, load [references/relay-transport.md](references/relay-transport.md)",
+            "ordinary non-relay responses bypass it",
+        ),
+    )
+    require_all(
+        current(RELAY),
+        (
             "MACHINE_RELAY_OUTPUT_OK(response) =",
             "exactly_one_copy_target_fenced_block(response)",
             "complete_domain_relay_inside_that_block(response)",
@@ -386,10 +394,11 @@ def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:
             "identity-bearing_or_decision-relevant_literals_remain_exact_unless_safety_redaction_requires_otherwise(response)",
             "outer_fence_safely_contains_any_embedded_fences(response)",
             "creates no lifecycle/state or second payload owner",
-            "Direct user-facing explanation that is not a MachineRelay remains in the user's language.",
+            "Direct non-relay user-facing explanation bypasses this predicate",
         ),
     )
-    assert current(SKILL).count("MACHINE_RELAY_OUTPUT_OK(response) =") == 1
+    assert current(SKILL).count("MACHINE_RELAY_OUTPUT_OK(response) =") == 0
+    assert current(RELAY).count("MACHINE_RELAY_OUTPUT_OK(response) =") == 1
     # The accepted pre-#64 transport semantics must exist in the immutable Phase C base/history,
     # while the final representation may strengthen activation without retaining exact prose.
     historical_skill = base(SKILL)

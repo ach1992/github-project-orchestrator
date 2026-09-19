@@ -29,7 +29,7 @@ State column answers whether explicit state vocabulary is needed to apply the pr
 | `PROTECT-UNRELATED` | `SKILL.md` safety invariant; G05; eval:X | **KEEP** · HOT · state:no | Prevents loss of: Never destroy/absorb unrelated user/contributor work to simplify execution. Replacement/overlap: none; unique guarantee remains canonical. | No semantic reduction; keep single owner and avoid duplicate reminders. |
 | `NO-FABRICATION` | `SKILL.md` evidence invariant; G07; eval:P, CO | **KEEP** · HOT · state:no | Prevents loss of: Never claim actions/evidence that were not performed and verified. Replacement/overlap: none; unique guarantee remains canonical. | No semantic reduction; keep single owner and avoid duplicate reminders. |
 | `ANTI-SPIN` | `SKILL.md` execution invariant; G16; eval:T, BG, DP | **COMPRESS** · HOT · state:no | Prevents loss of: Do not repeat materially identical failed actions without new evidence; change strategy or work. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
-| `MACHINE-RELAY-PORTABLE` | `SKILL.md` human-relay kernel; G09,G11,G12,G16; eval:AT, BC, CK, DI | **KEEP** · HOT · state:no | Prevents loss of: AI-to-AI relay prose is English by default, identity-bearing/decision-relevant literals stay exact unless safety/redaction requires otherwise, and every user-visible machine relay is the complete response as one copy target without requiring a separate copy-ready request, while domain owners retain payload semantics and no workflow state/control is weakened. Replacement/overlap: none; unique guarantee remains canonical. | No semantic reduction; keep single owner and avoid duplicate reminders. |
+| `MACHINE-RELAY-PORTABLE` | `SKILL.md` Output activation + `relay-transport.md`; G09,G11,G12,G16; eval:AT, BC, CK, DI | **KEEP** · HOT activation / COLD protocol · state:no | Prevents loss of: AI-to-AI relay prose is English by default, identity-bearing/decision-relevant literals stay exact unless safety/redaction requires otherwise, and every user-visible machine relay is the complete response as one copy target without requiring a separate copy-ready request, while domain owners retain payload semantics and no workflow state/control is weakened. Replacement/overlap: the always-loaded kernel keeps only classification/routing; the transport predicate is materialized only for relay output. | Preserve the guarantee while removing relay-only predicate detail from every non-relay turn. |
 | `LEAN-ORCHESTRATION` | `governance.md`; G06,G13,G15; eval:K, AB, BT | **COMPRESS** · COLD / specialized · state:no | Prevents loss of: Create project/process artifacts only when they improve a future decision, execution, safety, or recovery. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
 | `SUCCESSION-RECOVERABLE` | `continuity.md`; G12; eval:I, Z, AI, BB | **COMPRESS** · COLD / specialized · state:no | Prevents loss of: End at canonical boundaries with authoritative state sufficient for a replacement Master, subject to explicit USER_STOP. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
 | `AUTHORITY-STABLE` | `authority-gates.md`; G10; eval:AH, CU | **COMPRESS** · WARM / triggered · state:no | Prevents loss of: Project Authority changes only from applicable explicit/higher authorization, never merely from access/risk/profile/environment. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
@@ -98,7 +98,7 @@ State column answers whether explicit state vocabulary is needed to apply the pr
 - COMPRESS: **24**
 - DERIVE: **7**
 - MERGE: **1**
-- MOVE_COLD: **0 additional** — specialized release/recovery/Worker/security rules are already routed out of the always-loaded kernel.
+- MOVE_COLD Rule IDs: **0** — canonical Rule ownership stays unchanged. One bulky supporting protocol (`independent-review.md`) is moved colder so ordinary review/CI/integration does not materialize its relay/result schema.
 - REMOVE: **0 semantic guarantees** — no protected guarantee had enough evidence to delete outright; the safe simplification is representation/routing/derivation rather than weakening semantics.
 
 ## Candidate decisions produced by this audit
@@ -112,6 +112,10 @@ State column answers whether explicit state vocabulary is needed to apply the pr
 7. **CI fitness:** existing `ARTIFACT-FITNESS` / engineering-quality path covers measured isolation-preserving sharding; no shard count or project-specific CI recipe enters the Skill.
 8. **Derived rules:** capability-vs-authority, obligation union, persistence independence, self-execution fallback, Worker-stop locality, chat non-authority, and root-spec hot-path avoidance remain protected Rule IDs/evals but need no additional standalone hot-path decision machinery.
 9. **Rotation trigger:** signal-driven rotation is treated as the rotation face of event-driven recovery rather than another hot-path state.
+10. **Review protocol locality:** ordinary review/CI/conflict/integration keeps `review-integration.md`; independent-review handoff/result machinery is a separate directly routed cold reference loaded only when separation is actually required.
+11. **Selector ownership:** `master-cycle.md` remains the sole FAST/FULL selector; `task-contract.md` now contains only contract/READY consequences and persistence, avoiding a second examples/promotion rule block.
+12. **MachineRelay locality:** `SKILL.md` keeps the universal output classifier/activation, while `relay-transport.md` owns the relay-only predicate and transport details; normal user-facing responses no longer materialize that protocol.
+13. **Worker-entry locality:** the hot kernel keeps only the Worker pre-edit route and non-negotiable ownership guardrails; detailed dispatch/staleness/correction/handoff semantics stay in `worker-protocol.md` + `task-contract.md`.
 
 ## Representation-cost check
 
@@ -121,3 +125,79 @@ At the candidate point immediately before this audit:
 - tests/evals/design evidence may grow because #112 explicitly permits evidence growth to protect runtime simplification.
 
 This audit does not by itself prove model-level improvement. #116 requires exact-candidate validation plus fresh GPT-5.6 Sol evaluation when needed to substantiate behavioral/decision-quality claims, with targeted replication of any material strategy divergence before merge/release.
+
+## Structural representation audit — decision architecture
+
+The second-pass audit evaluates the runtime as a model decision system rather than as prose. The preferred representation follows these constraints:
+
+1. **Hot kernel = invariants + routing, not specialist protocol payloads.** Always-loaded text should establish Role/stable dimensions, universal invariants, source authority, minimal Master/Worker entry behavior, and direct event routing. Large result schemas/templates belong behind the event that needs them.
+2. **One selector/owner per decision.** A consumer may carry the exact field/result it needs, but it should not restate another domain's selection algorithm. `master-cycle.md` therefore remains the FAST/FULL selector; `task-contract.md` owns only contract/READY consequences and persistence.
+3. **Direct reachability beats hidden prerequisite chains.** Every operational domain remains directly routable from `SKILL.md`; moving a block colder must not require the model to remember an indirect load order.
+4. **Split only when locality saves common-path reconstruction.** A new reference is justified when a large block is irrelevant to a more common sibling event. The independent-review handoff/result protocol qualifies; the tightly coupled authority gate/boundary algorithm does not currently justify another split.
+5. **Transport/schema repetition is not semantic ownership duplication.** Exact Worker assignment fields legitimately appear in the canonical persisted assignment schema and in dispatch/handoff transport. The schema owner remains singular; consumers do not redefine its semantics.
+6. **Safety boundary reminders may repeat effects, not algorithms.** Release/review/Worker domains may remind the model that a canonical gate/lifecycle applies, but the gate/state transition algorithm stays with its owner.
+7. **Cold evidence may grow to protect a smaller operational representation.** Evaluation text is not a normal execution reference and may carry comparison variants that prove the routing/representation change does not narrow behavior.
+
+### Structural changes retained
+
+- `SKILL.md`: removed duplicate independent-review semantics and duplicate `HUMAN OPERATION REQUIRED` payload fields; both remain directly routable to their canonical domains.
+- `review-integration.md`: ordinary review/freshness/CI/conflict/integration remains warm; the bulky independent-review relay/result protocol moved to directly routed `independent-review.md`.
+- `task-contract.md`: removed the second FAST examples/promotion block; `master-cycle.md` remains the sole FAST/FULL selector.
+- `master-cycle.md`: self-review now routes to the review domain rather than restating the independence selector.
+- Eval BC now includes a routine self-authored comparison variant so independent-review machinery is required only when separation is actually triggered.
+
+### Multi-scenario load check
+
+Word counts model materialized orchestration/reference text, not model latency. Baseline Master scenarios include v1.3.7's unconditional `master-cycle.md` load. `133a` is the previous exact candidate before this structural pass. Relay-only references are counted only for user-visible MachineRelay output.
+
+| Scenario archetype | v1.3.7 words | `133a` words | structural candidate words | vs `133a` |
+|---|---:|---:|---:|---:|
+| routine bounded Master implementation | 5,118 | 1,833 | 1,513 | **-320** |
+| routine Master + current review | 7,950 | 4,703 | 3,502 | **-1,201** |
+| routine Master + integration gate | 10,669 | 7,422 | 6,221 | **-1,201** |
+| CI failure triage | 7,950 | 4,703 | 3,502 | **-1,201** |
+| independent HIGH_ASSURANCE review + relay | 7,950 | 4,703 | 4,392 | **-311** |
+| FULL Master planning + contract | 7,148 | 7,099 | 6,704 | **-395** |
+| Worker execution before handoff | 5,611 | 5,622 | 5,217 | **-405** |
+| Worker handoff MachineRelay | 5,611 | 5,622 | 5,331 | **-291** |
+| human-relayed Worker dispatch | 8,893 | 8,844 | 8,559 | **-285** |
+| first ownership + planning | 7,678 | 7,615 | 7,301 | **-314** |
+| recovery/resume only | 7,246 | 3,927 | 3,606 | **-321** |
+| Master rotation MachineRelay | 7,246 | 3,927 | 3,720 | **-207** |
+| release/production gate | 9,118 | 5,833 | 5,513 | **-320** |
+| CI/automation fitness + review | 9,668 | 6,455 | 5,254 | **-1,201** |
+
+No sampled archetype regresses in materialized word count. Normal review/CI/integration avoids the cold independent-review protocol; non-relay turns avoid the MachineRelay transport predicate. Relay paths add their cold transport reference only when needed and still remain smaller than `133a` because the always-loaded kernel shrank more than the cold protocol costs.
+
+Final representation totals after protocol compression:
+
+| Surface | v1.3.7 | `133a` | structural candidate |
+|---|---:|---:|---:|
+| always-loaded kernel | 1,836 words | 1,833 | **1,513** |
+| operational refs excluding eval | 20,295 | 20,287 | **20,216** |
+| kernel + operational refs | 22,131 | 22,120 | **21,729** |
+| all refs including cold eval evidence | 32,926 | 33,316 | **33,295** |
+| kernel + all refs | 34,762 | 35,149 | **34,808** |
+
+The normal operational corpus is smaller than both v1.3.7 and `133a`. The small remaining aggregate increase versus v1.3.7 is entirely cold evaluation/evidence growth, not normal execution materialization.
+
+### Duplicate classification after the structural pass
+
+A whole-runtime lexical/TF-IDF scan found no exact repeated operational line across files. High-similarity cross-file pairs remain, but the inspected high-score groups are intentional boundary/transport relationships rather than competing owners:
+
+- `task-contract.md` ↔ `worker-protocol.md`: persisted assignment schema versus exact dispatch/staleness/handoff consumption;
+- `engineering-quality.md` ↔ `review-integration.md`: implementation concern activation versus reviewer inspection surface;
+- `authority-gates.md` ↔ `master-cycle.md`/`release.md`: canonical boundary/effect definitions versus terminal-timing and production-path reminders; the explicit `MasterBoundary.USER_STOP` authority-domain binding was retained after a regression guard proved it is not disposable prose;
+- `task-contract.md`/`release.md`/`review-integration.md`: separate lifecycle dimensions and boundary reminders, not duplicate transition ownership;
+- `continuity.md` ↔ assignment/Worker files: recoverability inventory carries exact authoritative assignment fields so a replacement Master can reconstruct state.
+
+The removable owner-like overlaps found by this pass were the independent-review definition/protocol in the hot/common review surfaces, duplicate FAST/FULL examples/promotion logic, duplicate USER_STOP execution wording, and duplicate self-review independence selection. Those were compressed or moved to one owner.
+
+### Structural changes considered but not retained
+
+- **Split `authority-gates.md` further:** rejected for now. It could save words on a simple mutation, but `ApplicableEffects`, `CAN_EXECUTE`, approval obligations, boundary meaning, unknown-write recovery, and optimistic concurrency are safety-coupled. Another file boundary would add routing/reconstruction risk for a safety-critical domain without enough evidence yet.
+- **Move Worker assignment identity out of `task-contract.md`:** rejected. The persisted assignment is part of the contract's recoverable identity; the repeated Worker fields are transport consumption, not a competing owner. Moving them would add another hop on every Worker path.
+- **Split the New Master relay template from `continuity.md`:** rejected for now. Continuity is already cold/event-triggered; the potential saving is smaller and would add another direct router target for a comparatively rare path.
+- **Reorder `SKILL.md` solely for aesthetics:** rejected. The entrypoint is materialized as one unit, so moving the router earlier would not reduce tokens or reference hops; the current Role → invariants → truth → role kernel/router organization is coherent and changing order without behavioral evidence would create review churn.
+
+This structural analysis supports a theoretical **general decision-cost improvement** across distinct task families while preserving the same rule/state/eval inventory. It is not a measured claim about GPT latency, token billing, or decision-quality percentage; live-model A/B evidence would still be required for such claims.

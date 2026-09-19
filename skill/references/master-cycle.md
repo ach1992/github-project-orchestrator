@@ -82,7 +82,7 @@ Promote FAST -> FULL only when new evidence materially increases ambiguity, coor
 
 Decision order: first protect correctness/isolation, then compare expected throughput gain with coordination cost. Never delegate merely to keep Workers busy, and never withhold useful parallelism merely because Master could eventually do everything alone. Priority, acceptance, risk acceptance, contract change, integration approval, and release authorization remain Master-owned.
 
-Unavailable dispatch is not a stop: apply the `SKILL.md` §7 fallback, continue independent work, and use `MasterBoundary.MISSING_CAPABILITY` only when missing capability becomes the sole controlling boundary.
+If direct dispatch is unavailable, self-execute when safe/authorized/capable; otherwise continue independent work and use a human-relayed Worker prompt only when delegation still materially helps. Use `MasterBoundary.MISSING_CAPABILITY` only when missing capability becomes the sole controlling boundary.
 
 ## 5. Self-execution discipline
 
@@ -112,7 +112,7 @@ For substantive self-authored work:
 | Version-sensitive contracts | Verify primary docs for version-sensitive APIs/dependencies/platform behavior. |
 | Performance work | Establish representative baseline/constraint, identify bottleneck with profiling/high-signal evidence when practical, compare same workload after change; never trade correctness/security/maintainability for unmeasured optimization. |
 
-Self-review is not independent review; obtain separation only when policy, RiskLevel, or AssuranceLevel requires it.
+At `REVIEW`, apply `review-integration.md`; that domain decides whether independent separation is required.
 
 ## 6. Worker stop absorption
 

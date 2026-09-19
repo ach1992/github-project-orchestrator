@@ -21,7 +21,7 @@ Any material identity/checkpoint mismatch -> `WorkerStatus.STALE_ASSIGNMENT`; ne
 
 ## 2. Dispatch prompt
 
-Use a standalone prompt. When it is relayed between chats/agents, apply the canonical machine-relay transport contract in `SKILL.md`; do not restate or fork its language, literal-preservation, or copy-target rules here.
+Use a standalone prompt. When it is relayed between chats/agents, apply the canonical transport contract in `relay-transport.md`; do not restate or fork its language, literal-preservation, or copy-target rules here.
 
 ```text
 # WORKER DISPATCH - <WORKER_ID> - ISSUE #<NUMBER>
@@ -61,7 +61,7 @@ Special constraints:
 Before editing: read repository instructions and current contract; verify assignment/repo/branch/HEAD/status and that any current worktree is attached to the assigned branch.
 Implement the smallest correct change. Do not weaken tests. Stop for stale assignment, blocker, material scope expansion, or material decision.
 Push/update only the assigned branch/PR. Never push directly to the Integration Target, merge, or start another task.
-Return only the structured handoff defined in section 5 under the canonical `SKILL.md` machine-relay transport contract.
+Return only the structured handoff defined in section 5 under the canonical `relay-transport.md` transport contract.
 ```
 
 The dispatch `Repository:` must equal the canonical persisted `Repository` from [task-contract.md](task-contract.md) §8 and is the Worker's entire repository mutation scope for that assignment. Repositories mentioned in dependencies, interfaces, links, tests, or notes are read-only context unless a new valid assignment explicitly targets them; the Worker reports required cross-repository changes to Master instead of editing another repository.
@@ -122,7 +122,7 @@ Choose exactly one `WorkerStatus` by the first controlling condition below; incl
 | 5 | `BLOCKED` | a real external dependency/precondition prevents progress and switching Worker/runtime alone does not resolve it |
 | 6 | `READY_FOR_REVIEW` | contracted implementation is complete enough for Master review and required Worker validation has been reported |
 
-Return the compact transport form below under the canonical `SKILL.md` machine-relay transport contract. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
+Return the compact transport form below under the canonical `relay-transport.md` transport contract. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
 
 ```text
 # WORKER HANDOFF
@@ -179,4 +179,4 @@ Use the `WorkerStatus` classifier above instead of collapsing all stops into `BL
 
 ## 8. Corrections
 
-Normal review corrections on a still-valid assignment generation reuse the same Worker/branch/PR/Assignment ID. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD` plus current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints; Worker verifies assigned-branch HEAD still equals that checkpoint before editing. When this correction/resume instruction is relayed, use the `SKILL.md` machine-relay transport contract and send only the decision-relevant delta: Worker + Repository + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. The Repository value must remain the exact dispatch repository; a correction/resume never broadens repository mutation scope. Do not duplicate the full original contract when its authoritative identity is current and reachable. `Start HEAD` remains the immutable original generation anchor and is never rewritten merely because authorized commits advanced the branch. If superseded/cancelled/invalidated, the checkpoint diverged materially, or responsibility moves to another Worker, Master reconciles and mints a fresh Assignment ID before redispatch when a new generation is required. Master re-reviews the new effective change; approval never carries automatically across code changes.
+Normal review corrections on a still-valid assignment generation reuse the same Worker/branch/PR/Assignment ID. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD` plus current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints; Worker verifies assigned-branch HEAD still equals that checkpoint before editing. When this correction/resume instruction is relayed, use the `relay-transport.md` transport contract and send only the decision-relevant delta: Worker + Repository + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. The Repository value must remain the exact dispatch repository; a correction/resume never broadens repository mutation scope. Do not duplicate the full original contract when its authoritative identity is current and reachable. `Start HEAD` remains the immutable original generation anchor and is never rewritten merely because authorized commits advanced the branch. If superseded/cancelled/invalidated, the checkpoint diverged materially, or responsibility moves to another Worker, Master reconciles and mints a fresh Assignment ID before redispatch when a new generation is required. Master re-reviews the new effective change; approval never carries automatically across code changes.

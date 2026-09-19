@@ -31,10 +31,6 @@ Choose `ExecutionPath=FAST|FULL` with the canonical criteria in `master-cycle.md
 
 Persist an explicit contract only when durable identity materially helps delegation, multi-item/cross-session coordination, recovery, unresolved blockers/decisions, material risk, or repository/team policy; otherwise FULL Master work may stay transient. If intent would become unrecoverable, persist only the minimum unresolved intent in its natural owner, reusing an existing work item when suitable. Cohesive partial PRs keep the same persisted contract open; do not close/recreate it for mechanical seams. Close it only when the accepted outcome completes or the contract otherwise legitimately terminates under the existing `TaskState` lifecycle.
 
-FAST can include routine behavioral changes such as localized bug/validation/error-handling/API/CLI/query fixes or small repository-consistent refactors with clear tests. Follow repository-normal change/integration conventions, validate proportionally, review the effective diff, and do not create Issue/ADR/risk records solely because behavior changed. `AssuranceLevel=HIGH_ASSURANCE` adds justified assurance controls to affected work while retaining its `CoordinationBaseline`; it does not by itself require FULL, persistence, or a new human confirmation.
-
-Promote FAST -> FULL only when new evidence earns explicit control; never demote merely to avoid a gate.
-
 ## 3. Compact contract schema
 
 When an explicit Task Contract is warranted, include as applicable:

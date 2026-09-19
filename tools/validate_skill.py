@@ -157,9 +157,15 @@ def validate_markdown_links(skill_dir: Path) -> None:
 def validate_direct_router(skill_dir: Path) -> None:
     text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
     direct_targets = {target.split("#", 1)[0] for target in LINK_RE.findall(text)}
-    missing = sorted(set(REQUIRED_DIRECT_ROUTER_TARGETS) - direct_targets)
+    candidate_reference_targets = {
+        path.relative_to(skill_dir).as_posix()
+        for path in (skill_dir / "references").glob("*.md")
+        if path.is_file()
+    }
+    required_targets = set(REQUIRED_DIRECT_ROUTER_TARGETS) | candidate_reference_targets
+    missing = sorted(required_targets - direct_targets)
     if missing:
-        fail(f"SKILL.md must directly route every required runtime reference; missing={missing}")
+        fail(f"SKILL.md must directly route every runtime reference; missing={missing}")
 
 
 def validate_python(skill_dir: Path) -> None:
