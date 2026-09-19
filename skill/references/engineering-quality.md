@@ -87,6 +87,7 @@ When such a trigger exists, inspect only decision-relevant factors such as:
 - superseded runs/concurrency behavior when stale work materially consumes time/resources or delays current evidence;
 - least-privilege workflow/job permissions and exposure of credentials to changed/untrusted execution surfaces;
 - critical-path CI latency versus parallelism/serialization dependencies;
+- when a long suite dominates that path, isolation-preserving parallelization/sharding before coverage reduction: prove aggregate completeness/non-overlap/isolation on the same workload, measure the new critical path, and stop when marginal gain no longer repays runner/orchestration complexity;
 - matrix breadth and whether each dimension protects a supported/relevant environment;
 - caching or artifact reuse only when expected payoff exceeds complexity/staleness/supply-chain risk;
 - runner/compute/storage/network cost and log/artifact retention when material;
