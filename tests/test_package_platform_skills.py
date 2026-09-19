@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regression checks for generated Manus, Qwen, and Claude Skill packages."""
+"""Regression checks for every generated portable Skill package."""
 
 from __future__ import annotations
 
@@ -22,6 +22,24 @@ if spec is None or spec.loader is None:
 package_platform_skills = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(package_platform_skills)
 
+
+EXPECTED_PLATFORMS = {
+    "manus",
+    "qwen",
+    "claude",
+    "zcode",
+    "grok",
+    "kimi",
+    "gemini",
+    "deepseek",
+    "copilot",
+}
+if package_platform_skills.PLATFORMS != EXPECTED_PLATFORMS:
+    raise AssertionError(
+        f"platform inventory drifted: {sorted(package_platform_skills.PLATFORMS)}"
+    )
+if package_platform_skills.ROOT_LAYOUT_PLATFORMS != {"gemini", "copilot"}:
+    raise AssertionError("root-layout platform inventory drifted")
 
 def build_fixture(root: Path) -> Path:
     skill = root / "skill"
@@ -69,13 +87,19 @@ with tempfile.TemporaryDirectory() as tmp:
 
         with zipfile.ZipFile(output_a) as archive:
             names = archive.namelist()
-            if "github-project-orchestrator/agents/openai.yaml" in names:
+            prefix = "" if platform in package_platform_skills.ROOT_LAYOUT_PLATFORMS else "github-project-orchestrator/"
+            openai_metadata = f"{prefix}agents/openai.yaml"
+            openai_asset = f"{prefix}assets/icon.svg"
+            future_runtime = f"{prefix}templates/future.txt"
+            license_name = f"{prefix}LICENSE"
+
+            if openai_metadata in names:
                 raise AssertionError(f"OpenAI metadata leaked into {platform} package")
-            if "github-project-orchestrator/assets/icon.svg" in names:
+            if openai_asset in names:
                 raise AssertionError(f"OpenAI asset leaked into {platform} package")
-            if "github-project-orchestrator/templates/future.txt" not in names:
+            if future_runtime not in names:
                 raise AssertionError(f"future portable runtime file was omitted from {platform} package")
-            if archive.read("github-project-orchestrator/LICENSE") != LICENSE_TEXT.encode("utf-8"):
+            if archive.read(license_name) != LICENSE_TEXT.encode("utf-8"):
                 raise AssertionError(f"{platform} package license drifted")
 
             if platform == "claude":
@@ -90,8 +114,16 @@ with tempfile.TemporaryDirectory() as tmp:
                 if "# Runtime" not in entry or "references/rules.md" not in entry:
                     raise AssertionError("Claude packaging changed runtime instructions")
             else:
-                if "github-project-orchestrator/SKILL.md" not in names:
+                entry_name = f"{prefix}SKILL.md"
+                if entry_name not in names:
                     raise AssertionError(f"{platform} package is missing SKILL.md")
+                if archive.read(entry_name) != (skill / "SKILL.md").read_bytes():
+                    raise AssertionError(f"{platform} package changed canonical SKILL.md bytes")
+                if platform in package_platform_skills.ROOT_LAYOUT_PLATFORMS:
+                    if any(name.startswith("github-project-orchestrator/") for name in names):
+                        raise AssertionError(f"{platform} upload package retained a wrapper directory")
+                elif not all(name.startswith("github-project-orchestrator/") for name in names):
+                    raise AssertionError(f"{platform} directory package escaped its wrapper")
 
         print(f"PASS platform-package-{platform}")
 
