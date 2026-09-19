@@ -2,6 +2,10 @@
 
 Workers are bounded implementation agents. Master remains accountable for project state, contract changes, review, integration, release, and continuation after Worker handoff/stop.
 
+## Contents
+
+[Isolation](#1-isolation) · [Dispatch](#2-dispatch-prompt) · [Execution](#3-worker-execution-rules) · [Staleness](#4-workerstatusstale_assignment) · [Handoff](#5-handoff) · [Blockers](#6-blocker-behavior) · [Master absorption](#7-master-absorption) · [Corrections](#8-corrections)
+
 ## 1. Isolation
 
 One Worker = one Task Contract + one assigned branch at a time. Use a dedicated worktree when useful for isolation; its filesystem path is runtime location, not assignment identity.
@@ -179,5 +183,5 @@ For correction/resume:
 
 1. Reuse the same Worker/branch/PR/Assignment ID only while the assignment generation remains valid. `Start HEAD` stays the immutable generation-start anchor.
 2. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD`, current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints. Worker verifies current assigned-branch HEAD equals that checkpoint **before editing**.
-3. When relayed, use `relay-transport.md` and send only the decision-relevant delta: Worker + Repository + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. Keep the exact dispatch Repository and do not duplicate the full original contract when its authoritative identity remains current/reachable.
+3. When relayed, use `relay-transport.md` and send only the decision-relevant delta: Worker + Repository + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. Keep the exact dispatch Repository; a correction/resume never broadens `RepositoryMutationScope`. Do not duplicate the full original contract when its authoritative identity remains current/reachable.
 4. If the generation was superseded/cancelled/invalidated, checkpoint assumptions materially diverged, or responsibility changes Worker, Master reconciles and mints a fresh Assignment ID before redispatch. Master re-reviews the resulting effective change; prior approval never carries automatically across code changes.

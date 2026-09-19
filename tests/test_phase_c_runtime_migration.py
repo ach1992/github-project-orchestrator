@@ -20,6 +20,8 @@ CONTINUITY = "skill/references/continuity.md"
 REVIEW = "skill/references/review-integration.md"
 EVAL = "skill/references/eval-scenarios.md"
 RELAY = "skill/references/relay-transport.md"
+TASK = "skill/references/task-contract.md"
+ENGINEERING = "skill/references/engineering-quality.md"
 RUNTIME_PATHS = (SKILL, AUTHORITY, WORKER, MASTER, CONTINUITY, REVIEW, EVAL)
 
 # Durable byte-equivalence fingerprints of accepted checkpoint 4058f66a... .
@@ -326,6 +328,7 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
         (
             "Recover progressively and stop reading as soon as current authoritative state is decision-valid for the next action.",
             "The three rows are context-depth layers, not rigid lifecycle states",
+            "`Triggered depth` is a conditional side path from Orientation or Active path, not a mandatory third phase",
             "| Recovery layer | Required work |",
             "**Orientation spine — always first**",
             "Project Map/truth-location index",
@@ -339,6 +342,10 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
             "**Triggered depth — conditional side path**",
             "Load the root specification when project-level intent cannot be established safely from current downstream authoritative state or when material contradiction/change makes it decision-relevant.",
             "After resolving the trigger, return to the narrowest context sufficient for the next decision.",
+            "if a Triggered-depth condition is already present during Orientation, enter only that needed depth before unrelated Active-path reading",
+            "never from repository/project artifacts",
+            "ask the smallest exact repository-scope question before mutation",
+            "from applicable authoritative evidence",
             "Recovery is decision-valid when repository/target identity, active outcome, controlling dependencies/blockers",
             "Continue the valid plan instead of rebuilding it because chat history is absent.",
             "A large/long-lived repository is a reason to narrow by workstream, not to read more by default.",
@@ -352,6 +359,78 @@ def test_p5_recovery_is_progressive_without_forcing_a_third_phase() -> None:
     assert "1. **Execution identity.**" not in recovery
     assert "**Triggered-depth interrupt.**" not in recovery
 
+
+
+def test_format_changes_preserve_non_obvious_decision_semantics() -> None:
+    # Skill-creator guidance: long references keep a top-level scope map/TOC.
+    for path in sorted((ROOT / "skill" / "references").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        if len(text.splitlines()) > 100:
+            assert "\n## Contents\n" in text, path
+
+    require_all(
+        current(SKILL),
+        (
+            "developing",
+            "improving",
+            "managing",
+            "continuing",
+            "finishing",
+            "recovering",
+        ),
+    )
+    require_all(
+        current(AUTHORITY),
+        (
+            "use a known equivalent authoritative route when available",
+            "do not exhaustively probe speculative alternatives",
+            "distinguish transient operation/service failure from missing capability",
+            "a new turn/tool batch alone is not evidence",
+            "where the canonical matrix permits it",
+        ),
+    )
+    require_all(
+        current(CONTINUITY),
+        (
+            "Treat its explicit completeness flags as authoritative for the helper output",
+            "high-cardinality status/branch lists are intentionally bounded",
+        ),
+    )
+    require_all(
+        current(TASK),
+        (
+            "regardless of `--level`",
+            "include `Issue:` or pass known identity with `--issue`",
+            "ignores fenced examples/HTML comments",
+            "invalid/non-local Assigned Branch",
+            "invalid/non-canonical or remote-tracking Integration Target",
+            "same-branch target",
+            "zero object IDs",
+        ),
+    )
+    require_all(
+        current(WORKER),
+        (
+            "a correction/resume never broadens `RepositoryMutationScope`",
+            "Worker verifies current assigned-branch HEAD equals that checkpoint **before editing**",
+        ),
+    )
+    require_all(
+        current(ENGINEERING),
+        (
+            "smallest repository-consistent solution that addresses the selected failure modes",
+            "do not send the entire concern catalog when only one or two concerns matter",
+            "materially affect existing Goal/Scope/Acceptance/Validation/Risk/Release fields",
+        ),
+    )
+    require_all(
+        current(REVIEW),
+        (
+            "prior exact reviewed candidate only as an evidence baseline",
+            "every affected interaction/assumption/evidence surface",
+            "Prior analysis/evidence may transfer only while its assumptions remain valid; prior verdict/approval never transfers.",
+        ),
+    )
 
 
 def test_state_namespaces_and_machine_relay_are_lossless_hardened() -> None:
@@ -397,6 +476,7 @@ def main() -> None:
     test_p3_pending_job_branches_are_discriminated()
     test_p4_write_unknown_remains_exact_selected_algorithm()
     test_p5_recovery_is_progressive_without_forcing_a_third_phase()
+    test_format_changes_preserve_non_obvious_decision_semantics()
     test_state_namespaces_and_machine_relay_are_lossless_hardened()
     print("Phase C refined P1-P5 + bounded #64 runtime guards: PASS")
 

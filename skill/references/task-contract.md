@@ -2,6 +2,10 @@
 
 Use a compact Task Contract when explicit coordination/control improves execution; do not require one merely because code behavior changes. Prefer an existing Issue/authoritative work item when the contract must survive delegation, coordination, material risk, or context loss. For bounded low/medium-risk Master-only work whose goal, acceptance, validation, dependencies, and rollback are already clear from user request + repository evidence, use the implicit fast-path contract.
 
+## Contents
+
+[Lifecycle](#1-logical-lifecycle) · [Execution path](#2-execution-path-and-contract-threshold) · [Schema](#3-compact-contract-schema) · [Acceptance](#4-acceptance-criteria) · [Validation](#5-validation-strategy) · [Risk](#6-change-risk) · [Revision](#7-contract-revision) · [Worker identity](#8-worker-assignment-identity) · [READY](#9-ready-gate)
+
 ## 1. Logical lifecycle
 
 Map to existing repository workflow when possible. State names are namespace-qualified so matching tokens in other domains never imply propagation:
@@ -145,4 +149,8 @@ Applies to delegated work and FULL-path Master work. FAST Master work needs no R
 
 Discover safely discoverable missing information read-only instead of asking the user. READY is a decision gate, not a documentation ceremony: do not create extra artifacts merely to represent facts already authoritative and recoverable elsewhere.
 
-Use `scripts/contract_check.py` when a local contract is available and convenient. `--worker` requires the full compact contract plus dispatch-ready `ACTIVE` assignment and Issue identity; it rejects malformed/placeholder assignment identity, invalid branch/target relationships, duplicate/ambiguous canonical fields, and ambiguous legacy `HIGH_ASSURANCE` without a persisted coordination baseline. Branch identity is literal. The helper is optional, does not judge prose or replace READY, and must not block equivalent manual/tool verification.
+Use `scripts/contract_check.py` when a local contract is available and convenient:
+
+- `--worker` requires the full compact Task Contract plus a dispatch-ready `ACTIVE` assignment regardless of `--level`; include `Issue:` or pass known identity with `--issue`.
+- The helper ignores fenced examples/HTML comments and rejects duplicate canonical sections/fields, placeholder/empty required sections, placeholder assignment values, invalid/non-local Assigned Branch, invalid/non-canonical or remote-tracking Integration Target, same-branch target, zero object IDs, ambiguous canonical/legacy ontology fields, and legacy `HIGH_ASSURANCE` without a persisted coordination baseline.
+- Branch identity is literal; use the actual ref, not presentation markup. The helper does not judge prose or replace READY; it is optional and must not block equivalent manual/tool verification.

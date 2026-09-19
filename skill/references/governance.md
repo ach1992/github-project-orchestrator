@@ -2,6 +2,10 @@
 
 Use this reference to establish a professional project system without imposing unnecessary ceremony.
 
+## Contents
+
+[Principle](#1-governance-principle) · [Project brief](#2-project-brief) · [Planning](#3-planning-hierarchy) · [GitHub state](#4-github-state-model) · [Project navigation](#5-project-navigation-and-link-discipline) · [Labels](#6-label-taxonomy) · [Ready/Done](#7-definition-of-ready-and-done) · [Risk](#8-risk-management) · [Decisions](#9-decision-management) · [Readiness audit](#10-repository-readiness-audit) · [Agent instructions](#11-agent-instructions) · [Coordination/assurance](#12-coordination-and-assurance-minimums) · [Bootstrap test](#13-bootstrap-completion-test)
+
 ## 1. Governance principle
 
 Audit the existing repository and GitHub workflow first. Preserve good conventions, but do not equate existence or basic functionality with fitness for the current delivery outcome. Add, repair, simplify, or improve only when current evidence shows a concrete execution, quality, coordination, release, security, recovery, or recurring-delivery friction and the expected benefit over the remaining accepted work justifies implementation, maintenance, cognitive/operational complexity, and regression risk. Prefer improving or reusing an existing mechanism over adding a parallel system.

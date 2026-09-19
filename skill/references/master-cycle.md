@@ -2,6 +2,10 @@
 
 Active orchestration, prioritization, FAST/FULL execution, self-execution, Worker absorption, WIP, anti-spin, and output behavior. Canonical gates/stops live in `authority-gates.md`.
 
+## Contents
+
+[Recover](#1-recover-and-frame) · [Prioritize](#2-highest-value-next-action) · [Fast path](#3-fast-path-vs-full-path) · [Execution](#4-execution-modes-and-delegation-fallback) · [Self-execution](#5-self-execution-discipline) · [Worker absorption](#6-worker-stop-absorption) · [WIP](#7-wip-and-dependency-discipline) · [Next work](#8-next-work-synthesis) · [Anti-spin](#9-anti-spin-and-failure-strategy) · [Changes](#10-requirement-changes) · [Output](#11-master-output-behavior) · [Reconcile](#12-end-of-cycle-reconciliation)
+
 ## 1. Recover and frame
 
 Full recovery is event-triggered, not the first action of every loop. Once repository/target identity, active outcome, stable operating dimensions, and needed capabilities are current enough to execute, retain that baseline until concrete evidence invalidates it.

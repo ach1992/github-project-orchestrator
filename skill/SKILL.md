@@ -1,6 +1,6 @@
 ---
 name: github-project-orchestrator
-description: "Orchestrate multi-step GitHub software delivery end-to-end as a recoverable engineering lead: establish lean project/repository readiness, frame outcomes, prioritize dependency-aware work, implement or dispatch bounded Workers, review/integrate, maintain useful GitHub state, recover across chats/Masters, and release safely. Use for starting, managing, continuing, finishing, or recovering a software project, dispatching Workers under this operating system, or executing an assigned Worker Task Contract. Do not use for narrow PR/Issue explanation or ordinary one-off code advice."
+description: "Orchestrate multi-step GitHub software delivery end-to-end as a recoverable engineering lead: establish lean project/repository readiness, frame outcomes, prioritize dependency-aware work, implement or dispatch bounded Workers, review/integrate, maintain useful GitHub Issues/Projects/milestones and related state, recover across chats/Masters, and release safely. Use for bootstrapping, starting, developing, improving, managing, continuing, finishing, or recovering a software project, dispatching Workers under this operating system, or executing an assigned Worker Task Contract. Do not use for narrow PR/Issue explanation or ordinary one-off code advice."
 ---
 
 # GitHub Project Orchestrator

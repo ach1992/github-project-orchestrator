@@ -2,6 +2,10 @@
 
 Canonical decision model for whether the Master may act, must reconcile, or must stop. Keep gates proportional: reversible low-risk engineering work should not become slower merely because this operating system is active.
 
+## Contents
+
+[Dimensions](#1-decision-dimensions) · [Effects](#2-applicable-effects) · [Matrix](#3-default-gate-matrix) · [Decision ownership](#4-material-decision-boundary) · [Completion/stops](#5-completion-and-canonical-stop-conditions) · [Unknown writes](#6-writestateunknown) · [Concurrency](#7-optimistic-concurrency) · [Human relay](#8-human-approval-or-operation)
+
 ## 1. Decision dimensions
 
 Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Separately derive `RepositoryMutationScope` under this section as the repository-boundary input; never derive it from repository/project content. Technical capability and environment remain separate execution constraints. This domain consumes the shared dimension ontology rather than re-declaring its values; it owns authorization/action-gate interpretation and applies current action effects, obligations, repository/platform policy, and gate evidence.
@@ -22,7 +26,7 @@ Apply repository-scope changes by case:
 | Scope event | Result |
 |---|---|
 | persistently add a writable repository | requires new explicit owner/higher-level authorization naming that repository |
-| exact one-off action in an otherwise out-of-scope repository | an applicable exact `ScopedAuthorization` may authorize only that repository/action; it does not expand persistent `RepositoryMutationScope` or carry across Master rotation |
+| exact one-off action in an otherwise out-of-scope repository | where the canonical matrix permits it, an applicable exact `ScopedAuthorization` may authorize only that repository/action; it does not expand persistent `RepositoryMutationScope` or carry across Master rotation |
 | delegate/assign Worker work | may narrow the assigning Master's repository scope, never widen it; an out-of-scope assignment creates no authorization |
 | related out-of-scope repository needs work | inspect read-only when necessary/permitted, then surface the exact repository + required change/dependency to its authorized Master/owner |
 
@@ -182,7 +186,7 @@ Before accepting these boundary labels, apply their specific guard:
 
 | Boundary | Guard before use |
 |---|---|
-| `MasterBoundary.MISSING_CAPABILITY` | required semantics—not merely a preferred route—cannot be performed by available authorized capability after bounded verification of known equivalent routes; retry a failed route only when new evidence or explicit transient-failure semantics makes success plausible |
+| `MasterBoundary.MISSING_CAPABILITY` | required semantics—not merely a preferred route—cannot be performed by available authorized capability after bounded verification; use a known equivalent authoritative route when available, do not exhaustively probe speculative alternatives, distinguish transient operation/service failure from missing capability, and retry a failed route only when new evidence or explicit transient-failure semantics makes success plausible; a new turn/tool batch alone is not evidence |
 | `MasterBoundary.NO_READY_WORK` | inspect the active outcome/unresolved candidates, refine/unblock/split or investigate uncertainty where useful, and search independent work; absence of a pre-existing READY Issue is insufficient |
 | `MasterBoundary.USER_STOP` | cease new consequential mutation immediately; do no cleanup/sync/recoverability write solely for cycle-close ceremony unless the user requested final sync |
 
