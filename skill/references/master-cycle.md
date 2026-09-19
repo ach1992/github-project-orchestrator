@@ -138,7 +138,7 @@ Do not mirror WorkerStatus labels into MasterBoundary without Master-level recon
 - a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
 - reconcile stale assignments before replacement dispatch;
 - create out-of-contract follow-up only when actionable and not required for current acceptance;
-- right-size to a **minimum meaningful slice**: combine reviewable siblings with one accepted behavior and materially aligned dependency/ownership/risk/rollback/release/validation boundaries. In PR workflows, normally use one slice per candidate; split only for a material boundary or reviewability need, not implementation layers;
+- right-size to a **minimum meaningful slice**: combine reviewable siblings only when accepted behavior/acceptance and dependency/ownership/risk/rollback/release/validation boundaries materially align. In PR workflows, normally map one such slice to one reviewable candidate; split for any material boundary or reviewability need, not implementation layers;
 - preserve independent implementation parallelism; if one integration would stale another candidate's required target-bound evidence, normally serialize acceptance/review/integration unless intentional stacking/queue preserves freshness;
 
 Optimize **finished verified value**, not active-task count or smallest-possible task count.
