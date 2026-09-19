@@ -36,7 +36,7 @@ Prefer:
 
 `Project outcome -> Milestone/Release -> Issue/Task Contract -> PR/Commit`
 
-Use epics/parent Issues only when the milestone is too broad to coordinate directly. Before decomposing a new phase/milestone—or resuming it after predecessor integration—reconcile its completion gate against current integrated repository state and derive only the **residual meaningful outcomes/dependencies** needed for execution. Do not pre-create a speculative seam-level child backlog from a specification when current evidence may already satisfy part of the scope.
+Use epics/parent Issues only when the milestone is too broad to coordinate directly. Before phase/milestone decomposition, derive child work from current residual scope rather than the specification alone; `master-cycle.md` owns cutline mechanics.
 
 When ordering READY work, consider critical-path impact, blocker unlocks, correctness/security risk, user/business value, cost of delay, reversibility, and available capacity. Use explicit priority fields/labels only when they improve coordination; do not let a static priority label override current dependency or production reality.
 
