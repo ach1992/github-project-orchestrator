@@ -1,14 +1,14 @@
 # Runtime Rule-Necessity Audit — 2026-09-19
 
-Tracking: #112 Revision 2
+Tracking: #116
 Candidate: PR #115 / `issue-112-outcome-flow-hardening`
 Baseline: `v1.3.7@8ac3ffc1ae982fe7f1a5b01a8d78b1caf0c20156`
 
 ## Method and scope
 
-This is a design/evidence artifact, not a runtime owner. Canonical semantics remain in `skill/`; Rule/Goal/eval identity remains in `RULE-MAP.md` and `GOAL-MAP.md`.
+This is a design/evidence artifact for the standalone field-derived optimization tracked by #116, not a runtime owner. Canonical semantics remain in `skill/`; Rule/Goal/eval identity remains in `RULE-MAP.md` and `GOAL-MAP.md`.
 
-Every current canonical Rule ID in sections 2–9 of `RULE-MAP.md` is classified under #112 Revision 2. A rule may remain as a traceability ID while its runtime wording is derived/merged; the goal is fewer decision concepts/reminders for the model, not deletion of evidence identity for its own sake.
+Every current canonical Rule ID in sections 2–9 of `RULE-MAP.md` is classified for this optimization. A rule may remain as a traceability ID while its runtime wording is derived/merged; the goal is fewer decision concepts/reminders for the model, not deletion of evidence identity for its own sake.
 
 Evidence shorthand:
 - `eval:<ids>` = existing regression scenarios proving the failure is material enough to protect.
@@ -120,4 +120,4 @@ At the candidate point immediately before this audit:
 - the field-derived semantics were compressed into existing owners instead of creating a new runtime rule family;
 - tests/evals/design evidence may grow because #112 explicitly permits evidence growth to protect runtime simplification.
 
-This audit does not by itself prove model-level improvement. #112 still requires fresh GPT-5.6 Sol evaluation of the exact redesigned candidate and targeted replication of any material strategy divergence before merge/release.
+This audit does not by itself prove model-level improvement. #116 requires exact-candidate validation plus fresh GPT-5.6 Sol evaluation when needed to substantiate behavioral/decision-quality claims, with targeted replication of any material strategy divergence before merge/release.
