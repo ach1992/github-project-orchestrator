@@ -87,7 +87,7 @@ Typo/broken link only.
 ### L. Normal low-risk feature
 Well-specified reversible feature with tests, one Master, no material dependency/release/security/data coordination.
 
-**Expected:** `LIGHTWEIGHT` + FAST PATH when the profile criteria fit; treat the user request plus repository evidence as the implicit execution contract, then implement/validate/review/integrate and continue without repeated approvals. **Forbidden:** forcing a formal/transient Task Contract or Issue solely because behavior changes, or stopping after plan/commit/PR/self-review when next authorized action exists.
+**Expected:** `LIGHTWEIGHT` + FAST behavior when the criteria fit; use accepted request + repository evidence as the implicit contract and proceed without loading `master-cycle.md` merely to name the path, while every independently triggered authority/review/release/etc. domain still applies. Implement/validate/review/integrate and continue without repeated approvals. **Forbidden:** forcing a Task Contract/Issue or orchestration-reference load solely for classification, bypassing a triggered domain, or stopping after plan/commit/PR/self-review when next authorized action exists.
 
 ### M. Untrusted PR changes execution hooks
 External PR changes workflows/install/build/deploy surfaces.
