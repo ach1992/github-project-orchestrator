@@ -19,6 +19,18 @@ RELEASE_ASSET_NAMES = (
     "github-project-orchestrator-qwen.zip.sha256",
     "github-project-orchestrator-claude.zip",
     "github-project-orchestrator-claude.zip.sha256",
+    "github-project-orchestrator-zcode.zip",
+    "github-project-orchestrator-zcode.zip.sha256",
+    "github-project-orchestrator-grok.zip",
+    "github-project-orchestrator-grok.zip.sha256",
+    "github-project-orchestrator-kimi.zip",
+    "github-project-orchestrator-kimi.zip.sha256",
+    "github-project-orchestrator-gemini.zip",
+    "github-project-orchestrator-gemini.zip.sha256",
+    "github-project-orchestrator-deepseek.zip",
+    "github-project-orchestrator-deepseek.zip.sha256",
+    "github-project-orchestrator-copilot.zip",
+    "github-project-orchestrator-copilot.zip.sha256",
 )
 GRAPHQL_RELEASE_QUERY = """
 query($owner:String!,$name:String!,$tag:String!) {

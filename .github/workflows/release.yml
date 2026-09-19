@@ -112,6 +112,12 @@ jobs:
           python3 tools/package_platform_skills.py skill manus github-project-orchestrator-manus.zip github-project-orchestrator-manus.zip.sha256
           python3 tools/package_platform_skills.py skill qwen github-project-orchestrator-qwen.zip github-project-orchestrator-qwen.zip.sha256
           python3 tools/package_platform_skills.py skill claude github-project-orchestrator-claude.zip github-project-orchestrator-claude.zip.sha256
+          python3 tools/package_platform_skills.py skill zcode github-project-orchestrator-zcode.zip github-project-orchestrator-zcode.zip.sha256
+          python3 tools/package_platform_skills.py skill grok github-project-orchestrator-grok.zip github-project-orchestrator-grok.zip.sha256
+          python3 tools/package_platform_skills.py skill kimi github-project-orchestrator-kimi.zip github-project-orchestrator-kimi.zip.sha256
+          python3 tools/package_platform_skills.py skill gemini github-project-orchestrator-gemini.zip github-project-orchestrator-gemini.zip.sha256
+          python3 tools/package_platform_skills.py skill deepseek github-project-orchestrator-deepseek.zip github-project-orchestrator-deepseek.zip.sha256
+          python3 tools/package_platform_skills.py skill copilot github-project-orchestrator-copilot.zip github-project-orchestrator-copilot.zip.sha256
 
       - name: Verify immutable v1.0.0 baseline
         shell: bash
@@ -156,6 +162,12 @@ jobs:
           python3 tools/package_platform_skills.py skill manus github-project-orchestrator-manus.zip github-project-orchestrator-manus.zip.sha256
           python3 tools/package_platform_skills.py skill qwen github-project-orchestrator-qwen.zip github-project-orchestrator-qwen.zip.sha256
           python3 tools/package_platform_skills.py skill claude github-project-orchestrator-claude.zip github-project-orchestrator-claude.zip.sha256
+          python3 tools/package_platform_skills.py skill zcode github-project-orchestrator-zcode.zip github-project-orchestrator-zcode.zip.sha256
+          python3 tools/package_platform_skills.py skill grok github-project-orchestrator-grok.zip github-project-orchestrator-grok.zip.sha256
+          python3 tools/package_platform_skills.py skill kimi github-project-orchestrator-kimi.zip github-project-orchestrator-kimi.zip.sha256
+          python3 tools/package_platform_skills.py skill gemini github-project-orchestrator-gemini.zip github-project-orchestrator-gemini.zip.sha256
+          python3 tools/package_platform_skills.py skill deepseek github-project-orchestrator-deepseek.zip github-project-orchestrator-deepseek.zip.sha256
+          python3 tools/package_platform_skills.py skill copilot github-project-orchestrator-copilot.zip github-project-orchestrator-copilot.zip.sha256
 
       - name: Publish exact version
         env:

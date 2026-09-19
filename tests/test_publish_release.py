@@ -39,7 +39,7 @@ class PublishReleaseTests(unittest.TestCase):
         return publish_release.ReleaseMetadata("R1", "v1.1.0-rc.1", False, True, SHA)
 
     def test_missing_required_asset_fails_before_remote_mutation(self) -> None:
-        Path("github-project-orchestrator-claude.zip").unlink()
+        Path("github-project-orchestrator-gemini.zip").unlink()
         with mock.patch.object(publish_release, "resolve_remote_tag_commit") as resolve_tag:
             with self.assertRaisesRegex(RuntimeError, "Required release asset missing"):
                 publish_release.publish_release()

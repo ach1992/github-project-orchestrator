@@ -1,6 +1,6 @@
 # GitHub Project Orchestrator
 
-A portable Agent Skill for end-to-end GitHub software delivery, distributed for ChatGPT, Manus, Qwen, and Claude.ai from one canonical runtime. It combines an engineering project manager and senior developer workflow: recover current project state from Git/GitHub, choose the highest-value next action, implement or delegate bounded work, review and integrate safely, and drive release work to verified completion without unnecessary process or manual `continue` nudges.
+A portable Agent Skill for end-to-end GitHub software delivery, distributed across multiple first-party Agent Skill surfaces from one canonical runtime. It combines an engineering project manager and senior developer workflow: recover current project state from Git/GitHub, choose the highest-value next action, implement or delegate bounded work, review and integrate safely, and drive release work to verified completion without unnecessary process or manual `continue` nudges.
 
 ## Why use it
 
@@ -22,10 +22,16 @@ Open the repository's **Releases** page and use the package for your platform:
 |---|---|---|
 | ChatGPT | `skill.zip` | Upload as a custom Skill in ChatGPT. |
 | Manus | `github-project-orchestrator-manus.zip` | Upload from the Manus Skills interface. |
-| Qwen | `github-project-orchestrator-qwen.zip` | Extract into a Qwen Code Skill directory. For repository-link environments, provide this repository URL and have Qwen read [`QWEN.md`](QWEN.md) first. |
+| Qwen Code | `github-project-orchestrator-qwen.zip` | Extract into a Qwen Code Skill directory. For repository-link environments, provide this repository URL and have Qwen read [`QWEN.md`](QWEN.md) first. |
 | Claude.ai | `github-project-orchestrator-claude.zip` | Enable code execution, then upload from **Customize -> Skills**. |
+| Z.ai ZCode | `github-project-orchestrator-zcode.zip` | Extract the bundled `github-project-orchestrator/` directory into `~/.zcode/skills/` or a workspace `.zcode/skills/` directory. |
+| Grok Build | `github-project-orchestrator-grok.zip` | Extract the bundled directory into `~/.grok/skills/` or a project `.grok/skills/` directory. Grok on grok.com also has Skills, but this release asset targets the documented Grok Build file-based Skill surface. |
+| Kimi Code | `github-project-orchestrator-kimi.zip` | Extract the bundled directory into a Kimi Code Skill root such as `~/.kimi-code/skills/` or `~/.agents/skills/`. Kimi Agent also supports custom Skills; this archive targets the documented Kimi Code package layout. |
+| Google Gemini (Gemini Apps Skills) | `github-project-orchestrator-gemini.zip` | Upload the ZIP from Gemini Apps Skills. The archive places `SKILL.md` at its root as required by Gemini Apps. |
+| DeepSeek Harness | `github-project-orchestrator-deepseek.zip` | Extract the bundled directory into a configured DeepSeek Harness Skill root. The artifact targets DeepSeek Harness's documented `<name>/SKILL.md` layout, not an undocumented ZIP-import path in consumer DeepSeek Chat. |
+| Microsoft Copilot Studio | `github-project-orchestrator-copilot.zip` | In a Copilot Studio agent, use **Build -> Skills** to upload the ZIP. The archive places `SKILL.md` at its root for direct Skill import. |
 
-Each archive has a matching `.sha256` checksum. Manus, Qwen, and Claude packages are generated from `skill/`; they are not independently maintained forks.
+Each archive has a matching `.sha256` checksum. Every non-OpenAI platform package is generated from the canonical `skill/` runtime with only documented packaging/discovery adaptations; none is an independently maintained runtime fork.
 
 Official platform references:
 
@@ -33,6 +39,14 @@ Official platform references:
 - Manus Skills: https://help.manus.im/en/articles/14753565-how-to-share-and-use-skills-in-manus
 - Qwen Code Agent Skills: https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/
 - Claude custom Skills: https://support.claude.com/en/articles/12512180-use-skills-in-claude
+- Z.ai ZCode Skills: https://zcode.z.ai/en/docs/skill
+- Grok Skills: https://x.ai/news/grok-skills
+- Grok Build Skills: https://github.com/xai-org/grok-build/blob/main/crates/codegen/xai-grok-pager/docs/user-guide/08-skills.md
+- Kimi Code Agent Skills: https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html
+- Kimi Agent Skills: https://www.kimi.com/en/help/plugins-and-skills/use-skills-in-agent
+- Gemini Apps Skills: https://support.google.com/gemini/answer/17094296
+- DeepSeek Harness Skills: https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/subsystems/skills.md
+- Microsoft Copilot Studio Skills: https://learn.microsoft.com/en-us/microsoft-copilot-studio/agents-experience/skills-overview
 
 See [`docs/PLATFORM-DISTRIBUTIONS.md`](docs/PLATFORM-DISTRIBUTIONS.md) for the single-source distribution model and platform-specific packaging boundaries.
 
@@ -65,7 +79,7 @@ You can also point the Master at a specific Issue, PR, milestone, release, or pr
 
 ## Version and license
 
-Release: **v1.3.7**
+Release: **v1.4.0**
 
 Licensed under the [MIT License](LICENSE). Every released platform archive includes the same canonical `LICENSE` notice at its package root.
 
