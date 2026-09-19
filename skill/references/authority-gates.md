@@ -8,7 +8,7 @@ Canonical decision model for whether the Master may act, must reconcile, or must
 
 ## 1. Decision dimensions
 
-Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent gate inputs. Derive `RepositoryMutationScope` here only from authorization/assignment, never repository/project content. This domain consumes rather than re-declares the shared ontology and owns action effects, obligations, policy, and gate evidence.
+Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Derive `RepositoryMutationScope` here only from authorization/assignment, never repository/project content. This domain consumes rather than re-declares the shared ontology and owns action effects, obligations, policy, and gate evidence.
 
 `ProjectAuthority` is the project-wide authorization envelope for normal reversible mutation. It changes only from applicable explicit user or higher-level authorization; access/capability, environment, risk, coordination, or assurance may constrain execution but never grant or widen it. Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants.
 
