@@ -29,7 +29,7 @@ State column answers whether explicit state vocabulary is needed to apply the pr
 | `PROTECT-UNRELATED` | `SKILL.md` safety invariant; G05; eval:X | **KEEP** · HOT · state:no | Prevents loss of: Never destroy/absorb unrelated user/contributor work to simplify execution. Replacement/overlap: none; unique guarantee remains canonical. | No semantic reduction; keep single owner and avoid duplicate reminders. |
 | `NO-FABRICATION` | `SKILL.md` evidence invariant; G07; eval:P, CO | **KEEP** · HOT · state:no | Prevents loss of: Never claim actions/evidence that were not performed and verified. Replacement/overlap: none; unique guarantee remains canonical. | No semantic reduction; keep single owner and avoid duplicate reminders. |
 | `ANTI-SPIN` | `SKILL.md` execution invariant; G16; eval:T, BG, DP | **COMPRESS** · HOT · state:no | Prevents loss of: Do not repeat materially identical failed actions without new evidence; change strategy or work. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
-| `MACHINE-RELAY-PORTABLE` | `SKILL.md` Output activation + `relay-transport.md`; G09,G11,G12,G16; eval:AT, BC, CK, DI | **KEEP** · HOT activation / COLD protocol · state:no | Prevents loss of: AI-to-AI relay prose is English by default, identity-bearing/decision-relevant literals stay exact unless safety/redaction requires otherwise, and every user-visible machine relay is the complete response as one copy target without requiring a separate copy-ready request, while domain owners retain payload semantics and no workflow state/control is weakened. Replacement/overlap: the always-loaded kernel keeps only classification/routing; the transport predicate is materialized only for relay output. | Preserve the guarantee while removing relay-only predicate detail from every non-relay turn. |
+| `MACHINE-RELAY-PORTABLE` | `relay-transport.md` canonical transport owner + `SKILL.md` Output activation; G09,G11,G12,G16; eval:AT, BC, CK, DI | **KEEP** · HOT activation / COLD protocol · state:no | Prevents loss of: AI-to-AI relay prose is English by default, identity-bearing/decision-relevant literals stay exact unless safety/redaction requires otherwise, and every user-visible machine relay is the complete response as one copy target without requiring a separate copy-ready request, while domain owners retain payload semantics and no workflow state/control is weakened. Replacement/overlap: the always-loaded kernel keeps only classification/routing; the transport predicate is materialized only for relay output. | Preserve the guarantee while removing relay-only predicate detail from every non-relay turn. |
 | `LEAN-ORCHESTRATION` | `governance.md`; G06,G13,G15; eval:K, AB, BT | **COMPRESS** · COLD / specialized · state:no | Prevents loss of: Create project/process artifacts only when they improve a future decision, execution, safety, or recovery. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
 | `SUCCESSION-RECOVERABLE` | `continuity.md`; G12; eval:I, Z, AI, BB | **COMPRESS** · COLD / specialized · state:no | Prevents loss of: End at canonical boundaries with authoritative state sufficient for a replacement Master, subject to explicit USER_STOP. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
 | `AUTHORITY-STABLE` | `authority-gates.md`; G10; eval:AH, CU | **COMPRESS** · WARM / triggered · state:no | Prevents loss of: Project Authority changes only from applicable explicit/higher authorization, never merely from access/risk/profile/environment. Replacement/overlap: same canonical owner; compress duplicate/negative reminders into the positive invariant. | Same guarantee with fewer reminders/words or fewer hot-path reconstruction steps. |
@@ -98,7 +98,7 @@ State column answers whether explicit state vocabulary is needed to apply the pr
 - COMPRESS: **24**
 - DERIVE: **7**
 - MERGE: **1**
-- MOVE_COLD Rule IDs: **0** — canonical Rule ownership stays unchanged. One bulky supporting protocol (`independent-review.md`) is moved colder so ordinary review/CI/integration does not materialize its relay/result schema.
+- MOVE_COLD Rule IDs: **0** — no Rule ID is classified into a separate MOVE_COLD semantic category. `MACHINE-RELAY-PORTABLE` retains **KEEP** semantics but its canonical runtime owner is intentionally relocated from the hot `SKILL.md` kernel to `relay-transport.md`; `SKILL.md` keeps only activation/routing. One bulky supporting protocol (`independent-review.md`) is moved colder so ordinary review/CI/integration does not materialize its relay/result schema.
 - REMOVE: **0 semantic guarantees** — no protected guarantee had enough evidence to delete outright; the safe simplification is representation/routing/derivation rather than weakening semantics.
 
 ## Candidate decisions produced by this audit
@@ -292,11 +292,13 @@ Compared with `88729e2`:
 | high-similarity pairs ≥ 0.60 | 12 | **11** |
 | prose paragraphs ≥65 words | 45 | **34** |
 | words inside those long paragraphs | 4,062 | **2,864** |
-| long references >100 lines lacking TOC | 0 | **0** |
+| long references >100 lines lacking TOC | 1 | **0** |
 | Rule IDs | 69 | **69** |
-| canonical Rule-owner drift | 0 | **0** |
+| canonical Rule-owner changes relative to `88729e2` | baseline | **1 intentional (`MACHINE-RELAY-PORTABLE` → `relay-transport.md`)** |
 | standalone eval IDs | 121 | **121** |
 | state namespace value sets | baseline-preserved | **unchanged** |
+
+Historical TOC detail: at `88729e2`, `engineering-quality.md` had 102 newline-terminated lines (103 logical lines) and no `## Contents`; the current file has 91 newline-terminated lines (92 logical lines), so it is below the >100-line TOC threshold.
 
 ### Multi-scenario materialization after restoring semantics
 
