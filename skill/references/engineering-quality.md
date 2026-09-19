@@ -56,25 +56,14 @@ For stateful/destructive systems, distinguish **backup existence** from a credib
 
 ## 3. Role propagation without new ceremony
 
-### Master / self-execution
+| Surface | Apply a material concern without adding a new process layer |
+|---|---|
+| Master / self-execution | FAST keeps concern handling transient when request + repository evidence already make implementation/validation clear. FULL/persisted work records only concern-derived facts that materially affect existing Goal/Scope/Acceptance/Validation/Risk/Release fields; never add a generic `EngineeringConcerns` field. Implement the smallest repository-consistent solution that addresses the selected failure modes and validate the concern at the narrowest high-signal boundary first, then broader required checks. If a still-material concern fact is not recoverable from stronger code/Git/GitHub/CI/release evidence, persist only that missing unresolved fact through `continuity.md` in its natural owner. |
+| Worker | Apply concern requirements already in current contract/acceptance/validation/special constraints plus directly evident in-scope correctness/safety obligations. Do not perform repository-wide observability/CI/privacy/accessibility/reliability redesign. A newly discovered concern that materially changes scope, acceptance, risk, architecture/security/privacy posture, migration, or release expectations uses the existing Worker stop/contract-revision path rather than silently broadening the assignment. Master dispatches only the smallest actionable concern requirement in existing Acceptance/Validation/Special constraints; do not send the entire concern catalog when only one or two concerns matter. |
+| Reviewer | Review concerns material to the effective change plus newly evidenced material concerns introduced by the diff. Missing handling that makes the accepted change unsafe, incorrect, operationally undiagnosable, or materially incomplete is a normal impact-based `BLOCKER`/`REQUIRED` finding. Do not promote optional telemetry/retries/abstractions/docs/dashboards/style preferences to required scope without evidence. |
+| Release / operations | `release.md` remains canonical for delivery state, production gates, readiness, deployment verification, rollback, and incidents. This domain only prevents an already-material diagnosability/resilience/privacy/resource concern from being deferred past release; it does not duplicate release state/evidence. |
 
-For FAST work, keep selected concerns transient when the accepted request + repository evidence already make implementation/validation clear. For FULL or persisted work, express only concern-derived facts that materially affect existing Goal/Scope/Acceptance/Validation/Risk/Release fields; do not add a generic `EngineeringConcerns` field. If a recovery/rotation boundary makes a still-material concern-derived fact no longer recoverable from stronger code/Git/GitHub/CI/release evidence, let `continuity.md` persist only that missing unresolved fact in its natural existing owner.
-
-Implement the smallest repository-consistent solution that addresses the selected failure modes. Validate the concern at the narrowest high-signal boundary first, then broader required checks. A concern that is merely theoretically possible does not justify expanding scope or delaying useful delivery.
-
-### Worker
-
-A Worker applies concern requirements already present in its current contract/acceptance/validation/special constraints plus directly evident in-scope correctness/safety obligations. It does not perform repository-wide observability, CI, privacy, accessibility, or reliability redesign on its own. If a newly discovered concern materially changes scope, acceptance, risk, architecture/security/privacy posture, migration, or release expectations, use the existing Worker stop/contract-revision path instead of silently broadening the assignment.
-
-When Master dispatches concern-sensitive work, put the smallest actionable requirement in the existing Acceptance, Validation, or Special constraints surface. Do not send the Worker this entire concern catalog when only one or two concerns matter.
-
-### Reviewer
-
-Review the concerns material to the effective change and any newly evidenced material concern introduced by the diff. Missing concern handling that makes the accepted change unsafe, incorrect, operationally undiagnosable, or materially incomplete is a normal `BLOCKER`/`REQUIRED` finding according to impact. Do not convert optional telemetry, retries, abstractions, docs, dashboards, or stylistic preferences into required scope without evidence.
-
-### Release / operations
-
-Use `release.md` as the canonical owner of delivery state, production gates, release readiness, deployment verification, rollback, and incident handling. This domain only ensures implementation did not defer an already-material diagnosability/resilience/privacy/resource concern until after release. Do not duplicate release state or evidence here.
+A merely theoretical concern never justifies scope expansion or delayed useful delivery.
 
 ## 4. CI and automation fitness
 
@@ -87,6 +76,7 @@ When such a trigger exists, inspect only decision-relevant factors such as:
 - superseded runs/concurrency behavior when stale work materially consumes time/resources or delays current evidence;
 - least-privilege workflow/job permissions and exposure of credentials to changed/untrusted execution surfaces;
 - critical-path CI latency versus parallelism/serialization dependencies;
+- for a still-required long-suite bottleneck after duplicate/no-value validation is removed, prefer isolation-preserving parallelization/sharding over weakening required signal; prove aggregate completeness and isolation, non-overlap where relevant, and same-workload critical-path gain; stop at diminishing returns;
 - matrix breadth and whether each dimension protects a supported/relevant environment;
 - caching or artifact reuse only when expected payoff exceeds complexity/staleness/supply-chain risk;
 - runner/compute/storage/network cost and log/artifact retention when material;

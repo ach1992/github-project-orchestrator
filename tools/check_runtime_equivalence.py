@@ -154,7 +154,11 @@ def build_inventory(
     }
 
 
-def compare_inventories(baseline: dict, candidate: dict) -> tuple[list[str], list[str]]:
+def compare_inventories(
+    baseline: dict,
+    candidate: dict,
+    allowed_rule_owner_changes: dict[str, dict[str, str]] | None = None,
+) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     notes: list[str] = []
 
@@ -171,8 +175,31 @@ def compare_inventories(baseline: dict, candidate: dict) -> tuple[list[str], lis
         for rule in sorted(set(baseline_rules) & set(candidate_rules))
         if baseline_rules[rule] != candidate_rules[rule]
     }
-    if owner_changes:
-        errors.append(f"canonical Rule owner changed: {owner_changes}")
+    allowed_rule_owner_changes = allowed_rule_owner_changes or {}
+    unexpected_owner_changes = {
+        rule: change
+        for rule, change in owner_changes.items()
+        if allowed_rule_owner_changes.get(rule) != change
+    }
+    if unexpected_owner_changes:
+        errors.append(f"canonical Rule owner changed: {unexpected_owner_changes}")
+    stale_owner_change_allowances = {
+        rule: change
+        for rule, change in allowed_rule_owner_changes.items()
+        if owner_changes.get(rule) != change
+    }
+    if stale_owner_change_allowances:
+        errors.append(
+            "configured canonical Rule owner relocation is not exact/current: "
+            f"{stale_owner_change_allowances}"
+        )
+    approved_owner_changes = {
+        rule: change
+        for rule, change in owner_changes.items()
+        if allowed_rule_owner_changes.get(rule) == change
+    }
+    if approved_owner_changes:
+        notes.append(f"approved canonical Rule owner relocation: {approved_owner_changes}")
 
     if baseline["goals"] != candidate["goals"]:
         errors.append(
@@ -267,6 +294,29 @@ def validate_config(config: dict) -> None:
     if set(predicates) != {"CAN_EXECUTE", "MASTER_STOP", "REVIEW_VALID", "DELIVERY_PROVEN"}:
         raise ValueError("canonical_predicates must preserve the configured decision-owner set")
 
+    owner_changes = config.get("allowed_rule_owner_changes", {})
+    if not isinstance(owner_changes, dict):
+        raise ValueError("allowed_rule_owner_changes must be a mapping")
+    for rule_id, change in owner_changes.items():
+        if not re.fullmatch(r"[A-Z][A-Z0-9-]*", rule_id):
+            raise ValueError(f"invalid Rule ID in allowed_rule_owner_changes: {rule_id!r}")
+        if not isinstance(change, dict) or set(change) != {"baseline", "candidate"}:
+            raise ValueError(
+                f"allowed_rule_owner_changes[{rule_id!r}] must contain exactly baseline and candidate"
+            )
+        baseline_owner = change["baseline"]
+        candidate_owner = change["candidate"]
+        if (
+            not isinstance(baseline_owner, str)
+            or not baseline_owner.strip()
+            or not isinstance(candidate_owner, str)
+            or not candidate_owner.strip()
+            or baseline_owner == candidate_owner
+        ):
+            raise ValueError(
+                f"allowed_rule_owner_changes[{rule_id!r}] must define distinct non-empty owners"
+            )
+
 
 def check_repository(repo: Path, config: dict) -> dict:
     repo = repo.resolve()
@@ -330,7 +380,11 @@ def check_repository(repo: Path, config: dict) -> dict:
         predicate_owners=config["canonical_predicates"],
         read_text=candidate_read,
     )
-    errors, notes = compare_inventories(baseline, candidate)
+    errors, notes = compare_inventories(
+        baseline,
+        candidate,
+        config.get("allowed_rule_owner_changes", {}),
+    )
     current_eval_ids = parse_eval_ids(git_text(repo, current_control_ref, surfaces["eval_scenarios"]))
     current_errors, current_notes = compare_current_eval_control(current_eval_ids, candidate["eval_ids"])
     errors.extend(current_errors)

@@ -21,7 +21,7 @@ Any material identity/checkpoint mismatch -> `WorkerStatus.STALE_ASSIGNMENT`; ne
 
 ## 2. Dispatch prompt
 
-Use a standalone prompt. When it is relayed between chats/agents, apply the canonical machine-relay transport contract in `SKILL.md`; do not restate or fork its language, literal-preservation, or copy-target rules here.
+Use a standalone prompt. When it is relayed between chats/agents, apply the canonical transport contract in `relay-transport.md`; do not restate or fork its language, literal-preservation, or copy-target rules here.
 
 ```text
 # WORKER DISPATCH - <WORKER_ID> - ISSUE #<NUMBER>
@@ -61,7 +61,7 @@ Special constraints:
 Before editing: read repository instructions and current contract; verify assignment/repo/branch/HEAD/status and that any current worktree is attached to the assigned branch.
 Implement the smallest correct change. Do not weaken tests. Stop for stale assignment, blocker, material scope expansion, or material decision.
 Push/update only the assigned branch/PR. Never push directly to the Integration Target, merge, or start another task.
-Return only the structured handoff defined in section 5 under the canonical `SKILL.md` machine-relay transport contract.
+Return only the structured handoff defined in section 5 under the canonical `relay-transport.md` transport contract.
 ```
 
 The dispatch `Repository:` must equal the canonical persisted `Repository` from [task-contract.md](task-contract.md) §8 and is the Worker's entire repository mutation scope for that assignment. Repositories mentioned in dependencies, interfaces, links, tests, or notes are read-only context unless a new valid assignment explicitly targets them; the Worker reports required cross-repository changes to Master instead of editing another repository.
@@ -115,14 +115,14 @@ Choose exactly one `WorkerStatus` by the first controlling condition below; incl
 
 | Precedence | WorkerStatus | Use when |
 |---|---|---|
-| 1 | `STALE_ASSIGNMENT` | assignment/concurrency envelope is no longer valid or materiality is uncertain |
-| 2 | `MATERIAL_DECISION_REQUIRED` | implementation cannot proceed without a canonical owner decision from `authority-gates.md` |
-| 3 | `SCOPE_CHANGE_REQUIRED` | acceptance is sufficiently clear, but satisfying it requires material work outside the current Task Contract |
-| 4 | `ENVIRONMENT_MISMATCH` | the contract remains valid, but this Worker runtime/toolchain/credential/environment context cannot execute it safely; another valid environment/path may resolve it without changing scope |
-| 5 | `BLOCKED` | a real external dependency/precondition prevents progress and switching Worker/runtime alone does not resolve it |
+| 1 | `WorkerStatus.STALE_ASSIGNMENT` | assignment/concurrency envelope is no longer valid or materiality is uncertain |
+| 2 | `WorkerStatus.MATERIAL_DECISION_REQUIRED` | implementation cannot proceed without a canonical owner decision from `authority-gates.md` |
+| 3 | `WorkerStatus.SCOPE_CHANGE_REQUIRED` | acceptance is sufficiently clear, but satisfying it requires material work outside the current Task Contract |
+| 4 | `WorkerStatus.ENVIRONMENT_MISMATCH` | the contract remains valid, but this Worker runtime/toolchain/credential/environment context cannot execute it safely; another valid environment/path may resolve it without changing scope, including unrelated dirty work when safe isolation/environment change can resolve it |
+| 5 | `WorkerStatus.BLOCKED` | a real external dependency/precondition prevents progress and switching Worker/runtime alone does not resolve it; includes an unsatisfied canonical human-approval gate for an otherwise in-scope Worker-permitted action, or unrelated dirty work that requires external ownership/precondition resolution |
 | 6 | `READY_FOR_REVIEW` | contracted implementation is complete enough for Master review and required Worker validation has been reported |
 
-Return the compact transport form below under the canonical `SKILL.md` machine-relay transport contract. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
+Return the compact transport form below under the canonical `relay-transport.md` transport contract. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
 
 ```text
 # WORKER HANDOFF
@@ -171,7 +171,7 @@ Handoff is locator/claim, not review evidence.
 
 ## 6. Blocker behavior
 
-Use the `WorkerStatus` classifier above instead of collapsing all stops into `BLOCKED`. A missing external dependency/precondition is `WorkerStatus.BLOCKED`; this includes an unsatisfied canonical human-approval gate for an otherwise in-scope Worker-permitted action, because `MasterBoundary.APPROVAL_REQUIRED` is a Master-level boundary, not a Worker handoff status. Report the exact gate/evidence and let Master reclassify it after absorption. If the underlying unresolved issue is instead a canonical owner choice, use `WorkerStatus.MATERIAL_DECISION_REQUIRED`. A valid contract that cannot run in the current Worker environment/tool/credential context is `WorkerStatus.ENVIRONMENT_MISMATCH`; out-of-scope acceptance is `WorkerStatus.SCOPE_CHANGE_REQUIRED`; assignment drift is `WorkerStatus.STALE_ASSIGNMENT`. Unrelated dirty work that makes modification unsafe is normally `WorkerStatus.ENVIRONMENT_MISMATCH` when safe isolation/environment change can resolve it, otherwise `WorkerStatus.BLOCKED` when an external ownership/precondition must be resolved. Never solve adjacent work without revised contract.
+Use the section 5 precedence table as the single `WorkerStatus` classifier. For an in-scope action waiting on human approval, report the exact gate/evidence as `WorkerStatus.BLOCKED`; Master may later classify `MasterBoundary.APPROVAL_REQUIRED` after absorption. A canonical owner choice is `WorkerStatus.MATERIAL_DECISION_REQUIRED`. Never solve adjacent work without a revised contract.
 
 ## 7. Master absorption
 
@@ -179,4 +179,9 @@ Use the `WorkerStatus` classifier above instead of collapsing all stops into `BL
 
 ## 8. Corrections
 
-Normal review corrections on a still-valid assignment generation reuse the same Worker/branch/PR/Assignment ID. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD` plus current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints; Worker verifies assigned-branch HEAD still equals that checkpoint before editing. When this correction/resume instruction is relayed, use the `SKILL.md` machine-relay transport contract and send only the decision-relevant delta: Worker + Repository + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. The Repository value must remain the exact dispatch repository; a correction/resume never broadens repository mutation scope. Do not duplicate the full original contract when its authoritative identity is current and reachable. `Start HEAD` remains the immutable original generation anchor and is never rewritten merely because authorized commits advanced the branch. If superseded/cancelled/invalidated, the checkpoint diverged materially, or responsibility moves to another Worker, Master reconciles and mints a fresh Assignment ID before redispatch when a new generation is required. Master re-reviews the new effective change; approval never carries automatically across code changes.
+For correction/resume:
+
+1. Reuse the same Worker/branch/PR/Assignment ID only while the assignment generation remains valid. `Start HEAD` stays the immutable generation-start anchor.
+2. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD`, current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints. Worker verifies current assigned-branch HEAD equals that checkpoint **before editing**.
+3. When relayed, use `relay-transport.md` and send only the decision-relevant delta: Worker + Repository + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. Keep the exact dispatch Repository; a correction/resume never broadens `RepositoryMutationScope`. Do not duplicate the full original contract when its authoritative identity remains current/reachable.
+4. If the generation was superseded/cancelled/invalidated, checkpoint assumptions materially diverged, or responsibility changes Worker, Master reconciles and mints a fresh Assignment ID before redispatch. Master re-reviews the resulting effective change; prior approval never carries automatically across code changes.

@@ -82,7 +82,7 @@ Promote FAST -> FULL only when new evidence materially increases ambiguity, coor
 
 Decision order: first protect correctness/isolation, then compare expected throughput gain with coordination cost. Never delegate merely to keep Workers busy, and never withhold useful parallelism merely because Master could eventually do everything alone. Priority, acceptance, risk acceptance, contract change, integration approval, and release authorization remain Master-owned.
 
-If direct dispatch is unavailable: self-execute when safe/authorized and capable; otherwise continue independent work; use a human-relayed Worker prompt only when delegation still materially helps and direct execution is unavailable; stop only when `MasterBoundary.MISSING_CAPABILITY` becomes the sole controlling external boundary.
+If direct dispatch is unavailable, self-execute when safe/authorized/capable; otherwise continue independent work and use a human-relayed Worker prompt only when delegation still materially helps. Use `MasterBoundary.MISSING_CAPABILITY` only when missing capability becomes the sole controlling boundary.
 
 ## 5. Self-execution discipline
 
@@ -112,7 +112,7 @@ For substantive self-authored work:
 | Version-sensitive contracts | Verify primary docs for version-sensitive APIs/dependencies/platform behavior. |
 | Performance work | Establish representative baseline/constraint, identify bottleneck with profiling/high-signal evidence when practical, compare same workload after change; never trade correctness/security/maintainability for unmeasured optimization. |
 
-Self-review is not independent review; obtain separation only when policy, RiskLevel, or AssuranceLevel requires it.
+At `REVIEW`, apply `review-integration.md`; that domain decides whether independent separation is required.
 
 ## 6. Worker stop absorption
 
@@ -138,8 +138,8 @@ Do not mirror WorkerStatus labels into MasterBoundary without Master-level recon
 - a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
 - reconcile stale assignments before replacement dispatch;
 - create out-of-contract follow-up only when actionable and not required for current acceptance;
-- right-size work to a **minimum meaningful slice**: use one work package when sibling changes share the same accepted behavior/acceptance boundary and materially aligned dependency, ownership, risk, rollback, release, and validation boundaries and the combined effective diff remains reviewable; split when any of those boundaries differ materially. Do not fragment one homogeneous outcome into a convoy of mechanically similar Issue/PR/CI/review cycles merely because each seam can be isolated;
-- preserve parallelism on genuinely independent surfaces.
+- right-size to a **minimum meaningful slice**: combine reviewable siblings only when accepted behavior/acceptance and dependency/ownership/risk/rollback/release/validation boundaries materially align. In PR workflows, normally map one such slice to one reviewable candidate; split for any material boundary or reviewability need, not implementation layers;
+- preserve independent implementation and any review work that remains fresh; if one integration would stale another candidate's required target-bound evidence, serialize only the affected final acceptance/integration path unless intentional stacking/queue preserves freshness;
 
 Optimize **finished verified value**, not active-task count or smallest-possible task count.
 
@@ -169,7 +169,7 @@ Immediate correctness/security/data/production threat to active outcome/environm
 
 Engineering-system fitness is event-driven, not recurring. Reassess on repeated manual analysis, recurring review/CI friction, the same defect blind spot, recovery/navigation cost, material scale/architecture/constraint change, or one clear current bottleneck with obvious near-term payback. Mere possibility of better tooling/docs/CI/process is not continuation-eligible; never manufacture enabling work to avoid a stop. Create backlog artifacts only when they improve execution/recovery; TODO/debt/cleanup/refactor/extra tests/docs/optimization/process do not become eligible merely by existing.
 
-For a long-running phase/program that has already integrated several sibling slices, run one bounded **phase-cutline check** before another sibling slice only when the authoritative completion gate, residual scope, or dependency shape has materially changed since the last such decision. Preserve every item required by the accepted outcome/completion gate, dependencies, or immediate safety in the active phase even when it is not currently blocking; move only newly discovered work that is outside that completion gate and non-blocking to an appropriate follow-up when tracking helps. Never silently extend a phase with incidental improvements, silently shrink accepted scope, or turn the cutline check into recurring ceremony when the controlling facts are unchanged.
+At phase/program entry—and later only when the completion gate, residual scope, or dependency shape materially changes after integrated siblings—run one bounded **phase-cutline check**: reconcile current integrated evidence, keep all accepted required/dependency/safety work active, derive only residual meaningful outcomes, and move only newly discovered outside-gate non-blocking work to follow-up when useful. Never silently extend/shrink scope or repeat the cutline while controlling facts are unchanged.
 
 ## 9. Anti-spin and failure strategy
 

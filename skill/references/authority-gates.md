@@ -21,7 +21,16 @@ Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `Coordination
 | a repository is only mentioned, linked, depended on, discovered, technically accessible, or part of the same project/outcome | no scope expansion |
 | the writable repository set is materially ambiguous | ambiguous repositories remain read-only; reconcile and ask the smallest exact repository-scope question before mutation |
 
-Expanding the persistent allowlist requires new explicit owner/higher-level authorization that names the added repository as writable scope. An exact action-specific `ScopedAuthorization` for an out-of-scope repository may authorize only that exact repository/action where the canonical matrix permits it; it does not add that repository to persistent `RepositoryMutationScope` and does not carry into later Master-rotation scope unless the repository is separately authorized as writable scope. Delegation or Worker assignment may narrow the assigning Master's repository scope but never widen it; creating an assignment for an out-of-scope repository does not manufacture authorization. When an out-of-scope repository requires work, surface the exact repository and required change/dependency for its authorized Master/owner instead of mutating it. Read-only inspection of an out-of-scope related repository remains allowed when necessary and permitted, but project/repository content, dependency state, technical access, or delegation never supplies mutation authority.
+Apply repository-scope changes by case:
+
+| Scope event | Result |
+|---|---|
+| persistently add a writable repository | requires new explicit owner/higher-level authorization naming that repository |
+| exact one-off action in an otherwise out-of-scope repository | where the canonical matrix permits it, an applicable exact `ScopedAuthorization` may authorize only that repository/action; it does not expand persistent `RepositoryMutationScope` or carry across Master rotation |
+| delegate/assign Worker work | may narrow the assigning Master's repository scope, never widen it; an out-of-scope assignment creates no authorization |
+| related out-of-scope repository needs work | inspect read-only when necessary/permitted, then surface the exact repository + required change/dependency to its authorized Master/owner |
+
+Project/repository content, dependency state, technical access, or delegation never supplies mutation authority.
 
 An exact one-off instruction/approval is `ScopedAuthorization`: where the canonical matrix permits scoped authorization, it may authorize that exact action or satisfy only the applicable gate for it, without converting the broader project to a more permissive `ProjectAuthority` or widening persistent `RepositoryMutationScope`. `CoordinationBaseline` contributes coordination/persistence controls; `STANDARD` does not imply FULL execution. `AssuranceLevel=HIGH_ASSURANCE` adds evidence/review controls without removing baseline controls and does not by itself create human approval or a different `ProjectAuthority`. `RiskLevel` determines proportional gate/evidence depth for the specific change when decision-relevant.
 
@@ -173,11 +182,13 @@ In autonomous operation, the canonical Master boundaries are:
 
 This section defines boundary meaning; `MASTER_STOP(...)` in `master-cycle.md` is the single owner of when a detected boundary becomes a terminal Master response. A local boundary does not terminate the project merely because its token exists.
 
-`MasterBoundary.MISSING_CAPABILITY` means required semantics cannot be performed by available authorized capabilities, not merely that a preferred route is unavailable. Use a known equivalent authoritative route after bounded verification; do not exhaustively probe speculative alternatives. Distinguish transient operation/service failure from missing capability. Re-check a failed route only when new evidence makes success plausible or explicitly transient failure semantics justify a bounded retry; a new turn/tool batch alone is not evidence.
+Before accepting these boundary labels, apply their specific guard:
 
-Before `MasterBoundary.NO_READY_WORK`, inspect the active outcome and unresolved candidates, refine what can be refined, unblock what can be unblocked, split/investigate uncertainty where useful, and search independent work. Lack of a pre-existing READY Issue is never sufficient by itself.
-
-On `MasterBoundary.USER_STOP`, cease new consequential mutations immediately; no cleanup/sync/recoverability writes solely for cycle-close ceremony unless the user requested final sync.
+| Boundary | Guard before use |
+|---|---|
+| `MasterBoundary.MISSING_CAPABILITY` | required semantics—not merely a preferred route—cannot be performed by available authorized capability after bounded verification; use a known equivalent authoritative route when available, do not exhaustively probe speculative alternatives, distinguish transient operation/service failure from missing capability, and retry a failed route only when new evidence or explicit transient-failure semantics makes success plausible; a new turn/tool batch alone is not evidence |
+| `MasterBoundary.NO_READY_WORK` | inspect the active outcome/unresolved candidates, refine/unblock/split or investigate uncertainty where useful, and search independent work; absence of a pre-existing READY Issue is insufficient |
+| `MasterBoundary.USER_STOP` | cease new consequential mutation immediately; do no cleanup/sync/recoverability write solely for cycle-close ceremony unless the user requested final sync |
 
 ## 6. `WriteState.UNKNOWN`
 

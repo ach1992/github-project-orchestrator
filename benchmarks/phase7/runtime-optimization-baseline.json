@@ -31,5 +31,11 @@
     "historical_scenarios": "benchmarks/phase7/scenarios.json",
     "historical_results": "benchmarks/phase7/RESULTS.md",
     "current_comparison_lane": "benchmarks/phase7/runtime-optimization-scenarios.json"
+  },
+  "allowed_rule_owner_changes": {
+    "MACHINE-RELAY-PORTABLE": {
+      "baseline": "`SKILL.md` human-relay kernel",
+      "candidate": "`relay-transport.md`"
+    }
   }
 }

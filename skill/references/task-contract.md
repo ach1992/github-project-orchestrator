@@ -29,11 +29,7 @@ Choose `ExecutionPath=FAST|FULL` with the canonical criteria in `master-cycle.md
 | FULL Master work | explicit Task Contract + READY before contracted implementation |
 | Any Worker dispatch / multi-actor implementation | explicit full compact Task Contract + READY + persisted assignment identity before dispatch |
 
-Persist an explicit contract only when durable identity materially helps delegation, multi-item/cross-session coordination, recovery, unresolved blockers/decisions, material risk, or repository/team policy. Otherwise a FULL-path Master contract may remain transient for the bounded cycle. If ambiguous implementation later cannot be recovered from stronger Git/GitHub evidence, persist only the minimum unresolved intent in the natural PR/Issue/branch/commit/workflow owner. Create a new work item only when no suitable owner exists and recovery value justifies it.
-
-FAST can include routine behavioral changes such as localized bug/validation/error-handling/API/CLI/query fixes or small repository-consistent refactors with clear tests. Follow repository-normal change/integration conventions, validate proportionally, review the effective diff, and do not create Issue/ADR/risk records solely because behavior changed. `AssuranceLevel=HIGH_ASSURANCE` adds justified assurance controls to affected work while retaining its `CoordinationBaseline`; it does not by itself require FULL, persistence, or a new human confirmation.
-
-Promote FAST -> FULL only when new evidence earns explicit control; never demote merely to avoid a gate.
+Persist an explicit contract only when durable identity materially helps delegation, multi-item/cross-session coordination, recovery, unresolved blockers/decisions, material risk, or repository/team policy; otherwise FULL Master work may stay transient. If intent would become unrecoverable, persist only the minimum unresolved intent in its natural owner, reusing an existing work item when suitable. Cohesive partial PRs keep the same persisted contract open; do not close/recreate it for mechanical seams. Close it only when the accepted outcome completes or the contract otherwise legitimately terminates under the existing `TaskState` lifecycle.
 
 ## 3. Compact contract schema
 
@@ -85,7 +81,11 @@ Choose the strongest practical evidence for the change:
 | migration/data | forward behavior, compatibility window, partial failure, rollback/restore/roll-forward proportional to risk |
 | security-sensitive | permission/abuse/input/error-path checks + happy path |
 
-Treat validation as a **minimum sufficient evidence plan**, not an inventory of every check that could run. `Minimum` removes duplicate proof, never an independent acceptance, risk, compatibility, security/data, or repository-policy guarantee: every material requirement still needs adequate evidence. Prefer fast local discriminating feedback for the changed surface, then rely on repository-required/current CI or other authoritative gates for the broader proof they own. Do not duplicate a broad local suite merely to reproduce the same proof when the local run adds no material differential signal. Green evidence may be reused only while the exact code/object plus the dependency/config/toolchain/environment assumptions relevant to that proof and the requirement it proves remain unchanged; freshness does not mean rerunning an unchanged proof for ceremony.
+Treat validation as a **minimum sufficient evidence plan**, not an inventory of every possible check:
+
+- `Minimum` removes duplicate proof, never an independent acceptance/risk/compatibility/security/data/repository-policy guarantee; every material requirement still needs adequate evidence.
+- Prefer fast local discriminating feedback for the changed surface, then rely on repository-required/current CI or other authoritative gates for the broader proof they own. Do not duplicate a broad local suite when it adds no material differential signal.
+- Reuse green evidence only while the exact code/object, relevant dependency/config/toolchain/environment assumptions, and the requirement proved remain unchanged; freshness does not mean rerunning unchanged proof for ceremony.
 
 If the current local environment is **proven** unable to execute a required check faithfully (for example a deterministic preflight shows a missing required service/extension, incompatible database semantics are established, or a resource ceiling is reproducible), record that limitation once for the unchanged conditions and use an available compatible authoritative environment/CI route. One ambiguous or plausibly transient failure is not proof of incompatibility. Do not repeatedly invoke the same proven-incompatible local route unless relevant conditions changed.
 
@@ -130,7 +130,7 @@ Persist this minimum in authoritative existing work item/repo-native equivalent 
 - Assignment ID is correlation/generation aid, not new truth: authoritative work item identifies active generation; Git refs own code state; persisted worker/repository/base/revision/branch/start-HEAD/target preserve dispatch assumptions for stale detection.
 - `ProjectAuthority` is project-wide authority. `ScopedAuthorization`, when present, is an exact grant for its stated action/target/effect and never silently upgrades `ProjectAuthority`, `CoordinationBaseline`, or `AssuranceLevel`.
 
-If Assignment ID/Worker no longer matches, status is not active, Repository/revision/branch/Integration Target/ProjectAuthority/CoordinationBaseline/AssuranceLevel/risk/release constraints change materially, external/material state invalidates the recorded Base SHA/Start HEAD assumptions, or current assigned-branch HEAD unexpectedly diverges from the Master-supplied Checkpoint HEAD on correction/resume, the Worker must stop with `WorkerStatus.STALE_ASSIGNMENT` unless Master explicitly reconciles and creates/reissues valid assignment state. Normal authorized Worker commits that advance current HEAD within the same generation are not staleness.
+The schema above is the canonical assignment-identity input consumed by `worker-protocol.md` §4 for staleness classification. Normal authorized Worker commits may advance current HEAD beyond `Start HEAD`; that field remains the immutable verified generation start.
 
 During Phase 2 compatibility, `scripts/contract_check.py` accepts legacy `Authority` as `Project Authority` and legacy `Expected Starting HEAD` as `Start HEAD`. Legacy `Operating Profile: LIGHTWEIGHT|STANDARD` maps losslessly to the same `CoordinationBaseline` with `AssuranceLevel=NORMAL`. Legacy `Operating Profile: HIGH_ASSURANCE` is accepted only when an authoritative `Coordination Baseline` is also persisted; otherwise the helper rejects the ambiguous state rather than guessing a baseline.
 
@@ -149,4 +149,8 @@ Applies to delegated work and FULL-path Master work. FAST Master work needs no R
 
 Discover safely discoverable missing information read-only instead of asking the user. READY is a decision gate, not a documentation ceremony: do not create extra artifacts merely to represent facts already authoritative and recoverable elsewhere.
 
-Use `scripts/contract_check.py` when a local contract is available and convenient. `--worker` always requires full compact Task Contract + dispatch-ready `ACTIVE` assignment regardless of `--level`; include `Issue:` or pass known identity with `--issue`. Helper ignores fenced examples/HTML comments; rejects duplicate canonical sections/fields, placeholder/empty required sections, placeholder assignment values, invalid/non-local Assigned Branch, invalid/non-canonical/remote-tracking Integration Target, same-branch target, zero object IDs, ambiguous canonical/legacy ontology fields, and legacy `HIGH_ASSURANCE` without a persisted coordination baseline. Branch identity is literal; use actual ref, not presentation markup. Helper does not judge prose or replace READY; it is optional and must not block equivalent manual/tool verification.
+Use `scripts/contract_check.py` when a local contract is available and convenient:
+
+- `--worker` requires the full compact Task Contract plus a dispatch-ready `ACTIVE` assignment regardless of `--level`; include `Issue:` or pass known identity with `--issue`.
+- The helper ignores fenced examples/HTML comments and rejects duplicate canonical sections/fields, placeholder/empty required sections, placeholder assignment values, invalid/non-local Assigned Branch, invalid/non-canonical or remote-tracking Integration Target, same-branch target, zero object IDs, ambiguous canonical/legacy ontology fields, and legacy `HIGH_ASSURANCE` without a persisted coordination baseline.
+- Branch identity is literal; use the actual ref, not presentation markup. The helper does not judge prose or replace READY; it is optional and must not block equivalent manual/tool verification.

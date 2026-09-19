@@ -92,6 +92,17 @@ except ValueError as exc:
 else:
     raise AssertionError("current-eval-control-version-drift: unexpectedly passed")
 
+bad_config = copy.deepcopy(config)
+bad_config["allowed_rule_owner_changes"]["MACHINE-RELAY-PORTABLE"]["candidate"] = ""
+try:
+    eq.validate_config(bad_config)
+except ValueError as exc:
+    if "must define distinct non-empty owners" not in str(exc):
+        raise
+    print("PASS rule-owner-relocation-empty-owner-rejected")
+else:
+    raise AssertionError("rule-owner-relocation-empty-owner: unexpectedly passed")
+
 control_ids = result["current_eval_control"]["eval_ids"]
 without_dk = [value for value in control_ids if value != "DK"]
 current_errors, _current_notes = eq.compare_current_eval_control(control_ids, without_dk)
@@ -418,6 +429,42 @@ candidate = copy.deepcopy(baseline)
 rule = next(iter(candidate["rule_owners"]))
 candidate["rule_owners"][rule] = "`different-owner.md`"
 expect_failure("owner-drift-rejected", candidate, "canonical Rule owner changed")
+
+approved_owner_changes = copy.deepcopy(config["allowed_rule_owner_changes"])
+relay_rule = "MACHINE-RELAY-PORTABLE"
+candidate = copy.deepcopy(baseline)
+candidate["rule_owners"][relay_rule] = approved_owner_changes[relay_rule]["candidate"]
+errors, notes = eq.compare_inventories(
+    copy.deepcopy(baseline),
+    candidate,
+    approved_owner_changes,
+)
+if errors:
+    raise AssertionError(f"approved-owner-relocation: unexpected errors: {errors}")
+if not any("approved canonical Rule owner relocation" in note for note in notes):
+    raise AssertionError(f"approved-owner-relocation: missing audit note: {notes}")
+print("PASS approved-rule-owner-relocation")
+
+candidate = copy.deepcopy(baseline)
+errors, _notes = eq.compare_inventories(
+    copy.deepcopy(baseline),
+    candidate,
+    approved_owner_changes,
+)
+if not any("configured canonical Rule owner relocation is not exact/current" in error for error in errors):
+    raise AssertionError(f"stale-owner-relocation-allowance was not rejected: {errors}")
+print("PASS stale-rule-owner-relocation-allowance-rejected")
+
+candidate = copy.deepcopy(baseline)
+candidate["rule_owners"][relay_rule] = "`different-owner.md`"
+errors, _notes = eq.compare_inventories(
+    copy.deepcopy(baseline),
+    candidate,
+    approved_owner_changes,
+)
+if not any("canonical Rule owner changed" in error for error in errors):
+    raise AssertionError(f"wrong-owner-relocation bypassed the guard: {errors}")
+print("PASS wrong-rule-owner-relocation-rejected")
 
 candidate = copy.deepcopy(baseline)
 candidate["goals"] = candidate["goals"][:-1]

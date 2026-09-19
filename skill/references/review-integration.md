@@ -4,7 +4,7 @@ Master owns acceptance and integration decisions. Worker handoff and self-author
 
 ## Contents
 
-[Review target](#1-establish-review-target) · [Review standard](#2-review-standard) · [Evidence](#3-evidence-authority-and-freshness) · [CI failures](#4-ci-failures) · [Conflicts](#5-conflicts) · [Integration gate](#6-integration-gate) · [Self-authored work](#7-self-authored-work) · [Independent handoff](#8-independent-review-handoff) · [Post-integration](#9-post-integration)
+[Review target](#1-establish-review-target) · [Review standard](#2-review-standard) · [Evidence](#3-evidence-authority-and-freshness) · [CI failures](#4-ci-failures) · [Conflicts](#5-conflicts) · [Integration gate](#6-integration-gate) · [Self-authored work](#7-self-authored-work) · [Post-integration](#8-post-integration)
 
 ## 1. Establish review target
 
@@ -19,6 +19,8 @@ Before review, verify:
 - `RiskLevel`/`AssuranceLevel`-required independent approvals/evidence.
 
 Keep the review evidence inside an explicit identity envelope: repository, Integration Target/base, candidate/HEAD, relevant Contract Revision, environment when applicable, and evidence freshness. Candidate/target/contract/effective-change drift invalidates affected approval rather than being normalized away by narrative.
+
+When the repository/platform gives Draft/Ready meaningful review or automation semantics, use it only to signal candidate maturity and avoid knowingly stale acceptance work; otherwise add no ceremony. Draft/Ready remains presentation, adds no `TaskState`, and skips no exact-candidate gate.
 
 ### `REVIEW_VALID(envelope)`
 
@@ -36,7 +38,15 @@ REVIEW_VALID(envelope) =
 
 `ApplicableContractRevisionIsCurrent` is true when no explicit Task Contract applies; it requires an exact current revision only when the review is contract-bound. When `REVIEW_VALID=false`, refresh the affected evidence and re-review the changed effective surface before integration. Current CI/checks, required approvals, unresolved findings, repository rules, and applicable action gates are separate integration-gate inputs; they are not hidden inside review freshness.
 
-A changed candidate that still requires independent review needs a **fresh verdict bound to the new exact candidate**, but freshness does not require throwing away sound analysis of an unchanged surface. A reviewer may use the prior exact reviewed candidate as a baseline, inspect the exact prior-candidate-to-current-candidate delta plus every interaction/assumption/evidence surface that delta can affect, and reuse prior analysis/evidence only where those assumptions remain valid. If the delta changes a shared interface, control flow, dependency, architecture boundary, security/data assumption, acceptance proof, or other fact on which an unchanged surface depended, widen review to that affected surface. Prior analysis may transfer when still valid; the prior verdict/approval never does.
+For a changed candidate that still requires independent review, use the prior exact reviewed candidate only as an evidence baseline:
+
+| Delta effect | Required review action |
+|---|---|
+| exact candidate changed | obtain a fresh verdict bound to the new exact candidate |
+| delta leaves prior assumptions/evidence for an unchanged surface valid | inspect the exact prior-candidate-to-current-candidate delta and every affected interaction/assumption/evidence surface; reuse still-valid analysis/evidence |
+| delta changes a shared interface, control flow, dependency, architecture boundary, security/data assumption, acceptance proof, or another dependency of an unchanged surface | widen review to that affected surface |
+
+Prior analysis/evidence may transfer only while its assumptions remain valid; prior verdict/approval never transfers.
 
 ### Integration path selection
 
@@ -99,7 +109,7 @@ Finding labels are review severity only; a review `BLOCKER` does not become `Tas
 
 ## 3. Evidence authority and freshness
 
-Use the source authoritative for the question and verify it is current for the same SHA/object/environment.
+Apply the `SKILL.md` §3 source-of-truth model to the exact review envelope.
 
 | Question | Current authoritative evidence |
 |---|---|
@@ -172,87 +182,9 @@ Apply `authority-gates.md`: high/critical `ApplicableEffects.INTEGRATION` needs 
 
 ## 7. Self-authored work
 
-Master must not label self-review independent. Use the same finding severity/gate as delegated work. If the change is high-risk or policy/AssuranceLevel requires separation of duties, obtain review from a separate reviewer context/person/tool that did not author the candidate.
+Self-authored work still receives the same current-diff/acceptance review and finding severity as delegated work. Self-review is not independent review. When RiskLevel, policy, or AssuranceLevel requires separation, load [independent-review.md](independent-review.md) and obtain a separate reviewer context/person/tool; otherwise do not add independent-review ceremony. Master retains integration ownership.
 
-Independent review is about **separation from the authoring review context**, not GitHub account identity. A fresh separate ChatGPT chat/model instance, another review agent/tool, or a human reviewer can satisfy this requirement when it receives the bounded current evidence and performs its own review. A distinct GitHub username, submitted PR review object, CODEOWNERS approval, or other platform-native reviewer identity is required only when repository/platform policy or an applicable canonical approval gate explicitly requires that mechanism. Do not report `MISSING_CAPABILITY` merely because no external GitHub reviewer username is available when an independent review can be relayed through another fresh reviewer context.
-
-## 8. Independent review handoff
-
-When independent review is required and a genuinely independent reviewer must be dispatched/relayed, keep the handoff bounded and evidence-addressable. Include at minimum:
-
-- repository + PR/change identity;
-- exact target/base identity + exact candidate HEAD SHA;
-- accepted outcome/acceptance + current Contract Revision when present;
-- RiskLevel + CoordinationBaseline/AssuranceLevel + reason independent review is required;
-- exact review boundary + material architecture/security/data/performance/operational constraints;
-- current validation/CI evidence identifiers tied to the reviewed change; for remediation re-review, also identify the prior reviewed candidate and exact delta to the current candidate so unchanged reviewed surface can be reused only when its assumptions remain valid;
-- reviewer authority, read-only by default unless another bounded action is explicitly authorized;
-- for security-sensitive work, the exact evidence-backed defensive purpose/scope and allowed/prohibited action boundary from `engineering-quality.md` without inventing authorization or implying that authorization overrides provider/platform policy; for independent/read-only review also carry the reviewer evidence-acquisition boundary: prefer authoritative source/diff, repository-owned existing tests, current CI/log/artifact evidence, and safe read-only inspection; do not request novel adversarial payload/probe generation or execution merely to prove robustness; missing required evidence becomes a finding or explicit review limitation rather than a reviewer-created probe;
-- expected findings as `BLOCKER`, `REQUIRED`, or `OPTIONAL`, each tied to concrete evidence.
-
-If no direct reviewer tool/account is available but a fresh independent chat/model/human reviewer can be used, produce a single ready-to-paste `INDEPENDENT REVIEW CHAT` prompt and relay the result back to Master. Lack of a GitHub reviewer username alone is not a blocker. The prompt and returned result follow the machine-relay transport contract in `SKILL.md`.
-
-The reviewer returns exactly this result contract. `Review Completion` and `Verdict` are transport/result fields, not new orchestration lifecycle states:
-
-```text
-# INDEPENDENT REVIEW RESULT
-
-Review Completion: COMPLETE | INCOMPLETE
-Verdict: APPROVE | CHANGES_REQUIRED | NOT_ISSUED
-
-## Review Envelope
-
-- Repository: <owner/repository>
-- Integration Target: <branch@sha>
-- Candidate: <exact sha>
-- Pull Request: <number/url or none>
-- Contract Revision: <number or not applicable>
-- Risk Level: <LOW | MEDIUM | HIGH | CRITICAL>
-- Coordination Baseline: <LIGHTWEIGHT | STANDARD>
-- Assurance Level: <NORMAL | HIGH_ASSURANCE>
-
-## Evidence Reviewed
-
-- <authoritative evidence inspected>
-
-## Findings
-
-### <BLOCKER | REQUIRED | OPTIONAL> F-001 — <finding title>
-
-- Location: <path/lines/symbol/object>
-- Evidence: <concrete current evidence>
-- Impact: <why this matters>
-- Action: <smallest required remediation for BLOCKER/REQUIRED; optional recommendation for OPTIONAL>
-- Verification: <how Master can prove resolution for BLOCKER/REQUIRED; for OPTIONAL use not applicable only when verification is not meaningful>
-
-## Residual Risks and Uncertainty
-
-- <none or bounded residual risk/uncertainty>
-
-## Scope or Policy Limitations
-
-- <none or exact unreviewed/restricted surface and effect on completeness>
-```
-
-Result rules:
-
-| Review Completion | Verdict | Meaning |
-|---|---|---|
-| `COMPLETE` | `APPROVE` | the exact current review envelope was completely reviewed and no `BLOCKER` or `REQUIRED` finding remains |
-| `COMPLETE` | `CHANGES_REQUIRED` | the exact current review envelope was completely reviewed and the candidate/evidence itself has at least one evidence-backed `BLOCKER` or `REQUIRED` deficiency |
-| `INCOMPLETE` | `NOT_ISSUED` | a reviewer/tool/policy/evidence-access limitation prevented the required review from being completed |
-
-These are the only valid completion/verdict pairs. An `INCOMPLETE / NOT_ISSUED` review may still report evidence-backed `BLOCKER`, `REQUIRED`, or `OPTIONAL` findings and other safely supported observations from inspected surfaces; those findings remain actionable evidence, but they do not convert an incomplete review into an overall verdict. Reviewer inability to inspect evidence is never silently converted into a candidate defect or approval.
-
-- when no finding exists, write `None.` under Findings rather than omitting the section; order actual findings `BLOCKER`, `REQUIRED`, then `OPTIONAL`;
-- a candidate that fails to supply evidence required by acceptance may receive `COMPLETE / CHANGES_REQUIRED` when the required review itself is complete; evidence that exists but was unavailable only to this reviewer yields `INCOMPLETE / NOT_ISSUED`;
-- security-sensitive results may describe defensive location, evidence, impact, remediation/recommendation, and verification while following `engineering-quality.md` redaction/minimization boundaries; a restricted detail does not justify suppressing otherwise safe useful findings.
-
-Master verifies the candidate/target/contract and reviewed effective change have not materially drifted, checks result-contract completeness, and independently reconciles every finding before relying on the result. Formatting defects in a received external review result do not manufacture a code finding: during Master reconciliation, if the semantic result is safely recoverable, normalize that received result for reconciliation; never normalize missing identity/evidence into approval. This receive-side normalization never authorizes malformed relay emission by the Skill; any emitted independent-review prompt/result is a MachineRelay and must satisfy `MACHINE_RELAY_OUTPUT_OK(response)` from `SKILL.md` §7 before send.
-
-Do not create permanent reviewer role/state solely for handoff. Master remains responsible for refreshing current evidence, deciding finding validity/currentness, obtaining required fixes/approvals, and owning integration. Manual relay uses the single-copy-target prompt rule from `SKILL.md`.
-
-## 9. Post-integration
+## 8. Post-integration
 
 After integration, in order:
 

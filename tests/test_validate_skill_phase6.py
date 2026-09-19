@@ -500,6 +500,9 @@ def machine_relay_transport_regression_tests() -> None:
     project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
     eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
     review_text = (ROOT / "skill" / "references" / "review-integration.md").read_text(encoding="utf-8")
+    independent_review_text = (ROOT / "skill" / "references" / "independent-review.md").read_text(encoding="utf-8")
+    relay_text = (ROOT / "skill" / "references" / "relay-transport.md").read_text(encoding="utf-8")
+    rule_text = (ROOT / "design" / "RULE-MAP.md").read_text(encoding="utf-8")
 
     forbidden_legacy = (
         "When a relay is presented for copy/paste",
@@ -510,10 +513,17 @@ def machine_relay_transport_regression_tests() -> None:
             raise AssertionError(f"machine-relay copyability is still conditional: {legacy}")
 
     required_skill = (
-        "Before sending any user-visible response, classify its output purpose from the current routed domain.",
-        "If it is a MachineRelay, require `MACHINE_RELAY_OUTPUT_OK(response)` from §7",
-        "Classify it once from the routed domain/purpose before rendering; a separate request for copy-ready formatting is irrelevant.",
-        "Every user-visible MachineRelay is automatically a copy/paste artifact.",
+        "Before send, classify output purpose from the routed domain.",
+        "If it is a MachineRelay, load [references/relay-transport.md](references/relay-transport.md)",
+        "ordinary non-relay responses bypass it",
+    )
+    for phrase in required_skill:
+        if phrase not in skill_text:
+            raise AssertionError(f"canonical MachineRelay activation missing from SKILL.md: {phrase}")
+
+    required_relay = (
+        "Load this file only when the user-visible output is a **MachineRelay**",
+        "Every user-visible MachineRelay is automatically one copy/paste artifact.",
         "MACHINE_RELAY_OUTPUT_OK(response) =",
         "exactly_one_copy_target_fenced_block(response)",
         "complete_domain_relay_inside_that_block(response)",
@@ -521,19 +531,32 @@ def machine_relay_transport_regression_tests() -> None:
         "relay_prose_is_english_unless_explicit_language_override(response)",
         "identity-bearing_or_decision-relevant_literals_remain_exact_unless_safety_redaction_requires_otherwise(response)",
         "outer_fence_safely_contains_any_embedded_fences(response)",
-        "If the predicate is false, repair the response before sending it.",
-        "pure pre-send output-validity check",
-        "ordinary non-relay responses do not enter that predicate",
+        "A separate copy-ready request is irrelevant.",
+        "creates no lifecycle/state or second payload owner",
+        "Direct non-relay user-facing explanation bypasses this predicate",
     )
-    for phrase in required_skill:
-        if phrase not in skill_text:
-            raise AssertionError(f"canonical machine-relay pre-send invariant missing: {phrase}")
+    for phrase in required_relay:
+        if phrase not in relay_text:
+            raise AssertionError(f"canonical MachineRelay transport missing: {phrase}")
 
-    if skill_text.count("MACHINE_RELAY_OUTPUT_OK(response) =") != 1:
+    all_runtime_text = skill_text + "\n" + "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (ROOT / "skill" / "references").glob("*.md")
+    )
+    if all_runtime_text.count("MACHINE_RELAY_OUTPUT_OK(response) =") != 1:
         raise AssertionError("MachineRelay predicate must have exactly one canonical definition")
-    for ref_path in (ROOT / "skill" / "references").glob("*.md"):
-        if "MACHINE_RELAY_OUTPUT_OK(response) =" in ref_path.read_text(encoding="utf-8"):
-            raise AssertionError(f"duplicate MachineRelay predicate owner: {ref_path}")
+    if "MACHINE_RELAY_OUTPUT_OK(response) =" in skill_text:
+        raise AssertionError("relay-only predicate leaked back into the always-loaded kernel")
+
+    relay_rule_rows = [
+        line for line in rule_text.splitlines() if line.startswith("| `MACHINE-RELAY-PORTABLE` |")
+    ]
+    if len(relay_rule_rows) != 1:
+        raise AssertionError("MACHINE-RELAY-PORTABLE must have exactly one canonical Rule-map row")
+    relay_rule_fields = [field.strip() for field in relay_rule_rows[0].strip("|").split("|")]
+    if len(relay_rule_fields) < 3 or relay_rule_fields[2] != "`relay-transport.md`":
+        raise AssertionError("MACHINE-RELAY-PORTABLE canonical owner must be relay-transport.md")
+
 
     if "Every user-visible machine relay is automatically a copy/paste artifact" not in project_text:
         raise AssertionError("project-level machine-relay requirement is not unconditional")
@@ -543,10 +566,12 @@ def machine_relay_transport_regression_tests() -> None:
         raise AssertionError("DI does not classify the independent-review result as MachineRelay")
     if "require `MACHINE_RELAY_OUTPUT_OK(response)` before send" not in eval_text:
         raise AssertionError("DI does not enforce the canonical pre-send predicate")
-    if "received external review result" not in review_text or "receive-side normalization never authorizes malformed relay emission" not in review_text:
-        raise AssertionError("review reconciliation does not distinguish received normalization from Skill emission")
-    if "must satisfy `MACHINE_RELAY_OUTPUT_OK(response)`" not in review_text:
-        raise AssertionError("review output path does not point back to the canonical predicate")
+    if "received external review result" not in independent_review_text or "Receive-side normalization never authorizes malformed relay emission" not in independent_review_text:
+        raise AssertionError("independent-review reconciliation does not distinguish received normalization from Skill emission")
+    if "must satisfy `MACHINE_RELAY_OUTPUT_OK(response)`" not in independent_review_text:
+        raise AssertionError("independent-review output path does not point back to the canonical predicate")
+    if "# INDEPENDENT REVIEW RESULT" in review_text:
+        raise AssertionError("normal review path still embeds the cold independent-review result protocol")
     print("PASS machine-relay-pre-send-canonical-owner")
 
 
@@ -554,6 +579,7 @@ def defensive_security_review_evidence_regression_tests() -> None:
     project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
     engineering_text = (ROOT / "skill" / "references" / "engineering-quality.md").read_text(encoding="utf-8")
     review_text = (ROOT / "skill" / "references" / "review-integration.md").read_text(encoding="utf-8")
+    independent_review_text = (ROOT / "skill" / "references" / "independent-review.md").read_text(encoding="utf-8")
     eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
     rule_text = (ROOT / "design" / "RULE-MAP.md").read_text(encoding="utf-8")
 
@@ -576,7 +602,7 @@ def defensive_security_review_evidence_regression_tests() -> None:
             ),
         ),
         "review": (
-            review_text,
+            independent_review_text,
             (
                 "for independent/read-only review also carry the reviewer evidence-acquisition boundary",
                 "do not request novel adversarial payload/probe generation or execution merely to prove robustness",
