@@ -502,6 +502,7 @@ def machine_relay_transport_regression_tests() -> None:
     review_text = (ROOT / "skill" / "references" / "review-integration.md").read_text(encoding="utf-8")
     independent_review_text = (ROOT / "skill" / "references" / "independent-review.md").read_text(encoding="utf-8")
     relay_text = (ROOT / "skill" / "references" / "relay-transport.md").read_text(encoding="utf-8")
+    rule_text = (ROOT / "design" / "RULE-MAP.md").read_text(encoding="utf-8")
 
     forbidden_legacy = (
         "When a relay is presented for copy/paste",
@@ -546,6 +547,15 @@ def machine_relay_transport_regression_tests() -> None:
         raise AssertionError("MachineRelay predicate must have exactly one canonical definition")
     if "MACHINE_RELAY_OUTPUT_OK(response) =" in skill_text:
         raise AssertionError("relay-only predicate leaked back into the always-loaded kernel")
+
+    relay_rule_rows = [
+        line for line in rule_text.splitlines() if line.startswith("| `MACHINE-RELAY-PORTABLE` |")
+    ]
+    if len(relay_rule_rows) != 1:
+        raise AssertionError("MACHINE-RELAY-PORTABLE must have exactly one canonical Rule-map row")
+    relay_rule_fields = [field.strip() for field in relay_rule_rows[0].strip("|").split("|")]
+    if len(relay_rule_fields) < 3 or relay_rule_fields[2] != "`relay-transport.md`":
+        raise AssertionError("MACHINE-RELAY-PORTABLE canonical owner must be relay-transport.md")
 
 
     if "Every user-visible machine relay is automatically a copy/paste artifact" not in project_text:
