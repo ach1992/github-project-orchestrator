@@ -22,7 +22,8 @@ ARCHIVE_ROOT = package_skill.ARCHIVE_ROOT
 FIXED_ZIP_TIME = package_skill.FIXED_ZIP_TIME
 EXCLUDED_SUFFIXES = package_skill.EXCLUDED_SUFFIXES
 PORTABLE_EXCLUDED_TOP_LEVEL = {"agents", "assets"}
-PLATFORMS = {"manus", "qwen", "claude"}
+PLATFORMS = {"manus", "qwen", "claude", "zcode", "grok", "kimi", "gemini", "deepseek", "copilot"}
+ROOT_LAYOUT_PLATFORMS = {"gemini", "copilot"}
 CLAUDE_DESCRIPTION = (
     "Manage GitHub software delivery end-to-end: recover state, plan, implement, review, "
     "integrate, and release safely. Use for multi-step repository work."
@@ -78,6 +79,12 @@ def archive_relative_path(platform: str, relative: PurePosixPath) -> PurePosixPa
     return relative
 
 
+def archive_path(platform: str, relative: PurePosixPath) -> str:
+    if platform in ROOT_LAYOUT_PLATFORMS:
+        return str(relative)
+    return str(PurePosixPath(ARCHIVE_ROOT) / relative)
+
+
 def entry_bytes(platform: str, relative: PurePosixPath, path: Path) -> bytes:
     data = path.read_bytes()
     if platform == "claude" and relative == PurePosixPath("SKILL.md"):
@@ -92,11 +99,10 @@ def package_entries(skill_dir: Path, platform: str) -> list[tuple[str, bytes]]:
     for path in portable_source_files(skill_dir):
         relative = PurePosixPath(path.relative_to(skill_dir).as_posix())
         archive_relative = archive_relative_path(platform, relative)
-        archive_path = str(PurePosixPath(ARCHIVE_ROOT) / archive_relative)
-        entries.append((archive_path, entry_bytes(platform, relative, path)))
+        entries.append((archive_path(platform, archive_relative), entry_bytes(platform, relative, path)))
 
     license_path = package_skill.canonical_license(skill_dir)
-    entries.append((str(PurePosixPath(ARCHIVE_ROOT) / package_skill.LICENSE_NAME), license_path.read_bytes()))
+    entries.append((archive_path(platform, PurePosixPath(package_skill.LICENSE_NAME)), license_path.read_bytes()))
     return sorted(entries, key=lambda entry: entry[0])
 
 
