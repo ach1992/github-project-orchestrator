@@ -45,7 +45,7 @@ Agent Runtime
 | `CoordinationBaseline` | `LIGHTWEIGHT | STANDARD` | accepted outcome / coordination system | stable until material coordination/recovery needs change | Owns coordination weight independently from assurance. |
 | `AssuranceLevel` | `NORMAL | HIGH_ASSURANCE` | affected change/dependency chain | recompute when risk, policy, or explicit control requirement changes | Additive to the coordination baseline. It never creates a human gate by itself. |
 | `RiskLevel` | `LOW | MEDIUM | HIGH | CRITICAL` | substantive change/work item | recompute only when it can change a gate, review/validation depth, rollback, or release treatment | Not project size or importance. |
-| `ExecutionPath` | `FAST | FULL` | work item / bounded cycle | select when work becomes executable; promote on new evidence | Independent from coordination baseline, assurance, and persistence. |
+| `ExecutionPath` | `FAST | FULL` | work item / bounded cycle | materialize only when the control choice is decision-relevant; promote on new evidence | Independent from coordination baseline, assurance, and persistence; routine bounded Master work may apply FAST semantics implicitly. |
 | `ContractPersistence` | `TRANSIENT | PERSISTED` | work item | decide from recovery/coordination value | FULL does not imply persisted. Existing persistence does not imply FULL. |
 | `ExecutionStrategy` | `SELF_EXECUTE | DELEGATE | HYBRID` | work item | recompute when capability/dependency/throughput changes | Worker availability never creates a Master stop by itself. |
 | `ApplicableEffects` | set of effect classes | individual action | classify immediately before consequential action | A set, not a scalar; one action may have multiple simultaneous effects. |
