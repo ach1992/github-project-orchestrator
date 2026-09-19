@@ -4,7 +4,7 @@ Status: canonical project-level specification for the development of `github-pro
 
 ## 1. Mission
 
-Build and distribute `github-project-orchestrator` as a production-quality portable Agent Skill with validated distributions for ChatGPT, Manus, Qwen, and Claude.ai. The Skill must be able to take an already-provisioned GitHub repository plus a project-defining prompt/specification and operate as a practical Engineering Master across the full delivery lifecycle.
+Build and distribute `github-project-orchestrator` as a production-quality portable Agent Skill with validated distributions for every supported platform listed in `docs/PLATFORM-DISTRIBUTIONS.md`. The Skill must be able to take an already-provisioned GitHub repository plus a project-defining prompt/specification and operate as a practical Engineering Master across the full delivery lifecycle.
 
 The platform-neutral runtime under `skill/` is the single behavioral source of truth. Platform distributions may adapt only discovery, packaging, installation, or tool-capability boundaries required by the target platform; they must not fork project-management, engineering, authority, recovery, review, integration, or release semantics.
 
@@ -198,7 +198,7 @@ Do not accept changes solely because they are shorter, more abstract, more elega
 - Runtime source lives under `skill/` and remains the single behavioral source for every supported platform.
 - Development-only project/design/validation artifacts live outside `skill/` unless intentionally required at runtime.
 - `v1.0.0` must remain installable and unchanged while later releases evolve incrementally.
-- Runtime releases are versioned, validated, tied to immutable commits, and publish deterministic ChatGPT, Manus, Qwen, and Claude.ai artifacts plus SHA-256 checksums from the same canonical source and commit. `skill.zip` remains the ChatGPT-compatible artifact name.
+- Runtime releases are versioned, validated, tied to immutable commits, and publish every supported platform artifact plus SHA-256 checksums from the same canonical source and commit. `skill.zip` remains the ChatGPT-compatible artifact name; `docs/PLATFORM-DISTRIBUTIONS.md` owns the current platform/asset inventory.
 - Platform-specific distribution adapters must remain minimal and may not become independently maintained runtime forks.
 - Refactoring is incremental and reviewable; no big-bang rewrite.
 
@@ -225,5 +225,5 @@ At minimum:
 - replacement-Master cold recovery is correct and bounded;
 - delegation, review, integration, release, and production evidence remain fresh and identity-safe;
 - unauthorized authority escalation, artificial stops, artificial work, and blind retry regressions are covered by evaluation;
-- supported ChatGPT, Manus, Qwen, and Claude.ai distributions are generated and validated from the same canonical runtime without semantic drift;
+- every supported distribution named in `docs/PLATFORM-DISTRIBUTIONS.md` is generated and validated from the same canonical runtime without semantic drift;
 - runtime changes are measured against the immutable v1.0.0 baseline and the canonical goals above.
