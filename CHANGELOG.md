@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- Added deterministic portable release packages for Z.ai ZCode, Grok Build, Kimi Code, Google Gemini (Gemini Apps Skills), DeepSeek Harness, and Microsoft Copilot Studio.
+- Added root-layout Skill ZIP generation for direct Gemini Apps and Copilot Studio uploads while reusing the existing wrapped `SKILL.md` directory layout for ZCode, Grok Build, Kimi Code, and DeepSeek Harness.
+- Added regression coverage for the complete platform inventory, deterministic package bytes, exact canonical `SKILL.md` preservation, wrapper-vs-root layout, OpenAI-only metadata exclusion, and fail-closed release-asset completeness.
+
+### Runtime compatibility
+
+- The canonical runtime under `skill/` is unchanged. No platform-specific orchestration, authority, review, Worker, recovery, integration, or release semantics are introduced.
+- New platform adaptations are restricted to archive layout, discovery/install documentation, release asset generation, and exact publisher verification.
+
+### Distribution
+
+- The release pipeline now builds ten platform distributions and matching SHA-256 checksums from one commit: ChatGPT, Manus, Qwen Code, Claude.ai, Z.ai ZCode, Grok Build, Kimi Code, Google Gemini, DeepSeek Harness, and Microsoft Copilot Studio.
+- Consumer chat surfaces are not misrepresented as file-import targets when first-party documentation exposes the installable Skill format through a separate harness/product surface such as ZCode, Grok Build, Kimi Code, DeepSeek Harness, or Copilot Studio.
+
 ## [1.3.7] - 2026-09-18
 
 ### Fixed
