@@ -24,7 +24,7 @@ If direct reviewer tooling is unavailable but a fresh independent chat/model/hum
 
 ## 3. Result contract
 
-The reviewer returns exactly this result contract. `Review Completion` and `Verdict` are transport/result fields, not orchestration lifecycle states:
+An emitted `INDEPENDENT REVIEW RESULT` is a MachineRelay; before rendering it, load `relay-transport.md` and require `MACHINE_RELAY_OUTPUT_OK(response)`. The reviewer returns exactly this result contract. `Review Completion` and `Verdict` are transport/result fields, not orchestration lifecycle states:
 
 ```text
 # INDEPENDENT REVIEW RESULT
@@ -82,6 +82,6 @@ Use only these completion/verdict pairs:
 
 ## 4. Master reconciliation
 
-Master verifies candidate/target/contract identity, effective-change freshness, result completeness, and every finding. Formatting defects in a received external review result do not manufacture a code finding: normalize safely recoverable formatting only for reconciliation, never missing identity/evidence into approval. Receive-side normalization never authorizes malformed relay emission; every emitted independent-review prompt/result is a MachineRelay and must satisfy `MACHINE_RELAY_OUTPUT_OK(response)` from `relay-transport.md` before send.
+Master verifies candidate/target/contract identity, effective-change freshness, result completeness, and every finding. Formatting defects in a received external review result do not manufacture a code finding: normalize safely recoverable formatting only for reconciliation, never missing identity/evidence into approval. Receive-side normalization never authorizes malformed relay emission.
 
 Do not create a permanent reviewer role/state. Master retains evidence/finding reconciliation, required fixes/approvals, and integration.
