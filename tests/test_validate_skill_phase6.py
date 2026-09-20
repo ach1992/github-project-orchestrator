@@ -568,8 +568,13 @@ def machine_relay_transport_regression_tests() -> None:
         raise AssertionError("DI does not enforce the canonical pre-send predicate")
     if "received external review result" not in independent_review_text or "Receive-side normalization never authorizes malformed relay emission" not in independent_review_text:
         raise AssertionError("independent-review reconciliation does not distinguish received normalization from Skill emission")
-    if "must satisfy `MACHINE_RELAY_OUTPUT_OK(response)`" not in independent_review_text:
-        raise AssertionError("independent-review output path does not point back to the canonical predicate")
+    result_contract_text = independent_review_text.split("## 3. Result contract", 1)[1].split("## 4. Master reconciliation", 1)[0]
+    if "An emitted `INDEPENDENT REVIEW RESULT` is a MachineRelay" not in result_contract_text:
+        raise AssertionError("independent-review result does not classify itself as MachineRelay at the emission point")
+    if "load `relay-transport.md` and require `MACHINE_RELAY_OUTPUT_OK(response)`" not in result_contract_text:
+        raise AssertionError("independent-review result emission does not route to the canonical transport owner")
+    if independent_review_text.count("MACHINE_RELAY_OUTPUT_OK(response)") != 1:
+        raise AssertionError("independent-review must route result transport exactly once without duplicating the canonical rule")
     if "# INDEPENDENT REVIEW RESULT" in review_text:
         raise AssertionError("normal review path still embeds the cold independent-review result protocol")
     print("PASS machine-relay-pre-send-canonical-owner")
