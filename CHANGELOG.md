@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented here.
 
+## [1.5.1] - 2026-09-21
+
+### Fixed
+
+- Restored the existing MachineRelay transport behavior for emitted `INDEPENDENT REVIEW RESULT` output after the v1.5.0 runtime-structure split by moving the already-existing result-emission activation to the `independent-review.md` result-contract point.
+- Removed the later duplicate emission reminder from Master reconciliation, so `relay-transport.md` remains the single canonical transport owner and `independent-review.md` routes result transport exactly once.
+- Strengthened the existing regression guard to require result-local MachineRelay classification and routing to `MACHINE_RELAY_OUTPUT_OK(response)` without duplicating the canonical transport predicate.
+
+### Runtime compatibility
+
+- No result schema, verdict semantics, review lifecycle, Rule ID, state namespace, or transport predicate changed.
+- `relay-transport.md`, ordinary Master-to-reviewer handoff behavior, Master-rotation/new-Master relay behavior, and `review-integration.md` remain unchanged.
+- The fix is intentionally limited to the Reviewer-to-Master `INDEPENDENT REVIEW RESULT` emission path.
+
+### Validation
+
+- PR #121 merged the bounded fix as `main@34b43f36897b58fd2f4093163a50e746343af004` from candidate `52fe63837ab499227a66e2fd38ab3dc8d0cc9789`.
+- PR-head workflow `35538645912` and post-merge main workflow `35538671653` both completed successfully.
+- Local validation passed `tools/validate_skill.py`, Phase C runtime migration checks, the Phase 6 MachineRelay regression checks, all standalone runnable test scripts, `unittest` discovery, and `git diff --check`.
+
+### Distribution
+
+- The existing ten-platform release matrix is unchanged; release artifacts continue to be generated from the single canonical runtime with matching SHA-256 checksum assets.
+
 ## [1.5.0] - 2026-09-19
 
 ### Changed
