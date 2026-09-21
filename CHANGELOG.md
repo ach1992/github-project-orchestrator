@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented here.
 
+## [1.5.2] - 2026-09-22
+
+### Fixed
+
+- Restored the v1.4.0-era Master-to-Reviewer behavior for user-mediated independent review: when a fresh reviewer chat/model/human is used, the Master emits the complete `INDEPENDENT REVIEW CHAT` relay instead of replacing it with a GitHub/PR/Issue pointer or asking the next chat to reconstruct the request.
+- Kept GitHub/PR/Issue state as authoritative review evidence/locators without allowing durable state to substitute for the reviewer relay itself.
+- Minimized the restored rule and its evaluation coverage so `independent-review.md` owns only handoff semantics, `relay-transport.md` remains the single transport owner, and Scenario BC / Regression Guard preserve the behavior without duplicate transport wording.
+
+### Runtime compatibility
+
+- No independent-review trigger, reviewer result contract, verdict semantics, integration ownership, Rule ID, lifecycle/state namespace, Worker relay, Master rotation behavior, or transport predicate changed.
+- `review-integration.md`, `relay-transport.md`, `SKILL.md`, Rule/Goal maps, and the state model remain unchanged by the final optimization.
+- The fix is intentionally limited to the Master-to-Reviewer user-mediated independent-review handoff path and its regression coverage.
+
+### Validation
+
+- PR #124 restored the explicit handoff behavior; PR #125 minimized the runtime/eval wording and merged as `main@026ca2c7f47cb476ae2a73a422575256915c493f` from candidate `45c2bbad0d8d0ebfd49f95dfa69c3bbee6eebc3f`.
+- PR #125 exact-head workflow `35664756680` and post-merge `main` workflow `35666131348` completed successfully.
+- Deterministic validation continues to enforce direct reviewer-prompt dispatch, Scenario BC coverage, Regression Guard coverage, single transport ownership, runtime equivalence, and deterministic packaging.
+
+### Distribution
+
+- The existing ten-platform release matrix is unchanged; all release archives continue to be generated from the single canonical runtime with matching SHA-256 checksum assets.
+
+
 ## [1.5.1] - 2026-09-21
 
 ### Fixed
