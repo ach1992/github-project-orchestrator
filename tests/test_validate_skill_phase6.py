@@ -582,7 +582,7 @@ def machine_relay_transport_regression_tests() -> None:
     bc_text = eval_text.split("### BC. Independent high-risk review handoff", 1)[1].split("### BD.", 1)[0]
     if "For user-mediated dispatch, emit the `INDEPENDENT REVIEW CHAT` relay itself; GitHub/PR/Issue state is evidence, not a substitute." not in bc_text:
         raise AssertionError("BC does not preserve direct reviewer-prompt dispatch semantics")
-    regression_guard_text = eval_text.split("## 4. Regression Guard", 1)[1]
+    regression_guard_text = eval_text.split("## 4. Regression guard", 1)[1]
     if "user-mediated independent review emits the reviewer relay itself rather than a durable-state pointer" not in regression_guard_text:
         raise AssertionError("Regression Guard does not preserve reviewer-prompt dispatch semantics")
     result_contract_text = independent_review_text.split("## 3. Result contract", 1)[1].split("## 4. Master reconciliation", 1)[0]
