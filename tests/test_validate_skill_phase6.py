@@ -568,6 +568,17 @@ def machine_relay_transport_regression_tests() -> None:
         raise AssertionError("DI does not enforce the canonical pre-send predicate")
     if "received external review result" not in independent_review_text or "Receive-side normalization never authorizes malformed relay emission" not in independent_review_text:
         raise AssertionError("independent-review reconciliation does not distinguish received normalization from Skill emission")
+    handoff_contract_text = independent_review_text.split("## 2. Review handoff", 1)[1].split("## 3. Result contract", 1)[0]
+    required_review_prompt_dispatch = (
+        "emit one complete ready-to-paste `INDEPENDENT REVIEW CHAT` MachineRelay in the current user-visible response",
+        "never substitutes for emitting the prompt",
+        "do not replace the relay with a GitHub-only pointer",
+    )
+    for phrase in required_review_prompt_dispatch:
+        if phrase not in handoff_contract_text:
+            raise AssertionError(f"independent-review prompt dispatch regression guard missing: {phrase}")
+    if "replacing a required user-mediated reviewer prompt with a GitHub-only pointer" not in eval_text:
+        raise AssertionError("BC does not forbid durable-state substitution for the reviewer prompt")
     result_contract_text = independent_review_text.split("## 3. Result contract", 1)[1].split("## 4. Master reconciliation", 1)[0]
     if "An emitted `INDEPENDENT REVIEW RESULT` is a MachineRelay" not in result_contract_text:
         raise AssertionError("independent-review result does not classify itself as MachineRelay at the emission point")
