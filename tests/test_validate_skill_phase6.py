@@ -570,10 +570,12 @@ def machine_relay_transport_regression_tests() -> None:
         raise AssertionError("independent-review reconciliation does not distinguish received normalization from Skill emission")
     handoff_contract_text = independent_review_text.split("## 2. Review handoff", 1)[1].split("## 3. Result contract", 1)[0]
     required_review_prompt_dispatch = (
-        "emit one complete ready-to-paste `INDEPENDENT REVIEW CHAT` MachineRelay in the current user-visible response",
-        "never substitutes for emitting the prompt",
-        "do not replace the relay with a GitHub-only pointer",
+        "emit the complete `INDEPENDENT REVIEW CHAT` MachineRelay for user-mediated dispatch",
+        "GitHub/PR/Issue state may be evidence/locators, never a substitute for that relay",
+        "next chat to reconstruct it",
     )
+    if "ready-to-paste" in handoff_contract_text:
+        raise AssertionError("independent-review handoff duplicates transport copy/paste semantics")
     for phrase in required_review_prompt_dispatch:
         if phrase not in handoff_contract_text:
             raise AssertionError(f"independent-review prompt dispatch regression guard missing: {phrase}")
