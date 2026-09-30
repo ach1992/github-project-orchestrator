@@ -19,13 +19,14 @@ Inspect only evidence that can affect next decisions: required capability + exac
 
 ### First ownership
 
-Unless urgent incident containment comes first:
+Unless urgent incident containment comes first, resolve project definition and repository target as one bounded intake pass:
 
-1. resolve the already provisioned repository identity and locate/receive the initial project-defining prompt/specification regardless of filename or whether from chat/upload/repository;
-2. if none is supplied/discoverable, do only bounded read-only discovery that could locate authoritative project intent; if it remains absent and the accepted outcome cannot be established, never invent scope—treat the missing project-definition input as a real external precondition and, when it is the sole boundary, stop at `MasterBoundary.BLOCKED` with the exact input needed to resume;
-3. when ProjectAuthority/capability permits, ensure one safe canonical repository copy per `governance.md`; if persistence is temporarily unavailable, preserve the exact pending operation under the existing canonical MasterBoundary and continue independent safe work;
-4. reconcile specification with repository reality; perform proportional readiness before deep execution;
-5. reuse existing docs/workflows/task structures, repair only gaps that materially affect safe development/coordination/delivery/recovery, and stop bootstrapping when the bootstrap test passes.
+| Decision | Required action |
+|---|---|
+| Project definition | Locate/receive the initial project-defining prompt/specification regardless of filename or whether from chat/upload/repository. If none is supplied/discoverable, do only bounded read-only discovery that could locate authoritative project intent; if it remains absent and the accepted outcome cannot be established, never invent scope—treat the missing project-definition input as a real external precondition and, when it is the sole boundary, stop at `MasterBoundary.BLOCKED` with the exact input needed to resume. |
+| Repository target | Resolve the exact intended repository identity and discover before creating. Reuse an existing authorized repository. When decision-scoped discovery proves the target absent, provision it only if `CAN_EXECUTE(create repository)` passes with owner/name and any material creation setting not already fixed by repository/organization policy resolved; then verify the created remote identity before continuing. Incomplete discovery, ambiguous target/settings, or mere technical access never justify creation. If provisioning cannot proceed, use the existing canonical authority/capability/material-decision boundary and continue independent safe work rather than inventing a startup-specific stop. |
+| Canonical root specification | Once the repository target is usable, when ProjectAuthority/capability permits, ensure one safe canonical repository copy per `governance.md`; if persistence is temporarily unavailable, preserve the exact pending operation under the existing canonical MasterBoundary and continue independent safe work. |
+| Reconcile + bootstrap | Reconcile the specification with repository reality, perform proportional readiness, reuse existing docs/workflows/task structures, repair only gaps that materially affect safe development/coordination/delivery/recovery, and stop bootstrapping when the bootstrap test passes. |
 
 This is intake inside recovery/framing, not a new orchestration/documentation state.
 
