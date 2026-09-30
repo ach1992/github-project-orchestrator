@@ -18,7 +18,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | `OUTCOME-STABLE` | Preserve accepted outcome/success criteria; do not shrink for convenience or expand to manufacture work. | `SKILL.md` outcome kernel | `SKILL.md` §2; `master-cycle.md` §10 | AY, BA, CB, CY, DO |
 | `TRUTH-ONE-OWNER` | One authoritative owner per kind of live truth; avoid competing manager-memory artifacts. | `SKILL.md` truth model | `SKILL.md` §2-3; `governance.md` §4-5 | A, I, Z |
 | `EVIDENCE-BEATS-NARRATIVE` | Current Git/GitHub/CI/deployment evidence outranks summaries/chat. | `SKILL.md` truth model | `SKILL.md` §2-3 | E, I, BH, CO |
-| `MUTATION-IDEMPOTENT` | Discover/reuse/update/create-only-if-absent/verify; incomplete discovery is not absence. | `SKILL.md` mutation invariant | `SKILL.md` §2 Mutation | B, AU |
+| `MUTATION-IDEMPOTENT` | Discover/reuse/update/create-only-if-absent/verify; incomplete discovery is not absence. | `SKILL.md` mutation invariant | `SKILL.md` §2 Mutation | B, AU, AZ |
 | `DRIFT-RECONCILE` | Re-read and reconcile before overwrite-sensitive/integration/release/production writes. | `SKILL.md` mutation invariant | `SKILL.md` §2 Mutation; `authority-gates.md` §7 | E, BH |
 | `PROTECT-UNRELATED` | Never destroy/absorb unrelated user/contributor work to simplify execution. | `SKILL.md` safety invariant | `SKILL.md` §2 Safety | X |
 | `NO-FABRICATION` | Never claim actions/evidence that were not performed and verified. | `SKILL.md` evidence invariant | `SKILL.md` §2 Evidence | P, CO |
@@ -32,7 +32,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
 | `AUTHORITY-STABLE` | Project Authority changes only from applicable explicit/higher authorization, never merely from access/risk/profile/environment. | `authority-gates.md` | `SKILL.md` §1; `authority-gates.md` §1 | AH, CU |
-| `AUTHORIZATION-SCOPED` | Authorization remains exact to what was granted: one-off action grants do not upgrade project-wide Authority, and repository mutation is limited to the explicitly authorized repository set; relationships, dependencies, discovery, project membership, technical access, and delegation never widen it, ambiguous repository scope remains read-only until clarified, and required out-of-scope changes are handed off. | `authority-gates.md` | `SKILL.md` §2 Repository scope; `authority-gates.md` §1 and `CAN_EXECUTE(action)` | CX, DQ |
+| `AUTHORIZATION-SCOPED` | Authorization remains exact to what was granted: one-off action grants do not upgrade project-wide Authority, and repository mutation is limited to the explicitly authorized repository set; relationships, dependencies, discovery, project membership, technical access, and delegation never widen it, ambiguous repository scope remains read-only until clarified, and required out-of-scope changes are handed off. | `authority-gates.md` | `SKILL.md` §2 Repository scope; `authority-gates.md` §1 and `CAN_EXECUTE(action)` | AZ, CX, DQ |
 | `CAPABILITY-NOT-AUTHORITY` | Capability affects feasibility and may constrain execution but cannot grant Authority. | `authority-gates.md` | `SKILL.md` §1, §7; `authority-gates.md` §1, §5 | N, CU |
 | `EFFECT-ACTUAL` | Classify by actual deterministic consequence, not labels, branch names, or nominal environment. | `authority-gates.md` | `authority-gates.md` §2-3 | H, BD, BO, CG, CH |
 | `EFFECT-MULTI` | Preserve every independently applicable effect/control when one mutation has multiple consequences. | `authority-gates.md` | `authority-gates.md` §2-3 | H, CV |
@@ -101,7 +101,7 @@ Status: current development traceability map for the refactored runtime, preserv
 
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
-| `ROOT-SPEC-CANONICAL` | First ownership resolves the project-defining prompt/spec and keeps one safe canonical repository copy, excluding unsafe material. | `governance.md` | `SKILL.md` §3, §5; `governance.md` §2-3 | BV, BW, BX, CD, CY |
+| `ROOT-SPEC-CANONICAL` | First ownership resolves project-defining input and keeps one safe canonical repository copy, preferring `docs/PROJECT-SPEC.md` when no authoritative equivalent exists while reusing valid existing equivalents and excluding unsafe material. | `governance.md` | `SKILL.md` §3, §5; `governance.md` §2-3 | AZ, BV, BW, BX, CD, CY |
 | `ROOT-SPEC-OFF-HOT-PATH` | Normal cycles operate from nearer downstream authoritative sources; root spec is reread only when intent conflict/change makes it relevant. | `governance.md` | `SKILL.md` §3; `governance.md` §2-3 | BY, BZ, CA |
 | `BOOTSTRAP-PROPORTIONAL` | First ownership repairs only readiness that materially helps execution/recovery; stop bootstrapping when its completion test passes. | `governance.md` | `SKILL.md` §5; `governance.md` §10-13 | AZ, BS, BT |
 | `ARTIFACT-FITNESS` | Reuse existing engineering systems when fit; repair/replace only when evidence shows material execution value, including CI critical-path improvements that preserve required signal. | `governance.md` | `governance.md` §1, §10; `engineering-quality.md` §4 | BS, BU |

@@ -656,6 +656,86 @@ def defensive_security_review_evidence_regression_tests() -> None:
 
     print("PASS defensive-security-review-evidence-boundary")
 
+def project_start_bootstrap_regression_tests() -> None:
+    project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
+    master_text = (ROOT / "skill" / "references" / "master-cycle.md").read_text(encoding="utf-8")
+    governance_text = (ROOT / "skill" / "references" / "governance.md").read_text(encoding="utf-8")
+    eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
+    rule_text = (ROOT / "design" / "RULE-MAP.md").read_text(encoding="utf-8")
+
+    required = {
+        "project": (
+            project_text,
+            (
+                "existing authorized GitHub repository or an explicitly resolved repository provisioning target",
+                "verified create-only-if-absent semantics",
+                "repository discovery/provisioning",
+            ),
+        ),
+        "master": (
+            master_text,
+            (
+                "resolve project definition and repository target as one bounded intake pass",
+                "discover before creating",
+                "CAN_EXECUTE(create repository)",
+                "startup-specific stop",
+            ),
+        ),
+        "governance": (
+            governance_text,
+            (
+                "prefer `docs/PROJECT-SPEC.md` as the default canonical location",
+                "derive means scope and align artifacts to accepted intent and evidence",
+                "`README.md` as the user/developer entry surface by default",
+                "not normally the canonical root project specification",
+            ),
+        ),
+        "rule-map": (
+            rule_text,
+            (
+                "`ROOT-SPEC-CANONICAL`",
+                "| B, AU, AZ |",
+                "| AZ, CX, DQ |",
+            ),
+        ),
+    }
+    for surface, (text, phrases) in required.items():
+        for phrase in phrases:
+            if phrase not in text:
+                raise AssertionError(f"{surface} lost project-start bootstrap requirement: {phrase}")
+
+    if "already provisioned repository identity" in master_text:
+        raise AssertionError("first ownership still requires a pre-provisioned repository")
+
+    az_text = eval_text.split("### AZ. First end-to-end ownership uses proportional bootstrap", 1)[1].split(
+        "### BA.", 1
+    )[0]
+    for phrase in (
+        "may be absent with an exact intended provisioning target",
+        "CAN_EXECUTE(create repository)",
+        "verify the created remote identity",
+        "duplicate repository creation",
+        "startup-specific lifecycle/state",
+    ):
+        if phrase not in az_text:
+            raise AssertionError(f"AZ does not cover project-start provisioning variant: {phrase}")
+
+    bv_text = eval_text.split("### BV. First ownership with root specification already in repository", 1)[1].split(
+        "### BW.", 1
+    )[0]
+    if "A README counts only when the repository clearly and intentionally uses it" not in bv_text:
+        raise AssertionError("BV no longer distinguishes an intentional root spec from an ordinary README")
+
+    bw_text = eval_text.split("### BW. First ownership with root specification supplied outside repository", 1)[1].split(
+        "### BX.", 1
+    )[0]
+    for phrase in ("docs/PROJECT-SPEC.md", "ordinary README", "spec plus repository reality"):
+        if phrase not in bw_text:
+            raise AssertionError(f"BW lost canonical project-spec/README separation: {phrase}")
+
+    print("PASS first-ownership-repository-provisioning-and-project-spec")
+
+
 def coordination_baseline_governance_regression_tests() -> None:
     governance_text = (ROOT / "skill" / "references" / "governance.md").read_text(encoding="utf-8")
     skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
@@ -693,6 +773,7 @@ def main() -> None:
     worker_contract_tests()
     machine_relay_transport_regression_tests()
     defensive_security_review_evidence_regression_tests()
+    project_start_bootstrap_regression_tests()
     coordination_baseline_governance_regression_tests()
 
 
