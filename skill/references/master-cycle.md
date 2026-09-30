@@ -30,7 +30,7 @@ Unless urgent incident containment comes first, resolve project definition and r
 
 This is intake inside recovery/framing, not a new orchestration/documentation state.
 
-After first ownership, root specification leaves the normal hot path. Routine decisions use nearest current authoritative Issue/Task Contract, specialized docs, code/Git/PR, CI, release/deployment state. Re-read root spec only when project-level intent is unresolved, current authoritative state materially contradicts it, an accepted change can alter project-level intent/requirements/constraints/non-goals/project-level supported-environment or platform commitments/completion criteria, or completion/recovery cannot otherwise be resolved safely. Never reload it merely because a cycle/tool batch/chat/Worker changed.
+After first ownership, root specification leaves the normal hot path. Routine decisions use nearest current authoritative Issue/Task Contract, specialized docs, code/Git/PR, CI, release/deployment state. Re-read root spec only when project-level intent is unresolved, current authoritative state materially contradicts it, an accepted change can alter project-level intent/requirements/constraints/non-goals/project-level supported-environment/platform commitments/completion criteria, or completion/recovery cannot otherwise be resolved safely. Never reload it merely because a cycle/tool batch/chat/Worker changed.
 
 Do not audit the whole repository before a bounded task. Inspect only architecture, execution path, tests, dependencies, and operational surfaces that can materially affect the outcome; expand only when evidence reveals broader dependency/risk/contract.
 
@@ -207,7 +207,7 @@ When requirements materially change:
 1. identify evidence/direction changing accepted outcome and affected Issues/PRs/dependencies; distinguish accepted project change from unaccepted idea or implementation-only adjustment;
 2. decide continue vs revise vs split vs stop;
 3. update authoritative outcome + explicit contract when one exists before affected implementation;
-4. if project-level intent/durable requirements/constraints/non-goals/project-level supported-environment or platform commitments/completion criteria change, update canonical root specification + only other affected authoritative sources; do not update it for implementation-only changes that leave project intent unchanged;
+4. if project-level intent/durable requirements/constraints/non-goals/project-level supported-environment/platform commitments/completion criteria change, update canonical root specification + only other affected authoritative sources; do not update it for implementation-only changes that leave project intent unchanged;
 5. reconcile stale Worker assignments;
 6. continue unaffected safe work where possible; root-spec/doc sync is not global freeze or new stop;
 7. never pretend original contract meant new requirement or change outcome to manufacture completion/more work.
