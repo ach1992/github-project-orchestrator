@@ -64,11 +64,13 @@ Project Authority: AUTONOMOUS_WITH_GATES
 Recover current truth from the repository and GitHub, then continue the next valid project action until a genuine external boundary or project completion.
 ```
 
+For a new project whose target repository does not yet exist, provide the project-defining prompt/specification plus the exact intended `OWNER/REPOSITORY`. When creation is authorized and material creation settings are resolved, the Master may create and verify that repository through the same normal gates before continuing.
+
 You can also point the Master at a specific Issue, PR, milestone, release, or project outcome. Durable repository/GitHub evidence remains authoritative when chat history is absent or stale.
 
 ## Operating expectations
 
-- The GitHub repository must already exist and be identifiable to the Master.
+- The target GitHub repository identity must be exact. It may already exist, or an absent target may be created only when the normal scope/authority/policy/capability gates permit it and material creation settings are resolved.
 - The Skill favors the smallest safe process that still protects correctness, review freshness, authorization, and recovery.
 - Ordinary reversible implementation can proceed autonomously when authorized; material approval, production, destructive, or other applicable gates remain explicit.
 - A pending CI/check/deployment does not automatically stop the workflow: useful independent work should continue first, and supported bounded continuation can keep short waits from requiring a user nudge.

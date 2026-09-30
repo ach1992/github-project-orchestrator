@@ -101,7 +101,7 @@ Status: current development traceability map for the refactored runtime, preserv
 
 | Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
 |---|---|---|---|---|
-| `ROOT-SPEC-CANONICAL` | First ownership resolves project-defining input and keeps one safe canonical repository copy, preferring `docs/PROJECT-SPEC.md` when no authoritative equivalent exists while reusing valid existing equivalents and excluding unsafe material. | `governance.md` | `SKILL.md` §3, §5; `governance.md` §2-3 | AZ, BV, BW, BX, CD, CY |
+| `ROOT-SPEC-CANONICAL` | First ownership resolves project-defining input and keeps one safe canonical repository copy, preferring `docs/PROJECT-SPEC.md` when no authoritative equivalent exists while reusing valid existing equivalents and excluding unsafe material. | `governance.md` | `SKILL.md` §3, §5; `governance.md` §2-3 | BV, BW, BX, CD, CY |
 | `ROOT-SPEC-OFF-HOT-PATH` | Normal cycles operate from nearer downstream authoritative sources; root spec is reread only when intent conflict/change makes it relevant. | `governance.md` | `SKILL.md` §3; `governance.md` §2-3 | BY, BZ, CA |
 | `BOOTSTRAP-PROPORTIONAL` | First ownership repairs only readiness that materially helps execution/recovery; stop bootstrapping when its completion test passes. | `governance.md` | `SKILL.md` §5; `governance.md` §10-13 | AZ, BS, BT |
 | `ARTIFACT-FITNESS` | Reuse existing engineering systems when fit; repair/replace only when evidence shows material execution value, including CI critical-path improvements that preserve required signal. | `governance.md` | `governance.md` §1, §10; `engineering-quality.md` §4 | BS, BU |

@@ -658,6 +658,8 @@ def defensive_security_review_evidence_regression_tests() -> None:
 
 def project_start_bootstrap_regression_tests() -> None:
     project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
+    readme_text = (ROOT / "README.md").read_text(encoding="utf-8")
+    skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
     master_text = (ROOT / "skill" / "references" / "master-cycle.md").read_text(encoding="utf-8")
     governance_text = (ROOT / "skill" / "references" / "governance.md").read_text(encoding="utf-8")
     eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
@@ -667,9 +669,22 @@ def project_start_bootstrap_regression_tests() -> None:
         "project": (
             project_text,
             (
-                "existing authorized GitHub repository or an explicitly resolved repository provisioning target",
+                "existing authorized GitHub repository or an explicitly resolved repository creation target",
                 "verified create-only-if-absent semantics",
-                "repository discovery/provisioning",
+                "repository discovery/creation",
+            ),
+        ),
+        "readme": (
+            readme_text,
+            (
+                "The target GitHub repository identity must be exact.",
+                "an absent target may be created only when the normal scope/authority/policy/capability gates permit it",
+            ),
+        ),
+        "skill": (
+            skill_text,
+            (
+                "stable architecture / detailed supported-environment specifications / engineering-release rules",
             ),
         ),
         "master": (
@@ -688,6 +703,8 @@ def project_start_bootstrap_regression_tests() -> None:
                 "derive means scope and align artifacts to accepted intent and evidence",
                 "`README.md` as the user/developer entry surface by default",
                 "not normally the canonical root project specification",
+                "## 2. Root project specification",
+                "project-level supported-environment/platform commitments",
             ),
         ),
         "rule-map": (
@@ -706,19 +723,30 @@ def project_start_bootstrap_regression_tests() -> None:
 
     if "already provisioned repository identity" in master_text:
         raise AssertionError("first ownership still requires a pre-provisioned repository")
+    if "The GitHub repository must already exist" in readme_text:
+        raise AssertionError("README still requires a pre-existing repository")
+
+    root_spec_rows = [line for line in rule_text.splitlines() if line.startswith("| `ROOT-SPEC-CANONICAL` |")]
+    if len(root_spec_rows) != 1:
+        raise AssertionError("ROOT-SPEC-CANONICAL must have exactly one Rule-map row")
+    root_spec_fields = [field.strip() for field in root_spec_rows[0].strip("|").split("|")]
+    root_spec_anchors = {anchor.strip() for anchor in root_spec_fields[-1].split(",")}
+    required_root_spec_anchors = {"BV", "BW", "BX", "CD", "CY"}
+    if "AZ" in root_spec_anchors or not required_root_spec_anchors.issubset(root_spec_anchors):
+        raise AssertionError(f"ROOT-SPEC-CANONICAL has imprecise eval anchors: {root_spec_fields[-1]}")
 
     az_text = eval_text.split("### AZ. First end-to-end ownership uses proportional bootstrap", 1)[1].split(
         "### BA.", 1
     )[0]
     for phrase in (
-        "may be absent with an exact intended provisioning target",
+        "may be absent with an exact intended repository creation target",
         "CAN_EXECUTE(create repository)",
         "verify the created remote identity",
         "duplicate repository creation",
         "startup-specific lifecycle/state",
     ):
         if phrase not in az_text:
-            raise AssertionError(f"AZ does not cover project-start provisioning variant: {phrase}")
+            raise AssertionError(f"AZ does not cover project-start repository-creation variant: {phrase}")
 
     bv_text = eval_text.split("### BV. First ownership with root specification already in repository", 1)[1].split(
         "### BW.", 1
@@ -733,7 +761,7 @@ def project_start_bootstrap_regression_tests() -> None:
         if phrase not in bw_text:
             raise AssertionError(f"BW lost canonical project-spec/README separation: {phrase}")
 
-    print("PASS first-ownership-repository-provisioning-and-project-spec")
+    print("PASS first-ownership-repository-creation-and-project-spec")
 
 
 def coordination_baseline_governance_regression_tests() -> None:
