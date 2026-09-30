@@ -43,7 +43,7 @@ Use the source authoritative for the question and current enough for the same re
 | Truth | Owner |
 |---|---|
 | root project intent / durable high-level requirements | canonical repository copy of initial project specification |
-| stable architecture / supported environments / engineering-release rules | appropriate repository docs |
+| stable architecture / detailed supported-environment specifications / engineering-release rules | appropriate repository docs |
 | persisted current work / priority / dependency / ownership / blocker / material risk | GitHub Issues/Projects/milestones |
 | lasting accepted decisions | ADR/equivalent only when future work needs rationale |
 | implementation identity | working tree + Git refs/commits + PR diff/history |

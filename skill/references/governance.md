@@ -4,7 +4,7 @@ Use this reference to establish a professional project system without imposing u
 
 ## Contents
 
-[Principle](#1-governance-principle) · [Project brief](#2-project-brief) · [Planning](#3-planning-hierarchy) · [GitHub state](#4-github-state-model) · [Project navigation](#5-project-navigation-and-link-discipline) · [Labels](#6-label-taxonomy) · [Ready/Done](#7-definition-of-ready-and-done) · [Risk](#8-risk-management) · [Decisions](#9-decision-management) · [Readiness audit](#10-repository-readiness-audit) · [Agent instructions](#11-agent-instructions) · [Coordination/assurance](#12-coordination-and-assurance-minimums) · [Bootstrap test](#13-bootstrap-completion-test)
+[Principle](#1-governance-principle) · [Root project specification](#2-root-project-specification) · [Planning](#3-planning-hierarchy) · [GitHub state](#4-github-state-model) · [Project navigation](#5-project-navigation-and-link-discipline) · [Labels](#6-label-taxonomy) · [Ready/Done](#7-definition-of-ready-and-done) · [Risk](#8-risk-management) · [Decisions](#9-decision-management) · [Readiness audit](#10-repository-readiness-audit) · [Agent instructions](#11-agent-instructions) · [Coordination/assurance](#12-coordination-and-assurance-minimums) · [Bootstrap test](#13-bootstrap-completion-test)
 
 ## 1. Governance principle
 
@@ -12,7 +12,7 @@ Audit the existing repository and GitHub workflow first. Preserve good conventio
 
 A management artifact or engineering-system improvement must earn its maintenance cost. Do not run periodic optimization audits; reassess fitness when evidence exposes a bottleneck, recurring manual/review/CI cost, repeated defect blind spot, recovery friction, or a material change in project scale, architecture, or delivery constraints.
 
-## 2. Project brief
+## 2. Root project specification
 
 For first end-to-end ownership, treat the user-supplied or already-repository-resident project-defining prompt/specification as the root input from which the project is shaped. It may be concise or detailed and may have any name. Keep one canonical durable repository copy: reuse an existing equivalent when it already represents the accepted project intent. When no authoritative equivalent exists, prefer `docs/PROJECT-SPEC.md` as the default canonical location; in an existing repository, follow a clearly established durable documentation convention only when that avoids an unnecessary migration or better fits the repository. Preserve substantive project intent rather than replacing it with a lossy orchestration summary, and never rename/migrate a valid existing equivalent merely to enforce the default filename.
 
@@ -25,8 +25,10 @@ Ensure future contributors can discover, from durable sources where appropriate:
 - problem/opportunity and intended users;
 - current outcome and measurable success criteria;
 - non-goals and durable constraints;
-- supported environments/platforms and important compatibility boundaries;
+- project-level supported-environment/platform commitments and important compatibility boundaries;
 - material assumptions that would change the plan if false.
+
+Keep detailed environment/version matrices and engineering-release rules in their specialized repository docs; the root specification owns only the project-level support commitment and compatibility boundary.
 
 Treat `README.md` as the user/developer entry surface by default: concise purpose, setup/usage, compatibility, and links to deeper authoritative documentation. It is not normally the canonical root project specification because usage/setup text can change independently from durable project intent. Reuse README as the root specification only when the repository clearly and intentionally uses it for that role; otherwise keep durable project intent in the canonical specification and link to it. Do not create a second root specification merely to satisfy a filename/template convention.
 
