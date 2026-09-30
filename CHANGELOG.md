@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.6.0] - 2026-10-01
+
+### Added
+
+- Added first-ownership support for projects whose exact GitHub repository target does not yet exist: after decision-scoped discovery proves absence, the Master may create the repository only when the existing repository-scope, authority, policy, capability, and material-setting gates permit it, then verifies the remote identity before continuing.
+- Added a bounded project-start sequence that resolves project definition and repository target together, establishes or reuses one canonical root project specification, reconciles it with repository reality, and performs only proportional bootstrap work that materially helps safe execution or recovery.
+
+### Changed
+
+- Clarified root-spec ownership without adding a parallel documentation system: when no authoritative equivalent exists, `docs/PROJECT-SPEC.md` is the preferred default, while valid existing equivalents are reused rather than renamed or duplicated for convention.
+- Clarified that `README.md` is normally the user/developer entry surface rather than a second project-intent owner, while preserving repositories that intentionally use README as their root project specification.
+- Reserved remote-repository **creation** terminology for GitHub repository establishment and kept existing local branch/worktree/checkout **provisioning** terminology for workspace isolation, reducing model ambiguity.
+- Clarified that the root project specification owns project-level supported-environment/platform commitments and compatibility boundaries, while specialized repository docs own detailed environment/version specifications and engineering-release rules.
+- Tightened `ROOT-SPEC-CANONICAL` traceability so its eval anchors remain on the dedicated root-spec scenarios instead of over-claiming the broader first-ownership bootstrap scenario.
+
+### Runtime compatibility
+
+- No new Rule ID, Eval ID, Goal ID, lifecycle/status namespace, Role, `ProjectAuthority` mode, `MasterBoundary`, approval gate, Worker/review/release state, or parallel source-of-truth mechanism was introduced.
+- The existing mutation, authorization, capability, bootstrap, and root-spec invariants were reused rather than creating a startup-specific authority or lifecycle model.
+- Canonical inventories remain 69 Rule IDs, 121 standalone Eval IDs, and 16 Goal IDs.
+
+### Validation
+
+- PR #128 introduced the first-ownership repository-creation capability and received independent HIGH_ASSURANCE review before integration.
+- PR #130 performed the follow-up semantic/source-ownership cleanup; its exact candidate workflow run #365 and post-merge `main` workflow run #366 completed successfully.
+- Validation continued to cover Skill structure, contract compatibility, repository preflight safety, deterministic lint, representation controls, benchmark/scorer checks, runtime equivalence, runtime representation experiments, Phase C composition, model-trial tooling, release-intent decisions, deterministic canonical/platform packaging, exact publisher behavior, immutable baseline verification, and clean runtime source.
+
+### Distribution
+
+- The ten-platform release matrix remains unchanged; all release packages and matching SHA-256 checksums continue to be generated from the single canonical runtime.
+
 All notable changes to this project are documented here.
 
 ## [1.5.2] - 2026-09-22
