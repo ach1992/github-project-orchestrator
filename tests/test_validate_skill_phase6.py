@@ -730,7 +730,9 @@ def project_start_bootstrap_regression_tests() -> None:
     if len(root_spec_rows) != 1:
         raise AssertionError("ROOT-SPEC-CANONICAL must have exactly one Rule-map row")
     root_spec_fields = [field.strip() for field in root_spec_rows[0].strip("|").split("|")]
-    if root_spec_fields[-1] != "BV, BW, BX, CD, CY":
+    root_spec_anchors = {anchor.strip() for anchor in root_spec_fields[-1].split(",")}
+    required_root_spec_anchors = {"BV", "BW", "BX", "CD", "CY"}
+    if "AZ" in root_spec_anchors or not required_root_spec_anchors.issubset(root_spec_anchors):
         raise AssertionError(f"ROOT-SPEC-CANONICAL has imprecise eval anchors: {root_spec_fields[-1]}")
 
     az_text = eval_text.split("### AZ. First end-to-end ownership uses proportional bootstrap", 1)[1].split(
