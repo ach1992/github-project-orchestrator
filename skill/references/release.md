@@ -109,7 +109,7 @@ DELIVERY_PROVEN(artifact, target, evidence) =
     AND AllRequiredHealthAndAcceptanceEvidenceIsCurrentAndSatisfied
 ```
 
-`ArtifactMatchesApprovedReleaseIdentity` accepts the same reviewed/built immutable artifact, or a platform-required rebuild only when current evidence reproducibly ties it to the approved source commit and expected build inputs. Deployment transport success alone cannot satisfy `DELIVERY_PROVEN`. When required evidence is delayed or not yet observable, the predicate remains false without implying failure. `DeliveryRequirement=INTEGRATION_ONLY` completes through verified integration and does not require this predicate.
+`ArtifactMatchesApprovedReleaseIdentity` accepts the same reviewed/built immutable artifact, or a platform-required rebuild only when current evidence reproducibly ties it to the approved source commit and expected build inputs. Deployment transport success alone cannot satisfy `DELIVERY_PROVEN`. When required evidence is delayed or not yet observable, the predicate remains false without implying failure. `DeliveryRequirement=INTEGRATION_ONLY` does not require this delivery predicate; final closeout still follows the accepted completion criteria and post-integration reconciliation in `review-integration.md` §8.
 
 Use this state decision:
 
