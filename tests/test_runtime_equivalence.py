@@ -149,6 +149,19 @@ def hostile_eval_text(hidden_payload: str) -> str:
         raise AssertionError("candidate supplemental navigation marker drifted")
     return candidate_text.replace(marker, marker + hidden_payload + "\n", 1)
 
+def next_eval_id(text: str) -> str:
+    ids = eq.parse_eval_ids(text)
+    current = max(ids, key=lambda value: (len(value), value))
+    chars = list(current)
+    index = len(chars) - 1
+    while index >= 0 and chars[index] == "Z":
+        chars[index] = "A"
+        index -= 1
+    if index < 0:
+        return "A" + "".join(chars)
+    chars[index] = chr(ord(chars[index]) + 1)
+    return "".join(chars)
+
 
 with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent_name:
     temp_root = Path(parent_name) / "candidate"
@@ -288,13 +301,14 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
                 raise AssertionError(f"titleless-{separator_name} fake DK remained in candidate inventory")
             print(f"PASS current-v1.3.2-titleless-{separator_name}-dk-end-to-end-rejected")
 
+        future_eval_id = next_eval_id(candidate_text)
         for cdata_name, cdata_start in (
             ("lowercase", "<![cdata["),
             ("mixed-case", "<![CdAtA["),
         ):
             additive_text = candidate_text.replace(
                 "\n## 4. Regression guard",
-                f"\n{cdata_start}\n### DR. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
+                f"\n{cdata_start}\n### {future_eval_id}. Legitimate visible future scenario\n]]>\n\n## 4. Regression guard",
                 1,
             )
             eval_path.write_text(additive_text, encoding="utf-8")
@@ -306,9 +320,13 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
                 stderr=subprocess.PIPE,
                 check=False,
             )
-            if validation.returncode != 1 or "Unanchored evaluation scenarios are missing from the supplemental retrieval index: ['DR']" not in validation.stderr:
+            expected_validation = (
+                "Unanchored evaluation scenarios are missing from the supplemental retrieval index: "
+                f"['{future_eval_id}']"
+            )
+            if validation.returncode != 1 or expected_validation not in validation.stderr:
                 raise AssertionError(
-                    f"{cdata_name} CDATA-like DR did not fail supplemental validation: "
+                    f"{cdata_name} CDATA-like {future_eval_id} did not fail supplemental validation: "
                     f"{validation.returncode}: {validation.stdout} {validation.stderr}"
                 )
             equivalence = subprocess.run(
@@ -321,13 +339,18 @@ with tempfile.TemporaryDirectory(prefix="gpo-hidden-eval-e2e-parent-") as parent
             )
             if equivalence.returncode != 0:
                 raise AssertionError(
-                    f"{cdata_name} CDATA-like additive DR equivalence failed: "
+                    f"{cdata_name} CDATA-like additive {future_eval_id} equivalence failed: "
                     f"{equivalence.returncode}: {equivalence.stdout} {equivalence.stderr}"
                 )
             eq_payload = json.loads(equivalence.stdout)
-            if "DR" not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
-                raise AssertionError(f"{cdata_name} CDATA-like DR was omitted from candidate inventory")
-            print(f"PASS current-v1.3.2-{cdata_name}-cdata-additive-dr-visible")
+            if future_eval_id not in eq_payload.get("candidate_inventory", {}).get("eval_ids", []):
+                raise AssertionError(
+                    f"{cdata_name} CDATA-like {future_eval_id} was omitted from candidate inventory"
+                )
+            print(
+                f"PASS current-v1.3.2-{cdata_name}-cdata-additive-"
+                f"{future_eval_id.lower()}-visible"
+            )
     finally:
         subprocess.run(
             ["git", "worktree", "remove", "--force", str(temp_root)],
