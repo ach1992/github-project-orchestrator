@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.6.1] - 2026-10-01
+
+### Fixed
+
+- Prevented Issues/authoritative work items from being treated as complete merely because an intermediate PR merged, the item is already Closed/DONE, or a sibling completed while accepted completion criteria, dependencies, target-branch CI, or other required post-integration proof remain unsatisfied or unknown.
+- Made persisted acceptance checkboxes evidence-derived: only verified satisfied criteria are marked complete; required remainder stays on the same active outcome and cannot be demoted to optional follow-up merely to permit closure.
+- Added bounded recovery for premature closure: when authoritative evidence shows required criteria still pending, the stale closed presentation is reconciled/reopened when authorized and execution continues from the unmet criterion.
+- Clarified `DeliveryRequirement=INTEGRATION_ONLY` across Task Contract, governance, and release semantics: it removes a separate delivery predicate only after the accepted work's own completion criteria and required integration/post-integration proof are satisfied.
+
+### Runtime compatibility and optimization
+
+- Reused the existing `POST-INTEGRATION-RECONCILE` Rule and `review-integration.md` canonical owner; no new Rule ID, Goal ID, lifecycle/status namespace, Role, approval gate, router edge, helper, persistence mechanism, or parallel completion owner was introduced.
+- Kept the always-loaded `skill/SKILL.md` byte-identical to v1.6.0. The added runtime wording is confined to triggered references, with Scenario `DR` providing the distinct regression case for partial-integration/premature-closure behavior.
+- Existing project-completion/outcome-stability scenarios remain separate: Scenario `DR` protects work-item presentation/checkbox/auto-close recovery semantics rather than duplicating their general completion rules.
+- Canonical inventories are 69 Rule IDs, 122 standalone Eval IDs, and 16 Goal IDs.
+
+### Validation
+
+- Issue #133 / PR #134 implemented the fix; exact-head workflow `36894645646` and post-merge `main` workflow `36894748222` completed successfully.
+- The first candidate exposed a hard-coded future Eval-ID fixture collision; the test was corrected at its root to derive the next Eval ID from the current inventory, then the exact corrected candidate passed the full workflow.
+- Issue #135 records the final duplication/semantic-efficiency audit, release evidence, exact release identity, and branch cleanup so continuation does not depend on chat history.
+- The normal release workflow continues to validate Skill structure/traceability, contract/preflight safety, deterministic lint, runtime equivalence and representation controls, benchmark/scorer checks, Phase C composition, model-trial tooling, release intent/publisher behavior, deterministic canonical/platform packaging, immutable baseline integrity, and runtime cleanliness.
+
+### Distribution
+
+- The ten-platform release matrix remains unchanged; all release archives and matching SHA-256 checksums are generated from the single canonical runtime.
+
 ## [1.6.0] - 2026-10-01
 
 ### Added
