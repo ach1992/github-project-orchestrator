@@ -20,7 +20,7 @@ Before review, verify:
 
 Keep the review evidence inside an explicit identity envelope: repository, Integration Target/base, candidate/HEAD, relevant Contract Revision, environment when applicable, and evidence freshness. Candidate/target/contract/effective-change drift invalidates affected approval rather than being normalized away by narrative.
 
-When the repository/platform gives Draft/Ready meaningful review or automation semantics, use it only to signal candidate maturity and avoid knowingly stale acceptance work; otherwise add no ceremony. Draft/Ready remains presentation, adds no `TaskState`, and skips no exact-candidate gate.
+When the repository/platform gives Draft/Ready meaningful review or automation semantics, use it only to signal candidate maturity and avoid knowingly stale acceptance work, not merely to represent an external wait or retrigger unchanged validation. Follow any policy-required transition; otherwise add no ceremony. Draft/Ready remains presentation, adds no `TaskState`, and skips no exact-candidate gate.
 
 ### `REVIEW_VALID(envelope)`
 
@@ -136,7 +136,7 @@ Classify before code change, then take the action implied by evidence:
 | `INTEGRATION_FAILURE` | inspect candidate x current-target interaction, conflict, dependency, and compatibility; reconcile effective change before editing |
 | `UNKNOWN` | gather the smallest discriminating evidence before changing code or weakening checks |
 
-Never disable/skip/loosen/rewrite checks merely to get green CI unless the check itself is demonstrably wrong and its correction is separately justified/reviewed. Apply `master-cycle.md` anti-spin rules to retries. After classification, prefer the narrowest check/job that can discriminate the suspected cause before paying for another broad suite when repository policy allows; a new SHA still runs every repository-required gate.
+Never disable/skip/loosen/rewrite checks merely to get green CI unless the check itself is demonstrably wrong and its correction is separately justified/reviewed. Apply `master-cycle.md` anti-spin rules to retries. After classification, prefer the narrowest check/job that can discriminate the suspected cause before paying for another broad suite when repository policy allows; each new candidate must satisfy every repository-required gate at the point required by policy.
 
 ## 5. Conflicts
 

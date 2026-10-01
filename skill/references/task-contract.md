@@ -85,7 +85,7 @@ Treat validation as a **minimum sufficient evidence plan**, not an inventory of 
 
 - `Minimum` removes duplicate proof, never an independent acceptance/risk/compatibility/security/data/repository-policy guarantee; every material requirement still needs adequate evidence.
 - Prefer fast local discriminating feedback for the changed surface, then rely on repository-required/current CI or other authoritative gates for the broader proof they own. Do not duplicate a broad local suite when it adds no material differential signal.
-- Reuse green evidence only while the exact code/object, relevant dependency/config/toolchain/environment assumptions, and the requirement proved remain unchanged; freshness does not mean rerunning unchanged proof for ceremony.
+- Reuse green evidence only while the exact code/object surface it proves, relevant dependency/config/toolchain/environment assumptions, and the requirement proved remain unchanged; unrelated SHA movement alone does not invalidate that evidence or make it a fresh run on the new candidate.
 
 If the current local environment is **proven** unable to execute a required check faithfully (for example a deterministic preflight shows a missing required service/extension, incompatible database semantics are established, or a resource ceiling is reproducible), record that limitation once for the unchanged conditions and use an available compatible authoritative environment/CI route. One ambiguous or plausibly transient failure is not proof of incompatibility. Do not repeatedly invoke the same proven-incompatible local route unless relevant conditions changed.
 
