@@ -81,7 +81,7 @@ You can also point the Master at a specific Issue, PR, milestone, release, or pr
 
 ## Version and license
 
-Release: **v1.6.1**
+Release: **v1.6.2**
 
 Licensed under the [MIT License](LICENSE). Every released platform archive includes the same canonical `LICENSE` notice at its package root.
 
