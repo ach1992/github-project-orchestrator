@@ -190,10 +190,14 @@ After integration, in order:
 
 1. verify the intended candidate/change actually reached the authoritative Integration Target;
 2. verify target CI/checks when applicable/currently available;
-3. mark engineering work `TaskState.INTEGRATED`; update/close Issue/parent/milestone/Project/dependencies/active risk only according to whether the active outcome or explicit contract also has `DeliveryRequirement=DELIVERY_REQUIRED`;
-4. capture only actionable follow-up work;
-5. update durable docs/ADR only when a lasting rule/decision changed;
-6. clean branch/worktree only when no useful uncommitted/unpushed work can be lost;
-7. update release readiness when delivery is affected.
+3. mark engineering work `TaskState.INTEGRATED`;
+4. before marking an Issue or other authoritative work item complete/closed, re-read its current accepted outcome/explicit contract and reconcile every required completion criterion, dependency, and post-integration proof against current authoritative evidence. Merge status, the work item's existing Closed/DONE presentation state, or sibling completion is never proof that an unmet criterion is satisfied. When persisted acceptance checkboxes are the criteria, mark only verified satisfied items complete and leave unsatisfied/unknown items incomplete. If a criterion is intentionally removed, superseded, or not applicable, use the normal requirement-change path rather than marking it satisfied;
+5. update/close Issue/parent/milestone/Project/dependencies/active risk only when that reconciled completion state permits it and, when `DeliveryRequirement=DELIVERY_REQUIRED`, required delivery evidence is satisfied. Required post-integration evidence/dependencies remain part of the same active outcome; do not demote them to optional follow-up or configure an intermediate integration to auto-close that Issue/work item while they remain pending;
+6. capture only actionable follow-up work that is not required for current completion;
+7. update durable docs/ADR only when a lasting rule/decision changed;
+8. clean branch/worktree only when no useful uncommitted/unpushed work can be lost;
+9. update release readiness when delivery is affected.
+
+If current authoritative evidence shows an Issue or other authoritative work item that owns accepted criteria is already closed while required criteria remain unsatisfied or unknown, treat that closure as stale presentation state: reopen/reconcile it when authorized/possible and continue from the unmet criterion. A closed work-item state is never completion evidence.
 
 `TaskState.INTEGRATED` never implies `DeliveryState.DELIVERED`; delivery is proven separately for the explicit DeliveryTarget. Do not copy integrated-change history into manager documents.

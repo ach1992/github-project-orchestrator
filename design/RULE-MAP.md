@@ -85,7 +85,7 @@ Status: current development traceability map for the refactored runtime, preserv
 | `CONFLICT-RECONCILE` | Resolve conflicts against fresh target/effective change and revalidate affected evidence. | `review-integration.md` | `review-integration.md` §5 | E |
 | `INTEGRATION-GATE` | Integrate only after current acceptance, review, CI/policy, target/candidate identity, and applicable action gates are satisfied. | `review-integration.md` | `review-integration.md` §6 | H, CI, CJ |
 | `SELF-AUTHORED-FRESH-REVIEW` | Master-authored work still receives a fresh diff/acceptance review; independent review only when risk/profile requires it. | `review-integration.md` | `review-integration.md` §7; `independent-review.md` §1-4 | BC |
-| `POST-INTEGRATION-RECONCILE` | After integration, reconcile immutable result and continue to delivery only when required by outcome. | `review-integration.md` | `review-integration.md` §8 | CO |
+| `POST-INTEGRATION-RECONCILE` | After integration, verify target evidence and derive work-item closure only from the current accepted completion criteria; Closed/DONE/merge state never substitutes for unmet required evidence, and delivery continues only when required by outcome. | `review-integration.md` | `review-integration.md` §8 | CO, DR |
 
 ## 7. Continuity and recovery
 
