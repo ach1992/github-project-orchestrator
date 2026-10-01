@@ -14,7 +14,7 @@ Map to existing repository workflow when possible. State names are namespace-qua
 
 Also allow namespaced task states such as `TaskState.CANCELLED`, `TaskState.SUPERSEDED`, and `TaskState.ROLLED_BACK` when applicable. Legacy `MERGE_READY` is the compatibility name for `TaskState.INTEGRATION_READY`; it does not require a PR/merge mechanism when the recognized repository-normal integration path is non-PR.
 
-Delivery is a separate dimension. `DeliveryRequirement=INTEGRATION_ONLY` adds no delivery step beyond the accepted work's required verified integration/acceptance boundary; it does not waive explicit completion criteria or post-integration proof. When `DeliveryRequirement=DELIVERY_REQUIRED`, track the explicit `DeliveryTarget` and the independent lifecycle `DeliveryState.NOT_STARTED -> DeliveryState.PENDING -> DeliveryState.DELIVERED`, with `DeliveryState.FAILED_OR_UNKNOWN` when evidence is missing or delivery fails. Never infer `DeliveryState` from `DeliveryTarget`, or delivery completion from `TaskState.INTEGRATED`.
+Delivery is a separate dimension. `DeliveryRequirement=INTEGRATION_ONLY` adds no separate delivery step after the accepted work's own completion criteria and required integration verification are satisfied; it does not waive explicit post-integration proof. When `DeliveryRequirement=DELIVERY_REQUIRED`, track the explicit `DeliveryTarget` and the independent lifecycle `DeliveryState.NOT_STARTED -> DeliveryState.PENDING -> DeliveryState.DELIVERED`, with `DeliveryState.FAILED_OR_UNKNOWN` when evidence is missing or delivery fails. Never infer `DeliveryState` from `DeliveryTarget`, or delivery completion from `TaskState.INTEGRATED`.
 
 ## 2. Execution path and contract threshold
 
