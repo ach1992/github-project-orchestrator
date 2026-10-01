@@ -205,9 +205,11 @@ Apply to Issue/PR creation, comments, labels, Project updates, pushes, releases,
 
 ## 7. Optimistic concurrency
 
-Do not create manager lock/lease files. For overwrite-sensitive writes, capture expected identity then refresh immediately before mutation; prefer SHA/ref, object revision/`updatedAt`, Contract Revision + Issue identity, or release/deployment/artifact ID.
+Do not create manager lock/lease files. For overwrite-sensitive writes, capture expected identity then refresh immediately before mutation; prefer SHA/ref, object revision/`updatedAt`, Contract Revision + Issue identity, or release/deployment/artifact ID. When the available operation documents an enforced expected-identity/revision precondition, submit the verified expected value with the write. This protects only the identities covered by that precondition, not the entire review/authorization envelope.
 
-If state changed unexpectedly, enter the local reconcile-before-write condition: inspect delta, preserve valid concurrent work, recompute intended mutation, write only if still correct. Never overwrite newer contract/priority/branch/PR/release/production state from stale read. A local reconciliation condition is not automatically a MasterBoundary.
+If state changed unexpectedly or the precondition is rejected, enter the local reconcile-before-write condition: inspect delta, preserve valid concurrent work, recompute intended mutation, write only if still correct. Never remove a rejected precondition to force the write or overwrite newer contract/priority/branch/PR/release/production state from stale read. A local reconciliation condition is not automatically a MasterBoundary.
+
+When no such precondition is available, retain read/reconcile/verify and narrow the mutation where supported; assess residual race risk under existing gates. Do not invent API support or claim atomic protection; absence alone creates no new gate.
 
 ## 8. Human approval or operation
 

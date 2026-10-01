@@ -794,6 +794,115 @@ def coordination_baseline_governance_regression_tests() -> None:
     print("PASS coordination-baseline-concern-orthogonality")
 
 
+
+def decision_boundary_precision_regression_tests() -> None:
+    """Guard scoped text/ownership, not model behavior or measured efficiency."""
+    paths = {
+        "kernel": "skill/SKILL.md",
+        "authority": "skill/references/authority-gates.md",
+        "task": "skill/references/task-contract.md",
+        "review": "skill/references/review-integration.md",
+        "eval": "skill/references/eval-scenarios.md",
+    }
+    texts = {key: (ROOT / path).read_text(encoding="utf-8") for key, path in paths.items()}
+
+    def section(source: str, start: str, end: str) -> str:
+        if source.count(start) != 1 or source.count(end) != 1:
+            raise ValueError(f"Missing or duplicate boundary: {start}")
+        return source.split(start, 1)[1].split(end, 1)[0]
+
+    def check(candidate: dict[str, str]) -> None:
+        router = section(candidate["kernel"], "## 5. One-step role/event router", "## 6. Worker entry")
+        rows = [line for line in router.splitlines() if line.startswith("| ") and "Master review; CI failure" in line]
+        if len(rows) != 1:
+            raise ValueError("execution-safety: expected one canonical router row")
+        concurrency = section(candidate["authority"], "## 7. Optimistic concurrency", "## 8. Human approval or operation")
+        validation = section(candidate["task"], "## 5. Validation strategy", "## 6. Change risk")
+        maturity = section(candidate["review"], "## 1. Establish review target", "### `REVIEW_VALID(envelope)`")
+        failures = section(candidate["review"], "## 4. CI failures", "## 5. Conflicts")
+        required = {
+            "execution-safety": (rows[0], (
+                "before executing untrusted candidate code (either role)",
+                "execution alone: apply only",
+                "(references/review-integration.md#2-review-standard)",
+                "other triggers: use `REVIEW_VALID(envelope)` and current integration evidence",
+            )),
+            "concurrency": (concurrency, (
+                "Do not create manager lock/lease files.",
+                "When the available operation documents an enforced expected-identity/revision precondition",
+                "submit the verified expected value with the write",
+                "only the identities covered by that precondition, not the entire review/authorization envelope",
+                "If state changed unexpectedly or the precondition is rejected",
+                "Never remove a rejected precondition to force the write",
+                "A local reconciliation condition is not automatically a MasterBoundary.",
+                "When no such precondition is available, retain read/reconcile/verify",
+                "assess residual race risk under existing gates",
+                "Do not invent API support or claim atomic protection; absence alone creates no new gate.",
+            )),
+            "evidence-reuse": (validation, (
+                "exact code/object surface it proves",
+                "relevant dependency/config/toolchain/environment assumptions, and the requirement proved remain unchanged",
+                "unrelated SHA movement alone does not invalidate that evidence or make it a fresh run on the new candidate",
+                "Repository-required checks remain mandatory for every candidate identity to which policy binds them",
+            )),
+            "candidate-maturity": (maturity, (
+                "use it only to signal candidate maturity and avoid knowingly stale acceptance work",
+                "not merely to represent an external wait or retrigger unchanged validation",
+                "Follow any policy-required transition",
+                "Draft/Ready remains presentation, adds no `TaskState`, and skips no exact-candidate gate",
+            )),
+            "policy-timing": (failures, (
+                "prefer the narrowest check/job that can discriminate the suspected cause",
+                "each new candidate must satisfy every repository-required gate at the point required by policy",
+            )),
+        }
+        for label, (region, phrases) in required.items():
+            for phrase in phrases:
+                if phrase not in region:
+                    raise ValueError(f"{label}: missing scoped guard: {phrase}")
+        # The new subsection link must target the existing safety owner, not a parallel protocol.
+        safety = section(candidate["review"], "## 2. Review standard", "## 3. Evidence authority and freshness")
+        if "For untrusted contributor changes, inspect execution/supply-chain surfaces before running them." not in safety:
+            raise ValueError("execution-safety: canonical subsection lost pre-execution obligation")
+        if "Never reprioritize, broaden task/repository scope, integrate the target" not in candidate["kernel"]:
+            raise ValueError("execution-safety: Worker ownership guard lost")
+        if "Mark only the individual mutation `WriteState.UNKNOWN`" not in candidate["authority"]:
+            raise ValueError("concurrency: ambiguous transport must retain its existing owner")
+        scenario_guards = {
+            "M": ("N", ("Route pre-execution safety directly", "an independently triggered full review remains required")),
+            "E": ("F", ("A HEAD-only guard does not validate the base", "An ambiguous write still follows `WriteState.UNKNOWN`")),
+            "BU": ("BV", ("For a stable external wait", "Follow any policy-required transition")),
+            "DM": ("DN", ("Changed shared assumptions invalidate the affected proof", "including per-push checks when actually required")),
+        }
+        for ident, (next_ident, phrases) in scenario_guards.items():
+            scenario = section(candidate["eval"], f"### {ident}. ", f"### {next_ident}. ")
+            if any(phrase not in scenario for phrase in phrases):
+                raise ValueError(f"scenario-{ident}: missing decision counterexample")
+
+    check(texts)
+    print("PASS decision-boundary-precision-positive")
+    # Mutation fixtures verify that the guards fail when an essential discriminator is lost.
+    mutations = (
+        ("execution-trigger", "kernel", "before executing untrusted candidate code (either role); ", "execution-safety"),
+        ("safety-anchor", "kernel", "#2-review-standard", "execution-safety"),
+        ("execution-only-scope", "kernel", "execution alone: apply only", "execution-safety"),
+        ("native-precondition", "authority", "submit the verified expected value with the write", "concurrency"),
+        ("partial-precondition", "authority", "not the entire review/authorization envelope", "concurrency"),
+        ("rejection-bypass", "authority", "Never remove a rejected precondition to force the write", "concurrency"),
+        ("unsupported-fallback", "authority", "absence alone creates no new gate", "concurrency"),
+        ("proof-surface", "task", "surface it proves", "evidence-reuse"),
+        ("old-proof-identity", "task", "or make it a fresh run on the new candidate", "evidence-reuse"),
+        ("external-wait", "review", "not merely to represent an external wait or retrigger unchanged validation", "candidate-maturity"),
+        ("required-transition", "review", "Follow any policy-required transition", "candidate-maturity"),
+        ("policy-timing", "review", "at the point required by policy", "policy-timing"),
+    )
+    for name, key, removed, error in mutations:
+        if texts[key].count(removed) != 1:
+            raise AssertionError(f"Ambiguous mutation fixture: {name}")
+        mutant = dict(texts)
+        mutant[key] = mutant[key].replace(removed, "", 1)
+        expect_failure(f"decision-boundary-{name}", lambda: check(mutant), error)
+
 def main() -> None:
     traceability_tests()
     supplemental_eval_index_tests()
@@ -803,6 +912,7 @@ def main() -> None:
     defensive_security_review_evidence_regression_tests()
     project_start_bootstrap_regression_tests()
     coordination_baseline_governance_regression_tests()
+    decision_boundary_precision_regression_tests()
 
 
 if __name__ == "__main__":
