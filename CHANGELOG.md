@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.6.2] - 2026-10-01
+
+### Fixed
+
+- Routed both Master and Worker to the existing execution/supply-chain safety guidance before executing untrusted candidate code. This trigger alone does not activate full review/integration or extend Worker authority.
+- Completed optimistic-concurrency guidance with documented, available server-enforced identity/revision preconditions. Rejections require reconciliation, partial guards protect only their documented identities, and unsupported operations retain the existing non-atomic fallback and risk gates without fabricated API support.
+- Clarified evidence reuse against the exact proved code/object surface and unchanged material assumptions: unrelated SHA movement alone does not invalidate that proof or turn it into a fresh run on another candidate. Candidate-bound mandatory checks remain required.
+- Kept Draft/Ready tied to actual candidate maturity and repository policy rather than external-wait/status-only CI retriggers; required validation is consumed at the point required by policy, not an invented immediate broad run after every interim edit.
+
+### Compatibility and validation
+
+- Issue #137 / PR #138 own the bounded implementation and its rationale. Existing rule owners, approval boundaries, Worker isolation, unknown-write handling, release/recovery semantics and project-specific CI requirements remain intact.
+- No new Rule ID, Goal ID, Eval ID, role, state, runtime reference, helper, execution-time checklist or evidence registry was added. Canonical inventories remain 69 rules, 16 goals, 122 scenarios and 12 direct references.
+- The four operational files gained 132 whitespace-separated words in total, including 17 in the entrypoint. Four existing scenarios E/M/BU/DM were extended; the existing Phase 6 harness adds one positive check and twelve small negative mutation fixtures. These protect text/structure, not measured model performance.
+- Implementation CI runs `36911508651` and `36911787721` passed. The release preparation changes only VERSION, this changelog and the README version label; the validated runtime is unchanged.
+- The improvement claim is narrower decision ambiguity and better-aligned safety/validation timing. No live-model trial, universal reliability gain or measured latency reduction is claimed.
+
+### Distribution
+
+- All ten supported platform archives and matching SHA-256 checksums continue to be built from the same canonical runtime and verified by the existing publisher. Previously installed Skills are not automatically replaced.
+
 ## [1.6.1] - 2026-10-01
 
 ### Fixed
