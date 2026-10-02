@@ -656,6 +656,73 @@ def defensive_security_review_evidence_regression_tests() -> None:
 
     print("PASS defensive-security-review-evidence-boundary")
 
+
+def interface_specialist_composition_regression_tests() -> None:
+    skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
+    interface_text = (ROOT / "skill" / "references" / "interface-specialist.md").read_text(encoding="utf-8")
+    engineering_text = (ROOT / "skill" / "references" / "engineering-quality.md").read_text(encoding="utf-8")
+    eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
+
+    required = {
+        "skill": (
+            skill_text,
+            (
+                "[references/interface-specialist.md](references/interface-specialist.md)",
+                "material interface decision",
+                "returned packet never triggers automatic re-consultation",
+            ),
+        ),
+        "interface": (
+            interface_text,
+            (
+                "Product Interface Designer v0.2.1",
+                "7aeef3475f160a000e0ec9ab1a6618b41d63f70a",
+                "provider-neutral",
+                "Do not consult merely because work touches a frontend/UI",
+                "no nested Master",
+                "A returned packet does not itself trigger another specialist call.",
+                "Specialist unavailability alone is not a Master stop.",
+            ),
+        ),
+        "engineering": (
+            engineering_text,
+            (
+                "competing UI/UX rulebook",
+                "fallback/complementary guidance",
+                "consume its interface-decision packet for user-facing intent/critique",
+            ),
+        ),
+        "eval": (
+            eval_text,
+            (
+                "### DS. Material interface decision uses one bounded specialist consultation",
+                "### DT. Trivial or already-decided UI work does not invoke the specialist",
+                "### DU. Specialist unavailability preserves standalone progress",
+                "### DV. Returned packet does not create ping-pong or Worker scope growth",
+                "| interface-specialist composition, materiality, packet/return-control, and fallback | `DS`, `DT`, `DU`, `DV` |",
+            ),
+        ),
+    }
+    for surface, (text, phrases) in required.items():
+        for phrase in phrases:
+            if phrase not in text:
+                raise AssertionError(f"{surface} lost interface-specialist composition boundary: {phrase}")
+
+    for field in ("Intent", "Decision", "Constraints", "Implementation latitude", "Evidence", "Open assumptions"):
+        if interface_text.count(f"| **{field}** |") != 1:
+            raise AssertionError(f"interface decision packet field must have exactly one runtime schema row: {field}")
+
+    for specialist_internal in (
+        "references/design-core.md",
+        "references/internationalization.md",
+        "references/persian-rtl.md",
+        "references/composition.md",
+    ):
+        if specialist_internal in interface_text:
+            raise AssertionError(f"caller copied/imported Product Interface Designer internals: {specialist_internal}")
+
+    print("PASS interface-specialist-composition-boundaries")
+
 def project_start_bootstrap_regression_tests() -> None:
     project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
     readme_text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -910,6 +977,7 @@ def main() -> None:
     worker_contract_tests()
     machine_relay_transport_regression_tests()
     defensive_security_review_evidence_regression_tests()
+    interface_specialist_composition_regression_tests()
     project_start_bootstrap_regression_tests()
     coordination_baseline_governance_regression_tests()
     decision_boundary_precision_regression_tests()

@@ -26,6 +26,7 @@ This table is navigation only; it defines no runtime policy or scenario semantic
 | multi-effect / unknown-write / lifecycle-namespace non-propagation | `DC`, `DD`, `DE`, `DF` |
 | Worker correction identity | `DG` |
 | representation-only semantic preservation | `DK` |
+| interface-specialist composition, materiality, packet/return-control, and fallback | `DS`, `DT`, `DU`, `DV` |
 
 ## 2. Core scenarios
 
@@ -648,6 +649,27 @@ A Master is explicitly assigned repository A and discovers that completing the o
 An Issue or explicit contract requires an integration plus post-integration target CI and one additional required proof or dependency. The first PR merges, then the work item is closed manually or automatically while required evidence is still pending or a required follow-up PR remains open; explicit acceptance checkboxes may still be incomplete.
 
 **Expected:** treat the closed state as stale presentation rather than completion evidence; re-read the current accepted outcome/contract and authoritative evidence, reopen/reconcile the work item when authorized/possible, mark only evidence-backed acceptance items complete, keep every still-required remainder on the same active outcome, and close only after all accepted completion criteria and any required delivery evidence are satisfied or validly revised through the existing requirement-change path. When an intermediate integration necessarily leaves required post-integration evidence pending, do not configure it to auto-close the work item. **Forbidden:** using Closed/DONE/merge state as proof of unmet criteria, checking unsatisfied/unknown acceptance items, moving required remainder to optional follow-up merely to permit closure, or treating pending target CI as success.
+
+
+### DS. Material interface decision uses one bounded specialist consultation
+Accepted project work includes a materially ambiguous redesign of a user-facing workflow. Current product/business rules and existing design-system truth are available, and the interface decision can materially change usability, hierarchy, interaction, responsive behavior, or user-facing accessibility/locale intent.
+
+**Expected:** route through `interface-specialist.md`; pass only the accepted outcome and exact interface question, authoritative product/business/design truth that must survive, target platform/surface plus active language/direction/locale when material, relevant source/rendered evidence and limitations, and the explicit ownership boundary. Consume exactly the six-field interface-decision packet (`Intent`, `Decision`, `Constraints`, `Implementation latitude`, `Evidence`, `Open assumptions`), then return control to GitHub Project Orchestrator or its assigned implementation/platform owner. Orchestrator retains accepted scope/priority, dependencies, repository mutation authority, implementation orchestration, CI, integration, release, and continuity. **Forbidden:** nested Master behavior, authority transfer, copying the specialist rulebook locally, or continuing specialist coordination after the packet merely because a specialist was consulted.
+
+### DT. Trivial or already-decided UI work does not invoke the specialist
+Accepted work changes a typo, applies an established component/token, adjusts a local presentation detail inside an already-decided interface intent, or implements an existing interface-decision packet without a new material interface question.
+
+**Expected:** continue through the normal implementation/engineering-quality path and apply only relevant user-facing engineering concerns. Do not consult an interface specialist merely because the repository contains frontend/UI code or because a change is user-visible. **Forbidden:** keyword-driven invocation, mandatory consultation for every UI edit, re-asking a decision already settled by current authoritative product/design truth, or adding consultation ceremony with no decision value.
+
+### DU. Specialist unavailability preserves standalone progress
+A material user-facing change is in scope but a compatible interface specialist cannot be invoked, or specialist consultation is not available in the current runtime.
+
+**Expected:** continue using current authoritative product/design truth plus proportional `engineering-quality.md` fallback guidance, stay inside existing scope/authority, and state any evidence limitation that materially affects confidence. Do not claim specialist review occurred. Specialist unavailability alone is not a Master stop and does not justify inventing missing product/business decisions. **Forbidden:** blocking otherwise executable work solely because the optional specialist is unavailable, fabricating a packet, or expanding local fallback guidance into a copied generic UI/UX rulebook.
+
+### DV. Returned packet does not create ping-pong or Worker scope growth
+A specialist packet has been returned and implementation begins. During implementation, evidence either (a) reveals a correctable issue inside `Implementation latitude`, (b) satisfies an already-planned material rendered/interface review, or (c) exposes a genuinely new material interface decision outside the packet/assigned contract.
+
+**Expected:** (a) the implementation owner corrects within the packet without re-consultation; (b) perform a distinct review consultation only when accepted work/current evidence makes that review material; (c) if a Worker owns implementation, use the existing Worker stop/contract-revision path rather than widening scope, and let the Master decide whether a fresh bounded specialist consultation is warranted. A returned packet does not itself trigger another specialist call. **Forbidden:** automatic back-and-forth loops, specialist self-reinvocation, re-consulting on every implementation detail, or using specialist participation to bypass Worker/Orchestrator ownership boundaries.
 
 
 ## 4. Regression guard
