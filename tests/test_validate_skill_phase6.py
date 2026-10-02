@@ -668,8 +668,8 @@ def interface_specialist_composition_regression_tests() -> None:
             skill_text,
             (
                 "[references/interface-specialist.md](references/interface-specialist.md)",
-                "material interface decision",
-                "returned packet never triggers automatic re-consultation",
+                "unresolved interface judgment",
+                "no project-authority, approval, code-review, or automatic re-consult implication",
             ),
         ),
         "interface": (
@@ -677,28 +677,34 @@ def interface_specialist_composition_regression_tests() -> None:
             (
                 "Product Interface Designer v0.2.1",
                 "7aeef3475f160a000e0ec9ab1a6618b41d63f70a",
+                "not a runtime version pin",
                 "provider-neutral",
-                "Do not consult merely because work touches a frontend/UI",
-                "no nested Master",
-                "A returned packet does not itself trigger another specialist call.",
+                "Consult a compatible interface specialist only when **all** are true:",
+                "Master code/integration-review trigger",
+                "Material interface impact alone is neither `MasterBoundary.MATERIAL_DECISION_REQUIRED`",
+                "The specialist contract owns field semantics; this Skill only consumes them.",
+                "the packet never triggers another specialist call by itself",
                 "Specialist unavailability alone is not a Master stop.",
             ),
         ),
         "engineering": (
             engineering_text,
             (
-                "competing UI/UX rulebook",
-                "fallback/complementary guidance",
-                "consume its interface-decision packet for user-facing intent/critique",
+                "owns unresolved interface intent/critique only",
+                "still owns material engineering realization/evidence",
+                "fallback when specialist consultation is not triggered or unavailable",
             ),
         ),
         "eval": (
             eval_text,
             (
-                "### DS. Material interface decision uses one bounded specialist consultation",
+                "### DS. Unresolved interface judgment uses one bounded specialist consultation",
                 "### DT. Trivial or already-decided UI work does not invoke the specialist",
-                "### DU. Specialist unavailability preserves standalone progress",
+                "### DU. Specialist unavailability preserves bounded standalone progress",
                 "### DV. Returned packet does not create ping-pong or Worker scope growth",
+                "This specialization trigger alone does not imply the canonical material-decision boundary",
+                "Master code/integration review",
+                "automatic specialist repository mutation/implementation",
                 "| interface-specialist composition, materiality, packet/return-control, and fallback | `DS`, `DT`, `DU`, `DV` |",
             ),
         ),
@@ -708,9 +714,22 @@ def interface_specialist_composition_regression_tests() -> None:
             if phrase not in text:
                 raise AssertionError(f"{surface} lost interface-specialist composition boundary: {phrase}")
 
-    for field in ("Intent", "Decision", "Constraints", "Implementation latitude", "Evidence", "Open assumptions"):
-        if interface_text.count(f"| **{field}** |") != 1:
-            raise AssertionError(f"interface decision packet field must have exactly one runtime schema row: {field}")
+    schema_line = "`Intent` · `Decision` · `Constraints` · `Implementation latitude` · `Evidence` · `Open assumptions`"
+    if interface_text.count(schema_line) != 1:
+        raise AssertionError("interface decision packet must expose exactly one shared six-field schema")
+    if "| **Intent** |" in interface_text or "| **Decision** |" in interface_text:
+        raise AssertionError("caller must consume the shared packet schema without duplicating provider field semantics")
+    if "material interface decision" in skill_text or "material interface decision" in interface_text or "material interface decision" in engineering_text:
+        raise AssertionError("interface specialization must not overload the canonical material-decision term")
+
+    interface_router = next(line for line in skill_text.splitlines() if "interface-specialist.md" in line)
+    engineering_router = next(line for line in skill_text.splitlines() if "engineering-quality.md" in line)
+    if "interface review" in interface_router.lower() or "master review" in interface_router.lower():
+        raise AssertionError("interface critique must not collide with the Master code/integration review route")
+    if "user-facing quality" in engineering_router.lower():
+        raise AssertionError("engineering router must not broadly compete for unresolved interface judgment")
+    if "| user-facing quality |" not in engineering_text:
+        raise AssertionError("standalone/fallback user-facing engineering guidance was lost")
 
     for specialist_internal in (
         "references/design-core.md",

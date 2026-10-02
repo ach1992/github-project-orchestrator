@@ -4,7 +4,7 @@ Canonical owner for selecting and carrying **material engineering concerns** thr
 
 ## 1. Activation and proportionality
 
-Load this domain only when the actual change surface, failure modes, product surface, or current engineering-system evidence makes one or more concerns decision-relevant. Typical triggers include external or asynchronous behavior, stateful/concurrent flows, production support needs, sensitive data, material resource/cost impact, user-facing interaction, migration/operational risk, or CI/automation that is itself a demonstrated delivery bottleneck.
+Load this domain only when the actual change surface, failure modes, product surface, or current engineering-system evidence makes one or more concerns decision-relevant. Typical triggers include external or asynchronous behavior, stateful/concurrent flows, production support needs, sensitive data, material resource/cost impact, material user-facing implementation/evidence risk, migration/operational risk, or CI/automation that is itself a demonstrated delivery bottleneck.
 
 For a substantive change:
 
@@ -15,7 +15,7 @@ For a substantive change:
 
 Possible concerns include security, privacy, data integrity, compatibility, resilience, observability/diagnosability, performance, capacity/resource/cost behavior, accessibility/user experience, migration, operations, and release safety. This is a reasoning aid, **not** a required enum, persisted state field, contract section, status, label, or checklist.
 
-When a material interface decision/review separately triggers `interface-specialist.md`, use that route for the interface judgment instead of expanding this domain into a competing UI/UX rulebook. This file remains the proportional engineering owner and fallback/complementary guidance for user-facing implementation/evidence concerns.
+If `interface-specialist.md` is independently triggered, it owns unresolved interface intent/critique only. This domain still owns material engineering realization/evidence and remains the fallback when specialist consultation is not triggered or unavailable.
 
 Concern selection by itself never changes accepted scope, `RiskLevel`, `AssuranceLevel`, `ExecutionPath`, `CoordinationBaseline`, `ProjectAuthority`, or approval requirements. Change those only when their existing canonical rules independently justify it. A trivial/localized change with no material concern trigger keeps its current `CoordinationBaseline` and uses the normal FAST path only when the existing FAST criteria independently fit; it must not gain logging, metrics, retry, accessibility, documentation, or process work merely because those practices exist.
 
@@ -28,7 +28,7 @@ Concern selection by itself never changes accepted scope, `RiskLevel`, `Assuranc
 | resilience | Can external, asynchronous, concurrent, or stateful work fail partially or transiently? Use timeouts, bounded retries/backoff, idempotency, transaction/concurrency boundaries, cleanup, graceful degradation, and recovery semantics only where the failure model warrants them. Never add retry as a substitute for understanding correctness. |
 | observability / diagnosability | If the behavior fails in production, will an operator/developer have enough safe evidence to locate the failing component/request/job/dependency and root cause? Use useful severity/levels, structured/contextual fields, correlation/request/job identity, exception/error evidence, metrics, traces, health/readiness signals, or alerts only when they materially improve detection or diagnosis. |
 | performance / capacity / cost | Can the change materially affect latency, CPU, memory, storage, network, database connections/query load, queue/backlog growth, log/telemetry volume, third-party quota, or infrastructure/cloud cost? Establish representative evidence or explicit bounds when material; do not optimize by intuition alone. |
-| user-facing quality | For applicable UI/product surfaces, are accessible interaction, responsive behavior, loading/error/empty states, localization/internationalization, and timezone behavior materially affected? Apply only the relevant subset. When `interface-specialist.md` is active, consume its interface-decision packet for user-facing intent/critique and keep this row focused on engineering realization/evidence; otherwise this row remains standalone fallback guidance. |
+| user-facing quality | For applicable UI/product surfaces, are accessible interaction, responsive behavior, loading/error/empty states, localization/internationalization, and timezone behavior materially affected? Apply only the relevant subset. |
 | operations / release | Does configuration/environment behavior, health, rollback, deployment, support procedure, or incident response materially change? Keep code, configuration, secrets, and environment-specific state separated where the platform supports it; validate material configuration at the appropriate boundary and prefer explicit safe defaults over silent misconfiguration. Update durable operating guidance only when future operators need it. |
 
 ### Authorized defensive AI work
