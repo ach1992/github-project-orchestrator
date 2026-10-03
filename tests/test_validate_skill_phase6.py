@@ -682,7 +682,7 @@ def interface_specialist_composition_regression_tests() -> None:
                 "Consult a compatible interface specialist only when **all** are true:",
                 "Master code/integration-review trigger",
                 "Material interface impact alone is neither `MasterBoundary.MATERIAL_DECISION_REQUIRED`",
-                "The specialist contract owns field semantics; this Skill only consumes them.",
+                "exclusively owns schema and field semantics",
                 "the packet never triggers another specialist call by itself",
                 "Specialist unavailability alone is not a Master stop.",
             ),
@@ -705,6 +705,8 @@ def interface_specialist_composition_regression_tests() -> None:
                 "This specialization trigger alone does not imply the canonical material-decision boundary",
                 "Master code/integration review",
                 "automatic specialist repository mutation/implementation",
+                "without a locally mirrored exact field list",
+                "exact packet schema locally",
                 "| interface-specialist composition, materiality, packet/return-control, and fallback | `DS`, `DT`, `DU`, `DV` |",
             ),
         ),
@@ -714,11 +716,16 @@ def interface_specialist_composition_regression_tests() -> None:
             if phrase not in text:
                 raise AssertionError(f"{surface} lost interface-specialist composition boundary: {phrase}")
 
-    schema_line = "`Intent` · `Decision` · `Constraints` · `Implementation latitude` · `Evidence` · `Open assumptions`"
-    if interface_text.count(schema_line) != 1:
-        raise AssertionError("interface decision packet must expose exactly one shared six-field schema")
+    if "Expect exactly this shared interoperability schema:" in interface_text:
+        raise AssertionError("caller must not own an exact provider packet schema")
+    if "`Intent` · `Decision`" in interface_text or "`Intent` · `Decision`" in eval_text:
+        raise AssertionError("caller/eval must not mirror the provider-owned packet field list")
+    if "shared six-field packet" in interface_text or "shared six-field packet" in eval_text:
+        raise AssertionError("caller/eval must consume the canonical packet without a closed-world six-field contract")
     if "| **Intent** |" in interface_text or "| **Decision** |" in interface_text:
-        raise AssertionError("caller must consume the shared packet schema without duplicating provider field semantics")
+        raise AssertionError("caller must consume the canonical packet without duplicating provider field semantics")
+    if "implementation latitude" not in interface_text.lower() or "unresolved assumptions" not in interface_text.lower():
+        raise AssertionError("caller lost the packet semantics that affect local execution and escalation")
     if "material interface decision" in skill_text or "material interface decision" in interface_text or "material interface decision" in engineering_text:
         raise AssertionError("interface specialization must not overload the canonical material-decision term")
 
