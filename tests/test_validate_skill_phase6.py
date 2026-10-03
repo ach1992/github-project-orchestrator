@@ -656,6 +656,92 @@ def defensive_security_review_evidence_regression_tests() -> None:
 
     print("PASS defensive-security-review-evidence-boundary")
 
+
+def interface_specialist_composition_regression_tests() -> None:
+    skill_text = (ROOT / "skill" / "SKILL.md").read_text(encoding="utf-8")
+    interface_text = (ROOT / "skill" / "references" / "interface-specialist.md").read_text(encoding="utf-8")
+    engineering_text = (ROOT / "skill" / "references" / "engineering-quality.md").read_text(encoding="utf-8")
+    eval_text = (ROOT / "skill" / "references" / "eval-scenarios.md").read_text(encoding="utf-8")
+
+    required = {
+        "skill": (
+            skill_text,
+            (
+                "[references/interface-specialist.md](references/interface-specialist.md)",
+                "unresolved interface judgment",
+                "no project-authority, approval, code-review, or automatic re-consult implication",
+            ),
+        ),
+        "interface": (
+            interface_text,
+            (
+                "Product Interface Designer v0.2.1",
+                "7aeef3475f160a000e0ec9ab1a6618b41d63f70a",
+                "not a runtime version pin",
+                "provider-neutral",
+                "Consult a compatible interface specialist only when **all** are true:",
+                "Master code/integration-review trigger",
+                "Material interface impact alone is neither `MasterBoundary.MATERIAL_DECISION_REQUIRED`",
+                "The specialist contract owns field semantics; this Skill only consumes them.",
+                "the packet never triggers another specialist call by itself",
+                "Specialist unavailability alone is not a Master stop.",
+            ),
+        ),
+        "engineering": (
+            engineering_text,
+            (
+                "owns unresolved interface intent/critique only",
+                "still owns material engineering realization/evidence",
+                "fallback when specialist consultation is not triggered or unavailable",
+            ),
+        ),
+        "eval": (
+            eval_text,
+            (
+                "### DS. Unresolved interface judgment uses one bounded specialist consultation",
+                "### DT. Trivial or already-decided UI work does not invoke the specialist",
+                "### DU. Specialist unavailability preserves bounded standalone progress",
+                "### DV. Returned packet does not create ping-pong or Worker scope growth",
+                "This specialization trigger alone does not imply the canonical material-decision boundary",
+                "Master code/integration review",
+                "automatic specialist repository mutation/implementation",
+                "| interface-specialist composition, materiality, packet/return-control, and fallback | `DS`, `DT`, `DU`, `DV` |",
+            ),
+        ),
+    }
+    for surface, (text, phrases) in required.items():
+        for phrase in phrases:
+            if phrase not in text:
+                raise AssertionError(f"{surface} lost interface-specialist composition boundary: {phrase}")
+
+    schema_line = "`Intent` · `Decision` · `Constraints` · `Implementation latitude` · `Evidence` · `Open assumptions`"
+    if interface_text.count(schema_line) != 1:
+        raise AssertionError("interface decision packet must expose exactly one shared six-field schema")
+    if "| **Intent** |" in interface_text or "| **Decision** |" in interface_text:
+        raise AssertionError("caller must consume the shared packet schema without duplicating provider field semantics")
+    if "material interface decision" in skill_text or "material interface decision" in interface_text or "material interface decision" in engineering_text:
+        raise AssertionError("interface specialization must not overload the canonical material-decision term")
+
+    interface_router = next(line for line in skill_text.splitlines() if "interface-specialist.md" in line)
+    engineering_router = next(line for line in skill_text.splitlines() if "engineering-quality.md" in line)
+    if "interface review" in interface_router.lower() or "master review" in interface_router.lower():
+        raise AssertionError("interface critique must not collide with the Master code/integration review route")
+    if "user-facing quality" in engineering_router.lower():
+        raise AssertionError("engineering router must not broadly compete for unresolved interface judgment")
+    if "| user-facing quality |" not in engineering_text:
+        raise AssertionError("standalone/fallback user-facing engineering guidance was lost")
+
+    for specialist_internal in (
+        "references/design-core.md",
+        "references/internationalization.md",
+        "references/persian-rtl.md",
+        "references/composition.md",
+    ):
+        if specialist_internal in interface_text:
+            raise AssertionError(f"caller copied/imported Product Interface Designer internals: {specialist_internal}")
+
+    print("PASS interface-specialist-composition-boundaries")
+
 def project_start_bootstrap_regression_tests() -> None:
     project_text = (ROOT / "docs" / "PROJECT-SPEC.md").read_text(encoding="utf-8")
     readme_text = (ROOT / "README.md").read_text(encoding="utf-8")
@@ -910,6 +996,7 @@ def main() -> None:
     worker_contract_tests()
     machine_relay_transport_regression_tests()
     defensive_security_review_evidence_regression_tests()
+    interface_specialist_composition_regression_tests()
     project_start_bootstrap_regression_tests()
     coordination_baseline_governance_regression_tests()
     decision_boundary_precision_regression_tests()
