@@ -682,7 +682,7 @@ def interface_specialist_composition_regression_tests() -> None:
                 "Consult a compatible interface specialist only when **all** are true:",
                 "Master code/integration-review trigger",
                 "Material interface impact alone is neither `MasterBoundary.MATERIAL_DECISION_REQUIRED`",
-                "The specialist contract exclusively owns its schema and field semantics",
+                "exclusively owns schema and field semantics",
                 "the packet never triggers another specialist call by itself",
                 "Specialist unavailability alone is not a Master stop.",
             ),
