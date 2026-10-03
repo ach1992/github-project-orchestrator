@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.6.3] - 2026-10-03
+
+### Added
+
+- Added a bounded, provider-neutral consultation path for material unresolved interface judgment or critique. GitHub Project Orchestrator remains the project/repository/integration/release owner; a compatible interface specialist owns only the active interface decision/review, then control returns immediately to the Orchestrator or assigned implementation/platform owner.
+- Added explicit anti-loop and Worker boundaries for composed interface work: already-returned implementation latitude continues locally, a returned packet never self-triggers another consultation, and out-of-contract Worker questions stay on the existing Worker status/contract-revision path.
+
+### Changed
+
+- Kept specialist invocation materiality-based rather than UI-keyword-based: trivial presentation edits, settled interface intent, and implementation inside returned latitude do not trigger consultation.
+- Deduplicated interface-decision packet ownership after the cross-Skill audit. Product Interface Designer remains the sole owner of the exact packet schema and field semantics; Orchestrator consumes the canonical packet while retaining only caller-relevant behavior such as implementation latitude, unresolved-assumption routing, authority boundaries, return control, and fallback.
+- Removed the closed-world exact six-field schema mirror and exact-field validation from Orchestrator, so compatible provider-owned packet evolution does not create artificial caller staleness. No second packet format or copied Product Interface Designer rulebook was introduced.
+
+### Compatibility and validation
+
+- Issues #140 and #142 / PRs #141 and #143 own the implementation, audit, and rationale. The final runtime is `main@26f6d1b3020783d1e8fbb03cbfdf3ab20b568d66`.
+- Product Interface Designer compatibility was rechecked against current `AChWorks/product-interface-designer@468e6cf1ee68edca91f3a01d45fad7257f283ae8`; its latest composition/discovery work explicitly makes no packet/schema change.
+- Canonical inventories are 69 rules, 16 goals, 126 scenarios, 13 direct references, and 30 state tokens. No new Rule ID, Goal ID, role, approval gate, lifecycle/state namespace, Worker status, Master boundary, or packet field was added.
+- Exact-head PR #143 validation run `37083094583` passed after replacing one phrase-fragile test anchor with a semantic ownership guard; post-merge main run `37083185684` passed the full validation workflow.
+- Current main validation passed Skill validation, traceability/duplication checks, runtime equivalence, benchmark/scorer controls, Phase C composition, model-trial tooling, deterministic canonical/platform packaging, publisher tests, immutable baseline verification, and runtime cleanliness.
+- The release preparation changes only `VERSION`, this changelog, and the README version label; the audited runtime remains byte-identical to the validated integrated implementation.
+
+### Distribution
+
+- The existing ten-archive release matrix remains unchanged: canonical `skill.zip` plus nine platform-specific packages, each with a matching SHA-256 checksum.
+- The current validated runtime builds canonical `skill.zip` deterministically as `sha256=ed966b6b02a06051a84562af6f7e7d3b417cbeb8c972ca6ad521683a7c3dfd39`; the version-only release preparation does not alter package contents.
+- Previously installed Skills are not automatically replaced by this publication.
+
 ## [1.6.2] - 2026-10-01
 
 ### Fixed
