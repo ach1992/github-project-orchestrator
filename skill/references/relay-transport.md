@@ -1,20 +1,17 @@
 # Machine Relay Transport
 
-Load this file only when the response includes a **MachineRelay**: a complete prompt or result intended for another agent/chat, including Worker dispatch/correction/handoff, independent-review prompt/result, or Master rotation/recovery bootstrap. The routed domain owns payload semantics; this file owns transport only and creates no lifecycle/state or second payload owner.
+Load only when the response includes a **MachineRelay** intended for another agent/chat. Domain references own payload semantics; this file owns transport.
 
-Render each MachineRelay as one self-contained copy/paste fenced block. User-facing explanation for the current user may appear before or after that block when useful, in the user's language. The destination agent/chat must need only the block itself; never put commentary meant only for the current user inside it or require surrounding prose to complete/reconstruct the relay.
-
-Before send, require:
+Render each relay as exactly one self-contained fenced copy block. The block contains only destination-facing content and must be sufficient by itself. Explanation for the current user may appear outside it, in the user's language.
 
 ```text
-MACHINE_RELAY_OUTPUT_OK(response) =
-    exactly_one_complete_copy_target_fenced_block_for_the_relay(response)
-    AND complete_domain_relay_inside_that_block(response)
-    AND no_current_user_only_commentary_inside_relay_block(response)
-    AND relay_is_self_sufficient_without_surrounding_prose(response)
-    AND relay_prose_is_english_unless_explicit_language_override(response)
-    AND identity-bearing_or_decision-relevant_literals_remain_exact_unless_safety_redaction_requires_otherwise(response)
-    AND outer_fence_safely_contains_any_embedded_fences(response)
+MACHINE_RELAY_OUTPUT_OK(relay) =
+    one_complete_fenced_copy_block(relay)
+    AND no_current_user_only_text_inside(relay)
+    AND self_sufficient_without_surrounding_prose(relay)
+    AND english_unless_explicitly_overridden(relay)
+    AND exact_identity_or_decision_literals_unless_safety_redaction_requires_otherwise(relay)
+    AND safe_outer_fence_for_embedded_fences(relay)
 ```
 
-If false, repair before send. A separate copy-ready request is irrelevant. Surrounding explanation is optional and never part of the relay contract. Transport never weakens scope, authority, safety, evidence, review, integration, or release controls.
+If false, repair before send. Surrounding explanation is optional and never part of the relay. Transport never weakens domain authority, safety, evidence, review, integration, or release rules.
