@@ -12,7 +12,9 @@ Send only:
 - relevant source/rendered evidence and limitations;
 - ownership boundary.
 
-Request interface judgment/critique only; do not implicitly delegate repository mutation, project priority, integration, or release.
+Do not send full project history or unrelated repository state. Request interface judgment/critique only; do not implicitly delegate repository mutation, project priority, integration, or release.
+
+Consume the specialist's canonical decision packet and field semantics; do not copy or maintain a parallel packet schema here.
 
 The specialist owns the active interface intent/critique. GitHub Project Orchestrator retains scope/priority, dependencies, repository authority, implementation orchestration, validation, integration, release, and continuity.
 
