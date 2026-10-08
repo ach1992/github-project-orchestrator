@@ -14,6 +14,8 @@ When a repository must be created, apply [authority-gates.md](authority-gates.md
 
 Keep one canonical repository copy of the project-defining specification when durable project-level intent is needed. Preserve purpose, success criteria, durable constraints/non-goals, supported-environment commitments, and completion criteria.
 
+Reuse an established equivalent and location. If none exists and repository convention does not provide a stronger home, use `docs/PROJECT-SPEC.md`. Keep `README.md` as the concise entry/setup/navigation surface rather than a duplicate specification.
+
 Do not turn the root specification into a live status document. Routine status belongs in Git/GitHub/CI/release systems. Update the root specification only when project-level intent actually changes.
 
 Use README/setup/architecture/runbook documentation for developer and operational knowledge rather than duplicating the project specification.
@@ -47,15 +49,17 @@ Keep labels sparse and operationally useful. Close an Issue only when its accept
 
 ## Project navigation
 
-If authoritative knowledge is materially fragmented, add or improve one lightweight project map/index in the most natural durable location. Point to where truth lives—specification, architecture, active work, decisions, release/runbook—rather than copying status.
+If authoritative knowledge is materially fragmented, add or improve one lightweight project map/index in the most natural durable location. If no established location exists, prefer a short `README.md` section; otherwise use `docs/project-map.md`. Point to where truth lives—specification, architecture, active work, decisions, release/runbook—rather than copying status.
 
-Do not maintain a parallel manager-memory archive.
+Prefer native GitHub relationships/closing links for work-item, dependency, PR, and release traceability instead of mirroring live state in prose. Do not maintain a parallel manager-memory archive.
 
 ## Decisions and durable docs
 
 Create an ADR/equivalent only when a lasting architectural/product/operational decision needs future rationale or constraints. Capture context, decision, important trade-offs/consequences, and status; do not use ADRs as meeting minutes.
 
 Documentation earns its cost when it materially improves reproducibility, operation, review, or future maintenance. The absence of a generic document is not itself a defect.
+
+When durable coding-agent instructions are needed and no established equivalent exists, prefer one root `AGENTS.md`; add nested instruction files only for subtrees with genuinely different rules.
 
 ## Engineering-system repair
 
