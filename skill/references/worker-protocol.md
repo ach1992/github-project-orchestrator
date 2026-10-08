@@ -6,9 +6,9 @@ Workers are bounded implementation agents. Master keeps priority, contract chang
 
 Read the current work item/contract and repository instructions. Verify:
 
-- exact assigned repository;
+- exact assigned repository and Worker identity;
 - active Assignment ID + Contract Revision;
-- assigned branch and Integration Target;
+- exact `Base SHA`, assigned branch, and Integration Target;
 - `Start HEAD` for a new assignment, or Master-supplied `Checkpoint HEAD` for correction/resume;
 - scope, acceptance, required validation, and any explicit action constraints.
 
@@ -23,10 +23,12 @@ Persist the assignment identity in [task-contract.md](task-contract.md) before d
 ```text
 # WORKER DISPATCH
 
+Worker: <id>
 Repository: <exact repository>
 Issue/Work item: <canonical identity>
 Assignment ID: <unique generation>
 Contract Revision: <integer>
+Base SHA: <exact assignment/integration basis>
 Assigned Branch: <branch>
 Start HEAD: <sha for new generation>
 Checkpoint HEAD: <sha for correction/resume, otherwise none>
@@ -61,11 +63,11 @@ Ordinary reversible implementation choices stay with the Worker; do not bounce t
 
 ## 4. Staleness and blockers
 
-Return `STALE_ASSIGNMENT` when Assignment ID/Worker/revision/repository/assigned branch/Integration Target/checkpoint no longer matches, or when upstream/contract drift materially invalidates the implementation assumptions.
+Return `STALE_ASSIGNMENT` when Assignment ID/Worker/revision/repository/Base SHA/assigned branch/Integration Target/checkpoint no longer matches, or when upstream/contract drift materially invalidates the implementation assumptions.
 
 Normal authorized commits on the assigned branch do not make `Start HEAD` stale.
 
-Use one controlling status:
+Use the first applicable controlling status in this order:
 
 | Status | Use when |
 |---|---|
@@ -86,11 +88,15 @@ When the handoff is copied between chats/agents, apply [relay-transport.md](rela
 # WORKER HANDOFF
 
 STATUS: READY_FOR_REVIEW | BLOCKED | ENVIRONMENT_MISMATCH | STALE_ASSIGNMENT | SCOPE_CHANGE_REQUIRED | MATERIAL_DECISION_REQUIRED
+Worker: <id>
 Repository: <exact repository>
 Issue/Work item: <identity>
 Assignment ID: <id>
 Contract Revision: <n>
+Base SHA: <assignment/integration basis>
 Assigned Branch: <branch>
+Start HEAD: <immutable generation-start sha>
+Checkpoint HEAD: <correction/resume sha or none>
 HEAD: <current sha or unavailable>
 Integration Target: <branch>
 PR: <url or none>
@@ -109,6 +115,6 @@ The handoff is a locator and claim, not review proof. Master verifies current Gi
 
 ## 6. Correction/resume
 
-Reuse the same assignment generation only while the same Worker/branch/contract remains valid. Send the exact Repository, work item, Assignment ID, Contract Revision, Assigned Branch, Integration Target, reviewed current `Checkpoint HEAD`, and only the changed findings/constraints/required validation. Worker verifies that checkpoint before editing.
+Reuse the same assignment generation only while the same Worker/branch/contract remains valid. Send the exact Worker, Repository, work item, Assignment ID, Contract Revision, Base SHA, Assigned Branch, Integration Target, reviewed current `Checkpoint HEAD`, and only the changed findings/constraints/required validation. Worker verifies that checkpoint before editing.
 
 If responsibility, branch, contract assumptions, or generation validity materially changed, Master issues a fresh Assignment ID.

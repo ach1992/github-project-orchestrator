@@ -2,6 +2,8 @@
 
 Load when accepted work requires release/deployment, migration, rollback/roll-forward, incident/hotfix handling, or delivery verification.
 
+Before defining release actions, discover or recover the repository's actual release/deployment model and target semantics; do not infer them from branch names, habit, or a previous project.
+
 ## 1. Integration is not delivery
 
 A merge/target update proves only integration. When the accepted outcome requires delivery, verify the intended artifact/commit/config actually reached the named environment and that required post-deploy acceptance evidence is satisfied.
@@ -51,6 +53,8 @@ After deployment/release, verify the smallest authoritative evidence that proves
 - no blocking operational signal contradicts success.
 
 If evidence is unavailable or contradictory, report delivery as unproven/failed rather than declaring project completion.
+
+Close release-bound work only after required delivery evidence is satisfied and any material remaining rollback/risk obligation is resolved or explicitly owned.
 
 ## 6. Incident and hotfix
 

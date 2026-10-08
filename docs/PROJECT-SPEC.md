@@ -167,7 +167,7 @@ The following guarantees should survive representation changes unless explicitly
 - evidence before narrative;
 - one authoritative owner per kind of truth;
 - inspect before consequential mutation;
-- technical capability, risk, environment, coordination, or tool access never expands authorization;
+- authority/authorization is independent from technical capability, risk, environment, assurance, coordination, repository relationships, and tool access; those may constrain execution but never broaden authority;
 - scope changes only through valid direction/evidence;
 - Worker stop does not automatically become Master stop;
 - integration does not imply delivery;
@@ -194,12 +194,12 @@ Do not accept changes solely because they are shorter, more abstract, more elega
 
 ## 11. Baseline and release strategy
 
-- `v1.0.0` remains an immutable historical reference and installable tagged baseline; it is not a mandatory per-PR compatibility gate when current product goals no longer require its representation.
+- `v1.0.0` remains an immutable historical reference and installable tagged baseline and must remain unchanged; representation-specific compatibility need not run on every PR when it no longer protects a current product guarantee.
 - Runtime source lives under `skill/` and remains the single behavioral source for every supported platform.
 - Development-only project/design/validation artifacts live outside `skill/` unless intentionally required at runtime.
 - Runtime releases are versioned, validated, tied to immutable commits, and publish every supported platform artifact plus SHA-256 checksums from the same canonical source and commit. `skill.zip` remains the ChatGPT-compatible artifact name; `docs/PLATFORM-DISTRIBUTIONS.md` owns the current platform/asset inventory.
 - Platform-specific distribution adapters must remain minimal and may not become independently maintained runtime forks.
-- Changes should be coherent and reviewable. Do not split a semantically coupled simplification merely to preserve historical implementation stages; do split when acceptance, risk, ownership, rollback, or reviewability materially benefits.
+- Refactoring must remain coherent, reviewable, and behavior-mapped. Do not split a semantically coupled simplification merely to preserve historical implementation stages, but do not use bulk representation cleanup to bypass staged validation/review or current product guarantees.
 - Compare changes primarily against the current canonical goals, current accepted runtime behavior, and the relevant previous release. Use older baselines only when they answer a real long-range regression question.
 
 ## 12. Non-goals
@@ -224,5 +224,5 @@ At minimum:
 - replacement-Master cold recovery is correct and bounded;
 - delegation, review, integration, release, and production evidence remain fresh and identity-safe;
 - unauthorized authority escalation, stale review, false delivery, artificial stops/work, and blind retry regressions are covered by behavior-focused evaluation;
-- every supported distribution named in `docs/PLATFORM-DISTRIBUTIONS.md` is generated from the same canonical runtime without semantic drift;
+- every supported distribution named in `docs/PLATFORM-DISTRIBUTIONS.md` is generated and validated from the same canonical runtime without semantic drift;
 - material runtime changes are checked against G01-G16, the canonical Rule map, relevant behavior scenarios, and current release/tooling requirements without requiring obsolete representation compatibility.

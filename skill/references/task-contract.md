@@ -60,15 +60,15 @@ When a material revision invalidates a Worker assignment, stop that generation a
 Before dispatch, persist enough identity for a replacement Master to reconstruct the assignment without chat:
 
 - `Assignment ID`: unique current generation;
-- exact `Repository`;
+- exact `Repository` and assigned `Worker`;
 - work item + `Contract Revision`;
+- exact immutable `Base SHA` the assignment was framed against;
 - `Assigned Branch`;
 - immutable `Start HEAD` for a new generation, or exact `Checkpoint HEAD` for correction/resume;
 - `Integration Target`;
-- assigned Worker;
 - any exact action authorization or special release constraint not already clear from the contract.
 
-The assigned branch must differ from the Integration Target. Worktree paths are runtime locations, not assignment identity. Normal Worker commits may advance beyond `Start HEAD`; staleness means an external or material assumption changed, not that the Worker made progress.
+The assigned branch must differ from the Integration Target. `Base SHA` remains the historical integration/stacking basis; `Start HEAD` is the immutable generation start and normally equals Base SHA unless intentional stacking/divergence is part of the assignment. Worktree paths are runtime locations, not assignment identity. Normal Worker commits may advance beyond `Start HEAD`; staleness means an external or material assumption changed, not that the Worker made progress.
 
 ## Ready to execute
 

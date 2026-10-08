@@ -30,6 +30,7 @@ REQUIRED_PATHS = (
     "assets/icon.svg",
     *(f"references/{name}" for name in RUNTIME_REFERENCES),
     "scripts/repo_preflight.py",
+    "scripts/contract_check.py",
 )
 
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
@@ -149,15 +150,42 @@ def validate_traceability(repo_root: Path) -> None:
 
     runtime_names = {"SKILL.md", *RUNTIME_REFERENCES}
     anchored_evals: set[str] = set()
+    owned_runtime: set[str] = set()
+    normalized_guarantees: dict[str, str] = {}
+
     for row in rule_rows:
+        rule_id = row.group("rule")
         owner = row.group("owner").strip().strip(chr(96))
         if owner not in runtime_names:
-            fail(f"Rule {row.group('rule')} has unknown runtime owner: {owner}")
-        anchors = parse_csv_ids(row.group("evals"), r"[A-Z]+", f"Rule {row.group('rule')}")
+            fail(f"Rule {rule_id} has unknown runtime owner: {owner}")
+        owned_runtime.add(owner)
+
+        sources = {
+            part.strip().strip(chr(96))
+            for part in row.group("sources").split(";")
+            if part.strip()
+        }
+        unknown_sources = sorted(sources - runtime_names)
+        if unknown_sources:
+            fail(f"Rule {rule_id} references unknown runtime sources: {unknown_sources}")
+        if owner not in sources:
+            fail(f"Rule {rule_id} canonical owner must also appear in its runtime sources: {owner}")
+
+        normalized = re.sub(r"\W+", " ", row.group("guarantee").lower()).strip()
+        prior = normalized_guarantees.get(normalized)
+        if prior is not None:
+            fail(f"Rules {prior} and {rule_id} duplicate the same normalized guarantee")
+        normalized_guarantees[normalized] = rule_id
+
+        anchors = parse_csv_ids(row.group("evals"), r"[A-Z]+", f"Rule {rule_id}")
         unknown = sorted(anchors - eval_set)
         if unknown:
-            fail(f"Rule {row.group('rule')} references missing evals: {unknown}")
+            fail(f"Rule {rule_id} references missing evals: {unknown}")
         anchored_evals.update(anchors)
+
+    missing_rule_owners = sorted(set(RUNTIME_REFERENCES) - owned_runtime)
+    if missing_rule_owners:
+        fail(f"Runtime references without any canonical Rule ownership: {missing_rule_owners}")
 
     goal_rows = list(GOAL_ROW_RE.finditer(goal_map))
     goal_ids = [row.group("goal") for row in goal_rows]

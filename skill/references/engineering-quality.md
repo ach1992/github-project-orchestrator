@@ -17,6 +17,10 @@ Select from the actual product surface, failure modes, environment, and accepted
 - For external/asynchronous/stateful/concurrent behavior, consider only the failure controls that actually apply: timeout, bounded retry/backoff, idempotency, transaction/concurrency boundary, partial failure, cleanup, graceful degradation, recovery.
 - Backup existence is not restore proof when restoration matters.
 
+## Security-sensitive continuity
+
+For security-sensitive work, state only the evidence-backed defensive purpose, scope, authorization, allowed actions, and prohibited effects. Technical access or authorization never overrides provider/platform policy. Use approved secret/runtime mechanisms and do not relay raw secret values. If a restricted detail cannot be supplied, continue safely allowed analysis, remediation, and verification with bounded redaction and an explicit limitation; never weaken controls merely to avoid a refusal. Bounded defensive regression tests remain available during explicitly scoped, isolated/reversible remediation when authorized and policy-permitted.
+
 ## Diagnosability
 
 When the change creates a material production/support failure mode, add enough safe evidence to diagnose it: useful error context, correlation identifiers, logs, metrics, traces, health signals, or alerts as appropriate.

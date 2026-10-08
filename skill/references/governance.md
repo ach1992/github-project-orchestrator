@@ -6,11 +6,7 @@ Load for first ownership, repository readiness, project structure, Issues/Projec
 
 Resolve the project definition and exact repository target before substantial work.
 
-Use this order for repository and management objects:
-
-`discover -> reuse/update -> create only when absence is established -> verify`
-
-An incomplete search is not proof of absence. Avoid duplicate repositories, Issues, labels, milestones, Projects, branches, and documents.
+Apply the kernel Mutation rule to repository and management objects. Avoid duplicate repositories, Issues, labels, milestones, Projects, branches, and documents; incomplete search never proves absence.
 
 When a repository must be created, apply [authority-gates.md](authority-gates.md), resolve material settings not already fixed by policy, create once, and verify the resulting identity.
 
@@ -67,6 +63,6 @@ Treat repeated management or CI friction as an engineering problem when evidence
 
 Fix the root mechanism with the smallest maintainable change. Do not create a recurring process-audit obligation.
 
-For CI bottlenecks, prefer removing duplicate work/triggers, cancelling superseded runs, caching, or isolation-preserving parallelism/sharding before reducing meaningful coverage. Measure the actual bottleneck and payoff when practical.
+When the evidenced bottleneck is CI/automation, use [engineering-quality.md](engineering-quality.md) for the optimization mechanism; governance only decides whether that repair earns current scope.
 
 For complex local Git safety/identity inspection, `scripts/repo_preflight.py` is an optional deterministic helper; use it when its bounded read-only evidence is more reliable than ad-hoc shell inspection, not as mandatory ceremony.

@@ -41,11 +41,13 @@ jobs:
       - name: Validate Skill structure and traceability
         run: python3 tools/validate_skill.py skill
 
-      - name: Validate simplified runtime semantics and size budget
+      - name: Validate runtime budget and canonical rules
         run: python3 tests/test_runtime_semantics_v2.py
 
-      - name: Test repository preflight safety helper
-        run: python3 tests/test_repo_preflight.py
+      - name: Test compatibility and safety helpers
+        run: |
+          python3 tests/test_contract_check_phase2.py
+          python3 tests/test_repo_preflight.py
 
       - name: Test release and packaging tooling
         run: |
@@ -54,8 +56,18 @@ jobs:
           python3 tests/test_package_platform_skills.py
           python3 tests/test_publish_release.py
 
-      - name: Build canonical candidate package
-        run: python3 tools/package_skill.py skill skill.zip skill.zip.sha256
+      - name: Build and validate exact candidate packages
+        run: |
+          python3 tools/package_skill.py skill skill.zip skill.zip.sha256
+          python3 tools/package_platform_skills.py skill manus github-project-orchestrator-manus.zip github-project-orchestrator-manus.zip.sha256
+          python3 tools/package_platform_skills.py skill qwen github-project-orchestrator-qwen.zip github-project-orchestrator-qwen.zip.sha256
+          python3 tools/package_platform_skills.py skill claude github-project-orchestrator-claude.zip github-project-orchestrator-claude.zip.sha256
+          python3 tools/package_platform_skills.py skill zcode github-project-orchestrator-zcode.zip github-project-orchestrator-zcode.zip.sha256
+          python3 tools/package_platform_skills.py skill grok github-project-orchestrator-grok.zip github-project-orchestrator-grok.zip.sha256
+          python3 tools/package_platform_skills.py skill kimi github-project-orchestrator-kimi.zip github-project-orchestrator-kimi.zip.sha256
+          python3 tools/package_platform_skills.py skill gemini github-project-orchestrator-gemini.zip github-project-orchestrator-gemini.zip.sha256
+          python3 tools/package_platform_skills.py skill deepseek github-project-orchestrator-deepseek.zip github-project-orchestrator-deepseek.zip.sha256
+          python3 tools/package_platform_skills.py skill copilot github-project-orchestrator-copilot.zip github-project-orchestrator-copilot.zip.sha256
 
       - name: Verify clean runtime source
         shell: bash
