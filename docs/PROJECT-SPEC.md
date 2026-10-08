@@ -192,15 +192,15 @@ Every material proposed change to the Skill should answer:
 
 Do not accept changes solely because they are shorter, more abstract, more elegant, or more automated.
 
-## 11. Baseline and release strategy
+## 11. Runtime and release strategy
 
-- `v1.0.0` remains an immutable historical reference and installable tagged baseline and must remain unchanged; representation-specific compatibility need not run on every PR when it no longer protects a current product guarantee.
+- Current canonical goals, accepted runtime behavior, and current repository/platform requirements are the authority for Skill evolution. Historical releases/tags are evidence, not design or compatibility authority, unless a current requirement explicitly requires compatibility with one.
 - Runtime source lives under `skill/` and remains the single behavioral source for every supported platform.
 - Development-only project/design/validation artifacts live outside `skill/` unless intentionally required at runtime.
 - Runtime releases are versioned, validated, tied to immutable commits, and publish every supported platform artifact plus SHA-256 checksums from the same canonical source and commit. `skill.zip` remains the ChatGPT-compatible artifact name; `docs/PLATFORM-DISTRIBUTIONS.md` owns the current platform/asset inventory.
 - Platform-specific distribution adapters must remain minimal and may not become independently maintained runtime forks.
 - Refactoring must remain coherent, reviewable, and behavior-mapped. Do not split a semantically coupled simplification merely to preserve historical implementation stages, but do not use bulk representation cleanup to bypass staged validation/review or current product guarantees.
-- Compare changes primarily against the current canonical goals, current accepted runtime behavior, and the relevant previous release. Use older baselines only when they answer a real long-range regression question.
+- Compare changes against the current canonical goals, current accepted runtime behavior, and current release/tooling requirements. Use historical releases only as optional regression evidence when they answer a real question.
 
 ## 12. Non-goals
 
