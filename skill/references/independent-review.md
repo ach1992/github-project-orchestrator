@@ -15,7 +15,7 @@ Give the reviewer only what is needed to reproduce the review envelope:
 
 Repository: <exact repository>
 Integration Target/Base: <branch + current sha>
-Candidate: <exact sha/PR>
+Candidate: <exact sha> (PR <url/number if applicable>)
 Work item / acceptance: <identity or concise criteria>
 Risk-specific concerns: <only material items>
 Current validation evidence: <checks/CI tied to candidate>
@@ -48,12 +48,18 @@ Envelope:
 Findings:
 - BLOCKER | REQUIRED | OPTIONAL — <evidence-backed finding>
   Evidence: <file/diff/check/current source>
+  Impact: <why it matters>
+  Action: <smallest required fix, or optional recommendation>
+  Verification: <how resolution can be proved>
+
+Residual risk:
+- <none or material residual risk not already represented by a finding>
 
 Limitations:
 - <none or exact missing evidence/access>
 ```
 
-`APPROVE` is valid only when the exact current envelope was completely reviewed and no BLOCKER/REQUIRED finding remains. Missing access/evidence yields `INCOMPLETE / NO_VERDICT`, not an invented defect or approval.
+`APPROVE` is valid only when the exact current envelope was completely reviewed and no BLOCKER/REQUIRED finding remains. Missing access/evidence yields `INCOMPLETE / NO_VERDICT`, not an invented defect or approval. Write `None.` when no finding exists; BLOCKER/REQUIRED findings must provide a concrete repair and verification path.
 
 ## Master reconciliation
 
