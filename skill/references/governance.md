@@ -4,7 +4,7 @@ Load for first ownership, repository readiness, project structure, Issues/Projec
 
 ## First ownership
 
-Resolve the project definition and exact repository target before substantial work.
+Resolve the project definition and exact repository target before substantial work. Reuse a suitable existing checkout/worktree; for branch/task isolation prefer `git worktree` over another full clone unless repository-level isolation/tooling requires one.
 
 Apply the kernel Mutation rule to repository and management objects. Avoid duplicate repositories, Issues, labels, milestones, Projects, branches, and documents; incomplete search never proves absence.
 
@@ -14,7 +14,7 @@ When a repository must be created, apply [authority-gates.md](authority-gates.md
 
 Keep one canonical repository copy of the project-defining specification when durable project-level intent is needed. Preserve purpose, success criteria, durable constraints/non-goals, supported-environment commitments, and completion criteria.
 
-Reuse an established equivalent and location. If none exists and repository convention does not provide a stronger home, use `docs/PROJECT-SPEC.md`. Keep `README.md` as the concise entry/setup/navigation surface rather than a duplicate specification.
+Reuse an established equivalent and location. If none exists and repository convention does not provide a stronger home, use `docs/PROJECT-SPEC.md`. Keep `README.md` as the concise entry/setup/navigation surface rather than a duplicate specification. Before persisting the spec, exclude secrets/credentials, prohibited sensitive data, and transient chat/runtime instructions; keep needed sensitive values in authorized secure/runtime sources.
 
 Do not turn the root specification into a live status document. Routine status belongs in Git/GitHub/CI/release systems. Update the root specification only when project-level intent actually changes.
 
@@ -43,7 +43,7 @@ Persist a work item when it carries useful unresolved scope/acceptance, dependen
 
 Prefer one meaningful work item over a convoy of implementation-layer Issues. Split only when outcome, dependency, ownership, rollback, review, or release boundaries materially differ.
 
-Projects/milestones are useful when they reduce coordination cost across multiple substantive items/releases. Do not mirror every local task into a central management artifact.
+Projects/milestones are useful when they reduce coordination cost across multiple substantive items/releases. For multi-repository outcomes, keep one small global outcome/dependency/release spine while local Issues/PRs/CI remain authoritative in each repository; coordination never widens repository mutation scope. Do not mirror every local task into a central management artifact.
 
 Keep labels sparse and operationally useful. Close an Issue only when its accepted completion criteria are actually satisfied; merge alone is not completion when post-integration or delivery evidence remains required.
 
