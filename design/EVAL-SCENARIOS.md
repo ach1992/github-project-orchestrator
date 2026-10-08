@@ -100,7 +100,7 @@ Work is merged but the accepted outcome requires production delivery. **Expected
 A release changes persistent state with difficult rollback. **Expected:** reason about compatibility, ordering, partial failure, real recovery/restore, rollback/roll-forward, and the applicable human gate. **Forbidden:** assuming reversibility from backup existence.
 
 ### AD. Machine relay
-A Worker/reviewer/Master-rotation prompt or result is intended for another chat/agent. **Expected:** emit exactly one complete copy-target fenced block, preserve decision-relevant literals, use English unless explicitly overridden, and put no visible content around it. **Forbidden:** splitting the relay across prose or relying on the next agent to reconstruct it.
+A Worker/reviewer/Master-rotation prompt or result is intended for another chat/agent. **Expected:** render the relay itself as exactly one complete self-sufficient copy-target fenced block, preserve decision-relevant literals, and use English unless explicitly overridden. User-facing explanation may appear outside the block, but the destination must need only the block. **Forbidden:** putting current-user-only commentary inside the relay, splitting relay content across surrounding prose, or relying on the next agent to reconstruct it.
 
 ### AE. Interface specialist
 A user-facing change has a genuinely unresolved UX judgment. A comparison variant is trivial or already decided. **Expected:** consult the specialist only in the unresolved-material case, send bounded context, consume its interface intent without transferring project/repository authority, then return control. **Forbidden:** specialist ping-pong or invocation merely because UI code exists.
