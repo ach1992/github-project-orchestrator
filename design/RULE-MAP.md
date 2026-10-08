@@ -34,6 +34,6 @@ This map traces product guarantees to their current runtime owner. It intentiona
 | `OPTIMISTIC-CONCURRENCY` | Refresh overwrite-sensitive identity and honor supported expected-version guards; reconcile drift instead of forcing. | `authority-gates.md` | `authority-gates.md` | K |
 | `MATERIAL-DECISION` | Agent owns ordinary reversible technical choices; owner handles materially product/business/security/data/legal/cost/risk choices. | `authority-gates.md` | `authority-gates.md` | L |
 | `SECURITY-REVIEW-BOUNDARY` | Independent read-only security review relies on safe existing evidence; missing assurance becomes a finding/limitation, not reviewer-created adversarial execution. | `independent-review.md` | `independent-review.md` | AA |
-| `MACHINE-RELAY` | Inter-agent user-visible relay is one complete exact copy target with canonical transport semantics. | `relay-transport.md` | `SKILL.md`; `relay-transport.md` | AD |
+| `MACHINE-RELAY` | The relay block is one complete self-sufficient copy target; optional current-user explanation stays outside it and is never required by the destination. | `relay-transport.md` | `SKILL.md`; `relay-transport.md` | AD |
 | `INTERFACE-COMPOSITION` | Consult interface specialist only for unresolved material UX judgment without transferring project/repository authority. | `interface-specialist.md` | `interface-specialist.md`; `engineering-quality.md` | AE |
 | `USER-STOP` | Explicit user stop ends new consequential mutation without cleanup/sync ceremony unless requested. | `master-cycle.md` | `master-cycle.md` | M |
