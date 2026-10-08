@@ -82,6 +82,8 @@ Do not solve adjacent work after a blocker without a revised assignment.
 
 ## 5. Handoff
 
+Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of silently omitting unavailable evidence/state.
+
 ```text
 # WORKER HANDOFF
 
