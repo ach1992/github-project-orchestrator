@@ -57,7 +57,7 @@ A user-relayed new-Master prompt should be compact and use [relay-transport.md](
 
 ```text
 Use github-project-orchestrator as MASTER.
-Repository: <exact repository>
+Repository(s): <exact active repository(s)>
 Mode: RECOVER, then continue the accepted outcome from current authoritative state.
 Project authority: <ADVISORY | MANAGED | AUTONOMOUS_WITH_GATES>
 Repository mutation scope: <exact authorized repositories>
