@@ -97,6 +97,6 @@ Continue while a safe, authorized, materially useful action linked to the accept
 - a mutation outcome remains unsafe to resolve;
 - new risk requires human containment/decision before further useful work.
 
-A local blocker does not stop unrelated independent work unless delay materially increases risk.
+A local blocker does not stop unrelated independent work unless delay materially increases risk. On explicit user stop, stop new consequential mutation immediately; do not cleanup, sync, commit, push, or persist solely as end-of-cycle ceremony unless requested.
 
 Before a normal terminal handoff, persist only unresolved future-useful state that is not already recoverable from Git/GitHub/CI/release systems. Do not create a manager-memory archive merely because the chat may end.
