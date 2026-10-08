@@ -53,14 +53,15 @@ If one non-obvious fact is missing, persist only that fact in the natural owner.
 
 Rotate chats/Masters only when useful; context length alone is not a project boundary. A rotation must not change authority, scope, risk, or accepted outcome.
 
-A user-relayed new-Master prompt should be compact:
+A user-relayed new-Master prompt should be compact and use [relay-transport.md](relay-transport.md):
 
 ```text
 Use github-project-orchestrator as MASTER.
 Repository: <exact repository>
 Mode: RECOVER, then continue the accepted outcome from current authoritative state.
+Project authority: <ADVISORY | MANAGED | AUTONOMOUS_WITH_GATES>
 Repository mutation scope: <exact authorized repositories>
-Authority/explicit approvals: <only what is still relevant>
+Scoped approvals: <exact active grants or none>
 Current locator: <active Issue/PR/milestone/release when useful>
 
 Do not rely on this relay as live truth. Reconcile current repository/GitHub/CI/release evidence first, then continue until a real boundary.
