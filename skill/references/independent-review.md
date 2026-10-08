@@ -1,12 +1,10 @@
 # Independent Review
 
-Load only when an independent reviewer is required by repository policy, explicit instruction, or material risk/assurance. Master remains integration owner.
+Load only when an independent reviewer is required by repository policy, explicit instruction, or material risk/assurance. Master remains integration owner. For user-mediated review dispatch or result, apply [relay-transport.md](relay-transport.md).
 
 Prefer one independent review after the candidate is stable enough for acceptance. Do not use repeated reviewer cycles as an implementation loop.
 
 ## Dispatch
-
-When relayed between agents/chats, apply [relay-transport.md](relay-transport.md).
 
 Give the reviewer only what is needed to reproduce the review envelope:
 
@@ -16,7 +14,7 @@ Give the reviewer only what is needed to reproduce the review envelope:
 Repository: <exact repository>
 Integration Target/Base: <branch + current sha>
 Candidate: <exact sha> (PR <url/number if applicable>)
-Work item / acceptance: <identity or concise criteria>
+Work item / acceptance: <identity + current revision when persisted, or concise criteria>
 Risk-specific concerns: <only material items>
 Current validation evidence: <checks/CI tied to candidate>
 Reviewer authority: READ_ONLY unless an exact additional action is explicitly authorized
@@ -43,7 +41,8 @@ Envelope:
 - Repository:
 - Integration Target/Base:
 - Candidate:
-- Work item/acceptance:
+- Pull Request: <url/number or none>
+- Work item/acceptance: <identity + current revision when persisted, or concise criteria>
 
 Findings:
 - BLOCKER | REQUIRED | OPTIONAL — <evidence-backed finding>
