@@ -1,156 +1,77 @@
 # Task Contract
 
-Use a compact Task Contract when explicit coordination/control improves execution; do not require one merely because code behavior changes. Prefer an existing Issue/authoritative work item when the contract must survive delegation, coordination, material risk, or context loss. For bounded low/medium-risk Master-only work whose goal, acceptance, validation, dependencies, and rollback are already clear from user request + repository evidence, use the implicit fast-path contract.
+Use an explicit Task Contract only when it materially improves coordination, delegation, risk control, or recovery. Routine Master-only work can use the accepted request plus current repository evidence; do not create an Issue or READY artifact merely because code changes behavior.
 
-## Contents
+## When a contract is useful
 
-[Lifecycle](#1-logical-lifecycle) · [Execution path](#2-execution-path-and-contract-threshold) · [Schema](#3-compact-contract-schema) · [Acceptance](#4-acceptance-criteria) · [Validation](#5-validation-strategy) · [Risk](#6-change-risk) · [Revision](#7-contract-revision) · [Worker identity](#8-worker-assignment-identity) · [READY](#9-ready-gate)
+Persist a contract for Worker assignments and when multi-actor or cross-session coordination, material dependencies/decisions, high-consequence work, or repository policy needs durable identity. Otherwise keep the work implicit or transient. Reuse an existing suitable Issue/work item rather than creating a parallel contract.
 
-## 1. Logical lifecycle
+Keep one contract for a cohesive outcome across partial commits or PRs. Do not close and recreate it at mechanical implementation seams.
 
-Map to existing repository workflow when possible. State names are namespace-qualified so matching tokens in other domains never imply propagation:
+## Compact contract
 
-`TaskState.DRAFT -> TaskState.BLOCKED | TaskState.READY -> TaskState.IN_PROGRESS -> TaskState.IN_REVIEW -> TaskState.CHANGES_REQUESTED | TaskState.INTEGRATION_READY -> TaskState.INTEGRATED`
-
-Also allow namespaced task states such as `TaskState.CANCELLED`, `TaskState.SUPERSEDED`, and `TaskState.ROLLED_BACK` when applicable. Legacy `MERGE_READY` is the compatibility name for `TaskState.INTEGRATION_READY`; it does not require a PR/merge mechanism when the recognized repository-normal integration path is non-PR.
-
-Delivery is a separate dimension. `DeliveryRequirement=INTEGRATION_ONLY` adds no separate delivery step after the accepted work's own completion criteria and required integration verification are satisfied; it does not waive explicit post-integration proof. When `DeliveryRequirement=DELIVERY_REQUIRED`, track the explicit `DeliveryTarget` and the independent lifecycle `DeliveryState.NOT_STARTED -> DeliveryState.PENDING -> DeliveryState.DELIVERED`, with `DeliveryState.FAILED_OR_UNKNOWN` when evidence is missing or delivery fails. Never infer `DeliveryState` from `DeliveryTarget`, or delivery completion from `TaskState.INTEGRATED`.
-
-## 2. Execution path and contract threshold
-
-`SUBSTANTIVE` means observable behavior/interface/dependency/data/security/operations or review complexity changes materially; `TRIVIAL` means none do. Use this distinction only when it affects delegation, validation, or helper behavior. Neither is a required per-change state, `RiskLevel`, `CoordinationBaseline`, `AssuranceLevel`, FAST/FULL selector, or contract trigger by itself; substantive work may still be safe for Master FAST PATH.
-
-Choose `ExecutionPath=FAST|FULL` with the canonical criteria in `master-cycle.md`, then decide contract form/persistence without conflating those dimensions:
-
-| Situation | Contract / READY behavior |
-|---|---|
-| FAST Master work with no relevant existing explicit contract | user request + current repository evidence may serve as the implicit contract; no READY artifact |
-| FAST Master work already owned by a relevant explicit Issue/contract | reuse and keep that existing contract current; do not create a second contract or promote to FULL merely because the artifact exists |
-| FULL Master work | explicit Task Contract + READY before contracted implementation |
-| Any Worker dispatch / multi-actor implementation | explicit full compact Task Contract + READY + persisted assignment identity before dispatch |
-
-Persist an explicit contract only when durable identity materially helps delegation, multi-item/cross-session coordination, recovery, unresolved blockers/decisions, material risk, or repository/team policy; otherwise FULL Master work may stay transient. If intent would become unrecoverable, persist only the minimum unresolved intent in its natural owner, reusing an existing work item when suitable. Cohesive partial PRs keep the same persisted contract open; do not close/recreate it for mechanical seams. Close it only when the accepted outcome completes or the contract otherwise legitimately terminates under the existing `TaskState` lifecycle.
-
-## 3. Compact contract schema
-
-When an explicit Task Contract is warranted, include as applicable:
+Include only decision-relevant fields:
 
 ```markdown
-Contract Revision: 1
+Contract Revision: <positive integer when persisted/delegated>
 
 ## Goal
-<observable outcome and why it matters>
+<observable result>
 
 ## Scope
-- In: ...
-- Out: ...
+In: <material boundaries>
+Out: <material exclusions>
 
 ## Acceptance
-- [ ] ...
+- [ ] <observable criterion>
 
 ## Validation
-- <exact automated checks, reproduction, or manual verification>
+- <required evidence; separate targeted development checks from final required gates>
 
-## Dependencies
-- #... or none
+## Dependencies / Constraints
+- <material items or none>
 
-## Risk / Release
-Risk: <LOW | MEDIUM | HIGH | CRITICAL plus material notes>
-Delivery Requirement: <INTEGRATION_ONLY | DELIVERY_REQUIRED>
-Delivery Target: <explicit target when delivery is required; omit when not applicable>
-Delivery State: <NOT_STARTED | PENDING | DELIVERED | FAILED_OR_UNKNOWN when persisted here>
+## Risk / Delivery
+- <material risk, rollback, migration, release, or delivery requirements>
 ```
 
-Use positive integer `Contract Revision` for persisted work that may be delegated/materially revised. Transient explicit Master-only contract may omit it; persist + add revision before Worker dispatch or whenever cross-cycle reconciliation needs identity. Delivery fields need not be duplicated when an existing authoritative release/deployment object already owns them; when they are persisted in the contract, keep `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState` independent. Optional only when useful: parent/milestone, affected interfaces/data stores, rollback requirement, owner/Worker. Do not copy repo-wide rules into each Issue; link durable rules and use native GitHub relationships when available.
+Do not copy repository-wide rules into every contract. Link the authoritative source when needed. Acceptance must be observable or verifiable rather than vague.
 
-## 4. Acceptance criteria
+## Validation planning
 
-Criteria must be observable behavior or verifiable engineering properties; define important negative/edge behavior when failure matters. Avoid vague `works correctly`, `clean code`, or `handle edge cases` without stating what must be true.
+Define minimum sufficient evidence, not every possible check.
 
-## 5. Validation strategy
+- Bug: reproduce when practical, add or use a regression check, then run relevant required gates.
+- Feature: prove changed behavior; add integration/end-to-end evidence when that boundary matters.
+- Refactor: prove behavior is preserved with relevant tests/static checks.
+- Infra/config: use syntax, plan, dry-run, staging, or equivalent evidence proportional to impact.
+- High-consequence data, authorization, or migration work: include the relevant failure, compatibility, recovery, or rollback evidence.
 
-Choose the strongest practical evidence for the change:
+During coding, use targeted checks when their result can influence the next step. Broad repository-required validation belongs on a sufficiently stable exact candidate unless policy or risk requires it earlier. Reuse evidence while the code/config/environment/requirement it proves remains materially unchanged. Never weaken checks to manufacture a pass.
 
-| Change | Strong practical evidence |
-|---|---|
-| bug | reproduce when practical; regression test; relevant suite |
-| feature | behavior tests + integration/e2e where boundary requires |
-| refactor | preserved behavior with existing/new tests + targeted static checks |
-| docs | relevant link/command/example validation |
-| config/infra | syntax/plan/dry-run/staging + rollback awareness |
-| migration/data | forward behavior, compatibility window, partial failure, rollback/restore/roll-forward proportional to risk |
-| security-sensitive | permission/abuse/input/error-path checks + happy path |
+## Contract revision
 
-Treat validation as a **minimum sufficient evidence plan**, not an inventory of every possible check:
+Increment the revision only when goal, scope, acceptance, required validation, material dependency, risk, or delivery expectation changes. Wording cleanup does not need a new revision.
 
-- `Minimum` removes duplicate proof, never an independent acceptance/risk/compatibility/security/data/repository-policy guarantee; every material requirement still needs adequate evidence.
-- Prefer fast local discriminating feedback for the changed surface, then rely on repository-required/current CI or other authoritative gates for the broader proof they own. Do not duplicate a broad local suite when it adds no material differential signal.
-- Reuse green evidence only while the exact code/object surface it proves, relevant dependency/config/toolchain/environment assumptions, and the requirement proved remain unchanged; unrelated SHA movement alone does not invalidate that evidence or make it a fresh run on the new candidate.
+When a material revision invalidates a Worker assignment, stop that generation and issue a new assignment or correction through [worker-protocol.md](worker-protocol.md).
 
-If the current local environment is **proven** unable to execute a required check faithfully (for example a deterministic preflight shows a missing required service/extension, incompatible database semantics are established, or a resource ceiling is reproducible), record that limitation once for the unchanged conditions and use an available compatible authoritative environment/CI route. One ambiguous or plausibly transient failure is not proof of incompatibility. Do not repeatedly invoke the same proven-incompatible local route unless relevant conditions changed.
+## Worker assignment identity
 
-Never weaken tests/checks to manufacture a pass. Repository-required checks remain mandatory for every candidate identity to which policy binds them; evidence reuse or route substitution never bypasses a required gate.
+Before dispatch, persist enough identity for a replacement Master to reconstruct the assignment without chat:
 
-## 6. Change risk
+- `Assignment ID`: unique current generation;
+- exact `Repository`;
+- work item + `Contract Revision`;
+- `Assigned Branch`;
+- immutable `Start HEAD` for a new generation, or exact `Checkpoint HEAD` for correction/resume;
+- `Integration Target`;
+- assigned Worker;
+- any exact action authorization or special release constraint not already clear from the contract.
 
-Use only as much `RiskLevel` classification as controls need:
+The assigned branch must differ from the Integration Target. Worktree paths are runtime locations, not assignment identity. Normal Worker commits may advance beyond `Start HEAD`; staleness means an external or material assumption changed, not that the Worker made progress.
 
-| Risk | Meaning |
-|---|---|
-| `LOW` | localized, reversible, small blast radius |
-| `MEDIUM` | meaningful behavior/interface change with bounded rollback |
-| `HIGH` | material security/auth/data migration/broad compatibility/production stability impact |
-| `CRITICAL` | potentially destructive/irreversible, major security exposure, or high production blast radius |
+## Ready to execute
 
-Importance alone does not make risk high. A task may temporarily need `AssuranceLevel=HIGH_ASSURANCE` without changing unrelated work's `CoordinationBaseline`, assurance, or Authority.
+Before Worker dispatch or other coordination-heavy implementation, ensure scope is implementable, acceptance is observable, required validation is known, dependencies are satisfied or intentionally sequenced, and material owner decisions are resolved.
 
-## 7. Contract revision
-
-Increment only when active work materially changes outcome, scope, acceptance, validation, dependencies, risk, or release expectations. Then: briefly note material change in authoritative Issue/PR -> reconcile implementation/dependencies -> invalidate stale Worker assignments -> never overwrite concurrent contract revision without `authority-gates.md` optimistic reconciliation. Do not increment for wording-only cleanup.
-
-## 8. Worker assignment identity
-
-Before any Worker dispatch, bind/persist:
-
-| Field | Requirement |
-|---|---|
-| `Assignment ID` | unique current generation; stable during that generation; fresh generation/nonce after replacement/reissue/invalidation (e.g. `184-r3-g2-a7f91de`); never reuse superseded/cancelled/replaced ID |
-| Work item / revision | Issue/work-item identity + numeric `Contract Revision` |
-| `Repository` | exact canonical repository identity used at dispatch and persisted as assignment identity; must not be inferred from Issue, dependency, project, or surrounding repository context; `worker-protocol.md` consumes this exact value as the Worker's repository mutation boundary |
-| Git start | exact `Base SHA`; `Assigned Branch` as local branch or `refs/heads/<branch>` (never worktree path/remote-tracking ref); exact immutable `Start HEAD` (Base SHA when no divergence is intended) |
-| `Integration Target` | distinct canonical repository branch: simple name such as `main`, or `refs/heads/<branch>` when name contains `/`; never `origin/main` or `refs/remotes/origin/main` |
-| Execution envelope | Worker identity; `Assignment Status: ACTIVE` at dispatch, later reconciled to the repository's completed/superseded/cancelled equivalent; inherited `Project Authority` (`MANAGED` or `AUTONOMOUS_WITH_GATES`); `Coordination Baseline` (`LIGHTWEIGHT` or `STANDARD`); `Assurance Level` (`NORMAL` or `HIGH_ASSURANCE`); exact `Scoped Authorization` when one applies; required validation + risk/release constraints |
-| Correction / resume | exact `Checkpoint HEAD` supplied by Master for the same assignment generation; omit it on initial dispatch unless a correction/resume checkpoint already exists |
-
-Persist this minimum in authoritative existing work item/repo-native equivalent **before dispatch**, so replacement Master can reconstruct assignment before first push/PR/handoff.
-
-- Fresh Assignment ID for new generation, including different Worker or reissue after supersede/cancel/invalidation; same ID for ordinary corrections on the same valid Worker/branch/PR.
-- Worktree path is transient runtime location, never persisted assignment identity. On **initial dispatch before the first contracted edit**, verify the assigned branch/worktree current HEAD equals immutable `Start HEAD`. After normal authorized Worker commits in the same valid generation, `Start HEAD` remains the historical verified start and is no longer a required equality with current HEAD. For a same-generation correction/resume, Master supplies the reviewed/current `Checkpoint HEAD`; verify current assigned-branch HEAD against that checkpoint before editing.
-- Assigned Worker branch must differ from canonical Integration Target; direct integration remains Master responsibility. Remote-tracking aliases are invalid Integration Target identity because they can disguise the same branch.
-- Assignment ID is correlation/generation aid, not new truth: authoritative work item identifies active generation; Git refs own code state; persisted worker/repository/base/revision/branch/start-HEAD/target preserve dispatch assumptions for stale detection.
-- `ProjectAuthority` is project-wide authority. `ScopedAuthorization`, when present, is an exact grant for its stated action/target/effect and never silently upgrades `ProjectAuthority`, `CoordinationBaseline`, or `AssuranceLevel`.
-
-The schema above is the canonical assignment-identity input consumed by `worker-protocol.md` §4 for staleness classification. Normal authorized Worker commits may advance current HEAD beyond `Start HEAD`; that field remains the immutable verified generation start.
-
-During Phase 2 compatibility, `scripts/contract_check.py` accepts legacy `Authority` as `Project Authority` and legacy `Expected Starting HEAD` as `Start HEAD`. Legacy `Operating Profile: LIGHTWEIGHT|STANDARD` maps losslessly to the same `CoordinationBaseline` with `AssuranceLevel=NORMAL`. Legacy `Operating Profile: HIGH_ASSURANCE` is accepted only when an authoritative `Coordination Baseline` is also persisted; otherwise the helper rejects the ambiguous state rather than guessing a baseline.
-
-## 9. READY gate
-
-Applies to delegated work and FULL-path Master work. FAST Master work needs no READY artifact, but the same decision-relevant facts must be clear enough to act safely.
-
-| READY condition | If not yet true |
-|---|---|
-| outcome/scope is implementable and unambiguous enough for this change | discover/refine; split only when needed |
-| acceptance is observable | define the smallest verifiable acceptance boundary |
-| validation is defined | identify the strongest practical evidence before implementation/dispatch |
-| dependencies are satisfied or intentionally/safely stacked | unblock, sequence, or make stacking explicit |
-| required product/architecture/security decisions are resolved | Master decides bounded reversible technical choices; escalate only canonical material decisions |
-| risk/release implications are understood enough for the next action | inspect/classify/gate proportionally before acting |
-
-Discover safely discoverable missing information read-only instead of asking the user. READY is a decision gate, not a documentation ceremony: do not create extra artifacts merely to represent facts already authoritative and recoverable elsewhere.
-
-Use `scripts/contract_check.py` when a local contract is available and convenient:
-
-- `--worker` requires the full compact Task Contract plus a dispatch-ready `ACTIVE` assignment regardless of `--level`; include `Issue:` or pass known identity with `--issue`.
-- The helper ignores fenced examples/HTML comments and rejects duplicate canonical sections/fields, placeholder/empty required sections, placeholder assignment values, invalid/non-local Assigned Branch, invalid/non-canonical or remote-tracking Integration Target, same-branch target, zero object IDs, ambiguous canonical/legacy ontology fields, and legacy `HIGH_ASSURANCE` without a persisted coordination baseline.
-- Branch identity is literal; use the actual ref, not presentation markup. The helper does not judge prose or replace READY; it is optional and must not block equivalent manual/tool verification.
+This is a decision condition, not documentation ceremony. Discover safely knowable facts yourself instead of asking the user, and do not create an extra artifact when the facts are already authoritative elsewhere.

@@ -1,87 +1,64 @@
-# Independent Review Protocol
+# Independent Review
 
-Load only for required independent-review dispatch/result/reconciliation. `review-integration.md` owns the separation trigger, ordinary review/freshness/findings/integration; `relay-transport.md` owns transport. This file owns only the handoff/result protocol and creates no lifecycle state.
+Load only when an independent reviewer is required by repository policy, explicit instruction, or material risk/assurance. Master remains integration owner.
 
-## 1. Independence boundary
+Prefer one independent review after the candidate is stable enough for acceptance. Do not use repeated reviewer cycles as an implementation loop.
 
-Independent review means **separation from the authoring review context**, not GitHub identity. A fresh chat/model instance, review agent/tool, or human qualifies when given bounded current evidence and reviewing independently. Platform-native reviewer identity is required only by repository/platform policy or an applicable canonical gate. Lack of an external GitHub reviewer alone is not `MISSING_CAPABILITY` when a fresh independent context can be relayed.
+## Dispatch
 
-## 2. Review handoff
+When relayed between agents/chats, apply [relay-transport.md](relay-transport.md).
 
-Keep the handoff bounded and evidence-addressable. Include at minimum:
+Give the reviewer only what is needed to reproduce the review envelope:
 
-- repository + PR/change identity;
-- exact target/base identity + exact candidate HEAD SHA;
-- accepted outcome/acceptance + current Contract Revision when present;
-- RiskLevel + CoordinationBaseline/AssuranceLevel + reason independent review is required;
-- exact review boundary + material architecture/security/data/performance/operational constraints;
-- current validation/CI evidence identifiers tied to the reviewed change; for remediation re-review, also identify the prior reviewed candidate and exact delta to the current candidate so unchanged reviewed surface can be reused only when its assumptions remain valid;
-- reviewer authority, read-only by default unless another bounded action is explicitly authorized;
-- for security-sensitive work, the exact evidence-backed defensive purpose/scope and allowed/prohibited action boundary from `engineering-quality.md` without inventing authorization or implying that authorization overrides provider/platform policy; for independent/read-only review also carry the reviewer evidence-acquisition boundary: prefer authoritative source/diff, repository-owned existing tests, current CI/log/artifact evidence, and safe read-only inspection; do not request novel adversarial payload/probe generation or execution merely to prove robustness; missing required evidence becomes a finding or explicit review limitation rather than a reviewer-created probe;
-- expected findings as `BLOCKER`, `REQUIRED`, or `OPTIONAL`, each tied to concrete evidence.
+```text
+# INDEPENDENT REVIEW
 
-If direct reviewer tooling is unavailable but a fresh independent chat/model/human is usable, emit the complete `INDEPENDENT REVIEW CHAT` MachineRelay for user-mediated dispatch. GitHub/PR/Issue state may be evidence/locators, never a substitute for that relay or an instruction for the next chat to reconstruct it. Lack of a GitHub reviewer username alone is not a blocker.
+Repository: <exact repository>
+Integration Target/Base: <branch + current sha>
+Candidate: <exact sha/PR>
+Work item / acceptance: <identity or concise criteria>
+Risk-specific concerns: <only material items>
+Current validation evidence: <checks/CI tied to candidate>
+Reviewer authority: READ_ONLY unless an exact additional action is explicitly authorized
 
-## 3. Result contract
+Review the effective target-to-candidate change for acceptance, correctness, relevant quality/safety concerns, validation sufficiency, and integration readiness.
+Do not modify the repository or invent missing evidence.
+```
 
-An emitted `INDEPENDENT REVIEW RESULT` is a MachineRelay; before rendering it, load `relay-transport.md` and require `MACHINE_RELAY_OUTPUT_OK(response)`. The reviewer returns exactly this result contract. `Review Completion` and `Verdict` are transport/result fields, not orchestration lifecycle states:
+For security-sensitive read-only review, prefer authoritative source/diff, existing repository tests, current CI/log/artifact evidence, and safe read-only inspection. Do not generate or execute novel adversarial probes solely to demonstrate assurance; missing required evidence becomes a finding or explicit limitation.
+
+For a remediation re-review, include the prior reviewed candidate and current candidate so the reviewer can focus on the exact delta and affected interactions rather than redoing unchanged analysis.
+
+## Result
+
+Return:
 
 ```text
 # INDEPENDENT REVIEW RESULT
 
-Review Completion: COMPLETE | INCOMPLETE
-Verdict: APPROVE | CHANGES_REQUIRED | NOT_ISSUED
+Completion: COMPLETE | INCOMPLETE
+Verdict: APPROVE | CHANGES_REQUIRED | NO_VERDICT
 
-## Review Envelope
+Envelope:
+- Repository:
+- Integration Target/Base:
+- Candidate:
+- Work item/acceptance:
 
-- Repository: <owner/repository>
-- Integration Target: <branch@sha>
-- Candidate: <exact sha>
-- Pull Request: <number/url or none>
-- Contract Revision: <number or not applicable>
-- Risk Level: <LOW | MEDIUM | HIGH | CRITICAL>
-- Coordination Baseline: <LIGHTWEIGHT | STANDARD>
-- Assurance Level: <NORMAL | HIGH_ASSURANCE>
+Findings:
+- BLOCKER | REQUIRED | OPTIONAL — <evidence-backed finding>
+  Evidence: <file/diff/check/current source>
 
-## Evidence Reviewed
-
-- <authoritative evidence inspected>
-
-## Findings
-
-### <BLOCKER | REQUIRED | OPTIONAL> F-001 — <finding title>
-
-- Location: <path/lines/symbol/object>
-- Evidence: <concrete current evidence>
-- Impact: <why this matters>
-- Action: <smallest required remediation for BLOCKER/REQUIRED; optional recommendation for OPTIONAL>
-- Verification: <how Master can prove resolution for BLOCKER/REQUIRED; for OPTIONAL use not applicable only when verification is not meaningful>
-
-## Residual Risks and Uncertainty
-
-- <none or bounded residual risk/uncertainty>
-
-## Scope or Policy Limitations
-
-- <none or exact unreviewed/restricted surface and effect on completeness>
+Limitations:
+- <none or exact missing evidence/access>
 ```
 
-Use only these completion/verdict pairs:
+`APPROVE` is valid only when the exact current envelope was completely reviewed and no BLOCKER/REQUIRED finding remains. Missing access/evidence yields `INCOMPLETE / NO_VERDICT`, not an invented defect or approval.
 
-| Review Completion | Verdict | Meaning |
-|---|---|---|
-| `COMPLETE` | `APPROVE` | the exact current review envelope was completely reviewed and no `BLOCKER` or `REQUIRED` finding remains |
-| `COMPLETE` | `CHANGES_REQUIRED` | the exact current review envelope was completely reviewed and the candidate/evidence itself has at least one evidence-backed `BLOCKER` or `REQUIRED` deficiency |
-| `INCOMPLETE` | `NOT_ISSUED` | a reviewer/tool/policy/evidence-access limitation prevented the required review from being completed |
+## Master reconciliation
 
-`INCOMPLETE / NOT_ISSUED` may still report supported findings from inspected surfaces; they remain actionable but create no overall verdict. Reviewer inability to inspect evidence is neither candidate defect nor approval.
+Master verifies candidate/target/acceptance identity, review completeness, and each finding against current authoritative evidence.
 
-- when no finding exists, write `None.` under Findings rather than omitting the section; order actual findings `BLOCKER`, `REQUIRED`, then `OPTIONAL`;
-- a candidate that fails to supply evidence required by acceptance may receive `COMPLETE / CHANGES_REQUIRED` when the required review itself is complete; evidence that exists but was unavailable only to this reviewer yields `INCOMPLETE / NOT_ISSUED`;
-- security-sensitive results may describe defensive location, evidence, impact, remediation/recommendation, and verification while following `engineering-quality.md` redaction/minimization boundaries; a restricted detail does not justify suppressing otherwise safe useful findings.
+If the candidate changed after review, prior reasoning may be reused only where its assumptions remain valid; obtain a fresh verdict for the current candidate when independent approval is still required. Re-review the exact delta plus affected interactions, not unchanged surface without cause.
 
-## 4. Master reconciliation
-
-Master verifies candidate/target/contract identity, effective-change freshness, result completeness, and every finding. Formatting defects in a received external review result do not manufacture a code finding: normalize safely recoverable formatting only for reconciliation, never missing identity/evidence into approval. Receive-side normalization never authorizes malformed relay emission.
-
-Do not create a permanent reviewer role/state. Master retains evidence/finding reconciliation, required fixes/approvals, and integration.
+Formatting defects in a received result may be normalized only when the semantics/identity are unambiguous. Never normalize missing evidence into approval.

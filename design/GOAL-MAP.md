@@ -1,67 +1,31 @@
-# Canonical Goal Map
+# Goal Map
 
-Status: current development-only traceability layer. Canonical goal definitions live in `../docs/PROJECT-SPEC.md`; canonical rule definitions live in `RULE-MAP.md`. This file maps the completed refactored runtime to those owners and does not redefine either.
+This map proves that the simplified runtime still covers every canonical goal in `docs/PROJECT-SPEC.md`. It maps goals to behavior, not to historical implementation vocabulary.
 
-## Purpose
-
-Use this map to prevent maintenance/refactors from optimizing local wording while losing project-level intent. Every material runtime change should identify the Goal IDs it advances and the Rule IDs/evaluations it can affect.
-
-Goal rows may emphasize primary families rather than every secondary relationship, but **Rule ID coverage is mechanically exhaustive**: every canonical Rule ID in `RULE-MAP.md` must appear in at least one Goal row below. Every explicit eval anchor in this file and `RULE-MAP.md` must resolve to a real scenario in `skill/references/eval-scenarios.md`.
-
-| Goal | Primary rule families / Rule IDs | Existing evaluation anchors | Broader operational focus |
+| Goal | Canonical rules | Eval anchors | Coverage |
 |---|---|---|---|
-| `G01` Verified End-to-End Delivery | `OUTCOME-STABLE`, `POST-INTEGRATION-RECONCILE`, `INTEGRATED-NOT-DELIVERED`, `POST-RELEASE-EVIDENCE`, `RELEASE-CLOSEOUT` | P, AY, CO, CT | end-to-end project from intake through required delivery |
-| `G02` Outcome & Scope Integrity | `OUTCOME-STABLE`, `ROOT-SPEC-CANONICAL`, `ROOT-SPEC-OFF-HOT-PATH`, `MATERIAL-DECISION-BOUNDARY` | AY, BA, BZ, CA, CB, CD, CY | cross-workstream requirement change with unaffected work continuing |
-| `G03` Adaptive Planning & Decomposition | `WORK-CLEAR-ENOUGH`, `FAST-FULL-SELECT`, `CONTRACT-PERSISTENCE-INDEPENDENT`, `SYNTHESIZE-WORK` | K, L, O, AB, AZ, CM, DL, DO | decomposition quality across small/medium/large outcomes |
-| `G04` Dependency, Flow & Project Health Management | `WIP-FLOW`, `SYNTHESIZE-WORK`, `MASTER-STOP-CANONICAL`, `DRIFT-RECONCILE`, `CONCURRENCY-OPTIMISTIC` | J, O, R, AP, AQ, CN, BH, DL, BU | plan validity, critical-path change, and project-health response |
-| `G05` Professional Engineering Execution | `PROTECT-UNRELATED`, `SELF-EXECUTION-FALLBACK`, `ENGINEERING-CONCERNS-PROPORTIONAL`, `CI-CLASSIFY`, `CONFLICT-RECONCILE`, `READY-DONE-SEMANTICS` | X, Y, G, L, AB, AC, BA, CL, Q, BE, DH | correct accepted-work/root-cause implementation with bounded evidence-justified structural change and proportionate validation/review |
-| `G06` Architecture & Engineering-System Fitness | `ARTIFACT-FITNESS`, `ENGINEERING-CONCERNS-PROPORTIONAL`, `BOOTSTRAP-PROPORTIONAL`, `LEAN-ORCHESTRATION` | BA, AZ, BS, BT, BU | `master-cycle.md` owns architecture-fit implementation; reuse fit architecture/engineering systems and make bounded changes only for accepted-work need or evidence-backed material net benefit |
-| `G07` Engineering Quality & Evidence | `EVIDENCE-BEATS-NARRATIVE`, `NO-FABRICATION`, `ENGINEERING-CONCERNS-PROPORTIONAL`, `DEFENSIVE-SECURITY-CONTINUATION`, `REVIEW-EFFECTIVE-CHANGE`, `REVIEW-IDENTITY-FRESH`, `UNTRUSTED-EXECUTION-SURFACE`, `CI-CLASSIFY`, `SELF-AUTHORED-FRESH-REVIEW`, `POST-RELEASE-EVIDENCE` | E, F, G, M, AB, AC, CL, BC, CO, DH, DJ | correctness/security/privacy/resilience/diagnosability/performance/operations evidence proportional to the change |
-| `G08` Scale-Adaptive Coordination | `COORDINATION-BASELINE`, `DIMENSIONS-ORTHOGONAL`, `DELEGATION-PROPORTIONAL`, `CONTRACT-PERSISTENCE-INDEPENDENT`, `WIP-FLOW` | W, AB, AN, CE, CF, CZ | large/multi-repo bounded context and component/workstream ownership |
-| `G09` Professional Delegation & Ownership | `MACHINE-RELAY-PORTABLE`, `WORKER-BOUNDED`, `ASSIGNMENT-IDENTITY`, `START-HEAD-HISTORICAL`, `CORRECTION-CHECKPOINT`, `STALE-ASSIGNMENT`, `WORKER-STOP-LOCAL`, `WORKER-HANDOFF-PRECEDENCE`, `WORKER-TARGET-SEPARATION`, `DELEGATION-PROPORTIONAL` | D, R, AK, AM, AT, AV, CK, CP, CR | multiple independent Workers and Master replacement without ownership drift |
-| `G10` Authority, Risk & Safety Integrity | `AUTHORITY-STABLE`, `AUTHORIZATION-SCOPED`, `CAPABILITY-NOT-AUTHORITY`, `EFFECT-ACTUAL`, `EFFECT-MULTI`, `GATE-NO-INVENTION`, `GATE-UNION`, `WRITE-UNKNOWN-RECONCILE`, `CONCURRENCY-OPTIMISTIC`, `MATERIAL-DECISION-BOUNDARY`, `ASSURANCE-ADDITIVE`, `RISK-SCOPED`, `DEFENSIVE-SECURITY-CONTINUATION` | H, AH, AJ, AZ, BP, CG, CH, CU, CV, CX, C, CW, DJ, DQ | multi-effect obligation union, authority/assurance orthogonality, and explicit repository mutation boundaries |
-| `G11` Verified Review, Integration, Release & Operations | `MACHINE-RELAY-PORTABLE`, `ENGINEERING-CONCERNS-PROPORTIONAL`, `DEFENSIVE-SECURITY-CONTINUATION`, `REVIEW-EFFECTIVE-CHANGE`, `REVIEW-IDENTITY-FRESH`, `UNTRUSTED-EXECUTION-SURFACE`, `CI-CLASSIFY`, `CONFLICT-RECONCILE`, `INTEGRATION-GATE`, `SELF-AUTHORED-FRESH-REVIEW`, `POST-INTEGRATION-RECONCILE`, `RELEASE-MODEL-DISCOVER`, `INTEGRATED-NOT-DELIVERED`, `PRODUCTION-DETERMINISTIC-EFFECT`, `MIGRATION-ROLLBACK`, `PRODUCTION-GATE`, `POST-RELEASE-EVIDENCE`, `INCIDENT-CONTAINMENT`, `RELEASE-CLOSEOUT` | E, G, H, M, AC, AT, BC, CJ, CO, CT, CS, BO, CV, DH, DI, DJ | complete release path tied to immutable artifact, operational supportability, and delivery evidence |
-| `G12` Zero-Chat Recoverability & Succession | `MACHINE-RELAY-PORTABLE`, `SUCCESSION-RECOVERABLE`, `RECOVERY-EVENT-DRIVEN`, `RECOVERY-AUTHORITATIVE`, `ROTATION-SIGNAL-DRIVEN`, `ROTATION-SAFE-BOUNDARY`, `CHAT-NONAUTHORITATIVE`, `ASSIGNMENT-IDENTITY` | I, Z, U, AH, AK, AT, BB, BG, BH | cold recovery with zero conversation context and bounded discovery cost |
-| `G13` Lean Navigable Project Knowledge | `TRUTH-ONE-OWNER`, `LEAN-ORCHESTRATION`, `RECOVERY-AUTHORITATIVE`, `CHAT-NONAUTHORITATIVE`, `ROOT-SPEC-OFF-HOT-PATH` | A, I, Z, AZ, BT, BY | bounded recovery cost and stale/duplicate information reconciliation |
-| `G14` Repository Readiness, Hygiene & Self-Repair | `BOOTSTRAP-PROPORTIONAL`, `ARTIFACT-FITNESS`, `MUTATION-IDEMPOTENT`, `DRIFT-RECONCILE`, `READY-DONE-SEMANTICS` | A, B, AU, AZ, BS, BT, BU, BE | first-ownership repository establishment and stale project-system repair without parallel duplicate mechanisms |
-| `G15` Proactive Improvement Without Scope Creep | `OUTCOME-STABLE`, `LEAN-ORCHESTRATION`, `ARTIFACT-FITNESS` | Y, AX, AY, BA, BT, BU, CB | proposal/execute/ignore classification for discovered improvements without turning architecture change into an independent objective |
-| `G16` Persistent Progress Without Friction | `MACHINE-RELAY-PORTABLE`, `ANTI-SPIN`, `SYNTHESIZE-WORK`, `MASTER-STOP-CANONICAL`, `WORKER-STOP-LOCAL`, `SELF-EXECUTION-FALLBACK`, `CAPABILITY-NOT-AUTHORITY` | O, Q, R, T, AP, AQ, AT, AW, AX, CN, CQ | useful-action latency and continuation across local blockers/tool-route failures |
+| `G01` Verified End-to-End Delivery | `OUTCOME-INTEGRITY`, `INTEGRATION-GATE`, `DELIVERY-PROOF`, `PERSISTENT-PROGRESS` | D, AB, W | Own work through the accepted integration/delivery endpoint and prove completion. |
+| `G02` Outcome & Scope Integrity | `OUTCOME-INTEGRITY`, `IMPROVEMENT-SCOPE` | U, W, Y | Preserve accepted scope; reconcile genuine requirement change; do not manufacture work/completion. |
+| `G03` Adaptive Planning & Decomposition | `MEANINGFUL-SLICING`, `PROPORTIONAL-PROCESS`, `PERSISTENT-PROGRESS` | B, S, X | Use the smallest meaningful hierarchy/slice needed for execution instead of micro-management. |
+| `G04` Dependency, Flow & Project Health Management | `PERSISTENT-PROGRESS`, `MEANINGFUL-SLICING`, `DELEGATION-VALUE` | O, R, S, T | Prioritize critical path, unblock, manage WIP, and continue independent work. |
+| `G05` Professional Engineering Execution | `ENGINEERING-FITNESS`, `VALIDATION-ECONOMICS`, `MUTATION-SAFETY`, `INTERFACE-COMPOSITION` | A, C, E, AE | Trace root cause, implement coherent maintainable changes, validate proportionally, protect unrelated work. |
+| `G06` Architecture & Engineering-System Fitness | `ENGINEERING-FITNESS`, `IMPROVEMENT-SCOPE` | F, Y | Preserve fit architecture and improve systems only when evidence/payoff justifies it. |
+| `G07` Engineering Quality & Evidence | `EVIDENCE-TRUTH`, `VALIDATION-ECONOMICS`, `REVIEW-FRESHNESS`, `SECURITY-REVIEW-BOUNDARY` | C, D, E, F, AA | Use current evidence, required validation, and relevance-driven quality controls. |
+| `G08` Scale-Adaptive Coordination | `PROPORTIONAL-PROCESS`, `MEANINGFUL-SLICING`, `DELEGATION-VALUE`, `LEAN-KNOWLEDGE` | B, N, O, X | Keep bounded work light while supporting multi-actor/project coordination when it repays cost. |
+| `G09` Professional Delegation & Ownership | `DELEGATION-VALUE`, `WORKER-BOUNDED`, `ASSIGNMENT-IDENTITY` | N, O, P, Q, R | Delegate only for net value; Worker stays bounded; Master retains integration/release ownership. |
+| `G10` Authority, Risk & Safety Integrity | `AUTHORITY-SCOPE`, `MUTATION-SAFETY`, `UNKNOWN-WRITE`, `OPTIMISTIC-CONCURRENCY`, `MATERIAL-DECISION` | G, H, I, J, K, L, M | Apply controls to actual effects/authorization without turning capability or risk into authority. |
+| `G11` Verified Review, Integration, Release & Operations | `REVIEW-FRESHNESS`, `INTEGRATION-GATE`, `DELIVERY-PROOF`, `SECURITY-REVIEW-BOUNDARY` | Z, AA, AB, AC | Bind review/integration to current change identity and verify release/delivery. |
+| `G12` Zero-Chat Recoverability & Succession | `RECOVERY-AUTHORITATIVE`, `ASSIGNMENT-IDENTITY`, `LEAN-KNOWLEDGE`, `MACHINE-RELAY` | P, V, AD | Recover correct continuation from authoritative systems without old chat. |
+| `G13` Lean Navigable Project Knowledge | `LEAN-KNOWLEDGE`, `REPOSITORY-READINESS` | V, X | Keep a small authoritative knowledge graph/index and avoid manager-memory duplication. |
+| `G14` Repository Readiness, Hygiene & Self-Repair | `REPOSITORY-READINESS`, `ENGINEERING-FITNESS`, `MUTATION-SAFETY` | A, X, Y | Discover/reuse safely, bootstrap proportionally, and repair demonstrated execution-system defects. |
+| `G15` Proactive Improvement Without Scope Creep | `IMPROVEMENT-SCOPE`, `OUTCOME-INTEGRITY` | U, Y, W | Classify required/in-scope/adjacent/speculative improvements without silent scope growth. |
+| `G16` Persistent Progress Without Friction | `PERSISTENT-PROGRESS`, `PROPORTIONAL-PROCESS`, `USER-STOP` | M, R, S, T, W | Continue while safe useful work exists, stop at real boundaries, and avoid blind/redundant process. |
 
-## Traceability rule
+## Coverage rule
 
-Before removing, consolidating, or relocating runtime behavior:
+A runtime change is acceptable only when:
 
-```text
-Goal ID
-  -> affected Rule IDs
-  -> current source occurrences
-  -> target canonical representation
-  -> regression / operational evidence
-```
-
-A shorter implementation is not a successful refactor if any link in that chain is lost.
-
-Mechanically enforceable development-time invariants are:
-
-- every canonical Goal ID in `../docs/PROJECT-SPEC.md` appears exactly once in this table;
-- every canonical Rule ID in `RULE-MAP.md` appears in at least one Goal row and no unknown Rule ID is introduced here;
-- every canonical Rule ID has one Rule Map row with one non-empty canonical owner and at least one eval anchor;
-- every explicit Goal/Rule eval anchor resolves to a real unique scenario ID;
-- scenario IDs are unique and contiguous so accidental deletion/duplication is visible.
-
-These checks prove traceability structure only; they do not prove semantic quality, READY, review sufficiency, architecture correctness, or risk judgment.
-
-## Historical coverage gaps and current evidence
-
-The Phase 1 map identified broader project-level behaviors that single-rule regression scenarios could not prove alone. Phases 5-8 added runtime mechanisms, source-grounded operational scenarios, live repository delivery evidence, deterministic checks, and independent release-candidate review. The current status is:
-
-| Historical gap | Current evidence / remaining interpretation boundary |
-|---|---|
-| Project health / plan validity | `master-cycle.md` and `governance.md` use event-driven critical-path/plan reconciliation; the medium, large, and local-blocker Phase 7 scenarios exercise sequencing and continuation without rebuilding the whole plan. |
-| Architecture and engineering-system fitness | `master-cycle.md` owns bounded architecture-fitness implementation and `governance.md` owns engineering-system fitness; BA/BS/BT/BU exercise reuse, justified change, and speculative-optimization rejection, while case-specific trade-offs remain professional judgment rather than a mechanical lint rule. |
-| Large-project bounded context | Phase 5 established workstream/global-spine rules and the large multi-repository benchmark verifies progressive context loading without a duplicate central backlog. |
-| Cold recovery cost | Phase 5 established orientation-spine/active-path recovery and the cold-recovery benchmark measures prescribed discovery steps; the benchmark remains a source-grounded policy simulation, not an independent wall-clock model trial. |
-| Information entropy | Canonical one-owner/reconciliation rules plus deterministic duplicate Rule ownership checks prevent known semantic forks; there is intentionally no synthetic scalar "entropy score" that could substitute for repository judgment. |
-| End-to-end operational benchmark | Phase 7 provides eight fixed scenarios with G01-G16 coverage and adversarial negative fixtures, supplemented by `LIVE-EVIDENCE.md`; it does not claim multi-model statistics, wall-clock latency, or production reliability beyond the evidence actually observed. |
-
-Future evidence may strengthen these areas, but none of the historical rows above is an unresolved permission slip for broad refactoring. New work must still be justified by a current Goal/Rule/evidence gap.
+1. every G01-G16 remains mapped to at least one current canonical rule;
+2. every mapped rule has a current runtime owner;
+3. representative evaluation scenarios cover the changed behavior and its dangerous counterexample;
+4. validation checks semantics/structure rather than exact historical wording unless literal output is itself the contract.

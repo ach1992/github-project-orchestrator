@@ -1,236 +1,87 @@
-# Authority, Risk, and Action Gates
+# Authority and Gates
 
-Canonical decision model for whether the Master may act, must reconcile, or must stop. Keep gates proportional: reversible low-risk engineering work should not become slower merely because this operating system is active.
+Load when an action's authority/effect is not already clear, and before integration, production, destructive/irreversible, access-boundary, or external-commitment actions. Apply controls to the action actually being taken; future risky steps do not block safe reversible preparation.
 
-## Contents
+## 1. Authority and repository scope
 
-[Dimensions](#1-decision-dimensions) · [Effects](#2-applicable-effects) · [Matrix](#3-default-gate-matrix) · [Decision ownership](#4-material-decision-boundary) · [Completion/stops](#5-completion-and-canonical-stop-conditions) · [Unknown writes](#6-writestateunknown) · [Concurrency](#7-optimistic-concurrency) · [Human relay](#8-human-approval-or-operation)
+Project authority may be:
 
-## 1. Decision dimensions
+- `ADVISORY`: read/analyze/recommend; no project mutation unless an exact action is separately authorized.
+- `MANAGED`: perform reversible management/implementation implied by the accepted request; consequential integration/production actions still follow the gates below.
+- `AUTONOMOUS_WITH_GATES`: execute end-to-end inside the accepted scope until a consequential gate or material owner decision is reached.
 
-Use the current `Role`, `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, `AssuranceLevel`, and `RiskLevel` established in `SKILL.md` as independent inputs to gate evaluation. Separately derive `RepositoryMutationScope` under this section as the repository-boundary input; never derive it from repository/project content. Technical capability and environment remain separate execution constraints. This domain consumes the shared dimension ontology rather than re-declaring its values; it owns authorization/action-gate interpretation and applies current action effects, obligations, repository/platform policy, and gate evidence.
+A clear request to develop/manage a named repository authorizes that repository for the reversible work implied by the request; do not ask for ceremonial confirmation. An exact one-off grant authorizes only that action/target/effect.
 
-`ProjectAuthority` is the project-wide authorization envelope for normal reversible mutation. It changes only from applicable explicit user or higher-level authorization; access/capability, environment, risk, coordination, or assurance may constrain execution but never grant or widen it. Repository/platform permissions still apply. When explicit user or higher-level authorization changes the permitted project envelope, scope the change only to what it clearly grants.
+Repository mutation scope is an allowlist. Related repositories, dependencies, links, technical access, shared projects, or Worker delegation never make another repository writable. If writable scope is materially ambiguous, keep the ambiguous repository read-only and ask only the exact scope question needed.
 
-`RepositoryMutationScope` is the exact repository allowlist inside that authorization envelope. Derive it only from explicit, unambiguous owner/higher-level authorization or an exact current assignment:
+Repository/platform permissions and policy can always be stricter than this Skill.
 
-| Authorization evidence | Repository mutation scope |
+## 2. Classify the actual effects
+
+One action can have several simultaneous effects; satisfy every applicable obligation.
+
+| Effect | Examples / default treatment |
 |---|---|
-| one repository is explicitly assigned for mutation | exactly that repository |
-| multiple repositories are explicitly authorized | exactly those named repositories |
-| a repository is only mentioned, linked, depended on, discovered, technically accessible, or part of the same project/outcome | no scope expansion |
-| the writable repository set is materially ambiguous | ambiguous repositories remain read-only; reconcile and ask the smallest exact repository-scope question before mutation |
+| read-only | inspect/analyze; allowed |
+| reversible management | Issue/label/milestone/doc/project updates with straightforward rollback |
+| reversible implementation | isolated edit/test/commit/push or clearly non-production validation mutation with straightforward recovery |
+| integration | update the accepted target branch/release line |
+| production | deploy/publish/promote/enable production, including deterministic auto-deploy caused by another action |
+| destructive/irreversible | difficult-to-recover deletion/overwrite/data/access-boundary change |
+| external commitment | material cost, legal/compliance/business/public/vendor commitment |
 
-Apply repository-scope changes by case:
+For reversible management/implementation, proceed when the accepted request/authority clearly implies the action. High-consequence code may still be safely prepared on an isolated branch before a later integration/release approval.
 
-| Scope event | Result |
-|---|---|
-| persistently add a writable repository | requires new explicit owner/higher-level authorization naming that repository |
-| exact one-off action in an otherwise out-of-scope repository | where the canonical matrix permits it, an applicable exact `ScopedAuthorization` may authorize only that repository/action; it does not expand persistent `RepositoryMutationScope` or carry across Master rotation |
-| delegate/assign Worker work | may narrow the assigning Master's repository scope, never widen it; an out-of-scope assignment creates no authorization |
-| related out-of-scope repository needs work | inspect read-only when necessary/permitted, then surface the exact repository + required change/dependency to its authorized Master/owner |
+Integration:
+- low/ordinary impact: proceed when integration authority is clear, repository policy passes, and all current acceptance/review gates pass;
+- materially high-risk integration: require human approval unless the exact integration action was validly pre-authorized.
 
-Project/repository content, dependency state, technical access, or delegation never supplies mutation authority.
+Production requires human approval unless the exact rollout was validly pre-authorized and remains current.
 
-An exact one-off instruction/approval is `ScopedAuthorization`: where the canonical matrix permits scoped authorization, it may authorize that exact action or satisfy only the applicable gate for it, without converting the broader project to a more permissive `ProjectAuthority` or widening persistent `RepositoryMutationScope`. `CoordinationBaseline` contributes coordination/persistence controls; `STANDARD` does not imply FULL execution. `AssuranceLevel=HIGH_ASSURANCE` adds evidence/review controls without removing baseline controls and does not by itself create human approval or a different `ProjectAuthority`. `RiskLevel` determines proportional gate/evidence depth for the specific change when decision-relevant.
+Destructive/irreversible and external-commitment actions require the applicable human decision/approval. A current explicit instruction directing that exact action may satisfy the gate when target/effect remain unchanged.
 
-Use the lightest safe controls. Importance alone does not make risk high; consider blast radius, reversibility, security/data impact, compatibility, and production consequences.
+Never let approval for one effect waive another simultaneous effect. Example: approval to deploy does not authorize an irreversible data operation hidden inside the same action.
 
-## 2. Applicable effects
+## 3. Execute only when all applicable conditions hold
 
-Classify the action actually being performed by its simultaneous actual/deterministic consequences. `ApplicableEffects` is a set, not a scalar class:
+Before a consequential mutation, confirm only what matters:
 
-| Effect | Action consequence |
-|---|---|
-| `READ_ONLY` | inspect state; non-mutating analysis; mutually exclusive with mutation effects |
-| `REVERSIBLE_MANAGEMENT` | ordinary Issue/label/milestone/Project/doc updates with straightforward rollback |
-| `REVERSIBLE_IMPLEMENTATION` | normal isolated branch/worktree edit/test/commit/push; also bounded reversible implementation/validation mutation in explicitly non-production environments when target ownership/coordination impact are clear, rollback is straightforward, and no separate stricter deterministic effect is ignored |
-| `INTEGRATION` | merge/apply accepted work to target |
-| `PRODUCTION` | deploy/publish/promote/enable production-facing change, or upstream mutation that automatically triggers production |
-| `DESTRUCTIVE_OR_IRREVERSIBLE` | delete authoritative/user/production state or other difficult-to-recover objects; force overwrite; irreversible data mutation; credential/security-boundary change; difficult/uncertain rollback |
-| `EXTERNAL_COMMITMENT` | material cost, legal/compliance posture, public promise, vendor commitment, or business-policy decision |
+- accepted scope allows it;
+- every repository it will mutate is authorized;
+- current role allows it;
+- project/repository/platform policy allows it;
+- actual/deterministic effects are understood;
+- required approvals or exact scoped authorizations are current;
+- required capability exists;
+- mutable identity that could be overwritten/integrated/deployed is fresh enough.
 
-For mutation actions:
+If one condition is uncertain, reconcile that condition rather than rebuilding the whole project state. A failed preferred tool route is not proof that the required capability is absent.
 
-```text
-ApplicableEffects(action) = {every effect that actually/deterministically applies}
-RequiredObligations(action) = union(Obligations(effect) for effect in ApplicableEffects(action))
-```
+## 4. Material owner decisions
 
-No scalar precedence may erase an independent obligation. For example, a merge that also auto-deploys and performs an irreversible migration has `ApplicableEffects={INTEGRATION, PRODUCTION, DESTRUCTIVE_OR_IRREVERSIBLE}`. Production pre-authorization may satisfy the production confirmation only; it cannot waive the destructive obligation.
+Master makes ordinary reversible technical choices: naming, local refactor shape, test structure, bounded module organization, error handling, and repository-consistent implementation strategy.
 
-## 3. Default gate matrix
+Ask the owner only when unresolved choice materially changes accepted product behavior/business policy, a durable public/architecture contract, security/privacy/access posture, irreversible/data-loss or migration semantics, material cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
 
-Apply stricter repository/platform policy first. For multi-effect actions, apply every applicable row and take the union of required gates/evidence; satisfying one row never removes another row's independent obligation.
+When asking, present the smallest decision with the relevant trade-off, evidence, risk, and rollback/roll-forward where applicable.
 
-| Applicable effect | ADVISORY | MANAGED | AUTONOMOUS_WITH_GATES |
-|---|---|---|---|
-| `READ_ONLY` | Allowed | Allowed | Allowed |
-| Low/medium `REVERSIBLE_MANAGEMENT` | Recommend | Allowed when requested/implied | Allowed |
-| Low/medium `REVERSIBLE_IMPLEMENTATION` | Recommend | Allowed when implementation intent is clear | Allowed |
-| High/critical `REVERSIBLE_IMPLEMENTATION` | Recommend | Allowed when implementation intent is clear, work is isolated/reversible, and required safeguards/evidence are in place | Allowed under the same conditions; do not stop merely because eventual integration may require approval |
-| Low/medium `INTEGRATION` | Recommend | Allowed when integration authority is clear and gates pass | Allowed when gates pass and `PRODUCTION` is not also applicable without its gate being satisfied |
-| High/critical `INTEGRATION` | Recommend | Human approval | Human approval unless exact action was validly pre-authorized with current evidence |
-| `PRODUCTION` | Recommend | Human approval unless exact rollout is validly pre-authorized | Human approval unless exact rollout is validly pre-authorized |
-| `DESTRUCTIVE_OR_IRREVERSIBLE` | Recommend | Human approval | Human approval |
-| `EXTERNAL_COMMITMENT` | Recommend | Human decision/approval | Human decision/approval |
+## 5. Ambiguous write outcome
 
-### `CAN_EXECUTE(action)`
+When a non-idempotent mutation returns an ambiguous transport/API result:
 
-Use one canonical execution predicate instead of independently re-deriving the same authority/gate decision in each runtime domain:
+1. do not blindly retry;
+2. re-read the authoritative object using stable identity/semantic equivalence;
+3. if the intended write is present, verify and continue;
+4. if a sufficiently complete lookup proves absence, retry at most once only when the write is safely idempotent/deduplicated;
+5. if lookup is incomplete or absence is not proven, freeze only dependent mutation and continue independent work;
+6. stop only when the unresolved write is the controlling blocker and report the exact object/action/evidence needed.
 
-```text
-CAN_EXECUTE(action) =
-    AcceptedScopeAllows(action)
-    AND RepositoryMutationScopeAllows(action)
-    AND RoleAllows(action)
-    AND ProjectAuthorityAllows(action)
-    AND RepositoryAndPlatformPolicyAllow(action)
-    AND ApplicableEffectsAreKnown(action)
-    AND RequiredObligationsAreSatisfied(action)
-    AND AnyScopedAuthorizationUsedIsCurrentAndExact(action)
-    AND RequiredCapabilityIsAvailable(action)
-    AND RequiredMutableIdentityEvidenceIsFresh(action)
-```
+Apply this to Issue/PR creation, comments, pushes, releases, deployment triggers, and similar writes.
 
-For `READ_ONLY`, `RepositoryMutationScopeAllows(action)` is satisfied because no repository mutation occurs. For any mutation, every repository the action directly or deterministically mutates must be known and inside `RepositoryMutationScope`, or be covered by a still-current exact authorization for that repository/action; a permitted direct target never hides an out-of-scope deterministic cross-repository write, and related-repository context or technical access is never sufficient.
+## 6. Optimistic concurrency
 
-Interpret each term only when it is applicable to the proposed action, using this file's matrix plus authoritative repository/platform state. `CAN_EXECUTE=false` is not itself a terminal Master boundary: reconcile uncertainty, use an authorized equivalent path, or classify the actual canonical boundary while independent useful work continues. `ADVISORY` does not become mutation-capable through technical access; `ScopedAuthorization` satisfies only the exact gate it covers; uncertain `ApplicableEffects` or stale required mutable identity must be reconciled before mutation.
+Before overwrite-sensitive/integration/release writes, refresh the identity/revision that protects against stale overwrite. Use an enforced expected SHA/revision precondition when the available API genuinely supports it.
 
-### Classification decision flow
+If state drifted or a precondition rejects the write, inspect the delta, preserve concurrent work, recompute the intended mutation, and act only if still correct. Never remove the guard just to force the write.
 
-Classify from actual and deterministic effects, not from command name, environment label, or technical permission. Then apply repository/platform policy, ProjectAuthority, any applicable ScopedAuthorization, RiskLevel, CoordinationBaseline, and AssuranceLevel as independent decisions.
-
-```text
-PROPOSED ACTION
-  |
-  +-- no mutation? ------------------------------------> ApplicableEffects={READ_ONLY}
-  |
-  `-- mutation:
-        +-- any direct/deterministic repository mutation target unknown, or outside RepositoryMutationScope without still-current exact authorization for that repository/action?
-        |     -> RECONCILE / HAND OFF; DO NOT MUTATE
-        |
-        `-- repository target allowed:
-              start ApplicableEffects={}
-              |
-              +-- ordinary reversible management/doc mutation? -> add REVERSIBLE_MANAGEMENT
-              +-- implementation/validation mutation? ----------> add REVERSIBLE_IMPLEMENTATION when its own effect is reversible
-              +-- updates canonical Integration Target? --------> add INTEGRATION
-              +-- production-facing or deterministic auto-prod? -> add PRODUCTION
-              +-- destructive/irreversible/access/protected-data
-              |   effect or difficult recovery? ----------------> add DESTRUCTIVE_OR_IRREVERSIBLE
-              +-- material cost/legal/public/vendor/business
-              |   commitment? ----------------------------------> add EXTERNAL_COMMITMENT
-              |
-              `-- any effect materially uncertain? --------------> RECONCILE BEFORE MUTATION
-
-REQUIRED CONTROLS = union of obligations for every applicable effect
-```
-
-A lower direct operation effect never hides a stricter deterministic effect.
-
-Classification edge cases:
-
-| Case | Rule |
-|---|---|
-| Isolated high-risk code | May have only `REVERSIBLE_IMPLEMENTATION`; later integration/release effects are classified and gated when those actions occur. |
-| Git-tracked source/config/test remove/rename | As part of an isolated change, remains `REVERSIBLE_IMPLEMENTATION` when exactly recoverable from Git and it does not itself delete authoritative/user/production state. |
-| Non-production environment | May remain `REVERSIBLE_IMPLEMENTATION` only when the environment is explicitly non-production **and** target ownership, coordination impact, rollback, and absence of separate stricter deterministic effects are clear. A staging/preview/test/sandbox label alone proves nothing. Classification does not authorize the mutation or expand outcome/ProjectAuthority/Role/Worker envelope. Under `MANAGED`, the mutation must be requested/implied by the accepted validation/release plan; general implementation intent is insufficient. Unknown ownership, protected/shared authoritative data, credential/access mutation, difficult recovery, or deterministic production effect adds/prevents ignoring the relevant stricter effect. |
-| Triggered automation | Include deterministic triggered effects. Ordinary-CI branch push may have only `REVERSIBLE_IMPLEMENTATION`; a push that automatically deploys production also has `PRODUCTION` before push. Automation alone does not make every push production. |
-| Auto-deploy upstream mutation | Push/merge/tag/publish or other upstream mutation that auto-deploys includes `PRODUCTION`. |
-| `AssuranceLevel=HIGH_ASSURANCE` | Adds evidence/reviewer controls for affected work while retaining its CoordinationBaseline; it does not add confirmation to every reversible edit. |
-| High/critical preparation | Safe diagnosis/preparation and isolated reversible implementation may proceed before separately gated integration/production when the matrix permits. |
-| Platform prompt | Platform-required confirmation must be honored. |
-
-Where the default gate matrix expressly permits pre-authorization to substitute for current confirmation, a `ScopedAuthorization` is valid only from the user, authorized human, or applicable higher-level organizational/platform policy and must explicitly cover the consequential action + target/environment or a bounded condition that unambiguously determines them. It removes only that permitted confirmation—not current evidence, validation/review, repository/platform policy, rollback, or verification—and never mutates ProjectAuthority.
-
-Under the default matrix, `DESTRUCTIVE_OR_IRREVERSIBLE` and `EXTERNAL_COMMITMENT` still require the stated human approval/decision. Do not treat a generalized production/integration pre-authorization as waiving those separate gates. A current explicit user instruction that itself directs the exact destructive/external action with sufficiently clear target/effect can be the applicable ScopedAuthorization satisfying that human gate without redundant confirmation, provided the instruction remains applicable and no material drift invalidated it. Material drift in effective change, target, risk, or rollout conditions invalidates any affected pre-authorization/prior exact approval.
-
-## 4. Material decision boundary
-
-Master owns normal reversible technical implementation decisions bounded by accepted outcome, repository rules, and current ProjectAuthority: internal naming, local refactors, test structure, bounded module organization, ordinary error handling, reversible implementation strategy.
-
-Use `MasterBoundary.MATERIAL_DECISION_REQUIRED` only when unresolved choice materially changes:
-
-- accepted product behavior or business policy;
-- public/external contract or durable architecture boundary;
-- security/privacy posture or credential/access model;
-- irreversible/data-loss behavior or migration semantics;
-- material cost/vendor/external commitment;
-- legal/compliance posture;
-- explicit risk acceptance reserved for user/organization.
-
-Do not escalate merely because several reasonable implementation choices exist.
-
-## 5. Completion and canonical stop conditions
-
-`MasterBoundary.PROJECT_COMPLETE` is a successful terminal condition, not failure to find READY work. It is valid only when the active outcome's observable success criteria are satisfied, the required integration/delivery endpoint is reached, required verification passed, and authoritative project/release state is reconciled.
-
-In autonomous operation, the canonical Master boundaries are:
-
-| MasterBoundary | Meaning |
-|---|---|
-| `PROJECT_COMPLETE` | active outcome, required integration/delivery, verification, and reconciliation are complete |
-| `APPROVAL_REQUIRED` | next consequential action crosses matrix/platform gate |
-| `MATERIAL_DECISION_REQUIRED` | section 4 decision is not safely bounded |
-| `BLOCKED` | real external dependency/precondition prevents useful progress after independent work is exhausted |
-| `RISK_ESCALATION` | new evidence materially invalidates contract/review/release plan and requires gate/decision |
-| `MISSING_CAPABILITY` | required operation cannot be performed with available tools/permissions after independent work is completed |
-| `NO_READY_WORK` | outcome incomplete and, after next-work synthesis, no authorized non-blocked executable investigation/refinement/implementation/review/release action exists |
-| `WRITE_OUTCOME_UNKNOWN` | an action remains `WriteState.UNKNOWN` after bounded recovery and independent safe work is exhausted; stop with exact object/action/evidence required to determine the outcome safely |
-| `USER_STOP` | user explicitly pauses/stops/ends execution; changed requirements that still request work use requirement-change path, not USER_STOP |
-
-This section defines boundary meaning; `MASTER_STOP(...)` in `master-cycle.md` is the single owner of when a detected boundary becomes a terminal Master response. A local boundary does not terminate the project merely because its token exists.
-
-Before accepting these boundary labels, apply their specific guard:
-
-| Boundary | Guard before use |
-|---|---|
-| `MasterBoundary.MISSING_CAPABILITY` | required semantics—not merely a preferred route—cannot be performed by available authorized capability after bounded verification; use a known equivalent authoritative route when available, do not exhaustively probe speculative alternatives, distinguish transient operation/service failure from missing capability, and retry a failed route only when new evidence or explicit transient-failure semantics makes success plausible; a new turn/tool batch alone is not evidence |
-| `MasterBoundary.NO_READY_WORK` | inspect the active outcome/unresolved candidates, refine/unblock/split or investigate uncertainty where useful, and search independent work; absence of a pre-existing READY Issue is insufficient |
-| `MasterBoundary.USER_STOP` | cease new consequential mutation immediately; do no cleanup/sync/recoverability write solely for cycle-close ceremony unless the user requested final sync |
-
-## 6. `WriteState.UNKNOWN`
-
-For ambiguous mutation transport/API results, use one guarded recovery algorithm:
-
-1. Mark only the individual mutation `WriteState.UNKNOWN`; do not blindly retry and do not automatically stop the Master.
-2. Re-read the authoritative remote object/list using stable identity or semantic equivalence, with enough decision-scoped completeness to distinguish **present**, **proven absent**, and **incomplete/unknown**.
-3. If the equivalent write is **present**, verify it, mark the action `WriteState.KNOWN`, and continue.
-4. If the re-read **proves absence**, retry at most once and only when the retry is safely idempotent or protected by stable correlation/deduplication identity. If retry is not safe, freeze the dependent mutation and continue independent safe work.
-5. If the re-read is **incomplete/truncated/unknown**, never treat that as absence and never use it to authorize a retry; freeze the dependent mutation and continue independent safe work.
-6. After the one safe retry—or when no safe retry exists—if outcome remains ambiguous, keep that mutation at `WriteState.UNKNOWN`, continue independent safe work, and surface `MasterBoundary.WRITE_OUTCOME_UNKNOWN` only when it becomes the sole/project-wide controlling blocker.
-
-Apply to Issue/PR creation, comments, labels, Project updates, pushes, releases, deployment triggers, and other non-idempotent writes.
-
-## 7. Optimistic concurrency
-
-Do not create manager lock/lease files. For overwrite-sensitive writes, capture expected identity then refresh immediately before mutation; prefer SHA/ref, object revision/`updatedAt`, Contract Revision + Issue identity, or release/deployment/artifact ID. When the available operation documents an enforced expected-identity/revision precondition, submit the verified expected value with the write. This protects only the identities covered by that precondition, not the entire review/authorization envelope.
-
-If state changed unexpectedly or the precondition is rejected, enter the local reconcile-before-write condition: inspect delta, preserve valid concurrent work, recompute intended mutation, write only if still correct. Never remove a rejected precondition to force the write or overwrite newer contract/priority/branch/PR/release/production state from stale read. A local reconciliation condition is not automatically a MasterBoundary.
-
-When no such precondition is available, retain read/reconcile/verify and narrow the mutation where supported; assess residual race risk under existing gates. Do not invent API support or claim atomic protection; absence alone creates no new gate.
-
-## 8. Human approval or operation
-
-When human approval/decision or a human operation is required, determine **interaction content** and **escalation timing** separately. Apply every applicable content row, then apply the applicable timing row when a human decision/approval is still required. A missing-capability operation is not an approval request.
-
-**Interaction content**
-
-| Condition | Required content |
-|---|---|
-| Approval is required and has not already been satisfied by a still-current exact `ScopedAuthorization`/human instruction. | Ask for the smallest exact decision. |
-| `MasterBoundary.MATERIAL_DECISION_REQUIRED` applies. | Recommend when evidence supports it, show only materially distinct alternatives/trade-off, and request the exact answer; do not push ordinary reversible technical choices to owner. |
-| Capability—not approval—is missing. | The canonical boundary remains `MasterBoundary.MISSING_CAPABILITY`; present `HUMAN OPERATION REQUIRED` with exact command/action, prerequisite, expected result, risk, verification method, and exact output/state to return. It is presentation, not a new stop condition. |
-
-For any human decision/approval request, include action, target, material risk, evidence, and rollback/roll-forward where applicable.
-
-**Escalation timing for a required human decision/approval**
-
-The canonical Master stop rules remain authoritative for whether a detected boundary becomes terminal; this timing table must not defer any earlier escalation they require.
-
-| Condition | Required timing/action |
-|---|---|
-| No canonical earlier-stop condition applies and delaying the decision does not materially increase risk. | **Default:** request the decision **after** all safe independent work that materially advances the active outcome without depending on/prejudging that decision. |
-| Delaying the human decision or containment would materially increase risk. | **Urgent override:** do **not** delay escalation for unrelated independent work. First perform only immediate safe authorized risk-reducing containment, verify it, and do the minimum decision-ready reconciliation that does not prejudge the human choice; then request the decision. |
-| The canonical Master stop rules require earlier terminal escalation for another reason, such as a project-wide controlling boundary. | Follow that canonical stop decision; do not use the default timing row to defer it. |
+Absence of an atomic precondition is not a reason to invent one or create a new approval ceremony; use read/reconcile/verify and narrow the write where possible.

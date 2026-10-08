@@ -1,149 +1,61 @@
-# Release and Production Operations
+# Release, Delivery, and Operations
 
-A project is not complete because code integrated. Drive delivery-required work through a verified release outcome appropriate to the project's risk and delivery model, keeping `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState` independent.
+Load when accepted work requires release/deployment, migration, rollback/roll-forward, incident/hotfix handling, or delivery verification.
 
-## Contents
+## 1. Integration is not delivery
 
-[Release model](#1-discover-release-model) · [Readiness](#2-release-readiness) · [Deployment safety](#3-deployment-safety) · [Migrations](#4-migration-rules) · [Approval](#5-production-approval-gate) · [Verification](#6-post-release-verification) · [Incident/hotfix](#7-incident-and-hotfix-mode) · [Closeout](#8-closeout)
+A merge/target update proves only integration. When the accepted outcome requires delivery, verify the intended artifact/commit/config actually reached the named environment and that required post-deploy acceptance evidence is satisfied.
 
-## 1. Discover release model
+Transport success, a green deploy job, or a release record is not enough when artifact identity or environment state is missing/contradictory.
 
-Before prescribing release steps, determine current reality:
+Record delivery state in the natural deployment/release system when possible rather than duplicating it in a manager document.
 
-- accepted `DeliveryRequirement` (`INTEGRATION_ONLY` or `DELIVERY_REQUIRED`);
-- explicit `DeliveryTarget` when delivery is required, including exact account/project/region/environment identity and promotion flow;
-- current `DeliveryState` for that immutable artifact/commit + target;
-- versioning/tag/release convention;
-- build/package artifact model, immutable artifact/commit identity, and whether promotion reuses the same artifact or rebuilds it;
-- deployment mechanism and required credentials/approvals;
-- database/data migration behavior;
-- feature flags/configuration dependencies;
-- monitoring/health signals;
-- rollback/roll-forward capability;
-- changelog/release-note requirements.
+## 2. Before production
 
-Preserve established safe automation rather than inventing a parallel deployment path. If pushing, merging, tagging, publishing, or another upstream mutation automatically triggers production deployment, classify the upstream action with `ApplicableEffects.PRODUCTION` in addition to any other simultaneous effects and satisfy every applicable obligation before performing it.
+Use [authority-gates.md](authority-gates.md) for the exact production action and any simultaneous integration/destructive/external effects.
 
-`DeliveryTarget` names the environment/target; it never determines lifecycle state. A production target can still have `DeliveryState.NOT_STARTED`, and a non-production target can be `DeliveryState.DELIVERED`.
+Before a production mutation, establish as applicable:
 
-## 2. Release readiness
+- exact candidate/artifact/config identity;
+- exact target/environment;
+- current required review/CI/release approvals;
+- rollout and verification method;
+- rollback or roll-forward path;
+- migration/compatibility ordering;
+- operational health evidence needed after the action.
 
-Before production delivery, verify as applicable:
+Do safe preparation before an approval gate when it reduces uncertainty without crossing the gate.
 
-- milestone/release scope is intentionally complete;
-- required PRs/changes are integrated into the intended target;
-- target branch CI and release build are green/current and tied to the intended commit/artifact;
-- known high-severity defects/risks are resolved or explicitly accepted;
-- versioning/changelog/release metadata are correct;
-- environment/config/secrets are present through approved mechanisms;
-- migrations are compatible, ordered, and rehearsed when risk warrants;
-- monitoring/logging/alerting can detect important failure modes;
-- rollback or safe roll-forward plan is credible;
-- required backups/snapshots exist and restore assumptions are understood for destructive data risk;
-- RiskLevel/AssuranceLevel-required approvals/evidence are complete;
-- dependency/build-chain provenance or license concerns introduced by the release are resolved when material.
+## 3. Release candidate stability
 
-Do not manufacture a generic checklist when many items do not apply; use the applicable subset and explain any material exception.
+Do not repeatedly spend broad acceptance/release validation on a candidate that is knowingly changing unless policy or risk requires the feedback earlier.
 
-## 3. Deployment safety
+Once the release candidate is stable, run the required exact-candidate gates. If later changes occur, rerun only evidence they invalidate plus every gate that policy requires for the new identity.
 
-For risky releases prefer incremental exposure when supported:
+## 4. Migration and stateful changes
 
-- staging/pre-production validation;
-- canary, percentage rollout, region/tenant cohort, or feature flag;
-- backward-compatible schema/API sequencing;
-- deploy-before-enable when feature flags reduce blast radius;
-- explicit stop conditions based on health/error/business signals.
+For material schema/data/state transitions, reason about compatibility window, ordering, partial failure, concurrency/lock effects, backup vs actual recovery capability, rollback feasibility, and roll-forward when rollback is unsafe.
 
-Prefer promoting the same reviewed/built immutable artifact across environments. If the platform necessarily rebuilds, verify that the production artifact is reproducibly tied to the approved source commit and expected build inputs. The principle is: review one intended change, deploy that identified change.
+Rehearse or stage when risk justifies it. Never assume reversibility merely because a backup exists.
 
-For `AssuranceLevel=HIGH_ASSURANCE`, require stronger independent evidence proportional to actual blast radius while retaining the current CoordinationBaseline and canonical approval matrix.
+A migration that is destructive/irreversible or materially changes access boundaries keeps its separate human gate even when the deployment itself was pre-authorized.
 
-## 4. Migration rules
+## 5. Delivery proof
 
-For schema/data migrations:
+After deployment/release, verify the smallest authoritative evidence that proves the accepted endpoint, such as:
 
-- prefer backward-compatible expand/migrate/contract sequencing when practical;
-- understand transaction/locking/runtime impact;
-- avoid coupling irreversible data change to an unproven application rollout;
-- define what happens on partial failure;
-- verify backup/restore or compensating strategy when rollback is not straightforward;
-- do not call a migration reversible unless reversal has been realistically assessed.
+- environment reports the intended immutable artifact/commit/config identity;
+- required health/readiness checks pass;
+- migration/version state matches expectation;
+- required smoke/acceptance behavior is observed;
+- no blocking operational signal contradicts success.
 
-If one rollout action both deploys production and performs an irreversible mutation, classify both `ApplicableEffects.PRODUCTION` and `ApplicableEffects.DESTRUCTIVE_OR_IRREVERSIBLE`; satisfy the union of their independent obligations.
+If evidence is unavailable or contradictory, report delivery as unproven/failed rather than declaring project completion.
 
-## 5. Production approval gate
+## 6. Incident and hotfix
 
-Apply `authority-gates.md` exactly as the canonical gate. For an action containing `ApplicableEffects.PRODUCTION` and for high/critical `ApplicableEffects.INTEGRATION`, an exact valid `ScopedAuthorization` substitutes for current confirmation only where that matrix permits it. Under the default matrix, an applicable `DESTRUCTIVE_OR_IRREVERSIBLE` effect still requires the stated human approval and `EXTERNAL_COMMITMENT` the stated human decision/approval; a still-current explicit user instruction that directly approves the exact effect can be the applicable ScopedAuthorization satisfying that human gate, but production/integration authorization alone cannot.
+During an active incident, prioritize containment and restoration of safe service over ordinary backlog/ceremony. Preserve enough evidence for root-cause work without delaying urgent containment.
 
-Complete safe independent readiness work and any authorized isolated reversible implementation/preparation before asking, except that an urgent human decision/containment must not be delayed when delay itself materially increases risk.
+Apply the same authority boundaries: diagnosis/read-only work proceeds; production/destructive actions still need their applicable authorization unless current incident policy already grants it.
 
-Provide the decision compactly:
-
-```text
-PRODUCTION APPROVAL REQUIRED
-Release: <version/commit>
-Delivery Target: <exact production target>
-Applicable Effects: <all effects for the exact action>
-Change/risk: <material summary>
-Verified: <key evidence>
-Remaining risk: <known residual risk>
-Rollback/roll-forward: <strategy>
-Exact approval requested: <action>
-```
-
-## 6. Post-release verification
-
-After deployment, verify the release actually reached the explicit DeliveryTarget and assess applicable signals: deployment/version/commit identity; service/application health; critical user-path smoke test; error/log anomalies; migration/data correctness; performance/resource regression; and business/domain success signal where observable.
-
-### `DELIVERY_PROVEN(artifact, target, evidence)`
-
-Use one predicate for delivery-required completion:
-
-```text
-DELIVERY_PROVEN(artifact, target, evidence) =
-    DeliveryRequirement == DELIVERY_REQUIRED
-    AND ArtifactMatchesApprovedReleaseIdentity(artifact, evidence)
-    AND TargetMatchesRequiredDeliveryTarget(target)
-    AND ArtifactIdentityAtTargetIsCurrentAndVerified
-    AND AllRequiredHealthAndAcceptanceEvidenceIsCurrentAndSatisfied
-```
-
-`ArtifactMatchesApprovedReleaseIdentity` accepts the same reviewed/built immutable artifact, or a platform-required rebuild only when current evidence reproducibly ties it to the approved source commit and expected build inputs. Deployment transport success alone cannot satisfy `DELIVERY_PROVEN`. When required evidence is delayed or not yet observable, the predicate remains false without implying failure. `DeliveryRequirement=INTEGRATION_ONLY` does not require this delivery predicate; final closeout still follows the accepted completion criteria and post-integration reconciliation in `review-integration.md` §8.
-
-Use this state decision:
-
-| Evidence | DeliveryState / action |
-|---|---|
-| delivery has not started | `DeliveryState.NOT_STARTED` |
-| intended artifact/commit did not reach the intended DeliveryTarget, or identity is unknown | `DeliveryState.FAILED_OR_UNKNOWN`; freeze further rollout and reconcile deployment identity/path. If unintended production artifact/state may be user-impacting, security-sensitive, or otherwise hazardous, enter incident/containment while reconciling. |
-| intended artifact reached target but health/acceptance signal is unacceptable | `DeliveryState.FAILED_OR_UNKNOWN`; stop further rollout; execute the pre-agreed rollback/roll-forward/incident path |
-| immediate health is acceptable but required soak/delayed migration/reliability/business signal is not yet observable | `DeliveryState.PENDING`; persist the exact completion condition in the authoritative Issue/release source |
-| `DELIVERY_PROVEN(...)` is true | `DeliveryState.DELIVERED`; proceed to closeout |
-
-Legacy `PENDING_DELIVERY` maps to `DeliveryState.PENDING`; it is a lifecycle state, not a canonical Master stop condition. If delayed required delivery evidence becomes the sole remaining external dependency after independent useful work is exhausted, follow the canonical pending-job continuation rule in `master-cycle.md`: use supported bounded autonomous continuation first when safe and proportionate, and use `MasterBoundary.BLOCKED` only when that continuation is unavailable, no longer reasonable, or exhausted, preserving the exact evidence/object/status and resume condition unless another boundary more precisely describes the cause. Do not invent DeliveryState as a terminal boundary or use `MasterBoundary.NO_READY_WORK` merely because the required signal is not yet observable.
-
-## 7. Incident and hotfix mode
-
-When a production regression, security issue, data-integrity problem, or severe operational failure appears:
-
-1. prioritize stabilization over planned feature work and stop further rollout when appropriate;
-2. establish blast radius, affected version/artifact, symptoms, explicit DeliveryTarget, and the safest immediate containment option;
-3. use rollback, feature disablement, traffic isolation, configuration reversal, or a minimal hotfix according to verified current capability, ProjectAuthority, ScopedAuthorization, ApplicableEffects, and RiskLevel;
-4. preserve evidence needed to understand the incident, but never delay necessary containment merely to produce documentation;
-5. validate recovery in the affected environment and monitor for recurrence;
-6. after stabilization, create only concrete corrective/preventive follow-up work and capture a durable RCA/decision only when it will improve future operation or architecture.
-
-Hotfixes still require the strongest practical review/validation for their urgency and blast radius. Emergency authorization may change applicable ScopedAuthorization/gates, but it does not make evidence optional or silently upgrade broader ProjectAuthority.
-
-## 8. Closeout
-
-After stable verification:
-
-- mark release/milestone state accurately;
-- close delivery-required work only when `DELIVERY_PROVEN(...)` is true and the intended artifact is `DeliveryState.DELIVERED` for the required DeliveryTarget; keep `TaskState.INTEGRATED` and DeliveryState distinct;
-- for `DeliveryRequirement=INTEGRATION_ONLY`, do not manufacture a deployment requirement after verified integration;
-- create/reuse follow-up Issues for unresolved defects/debt discovered during release only when actionable and worth tracking;
-- update durable runbooks/docs only when operating behavior changed;
-- keep release evidence in native release/deployment/CI systems instead of copying it into manager logs;
-- run the continuity test so the next Master can support the production system.
+After stabilization, reconcile temporary changes into normal source/review/release state and capture only future-useful remediation.
