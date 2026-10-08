@@ -14,7 +14,7 @@ When a repository must be created, apply [authority-gates.md](authority-gates.md
 
 Keep one canonical repository copy of the project-defining specification when durable project-level intent is needed. Preserve purpose, success criteria, durable constraints/non-goals, supported-environment commitments, and completion criteria.
 
-Reuse an established equivalent and location. If none exists and repository convention does not provide a stronger home, use `docs/PROJECT-SPEC.md`. Keep `README.md` as the concise entry/setup/navigation surface rather than a duplicate specification. Before persisting the spec, exclude secrets/credentials, prohibited sensitive data, and transient chat/runtime instructions; keep needed sensitive values in authorized secure/runtime sources.
+Reuse an established equivalent and location. If none exists and repository convention does not provide a stronger home, use `docs/PROJECT-SPEC.md`. Keep `README.md` as the concise entry/setup/navigation surface rather than a duplicate specification. Before persisting the spec, exclude secrets/credentials, prohibited sensitive data, and transient chat/runtime instructions; keep needed sensitive values in authorized secure/runtime sources. If sensitive material is already tracked, deletion alone is not remediation—handle rotation/history exposure through the applicable security gates.
 
 Do not turn the root specification into a live status document. Routine status belongs in Git/GitHub/CI/release systems. Update the root specification only when project-level intent actually changes.
 
@@ -59,7 +59,7 @@ Create an ADR/equivalent only when a lasting architectural/product/operational d
 
 Documentation earns its cost when it materially improves reproducibility, operation, review, or future maintenance. The absence of a generic document is not itself a defect.
 
-When durable coding-agent instructions are needed and no established equivalent exists, prefer one root `AGENTS.md`; add nested instruction files only for subtrees with genuinely different rules.
+When durable coding-agent instructions are needed and no established equivalent exists, prefer one root `AGENTS.md`; add nested files only for genuinely different subtree rules. Keep them to stable setup/commands/conventions/boundaries, never live backlog or handoff state.
 
 ## Engineering-system repair
 
