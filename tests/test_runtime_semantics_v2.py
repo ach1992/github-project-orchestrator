@@ -26,6 +26,8 @@ RUNTIME_REFS = (
 REQUIRED_WORKER_IDENTITY_LITERALS = (
     "Assignment ID",
     "Contract Revision",
+    "Repository",
+    "Worker",
     "Base SHA",
     "Assigned Branch",
     "Start HEAD",
@@ -80,10 +82,46 @@ def main() -> None:
     for literal in REQUIRED_WORKER_IDENTITY_LITERALS:
         if literal not in task_contract or literal not in worker_protocol:
             raise AssertionError(f"Worker identity literal disappeared from runtime: {literal}")
+
+    if "exact `Repository` and assigned `Worker`" not in task_contract:
+        raise AssertionError("Task Contract must persist exact Repository and assigned Worker identity")
+
+    dispatch_start = worker_protocol.index("# WORKER DISPATCH")
+    dispatch_end = worker_protocol.index("Do not repeat the full project history", dispatch_start)
+    dispatch = worker_protocol[dispatch_start:dispatch_end]
+    for field in ("Worker: <id>", "Repository: <exact repository>"):
+        if field not in dispatch:
+            raise AssertionError(f"Worker dispatch lost assignment identity field: {field}")
+
+    handoff_start = worker_protocol.index("# WORKER HANDOFF")
+    handoff_end = worker_protocol.index("The handoff is a locator and claim", handoff_start)
+    handoff = worker_protocol[handoff_start:handoff_end]
+    for field in ("Worker: <id>", "Repository: <exact repository>"):
+        if field not in handoff:
+            raise AssertionError(f"Worker handoff lost assignment identity field: {field}")
+
     if "assigned branch must differ from the Integration Target" not in task_contract:
         raise AssertionError("Worker assignment must keep branch/target separation")
+    if "`Base SHA` remains the historical integration/stacking basis" not in task_contract:
+        raise AssertionError("Worker Base SHA historical integration/stacking role disappeared")
+    if "`Start HEAD` is the immutable generation start" not in task_contract:
+        raise AssertionError("Worker Start HEAD generation-start role disappeared")
+    if "exact `Checkpoint HEAD` for correction/resume" not in task_contract:
+        raise AssertionError("Worker Checkpoint HEAD correction/resume role disappeared")
     if "Normal authorized commits on the assigned branch do not make `Start HEAD` stale." not in worker_protocol:
         raise AssertionError("Worker Start HEAD progress/staleness distinction disappeared")
+
+    correction_start = worker_protocol.index("## 6. Correction/resume")
+    correction = worker_protocol[correction_start:]
+    for phrase in (
+        "same assignment generation",
+        "reviewed current `Checkpoint HEAD`",
+        "Worker verifies that checkpoint before editing",
+        "fresh Assignment ID",
+    ):
+        if phrase not in correction:
+            raise AssertionError(f"Worker correction/resume relationship disappeared: {phrase}")
+
     if "`STALE_ASSIGNMENT`" not in worker_protocol:
         raise AssertionError("Worker stale-assignment status disappeared")
 
