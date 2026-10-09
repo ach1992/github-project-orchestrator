@@ -4,7 +4,7 @@ Use an explicit Task Contract only when it materially improves coordination, del
 
 ## When a contract is useful
 
-Persist a contract for Worker assignments and when multi-actor or cross-session coordination, delivery-affecting dependencies/decisions, high-consequence work, or repository policy needs durable identity. Otherwise keep the work implicit or transient. Reuse an existing suitable Issue/work item rather than creating a parallel contract.
+Persist a contract for Worker assignments and when multi-actor or cross-session coordination, dependencies/decisions another actor or future session must know, high-consequence work, or repository policy needs durable identity. Otherwise keep the work implicit or transient. Reuse an existing suitable Issue/work item rather than creating a parallel contract.
 
 Keep one contract for a cohesive outcome across partial commits or PRs. Do not close and recreate it at mechanical implementation seams.
 
