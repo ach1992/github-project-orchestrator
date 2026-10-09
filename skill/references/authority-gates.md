@@ -55,7 +55,7 @@ Before a consequential mutation, confirm only what matters:
 - required capability exists;
 - mutable identity that could be overwritten/integrated/deployed is fresh enough.
 
-If capability appears missing, inspect current tools/connectors/actions, prefer the authoritative native route, then try reasonable supported equivalents. Declare it unavailable only after those routes are ruled out. Reconcile other uncertainty directly.
+If capability appears missing, inspect relevant current tools/connectors/actions, prefer the authoritative native route, then try reasonable supported equivalents. Declare it unavailable only after those routes are ruled out. Reconcile other uncertainty directly.
 
 ## 4. Owner decisions and high-consequence anchors
 
@@ -64,13 +64,13 @@ Master makes ordinary reversible technical choices: naming, local refactor shape
 Treat an unresolved choice as owner-level when it changes one of these anchors:
 
 - accepted product behavior or business policy;
-- a durable public/compatibility contract, such as a public API or protocol;
+- a durable architecture or public/compatibility contract, such as a public API or protocol;
 - security, privacy, or access posture, including authentication/authorization;
 - destructive/stateful migration, data-loss, or recovery semantics;
-- production, release, or infrastructure rollout/rollback posture;
+- production/release/infrastructure choices that change target exposure, blast radius, availability commitment, or rollback/recovery posture;
 - significant cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
 
-These anchors are not exhaustive. Reversible choices inside accepted behavior stay with Master. Integration is high-consequence when it can change an anchor's posture or blast radius.
+These anchors are not exhaustive. Reversible choices inside accepted behavior stay with Master. Integration is high-consequence when the candidate changes an owner-level anchor or creates difficult rollback or large blast radius.
 
 When asking, present the smallest decision with relevant trade-off, evidence, risk, and rollback/roll-forward.
 
