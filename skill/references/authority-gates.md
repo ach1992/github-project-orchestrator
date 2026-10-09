@@ -8,11 +8,11 @@ Project authority may be:
 
 - `ADVISORY`: read/analyze/recommend; no project mutation unless an exact action is separately authorized.
 - `MANAGED`: perform reversible management/implementation implied by the accepted request; consequential integration/production actions still follow the gates below.
-- `AUTONOMOUS_WITH_GATES`: execute end-to-end inside the accepted scope until a consequential gate or material owner decision is reached.
+- `AUTONOMOUS_WITH_GATES`: execute end-to-end inside the accepted scope until a consequential gate or owner-level decision is reached.
 
 A clear request to develop/manage a named repository authorizes that repository for the reversible work implied by the request; do not ask for ceremonial confirmation. An exact one-off grant authorizes only that action/target/effect.
 
-Repository mutation scope is an allowlist. Related repositories, dependencies, links, technical access, shared projects, or Worker delegation never make another repository writable. If writable scope is materially ambiguous, keep the ambiguous repository read-only and ask only the exact scope question needed.
+Repository mutation scope is an allowlist. Related repositories, dependencies, links, technical access, shared projects, or Worker delegation never make another repository writable. If writable scope is ambiguous, keep that repository read-only and ask only the exact scope question needed.
 
 Repository/platform permissions and policy can always be stricter than this Skill.
 
@@ -28,13 +28,13 @@ One action can have several simultaneous effects; satisfy every applicable oblig
 | integration | update the accepted target branch/release line |
 | production | deploy/publish/promote/enable production, including deterministic auto-deploy caused by another action |
 | destructive/irreversible | difficult-to-recover deletion/overwrite/data/access-boundary change |
-| external commitment | material cost, legal/compliance/business/public/vendor commitment |
+| external commitment | significant cost or legal/compliance/business/public/vendor commitment |
 
 For reversible management/implementation, proceed when the accepted request/authority clearly implies the action. High-consequence code may still be safely prepared on an isolated branch before a later integration/release approval.
 
 Integration:
 - low/ordinary impact: proceed when integration authority is clear, repository policy passes, and all current acceptance/review gates pass;
-- materially high-risk integration: require human approval unless the exact integration action was validly pre-authorized.
+- high-consequence integration under the anchors in section 4: require human approval unless the exact integration action was validly pre-authorized.
 
 Production requires human approval unless the exact rollout was validly pre-authorized and remains current.
 
@@ -55,13 +55,22 @@ Before a consequential mutation, confirm only what matters:
 - required capability exists;
 - mutable identity that could be overwritten/integrated/deployed is fresh enough.
 
-If one condition is uncertain, reconcile that condition rather than rebuilding the whole project state. A failed preferred tool route is not proof that the required capability is absent.
+If required capability appears missing, inspect the tools/connectors/actions available in the current environment, prefer the authoritative native route, then try a supported equivalent route. Treat capability as unavailable only after reasonable equivalent routes are ruled out. Reconcile any other uncertain condition directly rather than rebuilding project state.
 
-## 4. Material owner decisions
+## 4. Owner decisions and high-consequence anchors
 
 Master makes ordinary reversible technical choices: naming, local refactor shape, test structure, bounded module organization, error handling, and repository-consistent implementation strategy.
 
-Ask the owner only when unresolved choice materially changes accepted product behavior/business policy, a durable public/architecture contract, security/privacy/access posture, irreversible/data-loss or migration semantics, material cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
+Treat an unresolved choice as owner-level when it changes one of these anchors:
+
+- accepted product behavior or business policy;
+- a durable public/compatibility contract, such as a public API or protocol;
+- security, privacy, or access posture, including authentication/authorization;
+- destructive/stateful migration, data-loss, or recovery semantics;
+- production, release, or infrastructure rollout/rollback posture;
+- significant cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
+
+These are anchors, not an exhaustive checklist. A reversible implementation choice inside accepted behavior stays with Master. The same anchors make integration high-consequence when integration can change that posture or blast radius.
 
 When asking, present the smallest decision with the relevant trade-off, evidence, risk, and rollback/roll-forward where applicable.
 
