@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.2] - 2026-10-09
+
+### Changed
+
+- Replaced the generic bar-chart-style Skill icon with a purpose-specific blue branch -> orchestration -> merge mark designed to remain legible at small UI sizes.
+- Kept a single transparent canonical SVG at `skill/assets/icon.svg`; OpenAI `icon_small` and `icon_large` continue to reference the same asset, so no platform-specific icon runtime fork was introduced.
+- No Skill runtime, authority, review, Worker, recovery, integration, or release behavior changed in this patch release.
+
 ## [2.0.1] - 2026-10-09
 
 ### Changed
