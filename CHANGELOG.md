@@ -5,7 +5,7 @@
 ### Changed
 
 - Rewrote dense always-loaded Core rules as shorter imperative sentences while preserving outcome, authority, evidence, mutation, safety, progress, ownership, and recovery semantics.
-- Anchored owner-level/high-consequence decisions in one runtime owner around product/business policy, public compatibility contracts, security/access, stateful migration/data loss, production/release posture, significant cost/legal/compliance, and explicit risk acceptance.
+- Anchored owner-level/high-consequence decisions in one runtime owner around product/business policy, durable architecture/public compatibility contracts, security/access, stateful migration/data loss, production/release/infrastructure exposure or rollback posture, significant cost/legal/compliance, and explicit risk acceptance.
 - Added a platform-neutral capability-discovery path: inspect current tools/connectors/actions, prefer the authoritative native route, try reasonable supported equivalents, and only then treat the capability as unavailable.
 - Replaced the MachineRelay pseudo-predicate with four direct transport checks while preserving one complete self-sufficient copy block, exact identity literals, and safe fencing.
 - Improved Claude.ai discovery metadata within the 200-character limit so start/continue/finish, cross-chat recovery, and Worker-assignment triggers remain discoverable; the documented lowercase `skill.md` Claude.ai adapter remains unchanged.
