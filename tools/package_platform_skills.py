@@ -25,8 +25,8 @@ PORTABLE_EXCLUDED_TOP_LEVEL = {"agents", "assets"}
 PLATFORMS = {"manus", "qwen", "claude", "zcode", "grok", "kimi", "gemini", "deepseek", "copilot"}
 ROOT_LAYOUT_PLATFORMS = {"gemini", "copilot"}
 CLAUDE_DESCRIPTION = (
-    "Manage GitHub software delivery end-to-end: recover state, plan, implement, review, "
-    "integrate, and release safely. Use for multi-step repository work."
+    "Own multi-step GitHub delivery: recover, implement, review, integrate, release, and resume across chats. "
+    "Use to start/continue/finish projects or Worker assignments; not one-off code Q&A."
 )
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<meta>.*?)\n---(?P<body>\n.*)\Z", re.DOTALL)
 DESCRIPTION_RE = re.compile(r"(?m)^description:\s*.*$")
