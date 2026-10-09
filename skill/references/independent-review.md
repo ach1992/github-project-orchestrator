@@ -2,7 +2,7 @@
 
 Load only when an independent reviewer is required by repository policy, explicit instruction, or material risk/assurance. Master remains integration owner. For user-mediated review dispatch or result, apply [relay-transport.md](relay-transport.md).
 
-Prefer one independent review after the candidate is stable enough for acceptance. Do not use repeated reviewer cycles as an implementation loop.
+Prefer one independent review after the candidate is stable enough for acceptance. Do not use repeated reviewer cycles as an implementation loop. If direct reviewer tooling is unavailable but a fresh independent chat/model/human is usable, emit the complete review relay for that context; lack of a platform reviewer identity alone is not a blocker unless policy requires one.
 
 ## Dispatch
 
