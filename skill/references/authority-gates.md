@@ -67,7 +67,7 @@ Treat an unresolved choice as owner-level when it changes one of these anchors:
 - a durable architecture or public/compatibility contract, such as a public API or protocol;
 - security, privacy, or access posture, including authentication/authorization;
 - destructive/stateful migration, data-loss, or recovery semantics;
-- production/release/infrastructure choices that change target exposure, blast radius, availability commitment, or rollback/recovery posture;
+- production/release/infrastructure choices that change deployment target/environment, public exposure, availability commitment, or make rollback/recovery difficult or irreversible;
 - significant cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
 
 These anchors are not exhaustive. Reversible choices inside accepted behavior stay with Master. Integration is high-consequence when the candidate changes an owner-level anchor or creates difficult rollback or large blast radius.
