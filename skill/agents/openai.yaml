@@ -1,7 +1,6 @@
 interface:
-  display_name: GitHub Engineering Project Manager
-  short_description: Own multi-step GitHub engineering delivery from recovery through
-    release
+  display_name: GitHub Project Orchestrator
+  short_description: Plan, implement, review, recover, and release GitHub projects with durable continuity
   icon_small: assets/icon.svg
   icon_large: assets/icon.svg
 policy:
