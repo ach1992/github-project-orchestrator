@@ -26,7 +26,7 @@ PLATFORMS = {"manus", "qwen", "claude", "zcode", "grok", "kimi", "gemini", "deep
 ROOT_LAYOUT_PLATFORMS = {"gemini", "copilot"}
 CLAUDE_DESCRIPTION = (
     "Own multi-step GitHub delivery: recover, implement, review, integrate, release, and resume across chats. "
-    "Use to start/continue/finish projects or Worker assignments; not one-off code Q&A."
+    "Use to start/continue/finish projects or Worker assignments; not one-off code/PR/Issue Q&A."
 )
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<meta>.*?)\n---(?P<body>\n.*)\Z", re.DOTALL)
 DESCRIPTION_RE = re.compile(r"(?m)^description:\s*.*$")
