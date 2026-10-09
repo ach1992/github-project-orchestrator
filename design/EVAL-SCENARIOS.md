@@ -39,8 +39,8 @@ A non-idempotent GitHub/deployment mutation times out after submission. **Expect
 ### K. Optimistic concurrency
 An overwrite-sensitive ref/object changed after the last read. **Expected:** refresh identity, use an available enforced expected-version/SHA guard, reconcile drift, preserve concurrent work, and recompute the mutation. **Forbidden:** removing the guard to force the write.
 
-### L. Material decision boundary
-Several ordinary implementation choices exist, or one choice changes product/business/security/data/legal/material-cost posture. **Expected:** Master decides ordinary reversible technical choices; ask the owner only for the material choice and present the smallest decision-ready trade-off. **Forbidden:** owner questionnaires for normal coding judgment.
+### L. Owner-decision boundary
+Several ordinary implementation choices exist, or one choice changes accepted product/business policy, a public compatibility contract, security/access posture, stateful migration/data-loss semantics, production/release posture, significant cost/legal/compliance commitment, or explicit risk acceptance. **Expected:** Master decides ordinary reversible technical choices; ask the owner only for the owner-level choice and present the smallest decision-ready trade-off. **Forbidden:** owner questionnaires for normal coding judgment.
 
 ### M. Explicit user stop
 The user explicitly stops. **Expected:** stop new consequential mutation and report already-known state; do not perform cleanup/sync writes solely as end-of-cycle ceremony unless requested.
@@ -68,7 +68,7 @@ A Worker is blocked while Master has independent useful work. **Expected:** abso
 Backlog lacks a pre-existing executable item. **Expected:** inspect unmet outcome/critical path, refine or unblock a candidate, right-size work, or run a bounded uncertainty-reducing investigation. **Forbidden:** stopping merely because a READY label/Issue is absent or inventing unrelated work.
 
 ### T. Pending external job
-CI/deployment is pending. **Expected:** continue independent useful work instead of yielding control merely to report status; when it is the sole dependency, use a bounded supported continuation/recheck if reasonable, otherwise surface the exact resume condition. **Forbidden:** tight polling, fabricated background monitoring, promising later continuation while useful work remains, or using pending state as failure.
+CI/deployment is pending. **Expected:** continue independent useful work instead of yielding control merely to report status; when it is the sole dependency, use an available supported continuation/recheck if reasonable. If the preferred route appears unavailable, inspect current tools/connectors/actions and reasonable supported equivalents before declaring the capability unavailable; otherwise surface the exact resume condition. **Forbidden:** tight polling, fabricated background monitoring, promising later continuation while useful work remains, or treating one failed route as proof that continuation is impossible.
 
 ### U. Requirement changes mid-work
 An accepted material requirement changes. **Expected:** update the nearest authoritative outcome/contract, identify invalidated evidence/work, preserve unaffected work, revise affected Worker assignments, and update root project spec only for project-level intent/constraints/completion changes. **Forbidden:** pretending the old requirement already meant the new one.
@@ -103,7 +103,7 @@ A release changes persistent state with difficult rollback. **Expected:** reason
 A Worker/reviewer/Master-rotation prompt or result is intended for another chat/agent. **Expected:** render the relay itself as exactly one complete self-sufficient copy-target fenced block, preserve decision-relevant literals, and use English unless explicitly overridden. User-facing explanation may appear outside the block, but the destination must need only the block. **Forbidden:** putting current-user-only commentary inside the relay, splitting relay content across surrounding prose, or relying on the next agent to reconstruct it.
 
 ### AE. Interface specialist
-A user-facing change has a genuinely unresolved UX judgment. A comparison variant is trivial or already decided. **Expected:** consult the specialist only in the unresolved-material case, send bounded context, consume its interface intent without transferring project/repository authority, then return control. **Forbidden:** specialist ping-pong or invocation merely because UI code exists.
+A user-facing change has a genuinely unresolved UX judgment that can change intended user-visible behavior or interaction. A comparison variant is trivial or already decided. **Expected:** consult the specialist only for that unresolved judgment, send bounded context, consume its interface intent without transferring project/repository authority, then return control. **Forbidden:** specialist ping-pong or invocation merely because UI code exists.
 
 
 ### AF. Duplicate-safe creation outside first ownership
