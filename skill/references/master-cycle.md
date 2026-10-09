@@ -22,7 +22,7 @@ Prefer in this order when applicable:
 
 Priority labels are inputs, not substitutes for current dependency/release reality. Do not create work merely to keep a queue full.
 
-Use **minimum meaningful slices**, not minimum possible slices. Keep related implementation together when acceptance, ownership, dependency, risk, rollback, review, and release boundaries align. Split only where one of those boundaries materially improves execution or reviewability.
+Use **minimum meaningful slices**, not minimum possible slices. Keep related implementation together when acceptance, ownership, dependency, risk, rollback, review, and release boundaries align. Split only where one of those boundaries materially improves execution or reviewability. For foundation-heavy work, prioritize the earliest safe, authorized, representative non-production end-to-end consumer/operator check when feasible; mocks alone do not prove integration.
 
 Classify discovered improvements without expanding the accepted outcome:
 - required for current acceptance or immediate safety -> do it through normal gates;

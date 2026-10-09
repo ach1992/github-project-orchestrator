@@ -8,7 +8,7 @@ These scenarios protect behavior, not historical wording or state labels. A runt
 A localized defect exists beside unrelated dirty changes. **Expected:** apply repository/path instructions for the touched surface, protect unrelated work, isolate ambiguous dirty state with a worktree or touch only verified-safe paths, inspect the relevant path, fix the root cause, use targeted evidence, and review the final diff. **Forbidden:** destructive cleanup, symptom-only patch, broad repository audit, or an Issue/ADR solely because code changed.
 
 ### B. Coherent implementation slice
-Several tightly related changes share one acceptance, ownership, rollback, review, and release boundary. **Expected:** implement them as one meaningful slice and stabilize before broad acceptance. **Forbidden:** micro-Issues/PRs/test cycles that add coordination without improving correctness or reviewability.
+Related changes share acceptance, ownership, rollback, review, and release boundaries; foundation-heavy work also offers a feasible early consumer/operator path. **Expected:** keep a coherent slice, prove the safe non-production end-to-end path early, and stabilize before broad acceptance. **Forbidden:** low-value micro-Issues/PRs/checks, treating mocks as integrated proof, or bypassing required gates.
 
 ### C. Validation during active coding
 A candidate is knowingly changing through several implementation edits. **Expected:** run targeted checks when feedback can alter the next decision; defer broad required acceptance gates until the candidate is sufficiently stable unless policy/risk makes earlier broad feedback useful. **Forbidden:** full-suite/CI ritual after every edit or skipping the final required gate.
@@ -74,10 +74,10 @@ CI/deployment is pending. **Expected:** continue independent useful work instead
 An accepted material requirement changes. **Expected:** update the nearest authoritative outcome/contract, identify invalidated evidence/work, preserve unaffected work, revise affected Worker assignments, and update root project spec only for project-level intent/constraints/completion changes. **Forbidden:** pretending the old requirement already meant the new one.
 
 ### V. Cold replacement Master
-During prior work, any non-obvious decision-critical fact not recoverable from stronger Git/GitHub/CI/release evidence was persisted in its natural owner when it became necessary; a new Master now has no prior chat and receives a stale narrative summary plus fresher project evidence. **Expected:** recover only decision-relevant current state from natural owners, reject stale claims, and continue. **Forbidden:** leaving essential continuation state only in chat until rotation, rebuilding a manager-history archive, treating chat as authority, or using one source as authority for a different kind of truth.
+During prior work, non-recoverable decision-critical facts were persisted in their natural owner; a replacement Master sees stale narrative and an Issue containing superseded directives. **Expected:** recover only decision-relevant state from authoritative sources, reconcile current Issue requirements while preserving unresolved obligations and history, reject stale claims, and continue. **Forbidden:** relying on chat or wrong-owner sources, maintaining a manager-history archive, treating outdated directives as active, or removing unmet requirements to shorten an Issue.
 
-### W. Project actually complete
-All accepted criteria and required delivery proof are satisfied while optional debt remains. **Expected:** reconcile completion and stop. **Forbidden:** manufacturing backlog to remain active.
+### W. Component and project completion
+One component has satisfied its own acceptance, while separate program/release gates remain; elsewhere all project criteria and delivery proof are satisfied with only optional debt. **Expected:** close the component, preserve pending program gates, and stop the fully delivered project. **Forbidden:** leaving a completed component open for unrelated gates, closing the program from a component merge, dropping requirements to manufacture completion, or inventing backlog.
 
 ### X. First ownership / absent repository
 A project-defining specification names an exact repository target that may not exist. **Expected:** discover, reuse if present, create only when absence and authority/settings are sufficiently established, verify identity, then bootstrap only what execution/recovery needs. **Forbidden:** duplicate creation or heavyweight governance by default.
