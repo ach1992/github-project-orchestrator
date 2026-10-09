@@ -1,6 +1,6 @@
 # Authority and Gates
 
-Load when an action's authority/effect is not already clear, and before integration, production, destructive/irreversible, access-boundary, or external-commitment actions. Apply controls to the action actually being taken; future risky steps do not block safe reversible preparation.
+Load when authority/effect is unclear or before integration, production, destructive/irreversible, access-boundary, or external-commitment actions. Gate the action being taken; future risky steps do not block safe preparation.
 
 ## 1. Authority and repository scope
 
@@ -8,11 +8,11 @@ Project authority may be:
 
 - `ADVISORY`: read/analyze/recommend; no project mutation unless an exact action is separately authorized.
 - `MANAGED`: perform reversible management/implementation implied by the accepted request; consequential integration/production actions still follow the gates below.
-- `AUTONOMOUS_WITH_GATES`: execute end-to-end inside the accepted scope until a consequential gate or material owner decision is reached.
+- `AUTONOMOUS_WITH_GATES`: execute end-to-end inside the accepted scope until a consequential gate or owner-level decision is reached.
 
-A clear request to develop/manage a named repository authorizes that repository for the reversible work implied by the request; do not ask for ceremonial confirmation. An exact one-off grant authorizes only that action/target/effect.
+A clear request to develop/manage a named repository authorizes its implied reversible work; do not ask for ceremonial confirmation. A one-off grant authorizes only that exact action/target/effect.
 
-Repository mutation scope is an allowlist. Related repositories, dependencies, links, technical access, shared projects, or Worker delegation never make another repository writable. If writable scope is materially ambiguous, keep the ambiguous repository read-only and ask only the exact scope question needed.
+Repository mutation scope is an allowlist. Related repositories, dependencies, links, technical access, shared projects, or Worker delegation never make another repository writable. If writable scope is ambiguous, keep that repository read-only and ask only the exact scope question needed.
 
 Repository/platform permissions and policy can always be stricter than this Skill.
 
@@ -28,13 +28,13 @@ One action can have several simultaneous effects; satisfy every applicable oblig
 | integration | update the accepted target branch/release line |
 | production | deploy/publish/promote/enable production, including deterministic auto-deploy caused by another action |
 | destructive/irreversible | difficult-to-recover deletion/overwrite/data/access-boundary change |
-| external commitment | material cost, legal/compliance/business/public/vendor commitment |
+| external commitment | significant cost or legal/compliance/business/public/vendor commitment |
 
-For reversible management/implementation, proceed when the accepted request/authority clearly implies the action. High-consequence code may still be safely prepared on an isolated branch before a later integration/release approval.
+For reversible management/implementation, proceed when accepted authority implies the action. High-consequence code may still be prepared safely before a later integration/release approval.
 
 Integration:
 - low/ordinary impact: proceed when integration authority is clear, repository policy passes, and all current acceptance/review gates pass;
-- materially high-risk integration: require human approval unless the exact integration action was validly pre-authorized.
+- high-consequence integration under the anchors in section 4: require human approval unless the exact integration action was validly pre-authorized.
 
 Production requires human approval unless the exact rollout was validly pre-authorized and remains current.
 
@@ -55,15 +55,24 @@ Before a consequential mutation, confirm only what matters:
 - required capability exists;
 - mutable identity that could be overwritten/integrated/deployed is fresh enough.
 
-If one condition is uncertain, reconcile that condition rather than rebuilding the whole project state. A failed preferred tool route is not proof that the required capability is absent.
+If capability appears missing, inspect relevant current tools/connectors/actions, prefer the authoritative native route, then try reasonable supported equivalents. Declare it unavailable only after those routes are ruled out. Reconcile other uncertainty directly.
 
-## 4. Material owner decisions
+## 4. Owner decisions and high-consequence anchors
 
 Master makes ordinary reversible technical choices: naming, local refactor shape, test structure, bounded module organization, error handling, and repository-consistent implementation strategy.
 
-Ask the owner only when unresolved choice materially changes accepted product behavior/business policy, a durable public/architecture contract, security/privacy/access posture, irreversible/data-loss or migration semantics, material cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
+Treat an unresolved choice as owner-level when it changes one of these anchors:
 
-When asking, present the smallest decision with the relevant trade-off, evidence, risk, and rollback/roll-forward where applicable.
+- accepted product behavior or business policy;
+- a durable architecture or public/compatibility contract, such as a public API or protocol;
+- security, privacy, or access posture, including authentication/authorization;
+- destructive/stateful migration, data-loss, or recovery semantics;
+- production/release/infrastructure choices that change deployment target/environment, public exposure, availability commitment, or make rollback/recovery difficult or irreversible;
+- significant cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
+
+These anchors are not exhaustive. Reversible choices inside accepted behavior stay with Master. Integration is high-consequence when the candidate changes an owner-level anchor, creates difficult/irreversible rollback, or expands production exposure beyond accepted scope.
+
+When asking, present the smallest decision with relevant trade-off, evidence, risk, and rollback/roll-forward.
 
 ## 5. Ambiguous write outcome
 

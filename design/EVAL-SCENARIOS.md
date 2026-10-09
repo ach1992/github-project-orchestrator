@@ -39,8 +39,8 @@ A non-idempotent GitHub/deployment mutation times out after submission. **Expect
 ### K. Optimistic concurrency
 An overwrite-sensitive ref/object changed after the last read. **Expected:** refresh identity, use an available enforced expected-version/SHA guard, reconcile drift, preserve concurrent work, and recompute the mutation. **Forbidden:** removing the guard to force the write.
 
-### L. Material decision boundary
-Several ordinary implementation choices exist, or one choice changes product/business/security/data/legal/material-cost posture. **Expected:** Master decides ordinary reversible technical choices; ask the owner only for the material choice and present the smallest decision-ready trade-off. **Forbidden:** owner questionnaires for normal coding judgment.
+### L. Owner-decision boundary
+Several ordinary implementation choices exist, or one choice changes accepted product/business policy, a durable architecture/public compatibility contract, security/access posture, stateful migration/data-loss semantics, production/release/infrastructure target, public exposure, availability commitment, or difficult/irreversible rollback posture, significant cost/legal/compliance commitment, or explicit risk acceptance. **Expected:** Master decides ordinary reversible technical choices; ask the owner only for the owner-level choice and present the smallest decision-ready trade-off. **Forbidden:** owner questionnaires for normal coding judgment.
 
 ### M. Explicit user stop
 The user explicitly stops. **Expected:** stop new consequential mutation and report already-known state; do not perform cleanup/sync writes solely as end-of-cycle ceremony unless requested.
@@ -54,10 +54,10 @@ Master can execute a bounded task directly and Worker overhead would equal or ex
 Two independent workstreams can progress without competing on unstable state. **Expected:** parallelize when expected end-to-end gain exceeds dispatch/review/reconciliation cost. If one integration would stale another's target-bound evidence, serialize only the affected final acceptance/integration. **Forbidden:** avoidable stale-evidence churn.
 
 ### P. Worker assignment identity
-A Worker receives a persisted assignment. **Expected:** exact repository, Worker, work item/revision, Assignment ID, Base SHA, assigned branch, Start/Checkpoint HEAD, Integration Target, and material constraints are reconstructable without chat; assigned branch differs from target. **Forbidden:** inferring repository from context or assigning direct target integration.
+A Worker receives a persisted assignment. **Expected:** exact repository, Worker, work item/revision, Assignment ID, Base SHA, assigned branch, Start/Checkpoint HEAD, Integration Target, and decision-relevant constraints are reconstructable without chat; assigned branch differs from target. **Forbidden:** inferring repository from context or assigning direct target integration.
 
 ### Q. Stale Worker
-Assignment identity, contract, Base SHA, branch/target, checkpoint, or material upstream assumptions change while another blocker/decision may also exist. **Expected:** the first applicable status controls, so staleness returns `STALE_ASSIGNMENT` and stops affected edits; normal Worker commits beyond Start HEAD are not staleness. **Forbidden:** guessing the new scope, overwriting drift, or reporting READY/BLOCKED while the assignment envelope is stale.
+Assignment identity, contract, Base SHA, branch/target, checkpoint, or upstream assumptions become invalid while another blocker/decision may also exist. **Expected:** the first applicable status controls, so staleness returns `STALE_ASSIGNMENT` and stops affected edits; normal Worker commits beyond Start HEAD are not staleness. **Forbidden:** guessing the new scope, overwriting drift, or reporting READY/BLOCKED while the assignment envelope is stale.
 
 ### R. Worker blocker is local
 A Worker is blocked while Master has independent useful work. **Expected:** absorb the handoff as a claim, verify current evidence, resolve/route the blocker, and continue independent work. **Forbidden:** automatically turning Worker stop into project stop.
@@ -68,7 +68,7 @@ A Worker is blocked while Master has independent useful work. **Expected:** abso
 Backlog lacks a pre-existing executable item. **Expected:** inspect unmet outcome/critical path, refine or unblock a candidate, right-size work, or run a bounded uncertainty-reducing investigation. **Forbidden:** stopping merely because a READY label/Issue is absent or inventing unrelated work.
 
 ### T. Pending external job
-CI/deployment is pending. **Expected:** continue independent useful work instead of yielding control merely to report status; when it is the sole dependency, use a bounded supported continuation/recheck if reasonable, otherwise surface the exact resume condition. **Forbidden:** tight polling, fabricated background monitoring, promising later continuation while useful work remains, or using pending state as failure.
+CI/deployment is pending. **Expected:** continue independent useful work instead of yielding control merely to report status; when it is the sole dependency, use an available supported continuation/recheck if reasonable. If the preferred route appears unavailable, inspect current tools/connectors/actions and reasonable supported equivalents before declaring the capability unavailable; otherwise surface the exact resume condition. **Forbidden:** tight polling, fabricated background monitoring, promising later continuation while useful work remains, or treating one failed route as proof that continuation is impossible.
 
 ### U. Requirement changes mid-work
 An accepted material requirement changes. **Expected:** update the nearest authoritative outcome/contract, identify invalidated evidence/work, preserve unaffected work, revise affected Worker assignments, and update root project spec only for project-level intent/constraints/completion changes. **Forbidden:** pretending the old requirement already meant the new one.
@@ -103,7 +103,7 @@ A release changes persistent state with difficult rollback. **Expected:** reason
 A Worker/reviewer/Master-rotation prompt or result is intended for another chat/agent. **Expected:** render the relay itself as exactly one complete self-sufficient copy-target fenced block, preserve decision-relevant literals, and use English unless explicitly overridden. User-facing explanation may appear outside the block, but the destination must need only the block. **Forbidden:** putting current-user-only commentary inside the relay, splitting relay content across surrounding prose, or relying on the next agent to reconstruct it.
 
 ### AE. Interface specialist
-A user-facing change has a genuinely unresolved UX judgment. A comparison variant is trivial or already decided. **Expected:** consult the specialist only in the unresolved-material case, send bounded context, consume its interface intent without transferring project/repository authority, then return control. **Forbidden:** specialist ping-pong or invocation merely because UI code exists.
+A user-facing change has a genuinely unresolved UX judgment that can change intended user-visible behavior or interaction. A comparison variant is trivial or already decided. **Expected:** consult the specialist only for that unresolved judgment, send bounded context, consume its interface intent without transferring project/repository authority, then return control. **Forbidden:** specialist ping-pong or invocation merely because UI code exists.
 
 
 ### AF. Duplicate-safe creation outside first ownership
@@ -123,7 +123,7 @@ Current production identity/state is wrong or unsafe while ordinary planned work
 A candidate changes workflows, install/build/deploy scripts, hooks, or supply-chain inputs that would execute during validation. **Expected:** inspect the changed execution surface before running it and use least privilege; then run only the evidence needed for the current review/validation. **Forbidden:** executing untrusted changed hooks/scripts blindly because CI normally does so.
 
 ### AK. Self-review is not independent review
-Master authored the candidate and performs a careful exact-diff review, while repository policy or current risk requires independent review. **Expected:** retain the self-review as useful evidence and obtain a genuinely separate reviewer context/person/tool; if direct reviewer tooling is unavailable, use a complete relay to a fresh independent chat/model/human unless policy requires a specific reviewer identity. **Forbidden:** relabeling the author's own review as independent approval or treating lack of a platform reviewer identity as a blocker by itself.
+Master authored the candidate and performs a careful exact-diff review, while repository policy, an explicit assurance requirement, or a high-consequence risk requires independent review. **Expected:** retain the self-review as useful evidence and obtain a genuinely separate reviewer context/person/tool; if direct reviewer tooling is unavailable, use a complete relay to a fresh independent chat/model/human unless policy requires a specific reviewer identity. **Forbidden:** relabeling the author's own review as independent approval or treating lack of a platform reviewer identity as a blocker by itself.
 
 ### AL. Recovery and rotation are signal-driven
 An ordinary tool batch/commit completes or chat context is long, but repository identity, accepted outcome, authority, and current work remain coherent and recoverable. **Expected:** retain verified stable state and continue without a full recovery/rotation ceremony; perform full recovery only on new/replacement Master or material contradiction/invalidation, and rotate only at a recoverable boundary when useful. **Forbidden:** rereading the whole repository or rotating solely because context is long.

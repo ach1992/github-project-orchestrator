@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0.1] - 2026-10-09
+
+### Changed
+
+- Rewrote dense always-loaded Core rules as shorter imperative sentences while preserving outcome, authority, evidence, mutation, safety, progress, ownership, and recovery semantics.
+- Anchored owner-level/high-consequence decisions in one runtime owner around product/business policy, durable architecture/public compatibility contracts, security/access, stateful migration/data loss, production/release/infrastructure target, public exposure, availability, or difficult/irreversible rollback posture, significant cost/legal/compliance, and explicit risk acceptance.
+- Added a platform-neutral capability-discovery path: inspect current tools/connectors/actions, prefer the authoritative native route, try reasonable supported equivalents, and only then treat the capability as unavailable.
+- Replaced the MachineRelay pseudo-predicate with four direct transport checks while preserving one complete self-sufficient copy block, exact identity literals, and safe fencing.
+- Improved Claude.ai discovery metadata within the 200-character limit so start/continue/finish, cross-chat recovery, and Worker-assignment triggers remain discoverable; the documented lowercase `skill.md` Claude.ai adapter remains unchanged.
+
+### Removed
+
+- Removed the pre-v1.7 `skill/scripts/contract_check.py` compatibility validator, its Phase 2 test, CI invocation, structural requirement, and legacy Worker-dispatch compatibility prose. Historical release notes remain historical evidence, not current runtime behavior.
+
+### Deliberately unchanged
+
+- Worker `Base SHA`, `Start HEAD`, and `Checkpoint HEAD` semantics remain intact. They load only for explicit Worker flows, and their distinct generation-start vs correction/resume roles provide more recovery/staleness value than the small token reduction from collapsing them.
+
 ## [2.0.0] - 2026-10-09
 
 ### Major generation change

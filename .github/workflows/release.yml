@@ -44,10 +44,8 @@ jobs:
       - name: Validate runtime budget and canonical rules
         run: python3 tests/test_runtime_semantics_v2.py
 
-      - name: Test compatibility and safety helpers
-        run: |
-          python3 tests/test_contract_check_phase2.py
-          python3 tests/test_repo_preflight.py
+      - name: Test repository safety helper
+        run: python3 tests/test_repo_preflight.py
 
       - name: Test release and packaging tooling
         run: |

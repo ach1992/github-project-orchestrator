@@ -1,6 +1,6 @@
 # Interface Specialist Composition
 
-Use a compatible interface-design specialist only when accepted work has a user-facing surface, current product/design truth still leaves a material UX judgment unresolved, and specialist judgment could change the intended experience.
+Use a compatible interface-design specialist only when accepted work has a user-facing surface, current product/design truth leaves an unresolved UX judgment, and specialist judgment could change intended user-visible behavior or interaction.
 
 Do not invoke it merely because frontend/UI code exists, for trivial presentation edits, or when the implementation is already inside established design latitude.
 
@@ -8,7 +8,7 @@ Send only:
 
 - accepted outcome and exact interface question/critique target;
 - relevant product/business/design truth and constraints;
-- target surface/platform and locale/directionality when material;
+- target surface/platform and locale/directionality when they affect the decision;
 - relevant source/rendered evidence and limitations;
 - ownership boundary.
 
@@ -22,4 +22,4 @@ After a decision packet returns, continue implementation inside its latitude. Re
 
 If a Worker encounters a question outside its current design latitude/contract, return it through the normal Worker correction path rather than widening scope or opening a direct specialist loop.
 
-If specialist consultation is unavailable, continue from authoritative product/design truth and ordinary bounded engineering judgment unless a genuinely material product/owner decision remains unresolved.
+If specialist consultation is unavailable, continue from authoritative product/design truth and ordinary bounded engineering judgment unless an owner-level product decision remains unresolved.

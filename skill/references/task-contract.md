@@ -4,7 +4,7 @@ Use an explicit Task Contract only when it materially improves coordination, del
 
 ## When a contract is useful
 
-Persist a contract for Worker assignments and when multi-actor or cross-session coordination, material dependencies/decisions, high-consequence work, or repository policy needs durable identity. Otherwise keep the work implicit or transient. Reuse an existing suitable Issue/work item rather than creating a parallel contract.
+Persist a contract for Worker assignments and when multi-actor or cross-session coordination, dependencies/decisions another actor or future session must know, high-consequence work, or repository policy needs durable identity. Otherwise keep the work implicit or transient. Reuse an existing suitable Issue/work item rather than creating a parallel contract.
 
 Keep one contract for a cohesive outcome across partial commits or PRs. Do not close and recreate it at mechanical implementation seams.
 
@@ -53,7 +53,7 @@ During coding, use targeted checks when their result can influence the next step
 
 Increment the revision only when goal, scope, acceptance, required validation, material dependency, risk, or delivery expectation changes. Wording cleanup does not need a new revision.
 
-When a material revision invalidates a Worker assignment, stop that generation and issue a new assignment or correction through [worker-protocol.md](worker-protocol.md).
+When a revision invalidates a Worker assignment, stop that generation and issue a new assignment or correction through [worker-protocol.md](worker-protocol.md).
 
 ## Worker assignment identity
 
@@ -68,10 +68,10 @@ Before dispatch, persist enough identity for a replacement Master to reconstruct
 - `Integration Target`;
 - any exact action authorization or special release constraint not already clear from the contract.
 
-The assigned branch must differ from the Integration Target. `Base SHA` remains the historical integration/stacking basis; `Start HEAD` is the immutable generation start and normally equals Base SHA unless intentional stacking/divergence is part of the assignment. Worktree paths are runtime locations, not assignment identity. Normal Worker commits may advance beyond `Start HEAD`; staleness means an external or material assumption changed, not that the Worker made progress.
+The assigned branch must differ from the Integration Target. `Base SHA` remains the historical integration/stacking basis; `Start HEAD` is the immutable generation start and normally equals Base SHA unless intentional stacking/divergence is part of the assignment. Worktree paths are runtime locations, not assignment identity. Normal Worker commits may advance beyond `Start HEAD`; staleness means an external change invalidated assignment assumptions, not that the Worker made progress.
 
 ## Ready to execute
 
-Before Worker dispatch or other coordination-heavy implementation, ensure scope is implementable, acceptance is observable, required validation is known, dependencies are satisfied or intentionally sequenced, and material owner decisions are resolved.
+Before Worker dispatch or other coordination-heavy implementation, ensure scope is implementable, acceptance is observable, required validation is known, dependencies are satisfied or intentionally sequenced, and owner-level decisions are resolved.
 
 This is a decision condition, not documentation ceremony. Discover safely knowable facts yourself instead of asking the user, and do not create an extra artifact when the facts are already authoritative elsewhere.
