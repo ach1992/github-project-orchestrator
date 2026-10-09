@@ -30,9 +30,7 @@ Do safe preparation before an approval gate when it reduces uncertainty without 
 
 ## 3. Release candidate stability
 
-Do not repeatedly spend broad acceptance/release validation on a candidate that is knowingly changing unless policy or risk requires the feedback earlier.
-
-Once the release candidate is stable, run the required exact-candidate gates. If later changes occur, rerun only evidence they invalidate plus every gate that policy requires for the new identity.
+Once the release candidate is stable, run required exact-candidate gates. Later changes invalidate only affected evidence plus gates policy binds to the new identity.
 
 ## 4. Migration and stateful changes
 
