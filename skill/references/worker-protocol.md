@@ -12,7 +12,7 @@ Read the current work item/contract and repository instructions. Verify:
 - `Start HEAD` for a new assignment, or Master-supplied `Checkpoint HEAD` for correction/resume;
 - scope, acceptance, required validation, and any explicit action constraints.
 
-If a material assignment assumption changed, return `STALE_ASSIGNMENT`; do not guess or broaden scope. Repositories mentioned only as dependencies/context remain read-only unless this assignment explicitly targets them.
+If an assignment assumption changed enough to invalidate the contract, return `STALE_ASSIGNMENT`; do not guess or broaden scope. Repositories mentioned only as dependencies/context remain read-only unless this assignment explicitly targets them.
 
 Use an isolated worktree when useful, but never persist the worktree path as assignment identity.
 
@@ -56,13 +56,13 @@ Worker should:
 3. validate proportionally using the required evidence and useful targeted checks;
 4. inspect the final relevant diff/worktree state;
 5. commit/push only assigned work to the assigned branch/PR;
-6. stop instead of inventing a material product, architecture, data, authorization, release, or scope decision.
+6. stop instead of inventing a contract-changing product, architecture, data, authorization, release, or scope decision.
 
 Ordinary reversible implementation choices stay with the Worker; do not bounce them to Master.
 
 ## 4. Staleness and blockers
 
-Return `STALE_ASSIGNMENT` when Assignment ID/Worker/revision/repository/Base SHA/assigned branch/Integration Target/checkpoint no longer matches, or when upstream/contract drift materially invalidates the implementation assumptions.
+Return `STALE_ASSIGNMENT` when Assignment ID/Worker/revision/repository/Base SHA/assigned branch/Integration Target/checkpoint no longer matches, or when upstream/contract drift invalidates implementation assumptions.
 
 Normal authorized commits on the assigned branch do not make `Start HEAD` stale.
 
@@ -70,9 +70,9 @@ Use the first applicable controlling status in this order:
 
 | Status | Use when |
 |---|---|
-| `STALE_ASSIGNMENT` | assignment identity or material assumptions changed |
+| `STALE_ASSIGNMENT` | assignment identity or assumptions no longer valid |
 | `MATERIAL_DECISION_REQUIRED` | a Master/owner decision is required to continue |
-| `SCOPE_CHANGE_REQUIRED` | acceptance requires material work outside the contract |
+| `SCOPE_CHANGE_REQUIRED` | acceptance requires work outside the contract |
 | `ENVIRONMENT_MISMATCH` | another valid runtime/environment can likely execute the same contract |
 | `BLOCKED` | an external prerequisite prevents progress |
 | `READY_FOR_REVIEW` | implementation is complete enough for Master review and required Worker validation is reported |
@@ -116,4 +116,4 @@ The handoff is a locator and claim, not review proof. Master verifies current Gi
 
 Reuse the same assignment generation only while the same Worker/branch/contract remains valid. Send the exact Worker, Repository, work item, Assignment ID, Contract Revision, Base SHA, Assigned Branch, Integration Target, reviewed current `Checkpoint HEAD`, and only the changed findings/constraints/required validation. Worker verifies that checkpoint before editing.
 
-If responsibility, branch, contract assumptions, or generation validity materially changed, Master issues a fresh Assignment ID.
+If responsibility, branch, contract assumptions, or generation validity changed, Master issues a fresh Assignment ID.
