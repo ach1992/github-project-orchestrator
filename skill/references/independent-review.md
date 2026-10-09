@@ -29,7 +29,7 @@ For a remediation re-review, include the prior reviewed candidate and current ca
 
 ## Result
 
-Return:
+An emitted `INDEPENDENT REVIEW RESULT` is a MachineRelay. Before rendering it, load [relay-transport.md](relay-transport.md) and apply its transport requirements. Return:
 
 ```text
 # INDEPENDENT REVIEW RESULT

@@ -125,6 +125,27 @@ def main() -> None:
     if "`STALE_ASSIGNMENT`" not in worker_protocol:
         raise AssertionError("Worker stale-assignment status disappeared")
 
+    independent_review = (SKILL / "references" / "independent-review.md").read_text(encoding="utf-8")
+    result_start = independent_review.index("## Result")
+    result_end = independent_review.index("## Master reconciliation", result_start)
+    result_contract = independent_review[result_start:result_end]
+    for phrase in (
+        "An emitted `INDEPENDENT REVIEW RESULT` is a MachineRelay",
+        "[relay-transport.md](relay-transport.md)",
+        "apply its transport requirements",
+    ):
+        if phrase not in result_contract:
+            raise AssertionError(f"Independent-review result lost local MachineRelay activation: {phrase}")
+    for transport_detail in (
+        "exactly one self-contained fenced copy block",
+        "English is used unless overridden",
+        "outer fence safely contains embedded fences",
+    ):
+        if transport_detail in result_contract:
+            raise AssertionError(
+                f"Independent-review result duplicated canonical relay transport mechanics: {transport_detail}"
+            )
+
     rule_text = RULE_MAP.read_text(encoding="utf-8")
     rule_ids = set(
         re.findall(r"^\|\s*`([A-Z0-9]+(?:-[A-Z0-9]+)+)`\s*\|", rule_text, re.MULTILINE)
