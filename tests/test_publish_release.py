@@ -102,6 +102,7 @@ class PublishReleaseTests(unittest.TestCase):
         self.assertEqual(len(release_commands), 1)
         command = release_commands[0]
         self.assertIn("--verify-tag", command)
+        self.assertEqual(command[command.index("--title") + 1], "GPO v1.1.0-rc.1")
         self.assertIn("--prerelease", command)
         self.assertNotIn("--target", command)
         for asset_name in publish_release.RELEASE_ASSET_NAMES:

@@ -257,7 +257,7 @@ def publish_release() -> None:
         [
             "--verify-tag",
             "--title",
-            tag,
+            f"GPO {tag}",
             "--notes",
             f"Release {tag} of GitHub Project Orchestrator. See CHANGELOG.md for release details.",
         ]
