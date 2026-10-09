@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.0] - 2026-10-10
+
+### Improved
+
+- Prefer the earliest feasible safe, authorized, non-production end-to-end consumer/operator check when sequencing foundation-heavy development; mocks alone are not integrated evidence.
+- Separate completed component acceptance from later program/release gates without dropping or duplicating obligations.
+- Keep Issue requirements current by replacing superseded directives while preserving unresolved obligations and rationale in authoritative history/links.
+- Strengthened behavioral evaluation scenarios B, V, and W without adding new orchestration rules, states, or runtime files.
+
+### Unchanged
+
+- Existing authority, Worker, security, review, CI, release, and recovery gates remain intact.
+
 ## [2.0.3] - 2026-10-09
 
 ### Fixed
