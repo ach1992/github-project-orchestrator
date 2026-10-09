@@ -1,6 +1,6 @@
 # Authority and Gates
 
-Load when an action's authority/effect is not already clear, and before integration, production, destructive/irreversible, access-boundary, or external-commitment actions. Apply controls to the action actually being taken; future risky steps do not block safe reversible preparation.
+Load when authority/effect is unclear or before integration, production, destructive/irreversible, access-boundary, or external-commitment actions. Gate the action being taken; future risky steps do not block safe preparation.
 
 ## 1. Authority and repository scope
 
@@ -10,7 +10,7 @@ Project authority may be:
 - `MANAGED`: perform reversible management/implementation implied by the accepted request; consequential integration/production actions still follow the gates below.
 - `AUTONOMOUS_WITH_GATES`: execute end-to-end inside the accepted scope until a consequential gate or owner-level decision is reached.
 
-A clear request to develop/manage a named repository authorizes that repository for the reversible work implied by the request; do not ask for ceremonial confirmation. An exact one-off grant authorizes only that action/target/effect.
+A clear request to develop/manage a named repository authorizes its implied reversible work; do not ask for ceremonial confirmation. A one-off grant authorizes only that exact action/target/effect.
 
 Repository mutation scope is an allowlist. Related repositories, dependencies, links, technical access, shared projects, or Worker delegation never make another repository writable. If writable scope is ambiguous, keep that repository read-only and ask only the exact scope question needed.
 
@@ -30,7 +30,7 @@ One action can have several simultaneous effects; satisfy every applicable oblig
 | destructive/irreversible | difficult-to-recover deletion/overwrite/data/access-boundary change |
 | external commitment | significant cost or legal/compliance/business/public/vendor commitment |
 
-For reversible management/implementation, proceed when the accepted request/authority clearly implies the action. High-consequence code may still be safely prepared on an isolated branch before a later integration/release approval.
+For reversible management/implementation, proceed when accepted authority implies the action. High-consequence code may still be prepared safely before a later integration/release approval.
 
 Integration:
 - low/ordinary impact: proceed when integration authority is clear, repository policy passes, and all current acceptance/review gates pass;
@@ -55,7 +55,7 @@ Before a consequential mutation, confirm only what matters:
 - required capability exists;
 - mutable identity that could be overwritten/integrated/deployed is fresh enough.
 
-If required capability appears missing, inspect the tools/connectors/actions available in the current environment, prefer the authoritative native route, then try a supported equivalent route. Treat capability as unavailable only after reasonable equivalent routes are ruled out. Reconcile any other uncertain condition directly rather than rebuilding project state.
+If capability appears missing, inspect current tools/connectors/actions, prefer the authoritative native route, then try reasonable supported equivalents. Declare it unavailable only after those routes are ruled out. Reconcile other uncertainty directly.
 
 ## 4. Owner decisions and high-consequence anchors
 
@@ -70,9 +70,9 @@ Treat an unresolved choice as owner-level when it changes one of these anchors:
 - production, release, or infrastructure rollout/rollback posture;
 - significant cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
 
-These are anchors, not an exhaustive checklist. A reversible implementation choice inside accepted behavior stays with Master. The same anchors make integration high-consequence when integration can change that posture or blast radius.
+These anchors are not exhaustive. Reversible choices inside accepted behavior stay with Master. Integration is high-consequence when it can change an anchor's posture or blast radius.
 
-When asking, present the smallest decision with the relevant trade-off, evidence, risk, and rollback/roll-forward where applicable.
+When asking, present the smallest decision with relevant trade-off, evidence, risk, and rollback/roll-forward.
 
 ## 5. Ambiguous write outcome
 
