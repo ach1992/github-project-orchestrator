@@ -41,11 +41,13 @@ Use the smallest native structure that improves execution.
 
 Persist a work item when it carries useful unresolved scope/acceptance, dependency, ownership, risk, delivery, or cross-session context. Routine bounded Master work can stay in the request plus branch/PR evidence.
 
-Prefer one meaningful work item over a convoy of implementation-layer Issues; apply the kernel split criteria to work-item boundaries.
+Prefer one meaningful work item over a convoy of implementation-layer Issues; apply the kernel split criteria to work-item boundaries. Give bounded implementation work its own completion evidence; keep later cross-slice/release acceptance with its owning program or acceptance item. For an existing mixed Issue, reconcile and link the acceptance owners without dropping requirements or creating duplicate work.
 
 Projects/milestones are useful when they reduce coordination cost across multiple substantive items/releases. For multi-repository outcomes, keep one small global outcome/dependency/release spine while local Issues/PRs/CI remain authoritative in each repository; coordination never widens repository mutation scope. Do not mirror every local task into a central management artifact.
 
 Keep labels sparse and operationally useful. Close an Issue only when its accepted completion criteria are actually satisfied; merge alone is not completion when post-integration or delivery evidence remains required.
+
+Keep the current Issue body coherent: reconcile superseded directives and acceptance instead of stacking dated updates over stale instructions. Preserve needed rationale, unresolved obligations, and traceability through the current body, GitHub history/links, or the natural durable decision owner; never erase a requirement merely to show progress.
 
 ## Project navigation
 

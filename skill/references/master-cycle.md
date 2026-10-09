@@ -20,7 +20,9 @@ Prefer in this order when applicable:
 4. execute the highest-value ready outcome slice;
 5. improve the engineering system only when a demonstrated bottleneck is materially slowing the remaining outcome.
 
-Priority labels are inputs, not substitutes for current dependency/release reality. Do not create work merely to keep a queue full.
+Priority labels are inputs, not substitutes for current dependency/release reality. Prefer completing and proving active work over opening another front when it unlocks more value; do not create work merely to keep a queue full.
+
+Before extending a foundation-heavy plan, identify the earliest safe, representative consumer/operator path that can be exercised end to end. Sequence the prerequisites needed for that path and obtain observable non-production feedback when feasible; unit/mocked checks alone do not prove the integrated path. Early feedback does not replace required security, privileged-operation, final acceptance, or release gates.
 
 Use **minimum meaningful slices**, not minimum possible slices. Keep related implementation together when acceptance, ownership, dependency, risk, rollback, review, and release boundaries align. Split only where one of those boundaries materially improves execution or reviewability.
 
