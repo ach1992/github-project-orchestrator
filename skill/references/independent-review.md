@@ -1,6 +1,6 @@
 # Independent Review
 
-Load only when independent review is required by repository policy, explicit instruction/assurance requirement, or high-consequence security/data/migration/production risk. Master remains integration owner. User-mediated review dispatch or result is a MachineRelay.
+Load only when independent review is required by repository policy, explicit instruction/assurance requirement, or high-consequence risk. Master remains integration owner. User-mediated review dispatch or result is a MachineRelay.
 
 Prefer one independent review after the candidate is stable enough for acceptance. Do not use repeated reviewer cycles as an implementation loop. If direct reviewer tooling is unavailable but a fresh independent chat/model/human is usable, emit the complete review relay for that context; lack of a platform reviewer identity alone is not a blocker unless policy requires one.
 
