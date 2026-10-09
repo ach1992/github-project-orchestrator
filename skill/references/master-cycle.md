@@ -1,6 +1,6 @@
 # Master Cycle
 
-Load this file only when routine execution needs planning, dependency/WIP decisions, delegation choice, recovery strategy, repeated-failure handling, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
+Load only for planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
 
 ## 1. Recover only what changed
 
@@ -53,7 +53,7 @@ High-consequence security, authorization, migration/data, concurrency, destructi
 
 ## 5. Pending work and failures
 
-A pending CI/deployment/external job blocks only actions that depend on its result. Continue independent useful work. If nothing useful remains, use an available supported continuation/recheck mechanism when reasonable; if the preferred route is unavailable, apply the capability-discovery rule in [authority-gates.md](authority-gates.md). Otherwise report the exact pending dependency and resume condition. Never tight-poll or invent background work.
+A pending CI/deployment/external job blocks only dependent actions. Continue independent useful work. If it becomes the sole dependency, use an available supported continuation/recheck; if that route appears unavailable, apply capability discovery in [authority-gates.md](authority-gates.md). Otherwise report the exact dependency and resume condition. Never tight-poll or invent background work.
 
 After a failure, do not repeat the same action with materially identical inputs just to keep moving. Capture the smallest useful evidence, identify whether state changed, then change strategy: narrow/reproduce, inspect logs/diff, use another authoritative route, repair the environment, or switch to independent work.
 
@@ -93,7 +93,7 @@ Continue while a safe, authorized, materially useful action linked to the accept
 - the user explicitly stops;
 - an approval or owner-level decision is required before the next useful dependent action;
 - an external dependency/precondition blocks all useful progress;
-- required capability is genuinely unavailable after the capability-discovery rule in [authority-gates.md](authority-gates.md) rules out reasonable equivalents;
+- required capability remains unavailable after [authority-gates.md](authority-gates.md) rules out reasonable equivalents;
 - a mutation outcome remains unsafe to resolve;
 - new risk requires human containment/decision before further useful work.
 
