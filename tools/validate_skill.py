@@ -30,7 +30,6 @@ REQUIRED_PATHS = (
     "assets/icon.svg",
     *(f"references/{name}" for name in RUNTIME_REFERENCES),
     "scripts/repo_preflight.py",
-    "scripts/contract_check.py",
 )
 
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
