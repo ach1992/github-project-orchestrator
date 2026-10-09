@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3] - 2026-10-09
+
+### Fixed
+
+- Restored result-local MachineRelay activation for emitted `INDEPENDENT REVIEW RESULT` output, so it follows the canonical relay transport instead of ordinary Markdown.
+- Added a focused regression guard without duplicating transport mechanics; `relay-transport.md` remains the single transport owner.
+
 ## [2.0.2] - 2026-10-09
 
 ### Changed

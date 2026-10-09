@@ -130,9 +130,9 @@ def main() -> None:
     result_end = independent_review.index("## Master reconciliation", result_start)
     result_contract = independent_review[result_start:result_end]
     for phrase in (
-        "An emitted `INDEPENDENT REVIEW RESULT` is a MachineRelay",
+        "Emit `INDEPENDENT REVIEW RESULT` as a MachineRelay",
         "[relay-transport.md](relay-transport.md)",
-        "apply its transport requirements",
+        "before rendering",
     ):
         if phrase not in result_contract:
             raise AssertionError(f"Independent-review result lost local MachineRelay activation: {phrase}")
