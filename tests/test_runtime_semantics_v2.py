@@ -23,6 +23,16 @@ RUNTIME_REFS = (
     "worker-protocol.md",
 )
 
+REQUIRED_WORKER_IDENTITY_LITERALS = (
+    "Assignment ID",
+    "Contract Revision",
+    "Base SHA",
+    "Assigned Branch",
+    "Start HEAD",
+    "Checkpoint HEAD",
+    "Integration Target",
+)
+
 REQUIRED_HIGH_CONSEQUENCE_RULES = {
     "OUTCOME-INTEGRITY",
     "EVIDENCE-TRUTH",
@@ -64,6 +74,18 @@ def main() -> None:
         raise AssertionError(f"ordinary runtime surface grew above 8000 words: {runtime_words}")
     if (SKILL / "references" / "eval-scenarios.md").exists():
         raise AssertionError("development evaluation leaked back into the packaged runtime")
+
+    task_contract = (SKILL / "references" / "task-contract.md").read_text(encoding="utf-8")
+    worker_protocol = (SKILL / "references" / "worker-protocol.md").read_text(encoding="utf-8")
+    for literal in REQUIRED_WORKER_IDENTITY_LITERALS:
+        if literal not in task_contract or literal not in worker_protocol:
+            raise AssertionError(f"Worker identity literal disappeared from runtime: {literal}")
+    if "assigned branch must differ from the Integration Target" not in task_contract:
+        raise AssertionError("Worker assignment must keep branch/target separation")
+    if "Normal authorized commits on the assigned branch do not make `Start HEAD` stale." not in worker_protocol:
+        raise AssertionError("Worker Start HEAD progress/staleness distinction disappeared")
+    if "`STALE_ASSIGNMENT`" not in worker_protocol:
+        raise AssertionError("Worker stale-assignment status disappeared")
 
     rule_text = RULE_MAP.read_text(encoding="utf-8")
     rule_ids = set(
