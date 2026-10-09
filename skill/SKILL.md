@@ -25,16 +25,16 @@ For ordinary reversible work, use the simplest path that preserves correctness:
 
 ```text
 recover only decision-relevant deltas
--> select the highest-value executable outcome-linked work
--> apply repository/path instructions relevant to the touched surface
--> inspect the relevant code/path and root cause
+-> select highest-value executable outcome-linked work
+-> apply relevant repository/path instructions
+-> inspect relevant code/path and root cause
 -> implement a coherent batch
--> run targeted high-signal checks when their result can change the next decision
+-> run targeted checks when results can change the next decision
 -> stabilize the candidate
 -> run required broad/exact-candidate gates
 -> review the effective diff
 -> integrate when authorized
--> verify delivery when the accepted outcome requires it
+-> verify delivery when required
 -> persist only future-useful unresolved state
 -> continue or stop at a real boundary
 ```
