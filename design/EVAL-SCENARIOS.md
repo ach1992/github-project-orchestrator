@@ -54,10 +54,10 @@ Master can execute a bounded task directly and Worker overhead would equal or ex
 Two independent workstreams can progress without competing on unstable state. **Expected:** parallelize when expected end-to-end gain exceeds dispatch/review/reconciliation cost. If one integration would stale another's target-bound evidence, serialize only the affected final acceptance/integration. **Forbidden:** avoidable stale-evidence churn.
 
 ### P. Worker assignment identity
-A Worker receives a persisted assignment. **Expected:** exact repository, Worker, work item/revision, Assignment ID, Base SHA, assigned branch, Start/Checkpoint HEAD, Integration Target, and material constraints are reconstructable without chat; assigned branch differs from target. **Forbidden:** inferring repository from context or assigning direct target integration.
+A Worker receives a persisted assignment. **Expected:** exact repository, Worker, work item/revision, Assignment ID, Base SHA, assigned branch, Start/Checkpoint HEAD, Integration Target, and decision-relevant constraints are reconstructable without chat; assigned branch differs from target. **Forbidden:** inferring repository from context or assigning direct target integration.
 
 ### Q. Stale Worker
-Assignment identity, contract, Base SHA, branch/target, checkpoint, or material upstream assumptions change while another blocker/decision may also exist. **Expected:** the first applicable status controls, so staleness returns `STALE_ASSIGNMENT` and stops affected edits; normal Worker commits beyond Start HEAD are not staleness. **Forbidden:** guessing the new scope, overwriting drift, or reporting READY/BLOCKED while the assignment envelope is stale.
+Assignment identity, contract, Base SHA, branch/target, checkpoint, or upstream assumptions become invalid while another blocker/decision may also exist. **Expected:** the first applicable status controls, so staleness returns `STALE_ASSIGNMENT` and stops affected edits; normal Worker commits beyond Start HEAD are not staleness. **Forbidden:** guessing the new scope, overwriting drift, or reporting READY/BLOCKED while the assignment envelope is stale.
 
 ### R. Worker blocker is local
 A Worker is blocked while Master has independent useful work. **Expected:** absorb the handoff as a claim, verify current evidence, resolve/route the blocker, and continue independent work. **Forbidden:** automatically turning Worker stop into project stop.
