@@ -39,7 +39,7 @@ Consider CPU, memory, storage, network, database/connection, queue/backlog, tele
 
 When the change affects a user-facing surface, preserve the intended interaction and applicable accessibility, responsive/adaptive behavior, loading/error/empty states, localization/internationalization, directionality, and timezone semantics.
 
-For unresolved interface judgment that can materially change intended UX, use [interface-specialist.md](interface-specialist.md). Do not invoke it for trivial/local presentation choices already inside established design latitude.
+For unresolved interface judgment that can materially change intended UX, use [interface-specialist.md](interface-specialist.md).
 
 ## CI and engineering-system fitness
 
