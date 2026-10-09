@@ -1,6 +1,6 @@
 # Worker Protocol
 
-Workers are bounded implementation agents. Master keeps priority, contract changes, acceptance, integration, release, and project continuation. For user-mediated dispatch, correction, or handoff, apply [relay-transport.md](relay-transport.md).
+Workers are bounded implementation agents. User-mediated dispatch, correction, or handoff is a MachineRelay.
 
 ## 1. Before editing
 
