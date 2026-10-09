@@ -116,4 +116,4 @@ The handoff is a locator and claim, not review proof. Master verifies current Gi
 
 Reuse the same assignment generation only while the same Worker/branch/contract remains valid. Send the exact Worker, Repository, work item, Assignment ID, Contract Revision, Base SHA, Assigned Branch, Integration Target, reviewed current `Checkpoint HEAD`, and only the changed findings/constraints/required validation. Worker verifies that checkpoint before editing.
 
-If responsibility, branch, contract assumptions, or generation validity changed, Master issues a fresh Assignment ID.
+If responsibility, branch, or generation identity changes, or contract assumptions become invalid, Master issues a fresh Assignment ID.
