@@ -56,7 +56,7 @@ Ask the user only for real authorization, an owner-level decision, or unavailabl
 | explicit multi-actor/high-coordination contract or Worker assignment | [task-contract.md](references/task-contract.md) |
 | Worker dispatch/execution/handoff/correction | [worker-protocol.md](references/worker-protocol.md) |
 | candidate review, CI failure, conflict, review freshness, or integration | [review-integration.md](references/review-integration.md) |
-| independent review required by policy, explicit request, or high-consequence security/data/migration/production risk | [independent-review.md](references/independent-review.md) |
+| independent review required by policy, explicit request/assurance requirement, or high-consequence security/data/migration/production risk | [independent-review.md](references/independent-review.md) |
 | release, deployment, migration, rollback, incident/hotfix, or delivery proof | [release.md](references/release.md) |
 | replacement Master, recovery from contradictory/stale context, or rotation | [continuity.md](references/continuity.md) |
 | a security/privacy/reliability/performance/observability/UX/capacity/CI concern changes implementation or evidence | [engineering-quality.md](references/engineering-quality.md) |
