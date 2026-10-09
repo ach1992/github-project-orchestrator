@@ -6,7 +6,7 @@ Use an explicit Task Contract only when it materially improves coordination, del
 
 Persist a contract for Worker assignments and when multi-actor or cross-session coordination, dependencies/decisions another actor or future session must know, high-consequence work, or repository policy needs durable identity. Otherwise keep the work implicit or transient. Reuse an existing suitable Issue/work item rather than creating a parallel contract.
 
-Keep one contract for a cohesive, independently acceptable outcome across partial commits or PRs. Do not close and recreate it at mechanical implementation seams.
+Keep one contract for a cohesive outcome across partial commits or PRs. Do not close and recreate it at mechanical implementation seams.
 
 ## Compact contract
 
@@ -35,7 +35,7 @@ Out: <material exclusions>
 - <material risk, rollback, migration, release, or delivery requirements>
 ```
 
-Do not copy repository-wide rules into every contract. Link the authoritative source when needed. Acceptance must be observable or verifiable rather than vague. Component acceptance should be provable within that component's delivery boundary; link later cross-component or release obligations to their owning acceptance item rather than silently removing them or blocking the completed component indefinitely.
+Do not copy repository-wide rules into every contract. Link the authoritative source when needed. Acceptance must be observable or verifiable rather than vague.
 
 ## Validation planning
 
