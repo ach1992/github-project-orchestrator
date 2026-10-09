@@ -14,6 +14,7 @@
 - Tightened repository/tool-content trust: legitimate scoped requirements and repository instructions remain usable, while arbitrary embedded text cannot become higher-level agent instruction or authorization.
 - Made ordinary Master status output observational rather than a workflow boundary, so safe useful work continues without artificial `continue` nudges or promises of later work.
 - Clarified MachineRelay transport so the relay block is self-contained and destination-focused while optional current-user explanation may remain outside the block.
+- Renamed the ChatGPT-facing Skill display metadata from **GitHub Engineering Project Manager** to **GitHub Project Orchestrator** and updated the short description to reflect planning, implementation, review, recovery, release, and durable continuity.
 
 ### Runtime and coordination
 
