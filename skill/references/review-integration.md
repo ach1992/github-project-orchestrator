@@ -84,7 +84,7 @@ If a merge queue creates a distinct merge-group commit, required queue evidence 
 
 ## 6. Self-authored and independent review
 
-Self-authored work still gets an exact-diff reviewer mindset. Independent review is required only by repository policy, explicit instruction/assurance requirement, or high-consequence security/data/migration/production risk. When required, load [independent-review.md](independent-review.md).
+Self-authored work still gets an exact-diff reviewer mindset. Independent review is required only by repository policy, explicit instruction/assurance requirement, or high-consequence risk. When required, load [independent-review.md](independent-review.md).
 
 Prefer one independent review after candidate stabilization. If remediation changes the candidate, re-review the exact delta plus any affected interactions; do not restart analysis of unchanged surfaces without reason.
 
