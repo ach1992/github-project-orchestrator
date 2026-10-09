@@ -46,7 +46,6 @@ Return the handoff defined below.
 
 Do not repeat the full project history or repository-wide rules when their authoritative sources are reachable.
 
-Legacy dispatches may contain fields such as Project Authority, Coordination Baseline, Assurance Level, or Task Risk. Honor their material constraints, but do not require or propagate those labels into a new dispatch when the concrete allowed actions/constraints above carry the same meaning.
 
 ## 3. Execute
 
