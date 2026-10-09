@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.0.0] - 2026-10-09
+
+### Major generation change
+
+- This release is designated **v2.0.0** because the runtime/control-plane architecture was comprehensively rebuilt, even though G01-G16, supported distribution targets, and intended high-consequence behavior remain preserved.
+
+### Changed
+
+- Rebuilt the orchestration runtime around a compact always-loaded kernel plus event-triggered specialist references, preserving G01-G16 while materially reducing prompt/context and decision overhead.
+- Replaced routine orchestration labels and repeated process ceremony with direct outcome, authority, evidence, progress, validation, and ownership invariants; retained exact identity and gate semantics where stale, cross-repository, destructive, release, or false-completion errors are consequential.
+- Shifted ordinary development toward coherent implementation batches, targeted high-signal checks during active coding, required broad/exact-candidate validation near stability, and reruns only for invalidated or policy-bound evidence.
+- Tightened repository/tool-content trust: legitimate scoped requirements and repository instructions remain usable, while arbitrary embedded text cannot become higher-level agent instruction or authorization.
+- Made ordinary Master status output observational rather than a workflow boundary, so safe useful work continues without artificial `continue` nudges or promises of later work.
+- Clarified MachineRelay transport so the relay block is self-contained and destination-focused while optional current-user explanation may remain outside the block.
+
+### Runtime and coordination
+
+- Reduced the ordinary runtime from 22,665 whitespace-separated words in v1.6.3 to about 7.6k words while keeping all 16 canonical Goals mapped to current runtime owners.
+- Consolidated canonical guarantees to 33 behavior-oriented Rules and 38 behavior scenarios, removing historical representation/state vocabulary as an acceptance authority while preserving high-consequence semantics.
+- Kept Worker assignment identity, status precedence, correction/resume checkpoints, independent-review completeness/verdict semantics, review freshness, release/delivery proof, recovery, and multi-repository authority boundaries explicit.
+- Strengthened zero-chat continuity in both directions: non-recoverable decision-critical state is persisted in its natural owner as it arises during work, and replacement Masters recover only decision-relevant current state from durable project systems.
+- Removed remaining low-value duplicate runtime prose while retaining intentional router/owner and verification overlaps required for progressive loading and high-consequence checks.
+
+### Validation and distribution
+
+- Issue #145 and PR #146 own the simplification, acceptance criteria, audits, and review history.
+- The release workflow validates Goal/Rule/evaluation traceability, runtime budgets, compatibility/safety helpers, release tooling, clean runtime source, and exact candidate packages for every supported distribution.
+- Release publication remains fail-closed: the v2.0.0 tag, release commit, prerelease state, and every required ZIP/checksum asset must match the exact published candidate.
+- No empirical claim of universal model-quality, latency, or token-cost improvement is made; measured repository/runtime size reduction and deterministic validation are the evidence recorded for this release.
+- The ten-platform distribution matrix remains unchanged and every package continues to be generated from the single canonical `skill/` runtime.
+
 ## [1.6.3] - 2026-10-03
 
 ### Added

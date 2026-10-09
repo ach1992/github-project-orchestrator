@@ -81,7 +81,7 @@ You can also point the Master at a specific Issue, PR, milestone, release, or pr
 
 ## Version and license
 
-Release: **v1.6.3**
+Release: **v2.0.0**
 
 Licensed under the [MIT License](LICENSE). Every released platform archive includes the same canonical `LICENSE` notice at its package root.
 
@@ -92,11 +92,9 @@ Copyright (c) 2026 [ACh](https://github.com/ach1992).
 The public README is intentionally not a second runtime specification. Deeper authoritative sources are:
 
 - project mission, goals, constraints, and definition of done: [`docs/PROJECT-SPEC.md`](docs/PROJECT-SPEC.md);
-- Goal and Rule traceability: [`design/GOAL-MAP.md`](design/GOAL-MAP.md) and [`design/RULE-MAP.md`](design/RULE-MAP.md);
-- runtime state vocabulary: [`design/STATE-MODEL.md`](design/STATE-MODEL.md);
-- runtime entrypoint and references: [`skill/SKILL.md`](skill/SKILL.md) and [`skill/references/`](skill/references/);
+- Goal/rule/evaluation traceability: [`design/GOAL-MAP.md`](design/GOAL-MAP.md), [`design/RULE-MAP.md`](design/RULE-MAP.md), and [`design/EVAL-SCENARIOS.md`](design/EVAL-SCENARIOS.md);
+- runtime entrypoint and progressively loaded references: [`skill/SKILL.md`](skill/SKILL.md) and [`skill/references/`](skill/references/);
 - platform distribution policy: [`docs/PLATFORM-DISTRIBUTIONS.md`](docs/PLATFORM-DISTRIBUTIONS.md);
-- source-grounded operational benchmark: [`benchmarks/phase7/`](benchmarks/phase7/);
 - release history: [`CHANGELOG.md`](CHANGELOG.md).
 
-For maintainers, the pull-request workflow in [`.github/workflows/release.yml`](.github/workflows/release.yml) runs structural validation, compatibility tests, repository-preflight safety tests, deterministic lint, benchmark scoring/adversarial tests, deterministic packaging for every supported platform, publisher tests, immutable-baseline checks, and runtime cleanliness checks. `main` remains the validated integration source of truth; release publication is attempted only when `VERSION` changes on `main` or the workflow is explicitly dispatched, and the publisher enforces exact version/tag/SHA/all-assets identity.
+For maintainers, the pull-request workflow in [`.github/workflows/release.yml`](.github/workflows/release.yml) keeps the routine gate intentionally small: structural/goal traceability, runtime budget/canonical-rule guards, compatibility/repository-preflight helper safety, release/packaging tooling, exact candidate builds for every supported distribution, and runtime cleanliness. Historical migration/representation experiments are preserved by Git history rather than executed on every PR. `main` remains the validated integration source of truth; release publication is attempted only when `VERSION` changes on `main` or the workflow is explicitly dispatched, and the publisher still builds every supported platform artifact from the same canonical runtime and enforces exact version/tag/SHA/all-assets identity.

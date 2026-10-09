@@ -73,7 +73,7 @@ Documentation, tests, logs, metrics, tracing, alerts, dashboards, Issues, ADRs, 
 
 ### 3.2 Portable AI relay and defensive security continuity
 
-Prompts and results intended to move between agents/chats are operational transport artifacts. Every user-visible machine relay is automatically a copy/paste artifact: write relay prose in English by default unless the user explicitly requests another relay language, and make the entire user-visible response exactly one copy-target fenced code block containing the complete relay, with no content before or after it. No separate copy-ready request is required; use a longer outer fence when embedded fences are required. Domain owners define compact role-specific payloads for Worker dispatch/correction/handoff, independent-review prompt/result, and Master rotation/recovery. Transport formatting must not create duplicate lifecycle state, weaken engineering instructions, or replace authoritative Git/GitHub/CI/release evidence.
+Prompts and results intended to move between agents/chats are operational transport artifacts. Every machine relay is automatically a copy/paste artifact: render the relay itself as exactly one self-contained fenced copy target, write relay prose in English by default unless the user explicitly requests another relay language, and ensure the destination agent/chat needs only that block. User-facing explanation for the current user may appear outside the block when useful, but commentary meant only for the current user must not be placed inside the relay block or be required to interpret it. No separate copy-ready request is required; use a longer outer fence when embedded fences are required. Domain owners define compact role-specific payloads for Worker dispatch/correction/handoff, independent-review prompt/result, and Master rotation/recovery. Transport formatting must not create duplicate lifecycle state, weaken engineering instructions, or replace authoritative Git/GitHub/CI/release evidence.
 
 Worker and reviewer results must distinguish observed identity/evidence from claims and limitations. A Worker handoff retains the current bounded assignment/status model; an independent review can approve only when its exact review envelope was completely reviewed and no blocking/required finding remains. Reviewer/tool/evidence-access limitations produce an explicit incomplete result rather than a false approval or an invented candidate defect.
 
@@ -95,7 +95,7 @@ MISSION
 
 This separation is deliberate. Runtime mechanisms may evolve without silently changing the goals or guarantees they serve.
 
-Development traceability from goals to the v1.0.0 rule inventory and evaluations lives in `../design/GOAL-MAP.md`. Canonical baseline rule ownership lives in `../design/RULE-MAP.md`; typed runtime design lives in `../design/STATE-MODEL.md`; decision relationships live in `../design/DECISION-GRAPHS.md`; phased implementation lives in `../design/MIGRATION.md`.
+Development traceability lives in `../design/GOAL-MAP.md`, canonical invariant ownership in `../design/RULE-MAP.md`, and behavior-focused regression scenarios in `../design/EVAL-SCENARIOS.md`. These development controls protect semantics rather than historical wording or runtime state labels; runtime mechanisms may be simplified whenever the mapped goals and protected outcomes remain intact.
 
 ## 5. Representation policy
 
@@ -120,25 +120,25 @@ An abstraction replaces prose only when it reduces ambiguity, duplication, execu
 
 ## 6. Runtime loading and decision-friction target
 
-`SKILL.md` should remain a compact control kernel containing only the state/role model, universal invariants, Master control loop, source-of-truth model, event router, and terminal rules necessary for orientation.
+`SKILL.md` should remain a compact control kernel: a few product-specific invariants, the ordinary Master execution path, a shallow event router, and the bounded Worker entry. Do not require a capable model to materialize workflow state labels merely to perform routine engineering.
 
-Detailed domains should load when their event becomes decision-relevant, for example:
-- governance/readiness when repository or project structure needs assessment or repair;
-- Task Contract/Worker rules when delegation or durable coordination is needed;
-- review/integration rules when a candidate reaches review/integration;
-- release rules when deterministic production/delivery effects enter the action frontier;
-- continuity rules on new/replacement Master or material recovery triggers;
-- eval/refactor rules only while modifying this Skill.
+Detailed domains load only when their event can materially change the current decision, for example:
+- governance/readiness for first ownership, project structure, or demonstrated management-system repair;
+- Task Contract/Worker rules for delegation or coordination that needs durable assignment identity;
+- review/integration rules when candidate evidence, CI, conflict, review freshness, or integration is active;
+- release rules when delivery/production/migration effects are active;
+- continuity rules for replacement/recovery;
+- engineering/interface specialist rules only for material concerns in those domains.
 
-Rules are not removed to achieve this. Activation is made more precise so unrelated rules do not occupy the normal decision frontier.
+Development-only traceability/evaluation stays outside the packaged runtime. Optimize for fewer concepts and reference loads on the common path, not merely shorter sentences.
 
 ## 7. Project scale model
 
 Scale controls are driven by actual coordination, dependency, recovery, risk, and release complexity rather than repository size alone.
 
-- **Small/bounded project:** prefer direct Master execution, FAST path where valid, minimal persistent management artifacts, and no Project/ADR ceremony without demonstrated need.
-- **Medium/coordinated project:** use persistent work identity, dependencies, milestones/releases, PR/review/CI coordination, and Workers where useful.
-- **Large/multi-repository project:** preserve one coherent global outcome and release/dependency view while keeping local work authoritative in its natural repository/workstream. Use explicit component/workstream ownership boundaries and progressive loading so Master does not need the entire project in active context.
+- **Small/bounded project:** prefer direct Master execution, coherent implementation slices, minimal persistent management artifacts, and no Project/ADR ceremony without demonstrated need.
+- **Medium/coordinated project:** add persistent work identity, dependencies, milestones/releases, PR/review/CI coordination, and Workers only where they reduce net delivery cost or recovery risk.
+- **Large/multi-repository project:** preserve one coherent global outcome and release/dependency view while keeping local work authoritative in its natural repository/workstream. Use explicit ownership boundaries and progressive loading so Master does not need the entire project in active context.
 
 The target is scalable coordination without making Master a central information bottleneck.
 
@@ -167,7 +167,7 @@ The following guarantees should survive representation changes unless explicitly
 - evidence before narrative;
 - one authoritative owner per kind of truth;
 - inspect before consequential mutation;
-- authority is independent from technical capability, risk, environment, and assurance;
+- authority/authorization is independent from technical capability, risk, environment, assurance, coordination, repository relationships, and tool access; those may constrain execution but never broaden authority;
 - scope changes only through valid direction/evidence;
 - Worker stop does not automatically become Master stop;
 - integration does not imply delivery;
@@ -192,15 +192,15 @@ Every material proposed change to the Skill should answer:
 
 Do not accept changes solely because they are shorter, more abstract, more elegant, or more automated.
 
-## 11. Baseline and release strategy
+## 11. Runtime and release strategy
 
-- `v1.0.0` is the immutable pre-refactor runtime baseline originating from the Skill supplied before refactoring.
+- Current canonical goals, accepted runtime behavior, and current repository/platform requirements are the authority for Skill evolution. Historical releases/tags are evidence, not design or compatibility authority, unless a current requirement explicitly requires compatibility with one.
 - Runtime source lives under `skill/` and remains the single behavioral source for every supported platform.
 - Development-only project/design/validation artifacts live outside `skill/` unless intentionally required at runtime.
-- `v1.0.0` must remain installable and unchanged while later releases evolve incrementally.
 - Runtime releases are versioned, validated, tied to immutable commits, and publish every supported platform artifact plus SHA-256 checksums from the same canonical source and commit. `skill.zip` remains the ChatGPT-compatible artifact name; `docs/PLATFORM-DISTRIBUTIONS.md` owns the current platform/asset inventory.
 - Platform-specific distribution adapters must remain minimal and may not become independently maintained runtime forks.
-- Refactoring is incremental and reviewable; no big-bang rewrite.
+- Refactoring must remain coherent, reviewable, and behavior-mapped. Do not split a semantically coupled simplification merely to preserve historical implementation stages, but do not use bulk representation cleanup to bypass staged validation/review or current product guarantees.
+- Compare changes against the current canonical goals, current accepted runtime behavior, and current release/tooling requirements. Use historical releases only as optional regression evidence when they answer a real question.
 
 ## 12. Non-goals
 
@@ -217,13 +217,12 @@ Do not accept changes solely because they are shorter, more abstract, more elega
 The refactor program is successful when the Skill demonstrably gets a capable agent to verified engineering outcomes with less unnecessary friction while preserving or strengthening its behavioral protections.
 
 At minimum:
-- no known lossy runtime state model remains for critical decisions;
-- no known ambiguous cross-namespace state propagation remains;
+- the common path carries no mandatory orchestration state or ceremony that does not materially change a decision;
 - canonical rule ownership is traceable and duplicate definitions do not fork semantics;
 - routine work does not carry irrelevant project/release/recovery reasoning overhead;
 - small, medium, and large representative projects receive proportionate coordination;
 - replacement-Master cold recovery is correct and bounded;
 - delegation, review, integration, release, and production evidence remain fresh and identity-safe;
-- unauthorized authority escalation, artificial stops, artificial work, and blind retry regressions are covered by evaluation;
+- unauthorized authority escalation, stale review, false delivery, artificial stops/work, and blind retry regressions are covered by behavior-focused evaluation;
 - every supported distribution named in `docs/PLATFORM-DISTRIBUTIONS.md` is generated and validated from the same canonical runtime without semantic drift;
-- runtime changes are measured against the immutable v1.0.0 baseline and the canonical goals above.
+- material runtime changes are checked against G01-G16, the canonical Rule map, relevant behavior scenarios, and current release/tooling requirements without requiring obsolete representation compatibility.

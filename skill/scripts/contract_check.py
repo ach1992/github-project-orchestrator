@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Validate minimum Task Contract and optional Worker assignment fields."""
+"""Legacy compatibility validator for pre-v1.7 Task Contract and Worker assignment fields."""
+
+# Retained at its historical path for persisted-contract compatibility; the current runtime does not require this helper.
 
 from __future__ import annotations
 

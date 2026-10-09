@@ -1,146 +1,39 @@
 # Canonical Rule Map
 
-Status: current development traceability map for the refactored runtime, preserving immutable `v1.0.0` source anchors for historical equivalence evidence. No row below independently changes runtime behavior; canonical runtime definitions live in the listed owners under `skill/`.
+This map traces product guarantees to their current runtime owner. It intentionally avoids historical state/representation vocabulary. Rules exist only where an explicit invariant materially improves a capable model's behavior.
 
-## 1. Mapping contract
-
-- A semantic Rule ID represents one behavior guarantee even when v1.0.0 repeated it in several files.
-- `Canonical owner` is the single current location/domain that defines the rule. Other runtime references may keep short boundary reminders but must not redefine it.
-- `Source anchors` refer to the immutable `v1.0.0` runtime paths/lines. The deterministic source-index generator can reproduce `RULE-SOURCES-v1.0.0.tsv`; `RULE-SOURCES-v1.0.0.manifest` locks its expected row count and SHA-256 for mechanical traceability.
-- For a Rule introduced by an accepted post-v1.0.0 requirement, `Source anchors` identify that project-level requirement/change instead of inventing a historical v1.0.0 location.
-- Eval IDs are regression anchors, not the full proof of equivalence.
-- Historical migration state is not a second source of current truth. If a future requirement deliberately supersedes a Rule ID, record the decision and update its canonical owner/evaluation evidence rather than creating competing definitions.
-
-## 2. Foundation and truth
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
+| Rule ID | Guarantee | Canonical owner | Runtime source | Eval anchors |
 |---|---|---|---|---|
-| `OUTCOME-STABLE` | Preserve accepted outcome/success criteria; do not shrink for convenience or expand to manufacture work. | `SKILL.md` outcome kernel | `SKILL.md` §2; `master-cycle.md` §10 | AY, BA, CB, CY, DO |
-| `TRUTH-ONE-OWNER` | One authoritative owner per kind of live truth; avoid competing manager-memory artifacts. | `SKILL.md` truth model | `SKILL.md` §2-3; `governance.md` §4-5 | A, I, Z |
-| `EVIDENCE-BEATS-NARRATIVE` | Current Git/GitHub/CI/deployment evidence outranks summaries/chat. | `SKILL.md` truth model | `SKILL.md` §2-3 | E, I, BH, CO |
-| `MUTATION-IDEMPOTENT` | Discover/reuse/update/create-only-if-absent/verify; incomplete discovery is not absence. | `SKILL.md` mutation invariant | `SKILL.md` §2 Mutation | B, AU, AZ |
-| `DRIFT-RECONCILE` | Re-read and reconcile before overwrite-sensitive/integration/release/production writes. | `SKILL.md` mutation invariant | `SKILL.md` §2 Mutation; `authority-gates.md` §7 | E, BH |
-| `PROTECT-UNRELATED` | Never destroy/absorb unrelated user/contributor work to simplify execution. | `SKILL.md` safety invariant | `SKILL.md` §2 Safety | X |
-| `NO-FABRICATION` | Never claim actions/evidence that were not performed and verified. | `SKILL.md` evidence invariant | `SKILL.md` §2 Evidence | P, CO |
-| `ANTI-SPIN` | Do not repeat materially identical failed actions without new evidence; change strategy or work. | `SKILL.md` execution invariant | `SKILL.md` §2 Progress; `master-cycle.md` §9 | T, BG, DP |
-| `MACHINE-RELAY-PORTABLE` | AI-to-AI relay prose is English by default, identity-bearing/decision-relevant literals stay exact unless safety/redaction requires otherwise, and every user-visible machine relay is the complete response as one copy target without requiring a separate copy-ready request, while domain owners retain payload semantics and no workflow state/control is weakened. | `relay-transport.md` | `SKILL.md` §2 Output activation; `relay-transport.md`; requirement: `docs/PROJECT-SPEC.md` §3.2 | AT, BC, CK, DI |
-| `LEAN-ORCHESTRATION` | Create project/process artifacts only when they improve a future decision, execution, safety, or recovery. | `governance.md` | `SKILL.md` §2 Progress; `governance.md` §1 | K, AB, BT |
-| `SUCCESSION-RECOVERABLE` | End at canonical boundaries with authoritative state sufficient for a replacement Master, subject to explicit USER_STOP. | `continuity.md` | `SKILL.md` §2 Recovery; `continuity.md` §4-6 | I, Z, AI, BB |
-
-## 3. Authority, effects, and gates
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
-|---|---|---|---|---|
-| `AUTHORITY-STABLE` | Project Authority changes only from applicable explicit/higher authorization, never merely from access/risk/profile/environment. | `authority-gates.md` | `SKILL.md` §1; `authority-gates.md` §1 | AH, CU |
-| `AUTHORIZATION-SCOPED` | Authorization remains exact to what was granted: one-off action grants do not upgrade project-wide Authority, and repository mutation is limited to the explicitly authorized repository set; relationships, dependencies, discovery, project membership, technical access, and delegation never widen it, ambiguous repository scope remains read-only until clarified, and required out-of-scope changes are handed off. | `authority-gates.md` | `SKILL.md` §2 Repository scope; `authority-gates.md` §1 and `CAN_EXECUTE(action)` | AZ, CX, DQ |
-| `CAPABILITY-NOT-AUTHORITY` | Capability affects feasibility and may constrain execution but cannot grant Authority. | `authority-gates.md` | `SKILL.md` §1, §7; `authority-gates.md` §1, §5 | N, CU |
-| `EFFECT-ACTUAL` | Classify by actual deterministic consequence, not labels, branch names, or nominal environment. | `authority-gates.md` | `authority-gates.md` §2-3 | H, BD, BO, CG, CH |
-| `EFFECT-MULTI` | Preserve every independently applicable effect/control when one mutation has multiple consequences. | `authority-gates.md` | `authority-gates.md` §2-3 | H, CV |
-| `GATE-NO-INVENTION` | Do not invent human confirmation gates beyond the canonical matrix. | `authority-gates.md` | `SKILL.md` §5; `authority-gates.md` §3 | L, AJ, BP |
-| `GATE-UNION` | Scoped authorization may satisfy one gate but cannot waive another independent effect gate. | `authority-gates.md` | `authority-gates.md` §2-3 | CV |
-| `WRITE-UNKNOWN-RECONCILE` | Ambiguous mutation outcome becomes unknown; reconcile authoritatively before any retry. | `authority-gates.md` | `authority-gates.md` §6 | C |
-| `CONCURRENCY-OPTIMISTIC` | Overwrite-sensitive writes use expected identity/revision and reconcile drift rather than blind overwrite. | `authority-gates.md` | `authority-gates.md` §7; `task-contract.md` §7 | D, E, AO, CR |
-| `MATERIAL-DECISION-BOUNDARY` | Escalate only irreducible owner decisions that remain material after independent work is exhausted; ordinary technical choices remain agent-owned. | `authority-gates.md` | `authority-gates.md` §4 | S, BF |
-
-## 4. Coordination, assurance, work preparation
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
-|---|---|---|---|---|
-| `COORDINATION-BASELINE` | Coordination baseline is determined by coordination/recovery needs, not repository size alone. | `SKILL.md` state ontology | `SKILL.md` §1 | W, AB, CE |
-| `ASSURANCE-ADDITIVE` | HIGH_ASSURANCE adds justified assurance controls while preserving the coordination baseline; it does not create approval by itself. | `SKILL.md` state ontology | `SKILL.md` §1; protocol refs apply it without redefining it | G, BP, CE, CF |
-| `DIMENSIONS-ORTHOGONAL` | Coordination, assurance, risk, execution path, persistence, strategy, capability, and Authority are independent inputs unless an explicit rule connects them. | `SKILL.md` state ontology | `SKILL.md` §1; `authority-gates.md` §1; `task-contract.md` §2 | AD, CE, CF, CM, CU |
-| `RISK-SCOPED` | Reclassify change risk only when decision-relevant; risk is change-specific and not importance/project size. | `task-contract.md` | `SKILL.md` §1; `task-contract.md` §6 | AC, AJ, CW |
-| `WORK-CLEAR-ENOUGH` | Outcome, acceptance, validation, dependencies, and material risk must be clear enough for the next change; formalize only when useful. | `task-contract.md` | `task-contract.md` §2, §9 | K, L, BE |
-| `ENGINEERING-CONCERNS-PROPORTIONAL` | Activate only engineering concerns material to the actual change/failure surface and carry them through implementation/evidence without a universal checklist, state field, artifact, dimension change, or new gate by default. | `engineering-quality.md` | post-v1.1.1 requirement: `docs/PROJECT-SPEC.md` §3.1 | G, K, L, M, AB, AC, BS, BT, BU, CO, DH, DM |
-| `DEFENSIVE-SECURITY-CONTINUATION` | Security-sensitive AI work states only evidence-backed defensive authorization/scope, preserves provider/platform policy and safety boundaries, uses approved secret/runtime mechanisms without relaying raw secret values when authorized credentialed access is needed, and continues safely allowed analysis/remediation/testing when a detail is restricted. Independent/read-only reviewers prefer source/diff, repository-owned existing tests, current CI/log/artifact evidence, and safe inspection instead of inventing novel adversarial probes; missing assurance becomes a finding/limitation without weakening security, while explicitly scoped defensive implementation/remediation testing remains available when authorized and policy-permitted. | `engineering-quality.md` | post-v1.2.0 requirement: `docs/PROJECT-SPEC.md` §3.2 | DJ |
-| `FAST-FULL-SELECT` | FAST/FULL is selected from ambiguity/dependency/review/control need; routine clear Master-only work may remain FAST. | `master-cycle.md` | `SKILL.md` §4-5; `master-cycle.md` §3; `task-contract.md` §2 | K, L, AB, CF, CM |
-| `CONTRACT-PERSISTENCE-INDEPENDENT` | FULL does not imply persistence; persistence depends on recovery/coordination value. Existing persistence does not imply FULL. | `task-contract.md` | `task-contract.md` §2 | CM |
-| `DELEGATION-PROPORTIONAL` | Delegate only when specialization/throughput/parallelism materially helps; bounded single delegation can remain LIGHTWEIGHT while still using full Worker envelope. | `master-cycle.md` | `SKILL.md` §1; `master-cycle.md` §4; `worker-protocol.md` §2 | Q, AN |
-| `SELF-EXECUTION-FALLBACK` | If direct Worker dispatch is unavailable, Master self-executes safe authorized work rather than stopping. | `master-cycle.md` | `master-cycle.md` §4 | Q |
-| `WIP-FLOW` | Prefer review/integration/unblocking when they bottleneck; right-size homogeneous outcomes into reviewable candidates, preserve independent implementation/review work that remains fresh, and avoid parallel final acceptance paths that would stale required evidence. | `master-cycle.md` | `SKILL.md` §4-5; `master-cycle.md` §7 | J, R, DL, BU |
-| `SYNTHESIZE-WORK` | Outcome incomplete + no READY item triggers refine/unblock/split/investigate, not automatic NO_READY_WORK; phase decomposition starts from current residual scope rather than speculative seams. | `master-cycle.md` | `SKILL.md` §4-5; `master-cycle.md` §8 | O, AX, DL, DO |
-| `MASTER-STOP-CANONICAL` | Chat turn, commit, PR update, review, Worker handoff, tool batch, or missing delegation is not a Master stop; stop only at canonical boundary after continuation test. | `master-cycle.md` | `SKILL.md` §4-5; `authority-gates.md` §5; `master-cycle.md` §11-12 | O, P, R, AW, AX, AP, CN, CQ |
-
-## 5. Worker and assignment
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
-|---|---|---|---|---|
-| `WORKER-BOUNDED` | Worker owns exactly one assignment and never reprioritizes, broadens scope, upgrades envelope, integrates target, or owns release. | `worker-protocol.md` | `SKILL.md` §1, §6; `worker-protocol.md` §1-3 | CC, CP |
-| `ASSIGNMENT-IDENTITY` | Dispatch persists exact assignment generation, contract revision, repository/base/branch/target/Worker/envelope identity before editing. | `task-contract.md` | `task-contract.md` §8; `worker-protocol.md` §1-5 | AK, AM, AV |
-| `START-HEAD-HISTORICAL` | Initial `Expected Starting HEAD` is verified once; authorized Worker commits do not make the assignment stale. | `worker-protocol.md` | `task-contract.md` §8; `worker-protocol.md` §1, §4 | CR |
-| `CORRECTION-CHECKPOINT` | Same-generation correction/resume uses a fresh reviewed/current HEAD checkpoint as the concurrency guard. | `worker-protocol.md` | `task-contract.md` §8; `worker-protocol.md` §1, §8 | CR |
-| `STALE-ASSIGNMENT` | Material assignment/envelope invalidation or uncertain materiality stops Worker with STALE_ASSIGNMENT; Worker never guesses/overwrites. | `worker-protocol.md` | `worker-protocol.md` §4 | D, AV |
-| `WORKER-STOP-LOCAL` | Worker stop/handoff does not automatically become Master stop; Master absorbs, corrects, redispatches, self-executes, or switches work when possible. | `master-cycle.md` | `SKILL.md` §6; `master-cycle.md` §6; `worker-protocol.md` §7-8 | R, CK |
-| `WORKER-HANDOFF-PRECEDENCE` | Handoff status is determined by explicit precedence so stale/blocking states cannot be mislabeled DONE. | `worker-protocol.md` | `worker-protocol.md` §5 | CK |
-| `WORKER-TARGET-SEPARATION` | Assigned branch cannot be the canonical Integration Target; Worker does not integrate target. | `worker-protocol.md` | `task-contract.md` §8; `worker-protocol.md` §1-3 | AM, CP |
-
-## 6. Review and integration
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
-|---|---|---|---|---|
-| `REVIEW-EFFECTIVE-CHANGE` | Review current target-to-candidate effective change, not stale narrative or only author intent. | `review-integration.md` | `SKILL.md` §5; `review-integration.md` §1 | E |
-| `REVIEW-IDENTITY-FRESH` | Approval/evidence is bound to target, candidate, contract, and relevant SHA; material drift invalidates transfer. | `review-integration.md` | `review-integration.md` §1, §3 | E, CJ, DN, BU |
-| `UNTRUSTED-EXECUTION-SURFACE` | Inspect changed hooks/scripts/workflows/supply-chain surfaces before executing untrusted candidate code. | `review-integration.md` | `SKILL.md` §5; `review-integration.md` §1-2 | M |
-| `CI-CLASSIFY` | CI failure is classified by candidate/baseline/environment/transient cause before deciding the next action. | `review-integration.md` | `review-integration.md` §4 | F, CL, DM |
-| `CONFLICT-RECONCILE` | Resolve conflicts against fresh target/effective change and revalidate affected evidence. | `review-integration.md` | `review-integration.md` §5 | E |
-| `INTEGRATION-GATE` | Integrate only after current acceptance, review, CI/policy, target/candidate identity, and applicable action gates are satisfied. | `review-integration.md` | `review-integration.md` §6 | H, CI, CJ |
-| `SELF-AUTHORED-FRESH-REVIEW` | Master-authored work still receives a fresh diff/acceptance review; independent review only when risk/profile requires it. | `review-integration.md` | `review-integration.md` §7; `independent-review.md` §1-4 | BC |
-| `POST-INTEGRATION-RECONCILE` | After integration, verify target evidence and derive work-item closure only from the current accepted completion criteria; Closed/DONE/merge state never substitutes for unmet required evidence, and delivery continues only when required by outcome. | `review-integration.md` | `review-integration.md` §8 | CO, DR |
-
-## 7. Continuity and recovery
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
-|---|---|---|---|---|
-| `RECOVERY-EVENT-DRIVEN` | Full recovery happens on new/replacement Master or material invalidation, not on ordinary progress/tool batches/expected transitions. | `continuity.md` | `SKILL.md` §5; `continuity.md` §2-3 | U, BG, BH |
-| `RECOVERY-AUTHORITATIVE` | Recovery reconstructs from authoritative repository/GitHub/release evidence, not old chat or Worker narrative. | `continuity.md` | `SKILL.md` §2-3, §5; `continuity.md` §2-3 | A, I |
-| `ROTATION-SIGNAL-DRIVEN` | Long context alone does not require rotation; rotate when continuity/reliability signals justify it. | `continuity.md` | `SKILL.md` §5; `continuity.md` §4-6 | U |
-| `ROTATION-SAFE-BOUNDARY` | Rotate only at a recoverable boundary and carry established Authority/current effective controls without becoming more permissive. | `continuity.md` | `SKILL.md` §1-2, §5; `continuity.md` §4-7 | AH, BB, CE |
-| `CHAT-NONAUTHORITATIVE` | Conversation context is disposable and must not be the sole owner of project state. | `continuity.md` | `SKILL.md` intro, §2-3; `continuity.md` §1-4 | I, Z |
-
-## 8. Governance and root specification
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
-|---|---|---|---|---|
-| `ROOT-SPEC-CANONICAL` | First ownership resolves project-defining input and keeps one safe canonical repository copy, preferring `docs/PROJECT-SPEC.md` when no authoritative equivalent exists while reusing valid existing equivalents and excluding unsafe material. | `governance.md` | `SKILL.md` §3, §5; `governance.md` §2-3 | BV, BW, BX, CD, CY |
-| `ROOT-SPEC-OFF-HOT-PATH` | Normal cycles operate from nearer downstream authoritative sources; root spec is reread only when intent conflict/change makes it relevant. | `governance.md` | `SKILL.md` §3; `governance.md` §2-3 | BY, BZ, CA |
-| `BOOTSTRAP-PROPORTIONAL` | First ownership repairs only readiness that materially helps execution/recovery; stop bootstrapping when its completion test passes. | `governance.md` | `SKILL.md` §5; `governance.md` §10-13 | AZ, BS, BT |
-| `ARTIFACT-FITNESS` | Reuse existing engineering systems when fit; repair/replace only when evidence shows material execution value, including CI critical-path improvements that preserve required signal. | `governance.md` | `governance.md` §1, §10; `engineering-quality.md` §4 | BS, BU |
-| `READY-DONE-SEMANTICS` | READY/DONE represent executable/verified lifecycle semantics, not empty scaffolding or ceremony. | `governance.md` | `governance.md` §7; `task-contract.md` §9 | BE |
-
-## 9. Release and production
-
-| Rule ID | Guarantee | Canonical owner | Source anchors | Eval anchors |
-|---|---|---|---|---|
-| `RELEASE-MODEL-DISCOVER` | Discover the repository/deployment release model before assuming process or target semantics. | `release.md` | `release.md` §1 | CS |
-| `INTEGRATED-NOT-DELIVERED` | Integration and delivery are separate completion states; production-required work remains open until delivery evidence proves it. | `release.md` | `SKILL.md` §5; `release.md` §1, §6-8 | CO |
-| `PRODUCTION-DETERMINISTIC-EFFECT` | An upstream action that deterministically causes production is classified/gated as production before action. | `release.md` | `SKILL.md` §5; `release.md` §3-5 | H, BO, CG |
-| `MIGRATION-ROLLBACK` | High-risk migration/production work requires proportionate rollback/recovery readiness before irreversible exposure. | `release.md` | `release.md` §2-4 | G |
-| `PRODUCTION-GATE` | Production mutation requires the canonical production authorization gate; pre-authorization is scope-bound. | `release.md` | `release.md` §5; `authority-gates.md` §3 matrix | H, CV |
-| `POST-RELEASE-EVIDENCE` | Deployment success alone is insufficient; verify intended artifact/environment/health/acceptance evidence. | `release.md` | `release.md` §6 | CO, CT |
-| `INCIDENT-CONTAINMENT` | When current production identity/state is wrong or unsafe, containment outranks normal delivery flow. | `release.md` | `release.md` §7 | CT |
-| `RELEASE-CLOSEOUT` | Close only after required delivery, evidence, state reconciliation, and remaining risks/rollback obligations are resolved or explicitly owned. | `release.md` | `release.md` §8 | P, CO |
-
-## 10. Historical representation defects and resolution
-
-Phase 1 identified the representation defects below before runtime migration. They are retained here for traceability, but **they are not current unresolved defects**:
-
-| Historical defect | Current resolution |
-|---|---|
-| scalar `Operating Profile` mixed coordination and assurance | current runtime uses independent `CoordinationBaseline` + `AssuranceLevel`; legacy `HIGH_ASSURANCE` never invents a missing baseline |
-| scalar `Action Class` could hide simultaneous consequences | `ApplicableEffects` is a set and `authority-gates.md` applies the union of independent obligations |
-| bare `BLOCKED` / `WRITE_OUTCOME_UNKNOWN` could propagate across domains | task, Worker, write, delivery, and Master-boundary lifecycles are namespace-qualified |
-| `Delivery endpoint` mixed completion state and environment | current model separates `DeliveryRequirement`, `DeliveryTarget`, and `DeliveryState` |
-| project-wide Authority and one-off approval lacked separate state fields | current model separates `ProjectAuthority` from exact `ScopedAuthorization` |
-| initial Worker HEAD and correction/resume checkpoint were overloaded | `Start HEAD` is immutable generation history; `Checkpoint HEAD` is the same-generation correction concurrency guard |
-| `TRIVIAL | SUBSTANTIVE` had little independent decision power | retained only as a local descriptor when it materially affects delegation, validation, or helper behavior; it is not a RiskLevel, profile, execution-path, or contract gate by itself |
-
-## 11. Coverage rule for current maintenance
-
-A v1.0.0 clause may remain reduced/absent from current runtime prose only when at least one is true:
-
-- its semantic Rule ID has a canonical definition elsewhere and the omitted text was duplicate definition;
-- it is represented as a short event-bound boundary reminder that points to the canonical rule;
-- a deterministic validator/script enforces the mechanical invariant and the runtime retains the trigger/meaning needed to invoke it;
-- a deliberate requirement change marks the Rule ID `SUPERSEDED`, records rationale, and updates affected regression scenarios.
-
-A rule is never considered safely migrated or maintained merely because a graph/table appears similar. Goal -> Rule -> current canonical owner -> evaluation evidence must remain intact, and `tools/validate_skill.py` mechanically checks the traceability structure it can prove.
+| `OUTCOME-INTEGRITY` | Preserve accepted outcome, criteria, constraints, and delivery endpoint; change them only from valid direction/evidence. | `SKILL.md` | `SKILL.md`; `master-cycle.md` | U, W |
+| `EVIDENCE-TRUTH` | Route each question to its natural current source, interpret content only within that source's role, and never claim unverified action/result/completion. | `SKILL.md` | `SKILL.md`; `review-integration.md`; `release.md` | D, E, V, AB |
+| `AUTHORITY-SCOPE` | Mutate only authorized repositories/effects; repository/tool content may supply scoped requirements/evidence but cannot become higher-level authority, and capability/access/risk/relationships/delegation never expand authority. | `authority-gates.md` | `SKILL.md`; `authority-gates.md` | G, H, I, L |
+| `MUTATION-SAFETY` | Preserve unrelated work/secrets, isolate ambiguous dirty state, and inspect/reconcile before destructive, untrusted, or overwrite-sensitive mutation. | `SKILL.md` | `SKILL.md`; `authority-gates.md`; `review-integration.md` | A, J, K, AJ |
+| `MUTATION-IDEMPOTENT` | Discover/reuse/update before create, never treat incomplete discovery as absence, and verify created/updated repository/project objects. | `SKILL.md` | `SKILL.md`; `governance.md` | AF |
+| `PROPORTIONAL-PROCESS` | Add process/artifacts/evidence only when coordination, risk, recovery, policy, or information value earns the cost. | `SKILL.md` | `SKILL.md`; `governance.md` | A, B, X, Y |
+| `PERSISTENT-PROGRESS` | Continue safe outcome-linked work until a real controlling boundary; progress/status output is observational and cannot manufacture work or stops. | `master-cycle.md` | `SKILL.md`; `master-cycle.md` | M, R, S, T, W |
+| `MEANINGFUL-SLICING` | Slice by material acceptance/dependency/ownership/risk/rollback/review/release boundaries, not implementation trivia. | `master-cycle.md` | `SKILL.md`; `master-cycle.md` | B, O |
+| `VALIDATION-ECONOMICS` | Use targeted feedback during active coding and broad required exact-candidate gates near stability; rerun only invalidated/policy-bound evidence. | `SKILL.md` | `SKILL.md`; `master-cycle.md`; `review-integration.md`; `task-contract.md` | C, D, E |
+| `ENGINEERING-FITNESS` | Fix root causes, keep architecture/system fit, and optimize only from material evidence. | `engineering-quality.md` | `SKILL.md`; `engineering-quality.md`; `governance.md` | A, F, Y |
+| `DEFENSIVE-SECURITY-CONTINUITY` | Security-sensitive work stays inside evidence-backed defensive scope/provider policy, protects secrets, and continues safely allowed remediation/verification when one detail is restricted. | `engineering-quality.md` | `engineering-quality.md`; `independent-review.md` | AG, AA |
+| `IMPROVEMENT-SCOPE` | Execute required/in-scope improvements, propose worthwhile adjacent ones, ignore speculative noise. | `master-cycle.md` | `master-cycle.md` | Y, W |
+| `DELEGATION-VALUE` | Delegate/parallelize only when expected end-to-end gain exceeds coordination cost and isolation remains sound. | `master-cycle.md` | `master-cycle.md`; `worker-protocol.md` | N, O |
+| `WORKER-BOUNDED` | Worker owns one bounded assignment and never reprioritizes, broadens, integrates, releases, or starts another task. | `worker-protocol.md` | `SKILL.md`; `worker-protocol.md` | P, Q, R |
+| `ASSIGNMENT-IDENTITY` | Persist exact repository, Worker, contract revision, Base SHA, branch, Start/Checkpoint HEAD, and Integration Target identity to detect stale work and recover without chat. | `task-contract.md` | `task-contract.md`; `worker-protocol.md` | P, Q, V |
+| `WORKER-HANDOFF-PRECEDENCE` | When multiple Worker stop/result conditions apply, use the first controlling status so stale or decision/scope states cannot be mislabeled ready. | `worker-protocol.md` | `worker-protocol.md` | Q, R |
+| `REVIEW-FRESHNESS` | Review/approval belongs to the exact effective candidate/target/assumptions; changed identity requires affected refresh and fresh verdict when required. | `review-integration.md` | `review-integration.md`; `independent-review.md` | D, Z |
+| `INDEPENDENT-REVIEW-SEPARATION` | Required independent review uses a genuinely separate reviewer context; a fresh relayed chat/model/human is valid unless policy requires a specific reviewer identity. | `independent-review.md` | `review-integration.md`; `independent-review.md` | AK |
+| `INTEGRATION-GATE` | Integrate only the current reviewed candidate through repository-normal controls with required checks/approvals current. | `review-integration.md` | `review-integration.md`; `authority-gates.md` | D, I, Z |
+| `RELEASE-MODEL-DISCOVER` | Recover the repository's actual release/deployment model and target semantics before assuming release process or target behavior. | `release.md` | `release.md` | AH |
+| `DELIVERY-PROOF` | Integration is not delivery; prove the intended artifact/config reached the required target and acceptance endpoint, then close only when material rollback/risk obligations are resolved or explicitly owned. | `release.md` | `release.md` | AB, AC |
+| `INCIDENT-CONTAINMENT` | When current production state is wrong or unsafe, contain/restore safe service before normal backlog flow while preserving enough evidence for follow-up. | `release.md` | `release.md` | AI |
+| `RECOVERY-AUTHORITATIVE` | Keep non-recoverable decision-critical state in its natural authoritative owner as it arises, so a replacement Master recovers from project systems rather than chat or a manager archive. | `continuity.md` | `continuity.md`; `governance.md` | V |
+| `RECOVERY-PROPORTIONAL` | Full recovery/rotation is signal-driven and bounded; ordinary progress or long context alone does not create a project boundary. | `continuity.md` | `continuity.md` | AL |
+| `LEAN-KNOWLEDGE` | Keep one natural owner per truth and persist only future-useful information not better recoverable elsewhere. | `governance.md` | `governance.md`; `continuity.md` | V, X |
+| `REPOSITORY-READINESS` | Discover/reuse before create and bootstrap only structures that materially enable execution/recovery. | `governance.md` | `governance.md` | X |
+| `UNKNOWN-WRITE` | Ambiguous mutation outcomes are reconciled before safe bounded retry; incomplete lookup is never absence. | `authority-gates.md` | `authority-gates.md` | J |
+| `OPTIMISTIC-CONCURRENCY` | Refresh overwrite-sensitive identity and honor supported expected-version guards; reconcile drift instead of forcing. | `authority-gates.md` | `authority-gates.md` | K |
+| `MATERIAL-DECISION` | Agent owns ordinary reversible technical choices; owner handles materially product/business/security/data/legal/cost/risk choices. | `authority-gates.md` | `authority-gates.md` | L |
+| `SECURITY-REVIEW-BOUNDARY` | Independent read-only security review relies on safe existing evidence; missing assurance becomes a finding/limitation, not reviewer-created adversarial execution. | `independent-review.md` | `independent-review.md` | AA |
+| `MACHINE-RELAY` | The relay block is one complete self-sufficient copy target; optional current-user explanation stays outside it and is never required by the destination. | `relay-transport.md` | `SKILL.md`; `relay-transport.md` | AD |
+| `INTERFACE-COMPOSITION` | Consult interface specialist only for unresolved material UX judgment without transferring project/repository authority. | `interface-specialist.md` | `interface-specialist.md`; `engineering-quality.md` | AE |
+| `USER-STOP` | Explicit user stop ends new consequential mutation without cleanup/sync ceremony unless requested. | `master-cycle.md` | `master-cycle.md` | M |

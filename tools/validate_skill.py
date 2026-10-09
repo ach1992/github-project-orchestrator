@@ -1,149 +1,98 @@
 #!/usr/bin/env python3
-"""Repository-local structural and traceability validator for GitHub Project Orchestrator."""
+"""Structural and goal-traceability validator for GitHub Project Orchestrator."""
 
 from __future__ import annotations
 
-import argparse
-import hashlib
 import re
 import sys
-from collections import Counter
 from pathlib import Path
 
-TOOLS_DIR = Path(__file__).resolve().parent
-if str(TOOLS_DIR) not in sys.path:
-    sys.path.insert(0, str(TOOLS_DIR))
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_SKILL = ROOT / "skill"
 
-from markdown_eval import effective_markdown, parse_eval_ids
-
-REQUIRED_RUNTIME_PATHS = (
+RUNTIME_REFERENCES = (
+    "authority-gates.md",
+    "continuity.md",
+    "engineering-quality.md",
+    "governance.md",
+    "independent-review.md",
+    "interface-specialist.md",
+    "master-cycle.md",
+    "relay-transport.md",
+    "release.md",
+    "review-integration.md",
+    "task-contract.md",
+    "worker-protocol.md",
+)
+REQUIRED_PATHS = (
     "SKILL.md",
     "agents/openai.yaml",
     "assets/icon.svg",
-    "references/authority-gates.md",
-    "references/continuity.md",
-    "references/eval-scenarios.md",
-    "references/governance.md",
-    "references/master-cycle.md",
-    "references/release.md",
-    "references/review-integration.md",
-    "references/task-contract.md",
-    "references/worker-protocol.md",
-    "scripts/contract_check.py",
+    *(f"references/{name}" for name in RUNTIME_REFERENCES),
     "scripts/repo_preflight.py",
+    "scripts/contract_check.py",
 )
-REQUIRED_DIRECT_ROUTER_TARGETS = tuple(
-    path for path in REQUIRED_RUNTIME_PATHS if path.startswith("references/")
-) + ("references/engineering-quality.md",)
 
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
 LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|mailto:|#)([^)]+)\)")
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-SUPPLEMENTAL_EVAL_HEADING = "### Supplemental retrieval index"
-LEGACY_UNINDEXED_EVAL_MAX_ID = "DJ"
-PROJECT_GOAL_ROW_RE = re.compile(r"^\|\s*`(G\d{2})`(?:\s+[^|]*)?\s*\|", re.MULTILINE)
+PROJECT_GOAL_RE = re.compile(r"^\|\s*"+chr(96)+r"(G\d{2})"+chr(96)+r"\s*\|", re.MULTILINE)
 GOAL_ROW_RE = re.compile(
-    r"^\|\s*`(?P<goal>G\d{2})`(?:\s+[^|]*)?\s*\|\s*(?P<rules>.*?)\s*\|\s*(?P<evals>.*?)\s*\|\s*(?P<coverage>.*?)\s*\|\s*$",
+    r"^\|\s*"+chr(96)+r"(?P<goal>G\d{2})"+chr(96)+r"[^|]*\|\s*(?P<rules>.*?)\s*\|\s*(?P<evals>.*?)\s*\|\s*(?P<coverage>.*?)\s*\|\s*$",
     re.MULTILINE,
 )
 RULE_ROW_RE = re.compile(
-    r"^\|\s*`(?P<rule>[A-Z0-9]+(?:-[A-Z0-9]+)+)`\s*\|\s*(?P<guarantee>.*?)\s*\|\s*(?P<owner>.*?)\s*\|\s*(?P<sources>.*?)\s*\|\s*(?P<evals>.*?)\s*\|\s*$",
+    r"^\|\s*"+chr(96)+r"(?P<rule>[A-Z0-9]+(?:-[A-Z0-9]+)+)"+chr(96)+r"\s*\|\s*(?P<guarantee>.*?)\s*\|\s*(?P<owner>.*?)\s*\|\s*(?P<sources>.*?)\s*\|\s*(?P<evals>.*?)\s*\|\s*$",
     re.MULTILINE,
 )
-INLINE_RULE_RE = re.compile(r"`([A-Z0-9]+(?:-[A-Z0-9]+)+)`")
-STATE_TOKEN_RE = re.compile(
-    r"\b(?P<namespace>TaskState|WorkerStatus|WriteState|DeliveryState|MasterBoundary)\.(?P<token>[A-Z][A-Z0-9_]*)\b"
-)
-STATE_ENUMS = {
-    "TaskState": {
-        "DRAFT",
-        "BLOCKED",
-        "READY",
-        "IN_PROGRESS",
-        "IN_REVIEW",
-        "CHANGES_REQUESTED",
-        "INTEGRATION_READY",
-        "INTEGRATED",
-        "CANCELLED",
-        "SUPERSEDED",
-        "ROLLED_BACK",
-    },
-    "WorkerStatus": {
-        "STALE_ASSIGNMENT",
-        "MATERIAL_DECISION_REQUIRED",
-        "SCOPE_CHANGE_REQUIRED",
-        "ENVIRONMENT_MISMATCH",
-        "BLOCKED",
-        "READY_FOR_REVIEW",
-    },
-    "WriteState": {"KNOWN", "UNKNOWN"},
-    "DeliveryState": {"NOT_STARTED", "PENDING", "DELIVERED", "FAILED_OR_UNKNOWN"},
-    "MasterBoundary": {
-        "PROJECT_COMPLETE",
-        "APPROVAL_REQUIRED",
-        "MATERIAL_DECISION_REQUIRED",
-        "BLOCKED",
-        "RISK_ESCALATION",
-        "MISSING_CAPABILITY",
-        "NO_READY_WORK",
-        "WRITE_OUTCOME_UNKNOWN",
-        "USER_STOP",
-    },
-}
+INLINE_RULE_RE = re.compile(chr(96)+r"([A-Z0-9]+(?:-[A-Z0-9]+)+)"+chr(96))
+EVAL_HEADING_RE = re.compile(r"^###\s+([A-Z]+)\.\s+", re.MULTILINE)
 
 
 def fail(message: str) -> None:
     raise ValueError(message)
 
 
-def parse_frontmatter(skill_md: Path) -> dict[str, str]:
-    text = skill_md.read_text(encoding="utf-8")
-    match = FRONTMATTER_RE.match(text)
+def parse_frontmatter(path: Path) -> dict[str, str]:
+    match = FRONTMATTER_RE.match(path.read_text(encoding="utf-8"))
     if not match:
-        fail("SKILL.md is missing valid YAML-style frontmatter delimiters")
-
+        fail("SKILL.md is missing YAML-style frontmatter")
     values: dict[str, str] = {}
-    for raw_line in match.group("body").splitlines():
-        line = raw_line.strip()
+    for raw in match.group("body").splitlines():
+        line = raw.strip()
         if not line or line.startswith("#"):
             continue
         if ":" not in line:
-            fail(f"Unsupported frontmatter line: {raw_line!r}")
+            fail(f"Unsupported frontmatter line: {raw!r}")
         key, value = line.split(":", 1)
-        key = key.strip()
-        value = value.strip()
+        key, value = key.strip(), value.strip()
         if key in values:
             fail(f"Duplicate frontmatter key: {key}")
         if value.startswith('"') and value.endswith('"'):
-            value = value[1:-1].replace('\\"', '"')
+            value = value[1:-1].replace(r'\"', '"')
         values[key] = value
-
     if set(values) != {"name", "description"}:
-        fail(f"SKILL.md frontmatter must contain only name and description; found {sorted(values)}")
+        fail(f"SKILL.md frontmatter must contain only name and description: {sorted(values)}")
     if not NAME_RE.fullmatch(values["name"]):
         fail(f"Invalid Skill name: {values['name']!r}")
-    if not values["description"].strip():
-        fail("Skill description must not be empty")
-    if len(values["description"]) > 1024:
-        fail("Skill description exceeds 1024 characters")
+    if not values["description"] or len(values["description"]) > 1024:
+        fail("Skill description must be non-empty and at most 1024 characters")
     return values
 
 
-def validate_required_paths(skill_dir: Path) -> None:
-    for relative in REQUIRED_RUNTIME_PATHS:
-        path = skill_dir / relative
-        if not path.is_file():
-            fail(f"Missing required runtime file: {relative}")
+def validate_paths(skill_dir: Path) -> None:
+    missing = [p for p in REQUIRED_PATHS if not (skill_dir / p).is_file()]
+    if missing:
+        fail(f"Missing required runtime files: {missing}")
 
 
-def validate_markdown_links(skill_dir: Path) -> None:
+def validate_links(skill_dir: Path) -> None:
     for markdown in skill_dir.rglob("*.md"):
-        text = markdown.read_text(encoding="utf-8")
-        for target in LINK_RE.findall(text):
-            clean_target = target.split("#", 1)[0]
-            if not clean_target:
+        for target in LINK_RE.findall(markdown.read_text(encoding="utf-8")):
+            relative = target.split("#", 1)[0]
+            if not relative:
                 continue
-            resolved = (markdown.parent / clean_target).resolve()
+            resolved = (markdown.parent / relative).resolve()
             try:
                 resolved.relative_to(skill_dir.resolve())
             except ValueError as exc:
@@ -154,327 +103,130 @@ def validate_markdown_links(skill_dir: Path) -> None:
                 fail(f"Broken relative reference: {markdown.relative_to(skill_dir)} -> {target}")
 
 
-def validate_direct_router(skill_dir: Path) -> None:
-    text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
-    direct_targets = {target.split("#", 1)[0] for target in LINK_RE.findall(text)}
-    candidate_reference_targets = {
-        path.relative_to(skill_dir).as_posix()
-        for path in (skill_dir / "references").glob("*.md")
-        if path.is_file()
-    }
-    required_targets = set(REQUIRED_DIRECT_ROUTER_TARGETS) | candidate_reference_targets
-    missing = sorted(required_targets - direct_targets)
+def validate_router(skill_dir: Path) -> None:
+    kernel = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
+    linked = {target.split("#", 1)[0] for target in LINK_RE.findall(kernel)}
+    required = {f"references/{name}" for name in RUNTIME_REFERENCES}
+    missing = sorted(required - linked)
     if missing:
-        fail(f"SKILL.md must directly route every runtime reference; missing={missing}")
+        fail(f"SKILL.md must directly route every runtime reference: {missing}")
 
 
 def validate_python(skill_dir: Path) -> None:
     for script in skill_dir.rglob("*.py"):
-        source = script.read_text(encoding="utf-8")
-        compile(source, str(script), "exec")
+        compile(script.read_text(encoding="utf-8"), str(script), "exec")
 
 
-def eval_id_to_int(value: str) -> int:
-    total = 0
-    for char in value:
-        total = total * 26 + (ord(char) - ord("A") + 1)
-    return total
-
-
-def int_to_eval_id(value: int) -> str:
-    chars: list[str] = []
-    while value > 0:
-        value, remainder = divmod(value - 1, 26)
-        chars.append(chr(ord("A") + remainder))
-    return "".join(reversed(chars))
-
-
-def validate_eval_ids(text: str) -> set[str]:
-    eval_ids = parse_eval_ids(text)
-    if not eval_ids:
-        fail("No evaluation scenario IDs found in references/eval-scenarios.md")
-    duplicates = sorted(value for value, count in Counter(eval_ids).items() if count > 1)
-    if duplicates:
-        fail(f"Duplicate evaluation scenario IDs: {duplicates}")
-
-    numeric = sorted(eval_id_to_int(value) for value in eval_ids)
-    expected = set(range(1, numeric[-1] + 1))
-    actual = set(numeric)
-    missing = [int_to_eval_id(value) for value in sorted(expected - actual)]
-    if missing:
-        fail(f"Evaluation scenario ID gaps detected: {missing}")
-    return set(eval_ids)
-
-
-def parse_eval_anchors(cell: str, context: str) -> set[str]:
-    values = [part.strip().strip("`") for part in cell.split(",") if part.strip()]
-    if not values:
-        fail(f"{context} must include at least one evaluation anchor")
-    invalid = [value for value in values if not re.fullmatch(r"[A-Z]+", value)]
+def parse_csv_ids(cell: str, pattern: str, label: str) -> set[str]:
+    values = {part.strip().strip(chr(96)) for part in cell.split(",") if part.strip()}
+    invalid = sorted(value for value in values if not re.fullmatch(pattern, value))
     if invalid:
-        fail(f"{context} contains invalid evaluation anchor syntax: {invalid}")
-    return set(values)
+        fail(f"{label} contains invalid identifiers: {invalid}")
+    return values
 
 
-def parse_table_cells(line: str) -> list[str] | None:
-    if not line.startswith("|") or not line.endswith("|"):
-        return None
-    return [cell.strip() for cell in line.strip().strip("|").split("|")]
+def validate_traceability(repo_root: Path) -> None:
+    project = (repo_root / "docs/PROJECT-SPEC.md").read_text(encoding="utf-8")
+    goal_map = (repo_root / "design/GOAL-MAP.md").read_text(encoding="utf-8")
+    rule_map = (repo_root / "design/RULE-MAP.md").read_text(encoding="utf-8")
+    eval_text = (repo_root / "design/EVAL-SCENARIOS.md").read_text(encoding="utf-8")
 
+    project_goals = PROJECT_GOAL_RE.findall(project)
+    if project_goals != [f"G{i:02d}" for i in range(1, 17)]:
+        fail(f"PROJECT-SPEC canonical goals must be exactly G01-G16: {project_goals}")
 
-def parse_supplemental_eval_ids(text: str) -> set[str] | None:
-    visible = effective_markdown(text)
-    marker = f"{SUPPLEMENTAL_EVAL_HEADING}\n"
-    count = visible.count(marker)
-    if count == 0:
-        return None
-    if count != 1:
-        fail("Supplemental retrieval index must appear exactly once")
+    eval_ids = EVAL_HEADING_RE.findall(eval_text)
+    if not eval_ids or len(eval_ids) != len(set(eval_ids)):
+        fail("Evaluation scenario IDs must be present and unique")
+    eval_set = set(eval_ids)
 
-    section = visible.split(marker, 1)[1]
-    next_h2 = re.search(r"(?m)^##\s+", section)
-    if next_h2:
-        section = section[: next_h2.start()]
+    rule_rows = list(RULE_ROW_RE.finditer(rule_map))
+    if not rule_rows:
+        fail("RULE-MAP contains no canonical rules")
+    rule_ids = [row.group("rule") for row in rule_rows]
+    if len(rule_ids) != len(set(rule_ids)):
+        fail("RULE-MAP contains duplicate Rule IDs")
+    rule_set = set(rule_ids)
 
-    lines = section.splitlines()
-    expected_header = ["Change surface", "Supplemental eval IDs"]
-    header_indexes = [
-        index for index, line in enumerate(lines) if parse_table_cells(line) == expected_header
-    ]
-    if len(header_indexes) != 1:
-        fail("Supplemental retrieval index must contain exactly one navigation table")
+    runtime_names = {"SKILL.md", *RUNTIME_REFERENCES}
+    anchored_evals: set[str] = set()
+    owned_runtime: set[str] = set()
+    normalized_guarantees: dict[str, str] = {}
 
-    header_index = header_indexes[0]
-    if header_index + 1 >= len(lines):
-        fail("Supplemental retrieval index table is missing its separator row")
-    separator = parse_table_cells(lines[header_index + 1])
-    if separator is None or len(separator) != 2 or not all(
-        re.fullmatch(r":?-{3,}:?", cell) for cell in separator
-    ):
-        fail("Supplemental retrieval index table has an invalid separator row")
+    for row in rule_rows:
+        rule_id = row.group("rule")
+        owner = row.group("owner").strip().strip(chr(96))
+        if owner not in runtime_names:
+            fail(f"Rule {rule_id} has unknown runtime owner: {owner}")
+        owned_runtime.add(owner)
 
-    observed: list[str] = []
-    for line in lines[header_index + 2 :]:
-        if not line.strip():
-            break
-        cells = parse_table_cells(line)
-        if cells is None:
-            break
-        if len(cells) != 2:
-            fail(f"Supplemental retrieval index row must have exactly two columns: {line}")
-        surface, eval_cell = cells
-        if not surface:
-            fail("Supplemental retrieval index surface must not be empty")
-        ids = [part.strip().strip("`") for part in eval_cell.split(",") if part.strip()]
-        if not ids:
-            fail(f"Supplemental retrieval index row {surface!r} must include evaluation IDs")
-        invalid = [value for value in ids if not re.fullmatch(r"[A-Z]+", value)]
-        if invalid:
-            fail(f"Supplemental retrieval index contains invalid evaluation ID syntax: {invalid}")
-        observed.extend(ids)
+        sources = {
+            part.strip().strip(chr(96))
+            for part in row.group("sources").split(";")
+            if part.strip()
+        }
+        unknown_sources = sorted(sources - runtime_names)
+        if unknown_sources:
+            fail(f"Rule {rule_id} references unknown runtime sources: {unknown_sources}")
+        if owner not in sources:
+            fail(f"Rule {rule_id} canonical owner must also appear in its runtime sources: {owner}")
 
-    duplicates = sorted(value for value, count in Counter(observed).items() if count > 1)
-    if duplicates:
-        fail(f"Supplemental retrieval index contains duplicate evaluation IDs: {duplicates}")
-    return set(observed)
+        normalized = re.sub(r"\W+", " ", row.group("guarantee").lower()).strip()
+        prior = normalized_guarantees.get(normalized)
+        if prior is not None:
+            fail(f"Rules {prior} and {rule_id} duplicate the same normalized guarantee")
+        normalized_guarantees[normalized] = rule_id
 
+        anchors = parse_csv_ids(row.group("evals"), r"[A-Z]+", f"Rule {rule_id}")
+        unknown = sorted(anchors - eval_set)
+        if unknown:
+            fail(f"Rule {rule_id} references missing evals: {unknown}")
+        anchored_evals.update(anchors)
 
-def validate_traceability(
-    repo_root: Path, skill_dir: Path, *, allow_legacy_unindexed_evals: bool = False
-) -> None:
-    rule_map_path = repo_root / "design" / "RULE-MAP.md"
-    goal_map_path = repo_root / "design" / "GOAL-MAP.md"
-    project_spec_path = repo_root / "docs" / "PROJECT-SPEC.md"
-    eval_path = skill_dir / "references" / "eval-scenarios.md"
-    required = (rule_map_path, goal_map_path, project_spec_path, eval_path)
-    missing_files = [str(path.relative_to(repo_root)) for path in required if not path.is_file()]
-    if missing_files:
-        fail(f"Traceability source files are missing: {missing_files}")
+    missing_rule_owners = sorted(set(RUNTIME_REFERENCES) - owned_runtime)
+    if missing_rule_owners:
+        fail(f"Runtime references without any canonical Rule ownership: {missing_rule_owners}")
 
-    eval_text = eval_path.read_text(encoding="utf-8")
-    eval_ids = validate_eval_ids(eval_text)
-
-    rule_text = rule_map_path.read_text(encoding="utf-8")
-    rule_matches = list(RULE_ROW_RE.finditer(rule_text))
-    if not rule_matches:
-        fail("No canonical Rule rows found in design/RULE-MAP.md")
-    rule_ids = [match.group("rule") for match in rule_matches]
-    duplicate_rules = sorted(value for value, count in Counter(rule_ids).items() if count > 1)
-    if duplicate_rules:
-        fail(f"Duplicate canonical Rule rows/owners in design/RULE-MAP.md: {duplicate_rules}")
-
-    rule_id_set = set(rule_ids)
-    rule_eval_ids: set[str] = set()
-    for match in rule_matches:
-        rule_id = match.group("rule")
-        owner = match.group("owner").strip().strip("`").strip()
-        if not owner:
-            fail(f"Rule {rule_id} is missing a canonical owner")
-        anchors = parse_eval_anchors(match.group("evals"), f"Rule {rule_id}")
-        rule_eval_ids.update(anchors)
-        missing_anchors = sorted(anchors - eval_ids, key=eval_id_to_int)
-        if missing_anchors:
-            fail(f"Rule {rule_id} references missing evaluation IDs: {missing_anchors}")
-
-    project_goal_ids = PROJECT_GOAL_ROW_RE.findall(project_spec_path.read_text(encoding="utf-8"))
-    duplicate_project_goals = sorted(value for value, count in Counter(project_goal_ids).items() if count > 1)
-    if duplicate_project_goals:
-        fail(f"Duplicate canonical Goal IDs in docs/PROJECT-SPEC.md: {duplicate_project_goals}")
-    if not project_goal_ids:
-        fail("No canonical Goal IDs found in docs/PROJECT-SPEC.md")
-
-    goal_text = goal_map_path.read_text(encoding="utf-8")
-    goal_matches = list(GOAL_ROW_RE.finditer(goal_text))
-    if not goal_matches:
-        fail("No Goal mapping rows found in design/GOAL-MAP.md")
-    goal_ids = [match.group("goal") for match in goal_matches]
-    duplicate_goal_rows = sorted(value for value, count in Counter(goal_ids).items() if count > 1)
-    if duplicate_goal_rows:
-        fail(f"Duplicate Goal rows in design/GOAL-MAP.md: {duplicate_goal_rows}")
-
-    project_goal_set = set(project_goal_ids)
-    goal_id_set = set(goal_ids)
-    missing_goal_rows = sorted(project_goal_set - goal_id_set)
-    unknown_goal_rows = sorted(goal_id_set - project_goal_set)
-    if missing_goal_rows or unknown_goal_rows:
-        fail(
-            "Goal Map must match canonical project Goal IDs; "
-            f"missing={missing_goal_rows}, unknown={unknown_goal_rows}"
-        )
+    goal_rows = list(GOAL_ROW_RE.finditer(goal_map))
+    goal_ids = [row.group("goal") for row in goal_rows]
+    if goal_ids != project_goals:
+        fail(f"GOAL-MAP must contain G01-G16 in canonical order: {goal_ids}")
 
     mapped_rules: set[str] = set()
-    goal_eval_ids: set[str] = set()
-    for match in goal_matches:
-        goal_id = match.group("goal")
-        referenced_rules = set(INLINE_RULE_RE.findall(match.group("rules")))
-        unknown_rules = sorted(referenced_rules - rule_id_set)
+    for row in goal_rows:
+        rules = set(INLINE_RULE_RE.findall(row.group("rules")))
+        if not rules:
+            fail(f"{row.group('goal')} maps no canonical rules")
+        unknown_rules = sorted(rules - rule_set)
         if unknown_rules:
-            fail(f"Goal {goal_id} references unknown Rule IDs: {unknown_rules}")
-        mapped_rules.update(referenced_rules)
+            fail(f"{row.group('goal')} references unknown rules: {unknown_rules}")
+        mapped_rules.update(rules)
 
-        anchors = parse_eval_anchors(match.group("evals"), f"Goal {goal_id}")
-        goal_eval_ids.update(anchors)
-        missing_anchors = sorted(anchors - eval_ids, key=eval_id_to_int)
-        if missing_anchors:
-            fail(f"Goal {goal_id} references missing evaluation IDs: {missing_anchors}")
+        anchors = parse_csv_ids(row.group("evals"), r"[A-Z]+", row.group("goal"))
+        unknown_evals = sorted(anchors - eval_set)
+        if unknown_evals:
+            fail(f"{row.group('goal')} references missing evals: {unknown_evals}")
+        anchored_evals.update(anchors)
 
-    orphan_rules = sorted(rule_id_set - mapped_rules)
+    orphan_rules = sorted(rule_set - mapped_rules)
     if orphan_rules:
-        fail(f"Canonical Rule IDs are not mapped to any Goal in design/GOAL-MAP.md: {orphan_rules}")
+        fail(f"Canonical rules not mapped to any goal: {orphan_rules}")
 
-
-    anchored_eval_ids = rule_eval_ids | goal_eval_ids
-    unanchored_eval_ids = eval_ids - anchored_eval_ids
-    supplemental_eval_ids = parse_supplemental_eval_ids(eval_text)
-    if supplemental_eval_ids is None:
-        if unanchored_eval_ids:
-            if allow_legacy_unindexed_evals:
-                if max(eval_id_to_int(value) for value in eval_ids) > eval_id_to_int(
-                    LEGACY_UNINDEXED_EVAL_MAX_ID
-                ):
-                    fail(
-                        "Legacy unindexed-eval compatibility is allowed only for pre-v1.3.2 eval inventories ending at or before DJ"
-                    )
-            else:
-                fail(
-                    "Unanchored evaluation scenarios require a supplemental retrieval index: "
-                    f"{sorted(unanchored_eval_ids, key=eval_id_to_int)}"
-                )
-    else:
-        unknown_supplemental = supplemental_eval_ids - eval_ids
-        if unknown_supplemental:
-            fail(
-                "Supplemental retrieval index references missing evaluation IDs: "
-                f"{sorted(unknown_supplemental, key=eval_id_to_int)}"
-            )
-        duplicate_anchor_coverage = supplemental_eval_ids & anchored_eval_ids
-        if duplicate_anchor_coverage:
-            fail(
-                "Supplemental retrieval index must contain only Rule/Goal-unanchored evaluation IDs: "
-                f"{sorted(duplicate_anchor_coverage, key=eval_id_to_int)}"
-            )
-        missing_supplemental = unanchored_eval_ids - supplemental_eval_ids
-        if missing_supplemental:
-            fail(
-                "Unanchored evaluation scenarios are missing from the supplemental retrieval index: "
-                f"{sorted(missing_supplemental, key=eval_id_to_int)}"
-            )
-
-
-def validate_state_tokens(skill_dir: Path) -> None:
-    for markdown in [skill_dir / "SKILL.md", *sorted((skill_dir / "references").glob("*.md"))]:
-        text = markdown.read_text(encoding="utf-8")
-        for match in STATE_TOKEN_RE.finditer(text):
-            namespace = match.group("namespace")
-            token = match.group("token")
-            if token not in STATE_ENUMS[namespace]:
-                fail(
-                    f"Unknown or legacy namespaced state token in {markdown.relative_to(skill_dir)}: "
-                    f"{namespace}.{token}"
-                )
-
-
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def validate_baseline(skill_dir: Path, manifest_path: Path) -> None:
-    if not manifest_path.is_file():
-        fail(f"Baseline manifest is missing: {manifest_path}")
-
-    expected: dict[str, str] = {}
-    for line in manifest_path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        digest, relative = line.split("  ", 1)
-        expected[relative] = digest
-
-    actual_paths = sorted(path for path in skill_dir.rglob("*") if path.is_file() and "__pycache__" not in path.parts)
-    actual = {str(path.relative_to(skill_dir)): sha256_file(path) for path in actual_paths}
-    if actual != expected:
-        missing = sorted(set(expected) - set(actual))
-        extra = sorted(set(actual) - set(expected))
-        changed = sorted(path for path in set(actual) & set(expected) if actual[path] != expected[path])
-        fail(f"baseline drift detected; missing={missing}, extra={extra}, changed={changed}")
+    unanchored_evals = sorted(eval_set - anchored_evals)
+    if unanchored_evals:
+        fail(f"Evaluation scenarios not anchored by Rule/Goal maps: {unanchored_evals}")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("skill_dir", type=Path)
-    parser.add_argument(
-        "--baseline-manifest",
-        type=Path,
-        help="Compare the supplied Skill source exactly against this SHA-256 baseline manifest.",
-    )
-    parser.add_argument(
-        "--allow-legacy-unindexed-evals",
-        action="store_true",
-        help=(
-            "Compatibility only for frozen pre-v1.3.2 prototype fixtures whose eval inventory predates DK; "
-            "never valid for current v1.3.2+ Skill validation."
-        ),
-    )
-    args = parser.parse_args()
-
-    skill_dir = args.skill_dir.resolve()
-    validate_required_paths(skill_dir)
+    skill_dir = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else DEFAULT_SKILL.resolve()
+    if len(sys.argv) > 2:
+        fail("Usage: validate_skill.py [skill_dir]")
+    validate_paths(skill_dir)
     frontmatter = parse_frontmatter(skill_dir / "SKILL.md")
-    validate_markdown_links(skill_dir)
-    if args.baseline_manifest is None:
-        validate_direct_router(skill_dir)
-        validate_state_tokens(skill_dir)
-        validate_traceability(
-            skill_dir.parent,
-            skill_dir,
-            allow_legacy_unindexed_evals=args.allow_legacy_unindexed_evals,
-        )
+    validate_links(skill_dir)
+    validate_router(skill_dir)
     validate_python(skill_dir)
-    if args.baseline_manifest is not None:
-        validate_baseline(skill_dir, args.baseline_manifest.resolve())
+    validate_traceability(skill_dir.parent)
     print(f"Valid Skill: {frontmatter['name']}")
     return 0
 
@@ -482,6 +234,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (ValueError, OSError, SyntaxError) as exc:
+    except (OSError, SyntaxError, ValueError) as exc:
         print(f"Validation failed: {exc}", file=sys.stderr)
         raise SystemExit(1)

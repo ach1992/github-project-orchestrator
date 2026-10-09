@@ -38,75 +38,25 @@ jobs:
           publish="$(python3 tools/release_intent.py --event "$EVENT_NAME" --before "$BEFORE_SHA")"
           echo "publish=$publish" >> "$GITHUB_OUTPUT"
 
-      - name: Validate Skill source
+      - name: Validate Skill structure and traceability
         run: python3 tools/validate_skill.py skill
 
-      - name: Test Phase 2 contract compatibility
-        run: python3 tests/test_contract_check_phase2.py
+      - name: Validate runtime budget and canonical rules
+        run: python3 tests/test_runtime_semantics_v2.py
 
-      - name: Test repository preflight helper
-        run: python3 tests/test_repo_preflight.py
-
-      - name: Test Phase 6 deterministic lint
-        run: python3 tests/test_validate_skill_phase6.py
-
-      - name: Check historical v1.2.2 and current v1.3.2 representation controls
-        run: python3 tools/check_runtime_equivalence.py --repo-root .
-
-      - name: Score Phase 7 operational benchmark
+      - name: Test compatibility and safety helpers
         run: |
-          python3 tools/score_phase7_benchmark.py \
-            --scenarios benchmarks/phase7/scenarios.json \
-            --baseline benchmarks/phase7/traces-v1.0.0.json \
-            --current benchmarks/phase7/traces-current.json \
-            --repo-root . \
-            --baseline-ref v1.0.0
+          python3 tests/test_contract_check_phase2.py
+          python3 tests/test_repo_preflight.py
 
-      - name: Validate v1.2.2 representation baseline traces
+      - name: Test release and packaging tooling
         run: |
-          python3 tools/score_phase7_benchmark.py \
-            --comparison-mode validate-baseline \
-            --scenarios benchmarks/phase7/scenarios.json \
-            --baseline benchmarks/phase7/traces-v1.2.2.json \
-            --repo-root .
+          python3 tests/test_release_intent.py
+          python3 tests/test_package_skill.py
+          python3 tests/test_package_platform_skills.py
+          python3 tests/test_publish_release.py
 
-      - name: Test Phase 7 benchmark scorer
-        run: python3 tests/test_phase7_benchmark.py
-
-      - name: Test runtime equivalence gate
-        run: python3 tests/test_runtime_equivalence.py
-
-      - name: Test runtime representation prototypes
-        shell: bash
-        run: |
-          set -euo pipefail
-          for test in tests/test_runtime_*_experiment.py; do
-            echo "==> $test"
-            python3 "$test"
-          done
-
-      - name: Test Phase C runtime migration composition
-        run: python3 tests/test_phase_c_runtime_migration.py
-
-      - name: Test auditable model trial runner
-        run: python3 tests/test_run_model_trials.py
-
-      - name: Test observable model trial scorer
-        run: python3 tests/test_model_trial_scorer.py
-
-      - name: Test release intent decisions
-        run: python3 tests/test_release_intent.py
-
-      - name: Test deterministic release packaging
-        run: python3 tests/test_package_skill.py
-
-      - name: Test deterministic platform packaging
-        run: python3 tests/test_package_platform_skills.py
-
-      - name: Test exact release publisher
-        run: python3 tests/test_publish_release.py
-
-      - name: Build candidate packages
+      - name: Build and validate exact candidate packages
         run: |
           python3 tools/package_skill.py skill skill.zip skill.zip.sha256
           python3 tools/package_platform_skills.py skill manus github-project-orchestrator-manus.zip github-project-orchestrator-manus.zip.sha256
@@ -118,16 +68,6 @@ jobs:
           python3 tools/package_platform_skills.py skill gemini github-project-orchestrator-gemini.zip github-project-orchestrator-gemini.zip.sha256
           python3 tools/package_platform_skills.py skill deepseek github-project-orchestrator-deepseek.zip github-project-orchestrator-deepseek.zip.sha256
           python3 tools/package_platform_skills.py skill copilot github-project-orchestrator-copilot.zip github-project-orchestrator-copilot.zip.sha256
-
-      - name: Verify immutable v1.0.0 baseline
-        shell: bash
-        run: |
-          set -euo pipefail
-          baseline_dir="$(mktemp -d)"
-          trap 'rm -rf "$baseline_dir"' EXIT
-          git archive --format=tar v1.0.0 skill | tar -xf - -C "$baseline_dir"
-          python3 tools/validate_skill.py "$baseline_dir/skill" \
-            --baseline-manifest "$GITHUB_WORKSPACE/tests/baseline/v1.0.0.sha256"
 
       - name: Verify clean runtime source
         shell: bash
@@ -151,7 +91,6 @@ jobs:
     concurrency:
       group: release-publish-${{ github.repository }}
       cancel-in-progress: false
-      queue: max
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

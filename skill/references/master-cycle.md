@@ -1,258 +1,102 @@
-# Master Cycle and Execution Strategy
+# Master Cycle
 
-Active orchestration, prioritization, FAST/FULL execution, self-execution, Worker absorption, WIP, anti-spin, and output behavior. Canonical gates/stops live in `authority-gates.md`.
+Load this file only when routine execution needs material planning, dependency/WIP decisions, delegation choice, recovery strategy, repeated-failure handling, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
 
-## Contents
+## 1. Recover only what changed
 
-[Recover](#1-recover-and-frame) · [Prioritize](#2-highest-value-next-action) · [Fast path](#3-fast-path-vs-full-path) · [Execution](#4-execution-modes-and-delegation-fallback) · [Self-execution](#5-self-execution-discipline) · [Worker absorption](#6-worker-stop-absorption) · [WIP](#7-wip-and-dependency-discipline) · [Next work](#8-next-work-synthesis) · [Anti-spin](#9-anti-spin-and-failure-strategy) · [Changes](#10-requirement-changes) · [Output](#11-master-output-behavior) · [Reconcile](#12-end-of-cycle-reconciliation)
+Do not restart project discovery on every turn, tool batch, commit, PR, or Worker handoff. Retain verified repository identity, accepted outcome, authority, and stable constraints until evidence invalidates them.
 
-## 1. Recover and frame
+On first ownership, use [governance.md](governance.md) to locate the project-defining specification, resolve/reuse or safely create the intended repository, reconcile repository reality, and establish only the structure needed for safe execution/recovery.
 
-Full recovery is event-triggered, not the first action of every loop. Once repository/target identity, active outcome, stable operating dimensions, and needed capabilities are current enough to execute, retain that baseline until concrete evidence invalidates it.
+For later work, inspect only evidence that can affect the next decision: current work/acceptance, relevant code and refs, dependencies, blockers, required checks, release state, and material risks. Expand discovery only when evidence exposes a broader dependency or ambiguity.
 
-| Event | Recovery scope |
-|---|---|
-| planned branch/worktree provisioning or normal completed action | targeted identity/state verification only |
-| unexpected repository/target drift, ProjectAuthority/access change, contradictory authoritative state, new/replacement Master/runtime | broader recovery as needed |
+## 2. Choose work by finished value
 
-Inspect only evidence that can affect next decisions: required capability + exact repository/owner/remotes/default/target/environment identity; active outcome/completion; relevant `TaskState`, `WorkerStatus`, `WriteState`, `DeliveryState`, and `MasterBoundary` facts; dependencies/release constraints/material risks/decisions; applicable build/tests/lint/type/CI/security/deployment baseline.
+Prefer in this order when applicable:
 
-### First ownership
+1. contain active correctness/security/data/production incidents;
+2. review/integrate completed work that unlocks value;
+3. unblock the critical path;
+4. execute the highest-value ready outcome slice;
+5. improve the engineering system only when a demonstrated bottleneck is materially slowing the remaining outcome.
 
-Unless urgent incident containment comes first, resolve project definition and repository target as one bounded intake pass:
+Priority labels are inputs, not substitutes for current dependency/release reality. Do not create work merely to keep a queue full.
 
-| Decision | Required action |
-|---|---|
-| Project definition | Locate/receive the initial project-defining prompt/specification regardless of filename or whether from chat/upload/repository. If none is supplied/discoverable, do only bounded read-only discovery that could locate authoritative project intent; if it remains absent and the accepted outcome cannot be established, never invent scope—treat the missing project-definition input as a real external precondition and, when it is the sole boundary, stop at `MasterBoundary.BLOCKED` with the exact input needed to resume. |
-| Repository target | Resolve the exact intended repository identity and discover before creating. Reuse an existing authorized repository. When decision-scoped discovery proves the target absent, create it only if `CAN_EXECUTE(create repository)` passes with owner/name and any material creation setting not already fixed by repository/organization policy resolved; then verify the created remote identity before continuing. Incomplete discovery, ambiguous target/settings, or mere technical access never justify creation. If repository creation cannot proceed, use the existing canonical authority/capability/material-decision boundary and continue independent safe work rather than inventing a startup-specific stop. |
-| Canonical root specification | Once the repository target is usable, when ProjectAuthority/capability permits, ensure one safe canonical repository copy per `governance.md`; if persistence is temporarily unavailable, preserve the exact pending operation under the existing canonical MasterBoundary and continue independent safe work. |
-| Reconcile + bootstrap | Reconcile the specification with repository reality, perform proportional readiness, reuse existing docs/workflows/task structures, repair only gaps that materially affect safe development/coordination/delivery/recovery, and stop bootstrapping when the bootstrap test passes. |
+Use **minimum meaningful slices**, not minimum possible slices. Keep related implementation together when acceptance, ownership, dependency, risk, rollback, review, and release boundaries align. Split only where one of those boundaries materially improves execution or reviewability.
 
-This is intake inside recovery/framing, not a new orchestration/documentation state.
+Classify discovered improvements without expanding the accepted outcome:
+- required for current acceptance or immediate safety -> do it through normal gates;
+- clearly better implementation inside current scope -> prefer it when benefit exceeds added cost/risk;
+- material adjacent improvement outside current outcome -> propose or track only when future action is worthwhile;
+- cosmetic/speculative/duplicate/low-value -> ignore.
 
-After first ownership, root specification leaves the normal hot path. Routine decisions use nearest current authoritative Issue/Task Contract, specialized docs, code/Git/PR, CI, release/deployment state. Re-read root spec only when project-level intent is unresolved, current authoritative state materially contradicts it, an accepted change can alter project-level intent/requirements/constraints/non-goals/project-level supported-environment/platform commitments/completion criteria, or completion/recovery cannot otherwise be resolved safely. Never reload it merely because a cycle/tool batch/chat/Worker changed.
+## 3. Delegation
 
-Do not audit the whole repository before a bounded task. Inspect only architecture, execution path, tests, dependencies, and operational surfaces that can materially affect the outcome; expand only when evidence reveals broader dependency/risk/contract.
+Self-execute when delegation would cost as much as it saves. Delegate only a bounded workstream whose specialization or genuine parallelism is likely to reduce end-to-end completion time after dispatch, review, and reconciliation overhead.
 
-When persistence is useful, represent active outcome in an existing authoritative source:
+Parallel work must not compete on the same unstable surface or knowingly create repeated stale review/CI evidence. If integration of one candidate would invalidate another candidate's required target-bound evidence, keep implementation parallel when safe but serialize only the affected final acceptance/integration path.
 
-```text
-Goal: <observable result>
-Success: <few verifiable criteria>
-Delivery Requirement: INTEGRATION_ONLY | DELIVERY_REQUIRED
-Delivery Target: <explicit target when delivery is required; otherwise omit>
-Constraints/non-goals: <only material items>
-Completion: <what makes MasterBoundary.PROJECT_COMPLETE true>
-```
+Master always retains priority, acceptance, contract changes, integration, release, and risk acceptance.
 
-Accepted active outcome is stable execution identity: never silently narrow because one subtask finished or broaden because improvements exist. Change only from explicit user direction, authoritative project scope, or reconciled requirement evidence through requirement-change path. Do not create a separate outcome document if a milestone/Issue/Project/repo doc already owns it. `scripts/repo_preflight.py` is optional; use `--recovery` only when extra local Git history helps.
+## 4. Development and validation economics
 
-## 2. Highest-value next action
+Follow the default path in `SKILL.md`. During implementation:
 
-Prefer, when applicable:
+- trace enough to understand the root cause/path before large edits;
+- implement a coherent batch while the design is understood instead of forcing a test/review cycle after every edit;
+- run a targeted check when it is likely to expose a mistake early enough to change the next implementation choice, when failure localization would otherwise become expensive, or before crossing a risky/dependent boundary;
+- use broad suites/CI as acceptance evidence near candidate stability rather than as continuous ritual, except when policy or material coupling/risk makes earlier broad feedback valuable;
+- if a check fails, use the narrowest discriminating evidence before paying for another broad run;
+- preserve still-valid evidence; do not rerun broad checks solely to make them look newer.
 
-1. contain correctness/security/data/production incidents or release blockers;
-2. review/integrate completed work that unlocks value/dependencies;
-3. unblock a critical-path dependency/decision;
-4. execute READY work with strongest outcome value, cost-of-delay, dependency unlock, and risk reduction;
-5. when value is similar, prefer smaller/reversible/lower-coordination work;
-6. create more READY work only to improve flow or safe parallelism.
+High-consequence security, authorization, migration/data, concurrency, destructive, or production-coupled work may justify earlier and stronger checks because delayed feedback can increase blast radius or make rollback/debugging harder.
 
-Priority labels are inputs, not substitutes for dependency/delivery judgment. Avoid re-analysis: if current evidence still supports an accepted plan, continue rather than rebuild it. A route/tool failure does not restart full recovery: retain valid facts, verify the affected delta, use another authoritative route when available, and continue. Prefer a cheap safe reversible evidence-producing inspection/implementation/test over more speculative planning.
+## 5. Pending work and failures
 
-## 3. Fast path vs full path
+A pending CI/deployment/external job blocks only actions that depend on its result. Continue independent useful work. If nothing useful remains, use a bounded supported continuation/recheck mechanism when reasonable; otherwise report the exact pending dependency and resume condition. Never tight-poll or invent background work.
 
-Choose `ExecutionPath=FAST|FULL` first; decide `ContractPersistence=TRANSIENT|PERSISTED` separately. Do not infer FULL merely from `CoordinationBaseline=STANDARD`, from `AssuranceLevel=HIGH_ASSURANCE`, or because a historical explicit contract exists; do not infer persistence merely because FULL is required.
+After a failure, do not repeat the same action with materially identical inputs just to keep moving. Capture the smallest useful evidence, identify whether state changed, then change strategy: narrow/reproduce, inspect logs/diff, use another authoritative route, repair the environment, or switch to independent work.
 
-| ExecutionPath | Select when | Contract behavior | Flow |
-|---|---|---|---|
-| **FAST** | Clearly bounded `RiskLevel=LOW` or bounded `MEDIUM` Master-only work; goal/scope/acceptance/validation/dependencies are clear; rollback straightforward; no material migration/data/security boundary, production/release gate, cross-item coordination, or unresolved material product/architecture decision. | No new formal contract is required. If an existing explicit contract already owns the work, keep it current and obey it rather than creating a second contract. | `INSPECT -> IMPLEMENT -> TARGETED VALIDATE -> DIFF REVIEW -> INTEGRATE/UPDATE -> CONTINUE` |
-| **FULL** | Delegated/multi-actor work; material ambiguity; cross-cutting/dependency sequencing; migration/data/security risk; difficult rollback; release/production coordination; repository-required control; high/critical RiskLevel; or other explicit coordination/control that materially improves correctness/recovery. | Use an explicit Task Contract + READY. Persist it only when delegation, coordination, recovery, material unresolved state/risk, or repository policy needs durable identity. | `RECOVER IF TRIGGERED -> FRAME -> CONTRACT/READY -> IMPLEMENT/DELEGATE -> VALIDATE -> REVIEW -> INTEGRATE -> [DELIVER if required] -> CONTINUE` |
+Repeated broad validation/review-remediation cycles with the same controlling cause are a signal to fix the work-package, environment, validation ownership, or review strategy—not to start another identical cycle.
 
-FAST examples: localized bug fix, validation/error handling, bounded API/CLI behavior fix, focused query change, small repository-consistent refactor with clear tests. Do not manufacture Task Contract/Issue/ADR/risk log/broad audit/repeated plan solely because behavior changes. `CoordinationBaseline=STANDARD` may still use FAST for a bounded independent change when FAST criteria hold. `AssuranceLevel=HIGH_ASSURANCE` on otherwise bounded work adds justified assurance controls; it does not by itself force FULL, persistence, or a new approval gate.
+## 6. When no executable work is obvious
 
-Promote FAST -> FULL only when new evidence materially increases ambiguity, coordination, risk, delegation, release/control, or recovery need. Never demote to avoid a gate.
+Before concluding that progress cannot continue:
 
-## 4. Execution modes and delegation fallback
+1. inspect unmet outcome criteria and the critical path;
+2. refine an existing ambiguous candidate if discoverable evidence can make it executable;
+3. unblock or diagnose a blocker;
+4. right-size the remaining work into meaningful slices;
+5. use a bounded spike/reproduction only when it resolves uncertainty blocking delivery;
+6. perform independent review/integration/release work that still advances the outcome.
 
-| Mode | Use when |
-|---|---|
-| `SELF_EXECUTE` | Master can execute safely/correctly now and delegation would not provide enough specialization, parallelism, or bounded throughput gain to repay dispatch/review/reconciliation cost. |
-| `DELEGATE` | One independently bounded READY workstream benefits materially from specialization or parallel progress and has a stable Worker contract/isolation boundary. |
-| `HYBRID` | Master and one or more Workers can advance genuinely independent surfaces without competing for the same unstable dependency/integration surface. |
+Do not invent cleanup, docs, tests, refactors, optimization, or process work solely to avoid stopping.
 
-Decision order: first protect correctness/isolation, then compare expected throughput gain with coordination cost. Never delegate merely to keep Workers busy, and never withhold useful parallelism merely because Master could eventually do everything alone. Priority, acceptance, risk acceptance, contract change, integration approval, and release authorization remain Master-owned.
+## 7. Requirement changes
 
-If direct dispatch is unavailable, self-execute when safe/authorized/capable; otherwise continue independent work and use a human-relayed Worker prompt only when delegation still materially helps. Use `MasterBoundary.MISSING_CAPABILITY` only when missing capability becomes the sole controlling boundary.
+When accepted requirements materially change:
 
-## 5. Self-execution discipline
+1. identify what changed and which work/evidence it invalidates;
+2. update the nearest authoritative outcome/work item before affected implementation;
+3. update the root project specification only when project-level intent, durable constraints/non-goals, supported-environment commitments, or completion criteria changed;
+4. preserve unaffected work/evidence;
+5. revise or invalidate affected Worker assignments;
+6. continue safe unaffected work.
 
-For substantive self-authored work:
+Never pretend the old contract already meant the new requirement.
 
-`MANAGE -> TRACE -> IMPLEMENT -> VALIDATE -> REVIEW -> [CORRECT -> RE-REVIEW] -> INTEGRATE`
+## 8. Stop and reconcile
 
-| Phase | Required behavior |
-|---|---|
-| `MANAGE` | Confirm outcome and explicit contract when present; verify dependencies, RiskLevel, CoordinationBaseline/AssuranceLevel, ProjectAuthority/ScopedAuthorization as relevant, base/branch, acceptance, validation. FAST may use request + repository evidence. For dirty worktree, identify pre-task paths/hunks before editing. Never stash/reset/clean/checkout-overwrite/amend/absorb unrelated changes; if ownership ambiguous, safely isolate branch/worktree or edit only verified-safe files. |
-| `TRACE` | Before editing, inspect execution path, tests, interfaces, and conventions enough to distinguish root cause from symptom. |
-| `IMPLEMENT` | Apply the implementation rule set below; its rows keep distinct concepts separate, and row order does not create precedence. |
-| `VALIDATE` | Narrowest high-signal checks first, then broader required checks; separate baseline failures from regressions. Pre-existing failure/debt/warning/unrelated defect enters scope only if it blocks acceptance/integration, creates material safety risk, or belongs to active outcome; otherwise follow up only when actionable/worth tracking. Inspect working tree + full relevant diff. |
-| `REVIEW` | Reviewer mindset; re-read acceptance; inspect correctness, security, compatibility, data/migration, operations, tests, unintended scope, and fit with existing behavior. |
-| `CORRECT / RE-REVIEW` | Fix required findings; material scope/RiskLevel change returns to MANAGE. |
-| `INTEGRATE` | Repository-normal path/policy + canonical ApplicableEffects/gates. |
+Continue while a safe, authorized, materially useful action linked to the accepted outcome exists. Stop only when one of these actually controls progress:
 
-**`IMPLEMENT` rule set — apply every applicable row; row order does not define precedence.**
+- the accepted outcome and required delivery are verified complete;
+- the user explicitly stops;
+- an approval or material owner decision is required before the next useful dependent action;
+- an external dependency/precondition blocks all useful progress;
+- required capability is genuinely unavailable after reasonable equivalent routes are ruled out;
+- a mutation outcome remains unsafe to resolve;
+- new risk requires human containment/decision before further useful work.
 
-| Implementation facet | Required behavior |
-|---|---|
-| Correctness / root cause | Make the smallest correct change that satisfies the accepted requirement or fixes the evidenced root cause. |
-| Architecture fitness | Reuse existing architecture when it remains fit. |
-| Structural change | When a structural change is materially relevant to accepted work, keep it bounded to that work and use it only when necessary for correct implementation or supported by current evidence that its material benefit to that work outweighs implementation, maintenance, complexity, and regression risk. |
-| Compatibility | Preserve compatibility obligations required by accepted scope. |
-| Scope discipline | Avoid unrelated cleanup/abstraction. |
-| Version-sensitive contracts | Verify primary docs for version-sensitive APIs/dependencies/platform behavior. |
-| Performance work | Establish representative baseline/constraint, identify bottleneck with profiling/high-signal evidence when practical, compare same workload after change; never trade correctness/security/maintainability for unmeasured optimization. |
+A local blocker does not stop unrelated independent work unless delay materially increases risk. On explicit user stop, stop new consequential mutation immediately; do not cleanup, sync, commit, push, or persist solely as end-of-cycle ceremony unless requested.
 
-At `REVIEW`, apply `review-integration.md`; that domain decides whether independent separation is required.
-
-## 6. Worker stop absorption
-
-`WorkerStatus` is Master input, never automatically `TaskState` or `MasterBoundary`:
-
-| WorkerStatus | Master action |
-|---|---|
-| `READY_FOR_REVIEW` | inspect current evidence -> review -> correct if needed -> integrate -> continue |
-| `STALE_ASSIGNMENT` | reconcile Assignment ID/Worker + revision/base/branch/Start HEAD/Checkpoint HEAD and execution envelope; mint a fresh generation when needed, or self-execute |
-| `BLOCKED` | investigate/unblock and classify the actual Master-level cause (including `MasterBoundary.APPROVAL_REQUIRED` when the Worker was waiting on a human gate); continue independent work before any terminal MasterBoundary |
-| `ENVIRONMENT_MISMATCH` | repair environment, choose another path, or self-execute |
-| `SCOPE_CHANGE_REQUIRED` | revise/split authoritative contract, invalidate stale assignment, continue |
-| `MATERIAL_DECISION_REQUIRED` | decide directly if reversible/bounded; escalate only if `MasterBoundary.MATERIAL_DECISION_REQUIRED` actually applies |
-
-Do not mirror WorkerStatus labels into MasterBoundary without Master-level reconciliation.
-
-## 7. WIP and dependency discipline
-
-- dispatch only READY work whose delegation value justifies coordination overhead;
-- avoid parallel edits to the same unstable surface;
-- integrate foundations before dependents unless intentional stacking is supported;
-- when review/CI/conflicts/release readiness bottleneck, prioritize clearing it over opening more fronts;
-- a pending external dependency freezes only actions that require its result; do not serialize source/diff/acceptance review, documentation reconciliation, safe validation, or other outcome-linked work that remains independently executable and fresh. In particular, a frozen candidate's source/diff review may proceed while exact-head CI runs when that review does not depend on the CI result; integration still waits for every required gate;
-- reconcile stale assignments before replacement dispatch;
-- create out-of-contract follow-up only when actionable and not required for current acceptance;
-- right-size to a **minimum meaningful slice**: combine reviewable siblings only when accepted behavior/acceptance and dependency/ownership/risk/rollback/release/validation boundaries materially align. In PR workflows, normally map one such slice to one reviewable candidate; split for any material boundary or reviewability need, not implementation layers;
-- preserve independent implementation and any review work that remains fresh; if one integration would stale another candidate's required target-bound evidence, serialize only the affected final acceptance/integration path unless intentional stacking/queue preserves freshness;
-
-Optimize **finished verified value**, not active-task count or smallest-possible task count.
-
-## 8. Next-work synthesis
-
-When no READY work exists and outcome is incomplete, do not stop immediately. In order:
-
-1. inspect unresolved outcome criteria + critical path;
-2. promote existing draft/candidate by resolving discoverable ambiguity;
-3. unblock through safe diagnosis/preparation;
-4. right-size unresolved work using section 7's minimum-meaningful-slice rule;
-5. create bounded spike/reproduction/decision task for uncertainty;
-6. select independent review/quality/integration/release work that advances outcome;
-7. only then consider `MasterBoundary.NO_READY_WORK`.
-
-Continuation candidate must be materially useful and traceable to accepted outcome via at least one: unmet completion criterion; current Issue/Task Contract or implicit fast-path contract; dependency/blocker; required implementation/validation/review/integration/delivery; bounded investigation resolving uncertainty blocking one of those paths. For `CoordinationBaseline=LIGHTWEIGHT` implicit work, accepted request + current repository evidence may provide traceability.
-
-| Discovered improvement | Action |
-|---|---|
-| required for active outcome/acceptance or immediate safety | perform through normal RiskLevel/ProjectAuthority/ApplicableEffects path |
-| clearly better implementation inside accepted scope | prefer when added cost/risk is justified |
-| outcome-linked enabling improvement | may execute bounded docs/tests/CI/architecture/dependency checks/developer/reviewer tooling/automation/navigation change when current evidence shows material reduction in recurring delivery cost, uncertainty, defect/review risk, or coordination/recovery friction for remaining outcome and near-term benefit justifies implementation/maintenance/complexity/regression risk; prefer improving/reusing existing mechanism |
-| material adjacent improvement outside accepted outcome | propose, or reuse/create follow-up only when tracking is likely to help future execution; do not implement automatically |
-| cosmetic/speculative/duplicate/low-value | ignore or reuse existing tracking |
-
-Immediate correctness/security/data/production threat to active outcome/environment uses incident/risk path, not optional cleanup.
-
-Engineering-system fitness is event-driven, not recurring. Reassess on repeated manual analysis, recurring review/CI friction, the same defect blind spot, recovery/navigation cost, material scale/architecture/constraint change, or one clear current bottleneck with obvious near-term payback. Mere possibility of better tooling/docs/CI/process is not continuation-eligible; never manufacture enabling work to avoid a stop. Create backlog artifacts only when they improve execution/recovery; TODO/debt/cleanup/refactor/extra tests/docs/optimization/process do not become eligible merely by existing.
-
-At phase/program entry—and later only when the completion gate, residual scope, or dependency shape materially changes after integrated siblings—run one bounded **phase-cutline check**: reconcile current integrated evidence, keep all accepted required/dependency/safety work active, derive only residual meaningful outcomes, and move only newly discovered outside-gate non-blocking work to follow-up when useful. Never silently extend/shrink scope or repeat the cutline while controlling facts are unchanged.
-
-## 9. Anti-spin and failure strategy
-
-Never repeat the same failed action with materially identical inputs merely to keep going.
-
-After failure:
-
-1. classify the failure and capture the smallest useful evidence;
-2. determine whether inputs/state changed;
-3. distinguish a failed route/tool from a genuinely missing required capability;
-4. preserve still-valid recovered facts and change strategy: isolate/reproduce, reduce scope, inspect logs/diff, use another authoritative route, repair environment, or switch to independent work;
-5. cap blind retries; retry a known-failed route only when new evidence makes success plausible or explicit transient-failure semantics justify a bounded retry;
-6. treat repeated assurance overhead as spin when two materially similar review-remediation, redundant broad-validation, or environment-mismatch cycles fail to produce materially new evidence or progress because the same controlling cause remains unchanged; before an equivalent next cycle, inspect the common cause, work-package size, validation ownership, review assumptions, or execution environment and change strategy. Distinct new findings, changed candidate/target facts, or newly discriminating evidence are progress and do not satisfy this trigger merely because another review or validation round occurred;
-7. if the required capability/external boundary remains genuinely unavailable after independent work, surface the exact MasterBoundary + resume evidence.
-
-Persistence means adaptive progress, not infinite retry.
-
-For already-running CI/check/deployment/job, `pending` is dependency state, not failure. Continue independent useful work first. Once no independent useful work remains and `pending` is the sole dependency, prefer a real runtime-supported continuation mechanism over yielding control.
-
-| Current condition | Required action |
-|---|---|
-| dependency is still pending; independent useful work still exists | Continue it before waiting; do not stop or wait solely because the dependency is pending. |
-| no independent useful work remains; `pending` is the sole dependency; a safe runtime-supported continuation path is available and still reasonable | Use either suitable runtime-supported path without inventing precedence: (a) bounded, non-tight authoritative rechecks only when a transition is plausibly due and synchronous waiting is safe/proportionate, bounded by expected job duration, tool/runtime limits, and diminishing value; or (b) a suitable real event/condition resume primitive. |
-| dependency resolves successfully | Immediately continue the existing workflow; do not require a user nudge. |
-| dependency fails | Stop waiting immediately, classify the failure, and continue the applicable remediation or independent-work path. |
-| dependency is still pending; no independent useful work remains; it is the sole remaining blocker; bounded autonomous continuation is unavailable, no longer reasonable, or exhausted | Use `MasterBoundary.BLOCKED` with the exact external object, current status, why autonomous continuation cannot safely continue, exact resume condition, and recoverable state. |
-
-Never tight-poll, sleep indefinitely, fabricate background monitoring/resume, or manufacture work. `DeliveryState.PENDING` remains a lifecycle state, not a terminal boundary label; never use `MasterBoundary.NO_READY_WORK` merely because an already-running required dependency is unfinished.
-
-## 10. Requirement changes
-
-When requirements materially change:
-
-1. identify evidence/direction changing accepted outcome and affected Issues/PRs/dependencies; distinguish accepted project change from unaccepted idea or implementation-only adjustment;
-2. decide continue vs revise vs split vs stop;
-3. update authoritative outcome + explicit contract when one exists before affected implementation;
-4. if project-level intent/durable requirements/constraints/non-goals/project-level supported-environment/platform commitments/completion criteria change, update canonical root specification + only other affected authoritative sources; do not update it for implementation-only changes that leave project intent unchanged;
-5. reconcile stale Worker assignments;
-6. continue unaffected safe work where possible; root-spec/doc sync is not global freeze or new stop;
-7. never pretend original contract meant new requirement or change outcome to manufacture completion/more work.
-
-## 11. Master output behavior
-
-Output is observational, not a workflow boundary. A terminal response yielding control is a real execution stop regardless of being called a progress update.
-
-### `MASTER_STOP(boundary, independent_work)`
-
-Use one canonical terminal predicate. `boundary` must be a current `MasterBoundary` from `authority-gates.md`; `independent_work` means safe, authorized, materially useful work traceable to the accepted outcome after any required bounded synthesis.
-
-```text
-MASTER_STOP(boundary, independent_work) =
-    boundary == MasterBoundary.USER_STOP
-    OR boundary == MasterBoundary.PROJECT_COMPLETE
-    OR (
-        CanonicalBoundary(boundary)
-        AND (
-            BoundaryIsUrgent(boundary)
-            OR BoundaryIsProjectWide(boundary)
-            OR NOT independent_work
-        )
-    )
-```
-
-`MasterBoundary.USER_STOP` stops new consequential mutation immediately. `MasterBoundary.PROJECT_COMPLETE` requires its completion evidence. Other boundaries remain local while independent work exists unless delay itself materially increases risk or the boundary is project-wide. A Worker stop, pending job, absent pre-existing READY Issue, tool-batch completion, commit/PR/review boundary, context length, or unavailable delegation route cannot satisfy this predicate by itself.
-
-Before evaluating `MASTER_STOP` with `MasterBoundary.NO_READY_WORK`, run section 8 synthesis. Before surfacing `MasterBoundary.MISSING_CAPABILITY`, distinguish one failed route from missing required semantics. Before terminal response, reconcile/persist only as section 12 and the boundary allow.
-
-Do not end with `next I will ...`, `continue from ...`, ask user to say `continue`, or equivalent when `MASTER_STOP=false` and a safe authorized outcome-linked action is executable now. Conversely, never invent coding, cleanup, tests, docs, backlog, or process work merely to keep `MASTER_STOP=false`.
-
-Default update: **Status** (outcome/health, 1–2 lines); **Verified progress** (meaningful evidence-backed change only); **Boundary** (canonical only when one exists). Avoid command narration and unchanged plans; prefer execution.
-
-## 12. End-of-cycle reconciliation
-
-Before ending at `MasterBoundary.PROJECT_COMPLETE` or another canonical MasterBoundary except `MasterBoundary.USER_STOP`, reconcile and persist everything safely possible within current ProjectAuthority/capability. For an urgent human-decision/containment boundary where delay itself materially increases risk, limit pre-escalation work to immediate safe authorized risk reduction, verification of that containment, and the minimum state/evidence needed for a decision; do not postpone the human boundary for routine synchronization:
-
-- update changed Issue/PR/milestone/Project/release state when authorized/possible;
-- reconcile `WriteState.UNKNOWN` when safely possible; otherwise preserve exact unresolved mutation identity/evidence and surface `MasterBoundary.WRITE_OUTCOME_UNKNOWN` only when it is the controlling terminal boundary;
-- only future-useful decisions/rules in proper source;
-- important implementation recoverable in Git/PR when authorized/possible, not only chat/local ephemeral state;
-- continuity/recoverability test;
-- if outcome incomplete, confirm synthesis found no authorized executable path before `MasterBoundary.NO_READY_WORK`.
-
-Never cross ProjectAuthority/capability gate solely for recoverability. If the boundary blocks durable sync, preserve safe evidence, identify exact local/unreconciled state and precise operation/evidence needed to resume. This never converts an otherwise incomplete outcome to `MasterBoundary.PROJECT_COMPLETE`; use the applicable canonical boundary.
-
-For `MasterBoundary.USER_STOP`, stop new consequential mutations immediately. Report last verified state/unresolved work from existing evidence; no Issue/PR/Project/release sync, cleanup, commit, push, or recovery write solely as ceremony unless user requested final sync.
+Before a normal terminal handoff, persist only unresolved future-useful state that is not already recoverable from Git/GitHub/CI/release systems. Do not create a manager-memory archive merely because the chat may end.

@@ -1,187 +1,120 @@
 # Worker Protocol
 
-Workers are bounded implementation agents. Master remains accountable for project state, contract changes, review, integration, release, and continuation after Worker handoff/stop.
+Workers are bounded implementation agents. User-mediated dispatch, correction, or handoff is a MachineRelay.
 
-## Contents
+## 1. Before editing
 
-[Isolation](#1-isolation) · [Dispatch](#2-dispatch-prompt) · [Execution](#3-worker-execution-rules) · [Staleness](#4-workerstatusstale_assignment) · [Handoff](#5-handoff) · [Blockers](#6-blocker-behavior) · [Master absorption](#7-master-absorption) · [Corrections](#8-corrections)
+Read the current work item/contract and repository instructions. Verify:
 
-## 1. Isolation
+- exact assigned repository and Worker identity;
+- active Assignment ID + Contract Revision;
+- exact `Base SHA`, assigned branch, and Integration Target;
+- `Start HEAD` for a new assignment, or Master-supplied `Checkpoint HEAD` for correction/resume;
+- scope, acceptance, required validation, and any explicit action constraints.
 
-One Worker = one Task Contract + one assigned branch at a time. Use a dedicated worktree when useful for isolation; its filesystem path is runtime location, not assignment identity.
+If a material assignment assumption changed, return `STALE_ASSIGNMENT`; do not guess or broaden scope. Repositories mentioned only as dependencies/context remain read-only unless this assignment explicitly targets them.
 
-[task-contract.md](task-contract.md) §8 owns the persisted Worker assignment/concurrency envelope. Before editing:
+Use an isolated worktree when useful, but never persist the worktree path as assignment identity.
 
-1. verify the exact assigned repository identity and working directory, current assigned-branch/worktree attachment, state, and safety, repository rules, required validation, and task risk/release constraints; never treat another repository named by a dependency or note as writable;
-2. verify the current persisted assignment envelope from §8;
-3. on initial dispatch before the first contracted edit, require current assigned-branch/worktree HEAD = immutable `Start HEAD`; later authorized same-generation commits may advance beyond it without staleness;
-4. on same-generation correction/resume, require current assigned-branch HEAD = Master-supplied `Checkpoint HEAD` before editing.
+## 2. Dispatch
 
-Any material identity/checkpoint mismatch -> `WorkerStatus.STALE_ASSIGNMENT`; never guess. Worker never upgrades `ProjectAuthority`, `ScopedAuthorization`, `CoordinationBaseline`, or `AssuranceLevel`, and never broadens assignment because Master is unavailable.
-
-## 2. Dispatch prompt
-
-Use a standalone prompt. When it is relayed between chats/agents, apply the canonical transport contract in `relay-transport.md`; do not restate or fork its language, literal-preservation, or copy-target rules here.
+Persist the assignment identity in [task-contract.md](task-contract.md) before dispatch. Send a compact standalone prompt:
 
 ```text
-# WORKER DISPATCH - <WORKER_ID> - ISSUE #<NUMBER>
+# WORKER DISPATCH
 
-Use `github-project-orchestrator` as `WORKER`.
-Role: implementation Worker. Do not reprioritize, merge, or expand scope.
-Repository: <exact canonical Repository persisted in the current assignment>
-Issue: <url/number>
-Assignment ID: <current assignment-generation ID, e.g. 184-r3-g2-a7f91de>
+Worker: <id>
+Repository: <exact repository>
+Issue/Work item: <canonical identity>
+Assignment ID: <unique generation>
 Contract Revision: <integer>
-Base SHA: <exact commit SHA>
-Assigned Branch: <local Worker branch, e.g. worker/184 or refs/heads/worker/184>
-Start HEAD: <exact immutable generation-start SHA; equal Base SHA when no divergence is intended>
-Integration Target: <canonical repository branch: simple name such as main, or refs/heads/<branch> when the name contains />
-Assignment Status: ACTIVE
-Project Authority: MANAGED | AUTONOMOUS_WITH_GATES
-Coordination Baseline: LIGHTWEIGHT | STANDARD
-Assurance Level: NORMAL | HIGH_ASSURANCE
-Scoped Authorization: <exact grant if applicable; otherwise none>
-Task Risk: LOW | MEDIUM | HIGH | CRITICAL
+Base SHA: <exact assignment/integration basis>
+Assigned Branch: <branch>
+Start HEAD: <sha for new generation>
+Checkpoint HEAD: <sha for correction/resume, otherwise none>
+Integration Target: <branch>
+Allowed actions: <bounded implementation/branch/PR actions>
+Goal / Scope / Acceptance: <or instruct Worker to read the current work item>
+Required validation: <checks>
+Special constraints: <only task-specific items>
 
-Goal:
-<one concise outcome>
-
-Scope:
-<task-specific in/out boundaries>
-
-Acceptance:
-<criteria or instruction to read current Issue contract>
-
-Required validation:
-<exact commands/checks>
-
-Special constraints:
-<only task-specific security/compatibility/migration/release notes>
-
-Before editing: read repository instructions and current contract; verify assignment/repo/branch/HEAD/status and that any current worktree is attached to the assigned branch.
-Implement the smallest correct change. Do not weaken tests. Stop for stale assignment, blocker, material scope expansion, or material decision.
-Push/update only the assigned branch/PR. Never push directly to the Integration Target, merge, or start another task.
-Return only the structured handoff defined in section 5 under the canonical `relay-transport.md` transport contract.
+Use github-project-orchestrator as WORKER.
+Verify the assignment before editing. Implement only this scope on the assigned branch.
+Do not integrate/release the Integration Target or start another task.
+Return the handoff defined below.
 ```
 
-The dispatch `Repository:` must equal the canonical persisted `Repository` from [task-contract.md](task-contract.md) §8 and is the Worker's entire repository mutation scope for that assignment. Repositories mentioned in dependencies, interfaces, links, tests, or notes are read-only context unless a new valid assignment explicitly targets them; the Worker reports required cross-repository changes to Master instead of editing another repository.
+Do not repeat the full project history or repository-wide rules when their authoritative sources are reachable.
 
-Worker inherits supplied `ProjectAuthority`, `CoordinationBaseline`, `AssuranceLevel`, and any exact `ScopedAuthorization` only inside this bounded assignment and remains under the canonical gate matrix; Worker role still forbids Integration Target integration/release ownership. Never dispatch implementation Worker under `ProjectAuthority=ADVISORY`; first establish implementation-capable authority consistent with the matrix.
+Legacy dispatches may contain fields such as Project Authority, Coordination Baseline, Assurance Level, or Task Risk. Honor their material constraints, but do not require or propagate those labels into a new dispatch when the concrete allowed actions/constraints above carry the same meaning.
 
-Prefer Master self-execution for `TRIVIAL` work. One materially useful bounded delegated workstream may keep `CoordinationBaseline=LIGHTWEIGHT` when overall coordination remains lightweight, but still uses FULL PATH + full compact Contract/READY/assignment identity. Multiple/overlapping Workers or material delegation coordination require `CoordinationBaseline=STANDARD`. If this assigned work is escalated to `AssuranceLevel=HIGH_ASSURANCE`, retain every control implied by that coordination baseline and add only the stronger task-specific assurance controls. Never relax Worker safety/recovery fields because diff is small.
+## 3. Execute
 
-## 3. Worker execution rules
+Worker should:
 
-| # | Worker must |
+1. understand expected behavior and the relevant implementation path;
+2. make the smallest correct contract-bounded change using repository conventions;
+3. validate proportionally using the required evidence and useful targeted checks;
+4. inspect the final relevant diff/worktree state;
+5. commit/push only assigned work to the assigned branch/PR;
+6. stop instead of inventing a material product, architecture, data, authorization, release, or scope decision.
+
+Ordinary reversible implementation choices stay with the Worker; do not bounce them to Master.
+
+## 4. Staleness and blockers
+
+Return `STALE_ASSIGNMENT` when Assignment ID/Worker/revision/repository/Base SHA/assigned branch/Integration Target/checkpoint no longer matches, or when upstream/contract drift materially invalidates the implementation assumptions.
+
+Normal authorized commits on the assigned branch do not make `Start HEAD` stale.
+
+Use the first applicable controlling status in this order:
+
+| Status | Use when |
 |---|---|
-| 1 | establish expected behavior before major implementation when practical |
-| 2 | implement only current contract scope |
-| 3 | preserve compatibility/security/operational requirements |
-| 4 | add/update meaningful tests where appropriate |
-| 5 | run required validation |
-| 6 | inspect relevant diff + worktree state before commit |
-| 7 | before push/PR update, re-read/match the dispatch `Repository:` against current canonical repository identity, then current Assignment ID, Worker identity, Assignment Status, Contract Revision, assigned branch/ref, Integration Target identity, ProjectAuthority/CoordinationBaseline/AssuranceLevel/ScopedAuthorization/risk/release envelope |
-| 8 | commit/push only assigned work inside the assigned repository and update only the assigned PR; never mutate another repository, push directly to the Integration Target, or force-push uncertain state |
-| 9 | stop rather than invent material product/architecture/security/risk/release decision |
-| 10 | never merge or begin another task after handoff; direct Integration Target integration always remains Master-owned |
+| `STALE_ASSIGNMENT` | assignment identity or material assumptions changed |
+| `MATERIAL_DECISION_REQUIRED` | a Master/owner decision is required to continue |
+| `SCOPE_CHANGE_REQUIRED` | acceptance requires material work outside the contract |
+| `ENVIRONMENT_MISMATCH` | another valid runtime/environment can likely execute the same contract |
+| `BLOCKED` | an external prerequisite prevents progress |
+| `READY_FOR_REVIEW` | implementation is complete enough for Master review and required Worker validation is reported |
 
-Worker may make normal reversible implementation choices bounded by contract; do not bounce ordinary coding choices to Master.
-
-## 4. `WorkerStatus.STALE_ASSIGNMENT`
-
-Treat assignment identity as an optimistic-concurrency envelope. Return `WorkerStatus.STALE_ASSIGNMENT` when any material dispatch assumption is no longer current:
-
-| Drift | Result |
-|---|---|
-| Assignment ID or Worker identity differs | `WorkerStatus.STALE_ASSIGNMENT` |
-| Assignment Status is no longer active | `WorkerStatus.STALE_ASSIGNMENT` |
-| Contract Revision materially changed | `WorkerStatus.STALE_ASSIGNMENT` |
-| Base SHA / Start HEAD assumption is no longer valid | `WorkerStatus.STALE_ASSIGNMENT` |
-| current canonical repository identity differs from the dispatch `Repository:` | `WorkerStatus.STALE_ASSIGNMENT` |
-| Assigned Branch or Integration Target identity changed | `WorkerStatus.STALE_ASSIGNMENT` |
-| ProjectAuthority/CoordinationBaseline/AssuranceLevel/ScopedAuthorization/risk/release envelope materially changed | `WorkerStatus.STALE_ASSIGNMENT` |
-| same-generation correction/resume current HEAD differs from Master-supplied Checkpoint HEAD | `WorkerStatus.STALE_ASSIGNMENT` |
-| upstream behavior/architecture changed enough to invalidate implementation assumptions | `WorkerStatus.STALE_ASSIGNMENT` |
-| unrelated remote movement is proven immaterial to this contract/branch/effective change | continue |
-| materiality is uncertain | stop with `WorkerStatus.STALE_ASSIGNMENT`; never overwrite/guess |
-
-Normal authorized Worker commits on the assigned branch do **not** make the assignment stale merely because current HEAD advances beyond `Start HEAD`; that field records the immutable verified generation start. Staleness means the dispatch/ownership/contract assumptions were invalidated by external or material state change, not that the Worker made the contracted progress.
-
-The Worker must stop unless Master explicitly reconciles and creates/reissues a valid assignment generation.
+Do not solve adjacent work after a blocker without a revised assignment.
 
 ## 5. Handoff
 
-Choose exactly one `WorkerStatus` by the first controlling condition below; include secondary facts in `Blocker/decision` rather than inventing another status:
-
-| Precedence | WorkerStatus | Use when |
-|---|---|---|
-| 1 | `WorkerStatus.STALE_ASSIGNMENT` | assignment/concurrency envelope is no longer valid or materiality is uncertain |
-| 2 | `WorkerStatus.MATERIAL_DECISION_REQUIRED` | implementation cannot proceed without a canonical owner decision from `authority-gates.md` |
-| 3 | `WorkerStatus.SCOPE_CHANGE_REQUIRED` | acceptance is sufficiently clear, but satisfying it requires material work outside the current Task Contract |
-| 4 | `WorkerStatus.ENVIRONMENT_MISMATCH` | the contract remains valid, but this Worker runtime/toolchain/credential/environment context cannot execute it safely; another valid environment/path may resolve it without changing scope, including unrelated dirty work when safe isolation/environment change can resolve it |
-| 5 | `WorkerStatus.BLOCKED` | a real external dependency/precondition prevents progress and switching Worker/runtime alone does not resolve it; includes an unsatisfied canonical human-approval gate for an otherwise in-scope Worker-permitted action, or unrelated dirty work that requires external ownership/precondition resolution |
-| 6 | `READY_FOR_REVIEW` | contracted implementation is complete enough for Master review and required Worker validation has been reported |
-
-Return the compact transport form below under the canonical `relay-transport.md` transport contract. Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of omitting a field. Report only validation actually performed and never convert a failed/not-run check into a pass. This output contract changes transport only: `STATUS` remains a value in the `WorkerStatus` namespace, and token equality with `TaskState`, `WriteState`, `DeliveryState`, or `MasterBoundary` never propagates state automatically.
+Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of silently omitting unavailable evidence/state.
 
 ```text
 # WORKER HANDOFF
 
 STATUS: READY_FOR_REVIEW | BLOCKED | ENVIRONMENT_MISMATCH | STALE_ASSIGNMENT | SCOPE_CHANGE_REQUIRED | MATERIAL_DECISION_REQUIRED
-
-## Assignment Envelope
-
 Worker: <id>
-Repository: <same exact repository identity used at dispatch>
-Issue: <canonical URL or owner/repo#n>
+Repository: <exact repository>
+Issue/Work item: <identity>
 Assignment ID: <id>
 Contract Revision: <n>
-Base SHA: <sha>
-Assigned Branch: <local Worker branch, e.g. worker/184 or refs/heads/worker/184>
+Base SHA: <assignment/integration basis>
+Assigned Branch: <branch>
 Start HEAD: <immutable generation-start sha>
-Checkpoint HEAD: <Master-supplied correction/resume sha when applicable; otherwise none>
-Integration Target: <same canonical repository branch identity used at dispatch>
-Assignment Status at start: <ACTIVE>
-Project Authority: <MANAGED | AUTONOMOUS_WITH_GATES>
-Coordination Baseline: <LIGHTWEIGHT | STANDARD>
-Assurance Level: <NORMAL | HIGH_ASSURANCE>
-Scoped Authorization: <exact grant or none>
-Task Risk: <LOW | MEDIUM | HIGH | CRITICAL>
-
-## Result Identity
-
+Checkpoint HEAD: <correction/resume sha or none>
+HEAD: <current sha or unavailable>
+Integration Target: <branch>
 PR: <url or none>
-HEAD: <sha if available>
 
-## Completed Work
+Completed:
+- <concise result or none>
 
-- <concise completed item or none>
+Validation:
+- <exact check> — PASS | FAIL | NOT_RUN — <evidence/reason>
 
-## Validation
-
-- `<exact command/check>` — PASS | FAIL | NOT_RUN
-  - Evidence: <concise result or reason not run>
-
-## Blocker or Decision
-
-- <none or exact blocker/decision/gate/evidence>
+Blocker/Decision:
+- <none or exact blocker/decision>
 ```
 
-Handoff is locator/claim, not review evidence.
+The handoff is a locator and claim, not review proof. Master verifies current Git/GitHub/CI evidence before relying on it.
 
-## 6. Blocker behavior
+## 6. Correction/resume
 
-Use the section 5 precedence table as the single `WorkerStatus` classifier. For an in-scope action waiting on human approval, report the exact gate/evidence as `WorkerStatus.BLOCKED`; Master may later classify `MasterBoundary.APPROVAL_REQUIRED` after absorption. A canonical owner choice is `WorkerStatus.MATERIAL_DECISION_REQUIRED`. Never solve adjacent work without a revised contract.
+Reuse the same assignment generation only while the same Worker/branch/contract remains valid. Send the exact Worker, Repository, work item, Assignment ID, Contract Revision, Base SHA, Assigned Branch, Integration Target, reviewed current `Checkpoint HEAD`, and only the changed findings/constraints/required validation. Worker verifies that checkpoint before editing.
 
-## 7. Master absorption
-
-`WorkerStatus` never propagates automatically to `TaskState` or `MasterBoundary`. Master must consume the handoff and apply `master-cycle.md` Worker-stop absorption using current repository/GitHub evidence, not the handoff as proof.
-
-## 8. Corrections
-
-For correction/resume:
-
-1. Reuse the same Worker/branch/PR/Assignment ID only while the assignment generation remains valid. `Start HEAD` stays the immutable generation-start anchor.
-2. Master sends the exact reviewed/current HEAD as `Checkpoint HEAD`, current assignment identity, evidence-backed `BLOCKER`/`REQUIRED` findings, required validation, and narrowed constraints. Worker verifies current assigned-branch HEAD equals that checkpoint **before editing**.
-3. When relayed, use `relay-transport.md` and send only the decision-relevant delta: Worker + Repository + Issue, Assignment ID, Contract Revision, Assigned Branch, Integration Target, Checkpoint HEAD, current findings, required validation, and narrowed constraints. Keep the exact dispatch Repository; a correction/resume never broadens `RepositoryMutationScope`. Do not duplicate the full original contract when its authoritative identity remains current/reachable.
-4. If the generation was superseded/cancelled/invalidated, checkpoint assumptions materially diverged, or responsibility changes Worker, Master reconciles and mints a fresh Assignment ID before redispatch. Master re-reviews the resulting effective change; prior approval never carries automatically across code changes.
+If responsibility, branch, contract assumptions, or generation validity materially changed, Master issues a fresh Assignment ID.
