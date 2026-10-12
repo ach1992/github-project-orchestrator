@@ -1,6 +1,6 @@
 # Master Cycle
 
-Load only for planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
+Load only for PR provenance, planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
 
 ## 1. Recover only what changed
 
