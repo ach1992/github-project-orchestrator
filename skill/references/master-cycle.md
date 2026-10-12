@@ -12,7 +12,7 @@ For later work, inspect only evidence that can affect the next decision: current
 
 ## 2. Choose work by finished value
 
-**PR provenance (Master):** Before adopting, dispatching independent review, or merging a PR, reconcile its creator, source repo/branch, current-HEAD commit authors/committers, and available authenticated push actors with authorized work. Git metadata/green CI alone do not prove origin. Hold unexplained/conflicting provenance and alert Owner; when seeking merge approval, disclose verified origin, material changes/risks, and exact HEAD.
+**PR provenance (Master):** Before adopting a PR, dispatching independent review, or merging it, establish or reuse provenance valid for its current HEAD: creator, source repo/branch, authors/committers of PR-introduced commits, available authenticated push actors, and alignment with authorized work. Git metadata/green CI alone cannot prove origin. Hold unexplained/conflicting provenance and alert Owner; when requesting merge approval, disclose origin, material changes/risks, and exact HEAD.
 
 Prefer in this order when applicable:
 
