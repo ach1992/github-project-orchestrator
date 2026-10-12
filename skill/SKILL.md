@@ -52,7 +52,7 @@ Ask the user only for real authorization, an owner-level decision, or unavailabl
 |---|---|
 | any mutation where authority/effect is not already obvious; required capability appears unavailable; integration/production/destructive/external commitment; ambiguous write outcome | [authority-gates.md](references/authority-gates.md) |
 | first ownership, repository creation/readiness, project structure, multi-repository coordination, backlog/Issues/Projects/milestones, or management-system repair | [governance.md](references/governance.md) |
-| Master PR intake or independent-review dispatch; planning/dependency/WIP/delegation choice that can change sequencing, scope, risk, ownership, or delivery; no-executable-work synthesis; repeated failure; requirement change; explicit stop/continuation boundary | [master-cycle.md](references/master-cycle.md) |
+| Master PR intake, independent-review dispatch, or PR merge; planning/dependency/WIP/delegation choice that can change sequencing, scope, risk, ownership, or delivery; no-executable-work synthesis; repeated failure; requirement change; explicit stop/continuation boundary | [master-cycle.md](references/master-cycle.md) |
 | explicit multi-actor/high-coordination contract or Worker assignment | [task-contract.md](references/task-contract.md) |
 | Worker dispatch/execution/handoff/correction | [worker-protocol.md](references/worker-protocol.md) |
 | candidate review, CI failure, conflict, review freshness, or integration | [review-integration.md](references/review-integration.md) |
