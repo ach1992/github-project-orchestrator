@@ -78,6 +78,8 @@ Before Master-controlled integration require, as applicable:
 - repository/platform rules satisfied;
 - every action-level authorization from [authority-gates.md](authority-gates.md) satisfied.
 
+**PR provenance:** Before seeking or using merge approval, reconcile PR creator, source repo/branch, new-commit identities, and available authenticated push evidence with authorized work; Git metadata or passing CI alone does not prove origin. If unexplained, hold the merge and alert Owner. Otherwise, present provenance, material changes/risks, and exact HEAD with the approval request.
+
 Immediately before integration, refresh mutable candidate/target/rule/approval state that could invalidate the action. Unexpected drift means reconcile; never integrate through stale assumptions.
 
 If a merge queue creates a distinct merge-group commit, required queue evidence belongs to that identity. Routine regrouping needs no new human decision unless it materially changes the reviewed/authorized effective change, target, risk, or rollout assumptions.
