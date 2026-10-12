@@ -76,7 +76,6 @@ Before Master-controlled integration require, as applicable:
 - dependencies/target compatibility current;
 - material security/data/migration/operations concerns resolved;
 - repository/platform rules satisfied;
-- **PR provenance:** Reconcile creator, source repo/branch and new-commit author/committer with authorized work; check authenticated push actor when available (Git metadata/CI cannot prove origin). Hold unexplained or conflicting provenance and alert Owner. When requesting merge approval, present origin, material changes/risks and exact HEAD;
 - every action-level authorization from [authority-gates.md](authority-gates.md) satisfied.
 
 Immediately before integration, refresh mutable candidate/target/rule/approval state that could invalidate the action. Unexpected drift means reconcile; never integrate through stale assumptions.
