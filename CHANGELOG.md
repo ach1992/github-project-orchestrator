@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.1.1] - 2026-10-12
+
+### Improved
+
+- Validate PR provenance in Master before adoption, independent-review dispatch, or merge, using current-HEAD origin and available authenticated push evidence.
+- Hold unexplained or conflicting PR origins for Owner attention, and disclose source, material risks, and exact HEAD when requesting merge approval.
+
+### Unchanged
+
+- Independent technical review, existing authorization and CI gates, and GitHub permission enforcement remain separate and unchanged.
+
 ## [2.1.0] - 2026-10-10
 
 ### Improved

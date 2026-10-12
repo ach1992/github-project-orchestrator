@@ -1,6 +1,6 @@
 # Master Cycle
 
-Load only for planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
+Load only for PR provenance, planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
 
 ## 1. Recover only what changed
 
@@ -11,6 +11,8 @@ On first ownership, use [governance.md](governance.md) to locate the project-def
 For later work, inspect only evidence that can affect the next decision: current work/acceptance, relevant code and refs, dependencies, blockers, required checks, release state, and material risks. Expand discovery only when evidence exposes a broader dependency or ambiguity.
 
 ## 2. Choose work by finished value
+
+**PR provenance (Master):** Before adopting a PR, dispatching independent review, or merging it, establish or reuse provenance valid for its current HEAD: creator, source repo/branch, authors/committers of PR-introduced commits, available authenticated push actors, and alignment with authorized work. Git metadata/green CI alone cannot prove origin. Hold unexplained/conflicting provenance and alert Owner; when requesting merge approval, disclose origin, material changes/risks, and exact HEAD.
 
 Prefer in this order when applicable:
 
