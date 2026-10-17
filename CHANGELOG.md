@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.2.0] - 2026-10-17
+
+### Improved
+
+- Select effective authorized tools by current capability evidence, distinguishing source, release, host, client and use-case readiness without provider-specific rules.
+- Recover and safely reuse matching execution resources while preserving shared-host projects, surviving Workers/jobs and uncertain operation state.
+- Keep project specifications, README, technical documentation and Issues useful and nonduplicate; preserve unique obligations and protect Owner-parked ideas.
+- Continue coherent diagnosis, correction and validation to accepted outcomes or real gates; reuse valid evidence and safely retire task-owned resources only when no longer needed.
+
+### Fixed
+
+- Carry a receiver-accessible reference to the same Skill revision's RESULT contract inside independent-review dispatch, preserving one complete copyable result and the canonical transport owner.
+
+### Changed
+
+- Remove the 900-word kernel and 8,000-word runtime ceilings without replacement; retain informational counts, structural/semantic guards and deliberate reference routing.
+- Preserve existing authority, Worker identity, review, integration, publication and package compatibility gates.
+
+### Validation
+
+- Source/structural/package checks and independent review support this release. Real model/behavior/E2E experiments remain deferred; no measured performance improvement is claimed.
+
 ## [2.1.1] - 2026-10-12
 
 ### Improved
