@@ -132,6 +132,8 @@ Detailed domains load only when their event can materially change the current de
 
 Development-only traceability/evaluation stays outside the packaged runtime. Optimize for fewer concepts and reference loads on the common path, not merely shorter sentences.
 
+Runtime size counts are informational, not fixed acceptance ceilings; assess model comprehension, correct decisions, canonical rule ownership, duplication and triggered loading instead of enforcing word quotas.
+
 ## 7. Project scale model
 
 Scale controls are driven by actual coordination, dependency, recovery, risk, and release complexity rather than repository size alone.

@@ -35,6 +35,20 @@ When sources disagree, first check whether they refer to the same repository, ob
 
 A closed Issue, old green CI, previous review, or old delivery claim does not prove current completion when its identity/criteria no longer match.
 
+### Runtime recovery and reuse
+
+Before cloning, creating a task worktree/environment/job/session, or repeating uncertain execution, discover relevant existing state through available authorized tools. Scope discovery to the repository/task and likely resources. A truncated, filtered, failed or unavailable lookup does not prove absence.
+
+Verify what determines a safe match: canonical remote/repository; Issue/PR/assignment; branch and HEAD/lineage; dirty/conflict state and in-flight operations; owning task/principal where determinable; actual environment and active consumers. A familiar path, clean checkout or shared account alone proves neither freshness nor ownership.
+
+Reuse a verified matching safe resource. For branch/task isolation, prefer a worktree over another full clone unless repository-level isolation or tooling requires one. Preserve unrelated or ambiguous state; use verified isolation when authorized, or report the exact blocker. Do not overwrite, reset, stash, stop another actor or duplicate uncertain work to make progress.
+
+Exactly one Master is active per project outcome. A replacement chat is its sequential successor; other projects may have their own Masters on the same host. Workers, reviewers, jobs and services can survive chat rotation. Two connectors may reach the same host; neither a connector identity nor a working directory proves isolated filesystem, browser profile, port, service or database ownership. Respect existing coordination; add no global Master registry, election or cross-project lock.
+
+For an uncertain operation, recover its stable identity and inspect existing state/output before deciding to resume, reconcile or retry. Apply [authority-gates.md](authority-gates.md) to any reconciliation effects and ambiguous mutation; do not repeat a non-idempotent action merely because the chat or connection was lost. Distinguish running/readiness observations from verified completion and exit evidence.
+
+Keep verified locators while useful and refresh only facts invalidated by evidence or the next action. If a host is lost or unavailable, recover pushed GitHub truth and state exactly which ephemeral/unpushed work is unverified or unrecoverable. Persist a minimal runtime locator or retention reason in the owning work item only when needed for safe continuation and not recoverable better elsewhere.
+
 ## 4. Recoverability test
 
 Before leaving materially unfinished work at a real boundary, a replacement Master should be able to determine from authoritative sources:
@@ -43,7 +57,7 @@ Before leaving materially unfinished work at a real boundary, a replacement Mast
 - what remains;
 - which repository/candidate/target is current;
 - material dependencies/blockers/decisions;
-- any active Worker assignment;
+- any active Worker assignment and necessary verified runtime locator/retention reason;
 - required review/integration/release evidence;
 - the next valid action or exact external resume condition.
 

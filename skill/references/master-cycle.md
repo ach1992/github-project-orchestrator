@@ -1,6 +1,6 @@
 # Master Cycle
 
-Load only for PR provenance, planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, or a stop decision. The hot path remains in `SKILL.md`.
+Load only for PR provenance, planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, resource lifecycle, or a stop decision. The hot path remains in `SKILL.md`.
 
 ## 1. Recover only what changed
 
@@ -22,7 +22,7 @@ Prefer in this order when applicable:
 4. execute the highest-value ready outcome slice;
 5. improve the engineering system only when a demonstrated bottleneck is materially slowing the remaining outcome.
 
-Priority labels are inputs, not substitutes for current dependency/release reality. Do not create work merely to keep a queue full.
+Priority labels are inputs, not substitutes for current dependency/release reality. Apply [governance.md](governance.md) before treating an Owner-parked idea as executable. Do not create work merely to keep a queue full.
 
 Use **minimum meaningful slices**, not minimum possible slices. Keep related implementation together when acceptance, ownership, dependency, risk, rollback, review, and release boundaries align. Split only where one of those boundaries materially improves execution or reviewability. For foundation-heavy work, prioritize the earliest safe, authorized, representative non-production end-to-end consumer/operator check when feasible; mocks alone do not prove integration.
 
@@ -48,7 +48,7 @@ Follow the default path in `SKILL.md`. During implementation:
 - implement a coherent batch while the design is understood instead of forcing a test/review cycle after every edit;
 - run a targeted check when it is likely to expose a mistake early enough to change the next implementation choice, when failure localization would otherwise become expensive, or before crossing a risky/dependent boundary;
 - use broad suites/CI as acceptance evidence near candidate stability rather than as continuous ritual, except when policy or material coupling/risk makes earlier broad feedback valuable;
-- if a check fails, use the narrowest discriminating evidence before paying for another broad run;
+- if a check fails, classify the cause, repair within scope, and rerun the relevant check until acceptance is satisfied or a real gate blocks further safe work; use the narrowest discriminating evidence before another broad run;
 - preserve still-valid evidence; do not rerun broad checks solely to make them look newer.
 
 High-consequence security, authorization, migration/data, concurrency, destructive, or production-coupled work may justify earlier and stronger checks because delayed feedback can increase blast radius or make rollback/debugging harder.
@@ -60,6 +60,8 @@ A pending CI/deployment/external job blocks only dependent actions. Continue ind
 After a failure, do not repeat the same action with materially identical inputs just to keep moving. Capture the smallest useful evidence, identify whether state changed, then change strategy: narrow/reproduce, inspect logs/diff, use another authoritative route, repair the environment, or switch to independent work.
 
 Repeated broad validation/review-remediation cycles with the same controlling cause are a signal to fix the work-package, environment, validation ownership, or review strategy—not to start another identical cycle.
+
+Report substantive outcomes, Owner decisions, exact external blockers, required gates and unverified acceptance/risks with their source identity. Keep required progress updates useful and concise; do not narrate every tool/test or repeat status while useful work remains.
 
 ## 6. When no executable work is obvious
 
@@ -102,3 +104,16 @@ Continue while a safe, authorized, materially useful action linked to the accept
 A local blocker does not stop unrelated independent work unless delay materially increases risk. On explicit user stop, stop new consequential mutation immediately; do not cleanup, sync, commit, push, or persist solely as end-of-cycle ceremony unless requested.
 
 Before a normal terminal handoff, persist only unresolved future-useful state that is not already recoverable from Git/GitHub/CI/release systems. Do not create a manager-memory archive merely because the chat may end.
+
+## 9. Resource lifecycle
+
+Apply this to any temporary resource, regardless of provider or resource type. Recover/reuse through [continuity.md](continuity.md) before provisioning. Know its purpose, owning task/principal where determinable, dependencies and retention need; record only information that safe continuation cannot recover better elsewhere.
+
+At a real purpose/completion/validation/integration/handoff boundary, reconcile only the task's relevant resources:
+
+1. Verify identity/ownership, actual consumers, in-flight work and unique uncommitted/unpushed state. Check pending review, tests, deployment, diagnostic/audit evidence, rollback and other-project dependencies.
+2. Preserve needed unique state and transfer minimal valuable evidence to its natural durable GitHub owner where appropriate. Completion or merge alone does not prove a resource is no longer needed.
+3. Release/stop/remove only resources proved task-owned, no longer needed and safely disposable under [authority-gates.md](authority-gates.md). Never destroy dirty/shared state, force-delete or stop another actor's service for tidiness.
+4. Verify the effect before claiming cleanup succeeded. If ownership, safety, outcome or authority is uncertain, retain the resource and report its exact reason/decision at the boundary.
+
+Use bounded cleanup within ordinary work, without global scans, a runtime database, recurring audits or a separate cleanup project. Explicit user stop takes precedence over optional cleanup.
