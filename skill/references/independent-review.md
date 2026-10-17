@@ -21,6 +21,7 @@ Reviewer authority: READ_ONLY unless an exact additional action is explicitly au
 
 Review the effective target-to-candidate change for acceptance, correctness, relevant quality/safety concerns, validation sufficiency, and integration readiness.
 Do not modify the repository or invent missing evidence.
+Read and follow the Result contract at <receiver-accessible URL or installed-Skill reference to this Skill revision's independent-review.md#result> for your reply.
 ```
 
 For security-sensitive read-only review, prefer authoritative source/diff, existing repository tests, current CI/log/artifact evidence, and safe read-only inspection. Do not generate or execute novel adversarial probes solely to demonstrate assurance; missing required evidence becomes a finding or explicit limitation.

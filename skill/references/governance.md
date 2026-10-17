@@ -12,7 +12,7 @@ When a repository must be created, apply [authority-gates.md](authority-gates.md
 
 ## Canonical project specification
 
-Keep one canonical repository source for durable project-level intent: purpose, Owner-approved vision, stable success criteria, constraints/non-goals, supported-environment commitments, and completion criteria.
+Keep one canonical repository source when durable project-level intent needs preservation. Include purpose, Owner-approved vision, stable success criteria, constraints/non-goals, supported-environment commitments, and completion criteria.
 
 Reuse an established equivalent and location. If none exists and repository convention does not provide a stronger home, use `docs/PROJECT-SPEC.md`. Before persisting project knowledge, exclude secrets/credentials, prohibited sensitive data, and transient chat/runtime instructions; keep needed sensitive values in authorized secure/runtime sources. If sensitive material is already tracked, deletion alone is not remediation—handle rotation/history exposure through the applicable security gates.
 
