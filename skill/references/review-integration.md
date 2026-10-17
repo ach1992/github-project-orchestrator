@@ -92,4 +92,4 @@ Prefer one independent review after candidate stabilization. If remediation chan
 
 Verify that the intended change actually reached the Integration Target. Then reconcile the owning Issue/work item against its real acceptance criteria and required post-integration evidence.
 
-Do not close work merely because a PR merged. If delivery is required, completion waits for [release.md](release.md) delivery proof. Record only actionable follow-up that is outside current completion, update durable docs only when a lasting rule/decision changed, and clean temporary branches/worktrees only when no useful work can be lost.
+Do not close work merely because a PR merged. If delivery is required, completion waits for [release.md](release.md) delivery proof. Record only actionable follow-up that is outside current completion, update durable docs only when a lasting rule/decision changed, and reconcile task resources through [master-cycle.md](master-cycle.md#9-resource-lifecycle).

@@ -84,6 +84,16 @@ def validate_paths(skill_dir: Path) -> None:
     if missing:
         fail(f"Missing required runtime files: {missing}")
 
+    reference_root = skill_dir / "references"
+    actual_references = {
+        path.relative_to(reference_root).as_posix()
+        for path in reference_root.rglob("*.md")
+        if path.is_file()
+    }
+    unexpected = sorted(actual_references - set(RUNTIME_REFERENCES))
+    if unexpected:
+        fail(f"Runtime references must be registered for routing and ownership: {unexpected}")
+
 
 def validate_links(skill_dir: Path) -> None:
     for markdown in skill_dir.rglob("*.md"):

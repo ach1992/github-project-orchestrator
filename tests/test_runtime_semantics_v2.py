@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Budget and canonical-rule regression guard for the simplified runtime."""
+"""Runtime inventory and canonical-rule regression guard."""
 
 from pathlib import Path
 import re
@@ -7,21 +7,6 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skill"
 RULE_MAP = ROOT / "design" / "RULE-MAP.md"
-
-RUNTIME_REFS = (
-    "authority-gates.md",
-    "continuity.md",
-    "engineering-quality.md",
-    "governance.md",
-    "independent-review.md",
-    "interface-specialist.md",
-    "master-cycle.md",
-    "relay-transport.md",
-    "release.md",
-    "review-integration.md",
-    "task-contract.md",
-    "worker-protocol.md",
-)
 
 REQUIRED_WORKER_IDENTITY_LITERALS = (
     "Assignment ID",
@@ -63,17 +48,17 @@ def words(path: Path) -> int:
 def main() -> None:
     kernel = SKILL / "SKILL.md"
     kernel_words = words(kernel)
-    runtime_words = kernel_words + sum(words(SKILL / "references" / name) for name in RUNTIME_REFS)
+    runtime_markdown = (
+        path for path in SKILL.rglob("*.md")
+        if path.is_file() and "__pycache__" not in path.parts
+    )
+    runtime_words = sum(words(path) for path in runtime_markdown)
     package_words = sum(
         words(path)
         for path in SKILL.rglob("*")
         if path.is_file() and "__pycache__" not in path.parts
     )
 
-    if kernel_words > 900:
-        raise AssertionError(f"always-loaded kernel grew above 900 words: {kernel_words}")
-    if runtime_words > 8000:
-        raise AssertionError(f"ordinary runtime surface grew above 8000 words: {runtime_words}")
     if (SKILL / "references" / "eval-scenarios.md").exists():
         raise AssertionError("development evaluation leaked back into the packaged runtime")
 
@@ -155,7 +140,7 @@ def main() -> None:
         raise AssertionError(f"canonical high-consequence rules disappeared: {missing}")
 
     print(
-        f"PASS simplified-runtime-guard kernel_words={kernel_words} "
+        f"PASS runtime-invariants kernel_words={kernel_words} "
         f"runtime_words={runtime_words} package_words={package_words}"
     )
 

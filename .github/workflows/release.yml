@@ -41,7 +41,7 @@ jobs:
       - name: Validate Skill structure and traceability
         run: python3 tools/validate_skill.py skill
 
-      - name: Validate runtime budget and canonical rules
+      - name: Validate runtime invariants and report size
         run: python3 tests/test_runtime_semantics_v2.py
 
       - name: Test repository safety helper

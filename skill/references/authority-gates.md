@@ -1,6 +1,6 @@
 # Authority and Gates
 
-Load when authority/effect is unclear or before integration, production, destructive/irreversible, access-boundary, or external-commitment actions. Gate the action being taken; future risky steps do not block safe preparation.
+Load for substantive execution tool selection/readiness, unclear authority/effect, or integration, production, destructive/irreversible, access-boundary, or external-commitment actions. Gate the action being taken; future risky steps do not block safe preparation.
 
 ## 1. Authority and repository scope
 
@@ -18,7 +18,7 @@ Repository/platform permissions and policy can always be stricter than this Skil
 
 ## 2. Classify the actual effects
 
-One action can have several simultaneous effects; satisfy every applicable obligation.
+One action can have several simultaneous effects; satisfy every applicable obligation. Classify its documented behavior, not its name: a status/recovery operation may reconcile or persist task/resource state. Under read-only authority, use passive inspection or stop the dependent action when reconciliation requires mutation.
 
 | Effect | Examples / default treatment |
 |---|---|
@@ -55,7 +55,15 @@ Before a consequential mutation, confirm only what matters:
 - required capability exists;
 - mutable identity that could be overwritten/integrated/deployed is fresh enough.
 
-If capability appears missing, inspect relevant current tools/connectors/actions, prefer the authoritative native route, then try reasonable supported equivalents. Declare it unavailable only after those routes are ruled out. Reconcile other uncertainty directly.
+### Capability selection
+
+For substantive code inspection/editing, build/test, debugging, browser/E2E or runtime work, inspect relevant client-advertised capabilities even before a preferred route fails. Choose an effective authorized workflow by task fitness, safety, readiness and total execution/context cost. Keep GitHub collaboration and durable truth on their native route; execution can use another suitable tool.
+
+Distinguish source implementation, published release, installed host, client-exposed capability and validated use case. One layer does not prove the next. Verify only readiness, permissions and environment facts that affect the current decision; do not simulate access or hardcode providers, methods, paths or versions as selection rules.
+
+Reuse still-valid capability evidence; refresh when the task, connection, environment, permissions or observed behavior changes. Simple metadata/docs work needs no exhaustive tool or host sweep. Do not build a capability registry.
+
+If a needed option is unavailable/degraded, inspect reasonable authorized equivalents, then report the precise remaining limitation. Uncertainty blocks only dependent work. Before creating or repeating execution resources, apply [continuity.md](continuity.md).
 
 ## 4. Owner decisions and high-consequence anchors
 
