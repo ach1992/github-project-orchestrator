@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.2.1] - 2026-10-20
+
+### Improved
+
+- Make everyday implementation design explicit in the core rules: cohesive behavior, clear dependencies, useful file/module boundaries, justified abstractions, and total implementation/maintenance cost within accepted requirements.
+- Extend development scenarios for useful extraction versus needless fragmentation, causal repair, performance constraints, and owner decisions, retaining existing rule owners and runtime references.
+
+### Validation
+
+- All pre-existing runtime text is preserved. Structural/package checks and seven paired advisory cases support the refinement; no broad behavioral or measured performance improvement is claimed.
+
 ## [2.2.0] - 2026-10-17
 
 ### Improved
