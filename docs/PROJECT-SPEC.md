@@ -59,6 +59,8 @@ The project uses stable Goal IDs so rules, implementation work, and evaluations 
 
 `G05`, `G06`, `G07`, and `G11` together require the Skill to behave like a mature engineering team from implementation through production operation, not merely to produce code that passes a happy-path test. This requirement remains **relevance-driven and proportional**: concerns are activated by the actual product surface, failure modes, risk, delivery model, and current evidence rather than by a universal checklist.
 
+Quality work must preserve accepted user/operator capability as well as correctness. Controls must serve accepted obligations or concrete current failure paths; unresolved product-policy trade-offs are decided before design, delegation, or implementation. Assurance requests do not expand scope, and agent-authored artifacts do not establish Owner adoption. Evaluation must demonstrate timely decisions on unnecessary restrictions and real defects while preserving authorization, integrity, review, and delivery guarantees.
+
 For any substantive change, Master should determine which engineering concerns are material to the change and carry only those concerns through framing/acceptance, implementation or Worker instructions, validation, review, integration, and release. Relevant concerns can include, without requiring a fixed runtime enum: security, privacy, data integrity, compatibility, resilience, observability/diagnosability, performance, capacity/resource/cost behavior, accessibility/user experience, migration, operations, and release safety.
 
 When a change introduces material production or support failure modes, professional implementation includes proportionate **diagnosability** before release. As applicable this means choosing useful logging severity/levels and context; structured/correlatable identifiers when they materially help trace a request/job/workflow; safe exception/error evidence; controlled runtime diagnostic/debug capability when the product needs it; and appropriate metrics, traces, health/readiness signals, or alerts when logs alone are insufficient. Diagnostic logging and security/audit logging are distinct concerns and should be used only when the domain requires them. Observability must not leak secrets, credentials, tokens, or sensitive personal data; privacy, redaction/data minimization, retention/access, noise/volume, and operational cost must be considered when material.
@@ -170,7 +172,7 @@ The following guarantees should survive representation changes unless explicitly
 - one authoritative owner per kind of truth;
 - inspect before consequential mutation;
 - authority/authorization is independent from technical capability, risk, environment, assurance, coordination, repository relationships, and tool access; those may constrain execution but never broaden authority;
-- scope changes only through valid direction/evidence;
+- evidence can expose a defect or unresolved choice; changes to Owner-level intent require valid Owner direction;
 - Worker stop does not automatically become Master stop;
 - integration does not imply delivery;
 - unknown or incomplete evidence does not imply absence/cleanliness;

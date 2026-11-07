@@ -22,13 +22,13 @@ Use Draft/Ready only when the repository/platform gives it useful semantics. Do 
 
 Inspect only concerns material to the change: acceptance/scope, architecture fit, correctness, security, data/compatibility, reliability, tests, performance/operations, release/config implications, supply-chain/execution surfaces, and unintended artifacts.
 
-Classify findings simply:
+Classify findings against accepted obligations and current evidence:
 
-- `BLOCKER`: unsafe or fundamentally incorrect; cannot integrate.
-- `REQUIRED`: acceptance/quality defect that must be fixed.
-- `OPTIONAL`: useful but not required for current completion.
+- `BLOCKER`: evidence-backed material unsafe behavior or fundamental incorrectness; cannot integrate.
+- `REQUIRED`: an unmet accepted obligation or concrete defect material to the current change that must be fixed.
+- `OPTIONAL`: useful improvement without a mandatory basis above.
 
-Style preference is not a required finding when repository policy is satisfied.
+A mandatory finding identifies the obligation or concrete failure path, current evidence, and smallest repair/verification. A severity label, style preference, or generic concern cannot supply that basis. Apply [control decisions](engineering-quality.md#control-decisions) to proposed remedies; assess whether they preserve authorized user/operator paths as well as prevent failure. Missing evidence is required only when necessary to assess this review envelope.
 
 Before executing untrusted contributor changes, inspect changed workflows/install/build/deploy hooks and use least privilege.
 
