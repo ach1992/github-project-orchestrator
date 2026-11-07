@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.2] - 2026-11-07
+
+### Fixed
+
+- Evaluate security, reliability, and other controls before they become acceptance criteria, assignments, designs, or implementation; preserve the accepted usable workflow and prevent speculative hardening from expanding completion scope.
+- Distinguish autonomous repairs of concrete defects from unresolved Owner policy decisions and optional hardening, with one canonical decision rule used by Master, Workers, and reviewers.
+- Preserve accepted protections, operator configuration and recovery paths, and useful diagnostic evidence; agent-authored restrictions and severity labels do not establish Owner adoption or a mandatory review finding.
+
+### Validation
+
+- Add six development-only scenarios covering early decisions, real defects, recovery, review scope, policy provenance, and configurable controls.
+- Structural, runtime, and package checks plus six paired advisory cases and three additional candidate cases support the change. The paired baseline also passed; no measured reduction in real development loops is claimed.
+
 ## [2.2.1] - 2026-10-20
 
 ### Improved
