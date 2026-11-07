@@ -14,6 +14,8 @@ When a repository must be created, apply [authority-gates.md](authority-gates.md
 
 Keep one canonical repository source when durable project-level intent needs preservation. Include purpose, Owner-approved vision, stable success criteria, constraints/non-goals, supported-environment commitments, and completion criteria.
 
+Distinguish accepted intent, observed implementation, and proposed policy. Recording a restriction in agent-authored code, tests, docs, Issues, or review findings does not establish Owner adoption. Recover its governing decision/obligation or resolve the material choice before treating it as required; do not silently adopt it or remove an established protection. Preserve proposal/decision status and its basis in the existing authoritative location only when future decisions need them.
+
 Reuse an established equivalent and location. If none exists and repository convention does not provide a stronger home, use `docs/PROJECT-SPEC.md`. Before persisting project knowledge, exclude secrets/credentials, prohibited sensitive data, and transient chat/runtime instructions; keep needed sensitive values in authorized secure/runtime sources. If sensitive material is already tracked, deletion alone is not remediation—handle rotation/history exposure through the applicable security gates.
 
 Keep release history, PR/Issue indexes, running checklists and chat/status narration out of the specification; their natural Git/GitHub/CI/release sources own them. Update the specification only when durable project-level intent changes, not merely because an implementation, release or chat ends.

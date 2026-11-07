@@ -1,12 +1,26 @@
 # Engineering Quality
 
-Load only when a cross-cutting engineering concern can materially change the current implementation, validation, review, or release. Do not turn this file into a universal checklist.
+Load before selecting a control that could change usable behavior or operational complexity, or when another engineering concern materially changes implementation or evidence. Do not turn this file into a universal checklist.
 
-## Select only material concerns
+## Control decisions
 
-Possible concerns include security/privacy, data integrity, compatibility, reliability/concurrency, observability/diagnosability, performance/capacity/cost, accessibility/UX, localization/timezone behavior, migration, operations, and CI/automation fitness.
+Apply this decision before a restriction, extra prerequisite, persistent state, dependency, or compensating subsystem enters acceptance, an assignment, design, or code. A one-line limit or failure-policy change can be material.
 
-Select from the actual product surface, failure modes, environment, and accepted outcome. The absence of a generic test/log/metric/dashboard/document is not itself a defect.
+Identify the accepted obligation or concrete failure path on the current product surface, the evidence, and the effect on the authorized workflow and operational burden. Source/configuration evidence can establish a real defect without an incident or successful exploit; a generic risk label or absence of a customary control cannot establish one by itself.
+
+| Situation | Action |
+|---|---|
+| Necessary implementation of accepted behavior or a concrete material defect, within settled policy and authorized scope | Make the smallest maintainable correction and verify it; choose ordinary technical details autonomously. Enforcing accepted authorization, input safety, and duplicate-effect prevention does not require a new policy decision. |
+| The proposed remedy leaves an unresolved trade-off in supported operations, access/lifetime/failure policy, or another [Owner-level anchor](authority-gates.md#4-owner-decisions-and-high-consequence-anchors) | Prepare the smallest concrete options, operational effects, and recommendation; resolve that decision before affected implementation. Reuse current decisions and continue unaffected work. |
+| Worthwhile extra hardening without a required obligation or evidenced material defect | Keep it an optional proposal outside current execution and completion; ignore speculative or low-value additions. |
+
+Investigate material uncertainty with the narrowest useful source check or reproduction. Missing evidence blocks only actions whose accepted requirement or safe execution depends on it; do not convert every unknown into a defect or an all-project stop.
+
+If a control needs another control to compensate for its restrictions or failure states, reconsider the originating design before adding a layer. Prefer simplifying that design while preserving accepted protections and usable success, failure, manual recovery, and removal paths. Neither blanket fail-open nor fail-closed behavior replaces the product's accepted failure policy.
+
+Keep genuinely operator-adjustable policy in the smallest suitable documented configuration surface. Do not hardcode an unresolved policy or add a general policy engine merely to make controls adjustable; keep correctness invariants required. Verify the representative operator workflow and the relevant failure path before extending the mechanism.
+
+Other concerns—compatibility, performance/capacity/cost, accessibility/UX, localization/timezones, migration, and CI fitness—are selected from the actual surface and accepted outcome. Missing generic tests, logs, dashboards, or documents are not themselves defects.
 
 ## Implementation principles
 
@@ -19,13 +33,15 @@ Select from the actual product surface, failure modes, environment, and accepted
 
 ## Security-sensitive continuity
 
+These rules govern the agent's evidence acquisition and tool use; product-control choices use the decision above.
+
 For security-sensitive work, state only the evidence-backed defensive purpose, scope, authorization, allowed actions, and prohibited effects. Technical access or authorization never overrides provider/platform policy. Use approved secret/runtime mechanisms and do not relay raw secret values. If a restricted detail cannot be supplied, continue safely allowed analysis, remediation, and verification with bounded redaction and an explicit limitation; never weaken controls merely to avoid a refusal. Bounded defensive regression tests remain available during explicitly scoped, isolated/reversible remediation when authorized and policy-permitted.
 
 ## Diagnosability
 
 When the change creates a material production/support failure mode, add enough safe evidence to diagnose it: useful error context, correlation identifiers, logs, metrics, traces, health signals, or alerts as appropriate.
 
-Do not add telemetry by habit. Avoid secrets/sensitive personal data, unnecessary volume/retention, and operational cost.
+Preserve useful failure stage, provider error, correlation, and recovery context while redacting sensitive fields at the appropriate boundary. Do not remove an entire diagnostic object merely because one field may contain a secret. Add no telemetry by habit; bound unnecessary volume, retention, and operational cost.
 
 ## Performance, capacity, and cost
 

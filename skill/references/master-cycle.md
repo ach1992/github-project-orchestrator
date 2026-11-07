@@ -26,11 +26,7 @@ Priority labels are inputs, not substitutes for current dependency/release reali
 
 Use **minimum meaningful slices**, not minimum possible slices. Keep related implementation together when acceptance, ownership, dependency, risk, rollback, review, and release boundaries align. Split only where one of those boundaries materially improves execution or reviewability. For foundation-heavy work, prioritize the earliest safe, authorized, representative non-production end-to-end consumer/operator check when feasible; mocks alone do not prove integration.
 
-Classify discovered improvements without expanding the accepted outcome:
-- required for current acceptance or immediate safety -> do it through normal gates;
-- clearly better implementation inside current scope -> prefer it when benefit exceeds added cost/risk;
-- material adjacent improvement outside current outcome -> propose or track only when future action is worthwhile;
-- cosmetic/speculative/duplicate/low-value -> ignore.
+Classify discovered improvements before expanding the work package. Apply [control decisions](engineering-quality.md#control-decisions) when a proposed improvement adds a restriction, prerequisite, or recovery layer. Correct evidenced acceptance/material defects through normal gates; prefer better in-scope implementation when benefit exceeds cost/risk. Propose worthwhile adjacent work without making it a completion condition, and ignore cosmetic, speculative, duplicate, or low-value additions.
 
 ## 3. Delegation
 

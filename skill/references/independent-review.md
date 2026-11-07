@@ -2,6 +2,8 @@
 
 Load only when independent review is required by repository policy, explicit instruction/assurance requirement, or high-consequence risk. Master remains integration owner. User-mediated review dispatch or result is a MachineRelay.
 
+Use the [Review standard](review-integration.md#2-review-standard) to classify findings and proposed remedies.
+
 Prefer one independent review after the candidate is stable enough for acceptance. Do not use repeated reviewer cycles as an implementation loop. If direct reviewer tooling is unavailable but a fresh independent chat/model/human is usable, emit the complete review relay for that context; lack of a platform reviewer identity alone is not a blocker unless policy requires one.
 
 ## Dispatch
@@ -59,11 +61,11 @@ Limitations:
 - <none or exact missing evidence/access>
 ```
 
-`APPROVE` is valid only when the exact current envelope was completely reviewed and no BLOCKER/REQUIRED finding remains. Missing access/evidence yields `INCOMPLETE / NO_VERDICT`, not an invented defect or approval. Write `None.` when no finding exists; BLOCKER/REQUIRED findings must provide a concrete repair and verification path.
+`APPROVE` is valid only when the exact current envelope was completely reviewed and no BLOCKER/REQUIRED finding remains. Missing access/evidence necessary to assess that envelope yields `INCOMPLETE / NO_VERDICT`, not an invented defect or approval. Write `None.` when no finding exists; BLOCKER/REQUIRED findings must provide a concrete repair and verification path.
 
 ## Master reconciliation
 
-Master verifies candidate/target/acceptance identity, review completeness, and each finding against current authoritative evidence.
+Master verifies candidate/target/acceptance identity, review completeness, and each finding against current authoritative evidence. Challenge an unsupported mandatory finding against the Review standard and seek a corrected independent result through the existing review process. Do not grow scope merely to satisfy a recommendation, silently self-approve, or bypass an unresolved review gate.
 
 If the candidate changed after review, prior reasoning may be reused only where its assumptions remain valid; obtain a fresh verdict for the current candidate when independent approval is still required. Re-review the exact delta plus affected interactions, not unchanged surface without cause.
 
