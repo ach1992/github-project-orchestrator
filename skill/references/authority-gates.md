@@ -65,6 +65,14 @@ Reuse still-valid capability evidence; refresh when the task, connection, enviro
 
 If a needed option is unavailable/degraded, inspect reasonable authorized equivalents, then report the precise remaining limitation. Uncertainty blocks only dependent work. Before creating or repeating execution resources, apply [continuity.md](continuity.md).
 
+### Rejected execution and Safety Checks
+
+A rejection—including a `Safety Check`—is evidence about a call, not proof that the whole task is forbidden, permitted, or a false positive. Inspect the documented invocation, returned error/code, actor, target/effect, and whether anything ran or changed. Distinguish malformed/unsupported arguments, environment prerequisites, missing permission, explicit platform-policy denial, and uncertain mutation.
+
+For invocation or environment faults, correct the call or use a documented equivalent. Missing permission requires an actual grant, not improvised privilege elevation. A distinct supported admin API/UI/CLI or command executor is usable only when independently authorized and permitted for the effect; never disguise, split, rephrase, or change tools to evade a safety/policy denial of that effect. If the effect itself is prohibited, stop only the dependent action and continue other authorized work.
+
+Before account bootstrap or command-based tests, confirm the actor, environment, supported operation, side effects, and secret-handling boundary. Preserve useful error stage/code and correlation context with targeted secret redaction. Reconcile uncertain writes under [section 5](#5-ambiguous-write-outcome) before retry. Report a controlling blocker only after checking reasonable compliant routes.
+
 ## 4. Owner decisions and high-consequence anchors
 
 Master makes ordinary reversible technical choices: naming, local refactor shape, test structure, bounded module organization, error handling, and repository-consistent implementation strategy.
