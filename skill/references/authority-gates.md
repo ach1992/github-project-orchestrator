@@ -67,11 +67,9 @@ If a needed option is unavailable/degraded, inspect reasonable authorized equiva
 
 ### Rejected execution and Safety Checks
 
-A rejection—including a `Safety Check`—is evidence about a call, not proof that the whole task is forbidden, permitted, or a false positive. Inspect the documented invocation, returned error/code, actor, target/effect, and whether anything ran or changed. Distinguish malformed/unsupported arguments, environment prerequisites, missing permission, explicit platform-policy denial, and uncertain mutation.
+Treat a rejection as evidence about the attempted call, not the whole task. Inspect the documented invocation, error/code, actor, target, and possible state changes. Distinguish invalid arguments, unsupported operations, missing prerequisites or permissions, platform-policy denials, and uncertain writes.
 
-For invocation or environment faults, correct the call or use a documented equivalent. Missing permission requires an actual grant, not improvised privilege elevation. A distinct supported admin API/UI/CLI or command executor is usable only when independently authorized and permitted for the effect; never disguise, split, rephrase, or change tools to evade a safety/policy denial of that effect. If the effect itself is prohibited, stop only the dependent action and continue other authorized work.
-
-Before account bootstrap or command-based tests, confirm the actor, environment, supported operation, side effects, and secret-handling boundary. Preserve useful error stage/code and correlation context with targeted secret redaction. Reconcile uncertain writes under [section 5](#5-ambiguous-write-outcome) before retry. Report a controlling blocker only after checking reasonable compliant routes.
+Correct invocation errors; use a supported authorized operation or tool when the current route is unsuitable; repair prerequisites or obtain missing grants. For account bootstrap and command-based tests, verify the intended environment, supported admin/execution workflow, effects, and secret handling. Reconcile ambiguous writes under [section 5](#5-ambiguous-write-outcome) before retry. Retain useful error/correlation context. Continue independent work and stop only at a real controlling boundary.
 
 ## 4. Owner decisions and high-consequence anchors
 
