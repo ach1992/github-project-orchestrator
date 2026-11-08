@@ -65,6 +65,12 @@ Reuse still-valid capability evidence; refresh when the task, connection, enviro
 
 If a needed option is unavailable/degraded, inspect reasonable authorized equivalents, then report the precise remaining limitation. Uncertainty blocks only dependent work. Before creating or repeating execution resources, apply [continuity.md](continuity.md).
 
+### Rejected execution and Safety Checks
+
+Treat a rejection as evidence about the attempted call, not the whole task. Inspect the documented invocation, error/code, actor, target, and possible state changes. Distinguish invalid arguments, unsupported operations, missing prerequisites or permissions, platform-policy denials, and uncertain writes.
+
+Correct invocation errors; use a supported authorized operation or tool when the current route is unsuitable; repair prerequisites or obtain missing grants. For account bootstrap and command-based tests, verify the intended environment, supported admin/execution workflow, effects, and secret handling. Reconcile ambiguous writes under [section 5](#5-ambiguous-write-outcome) before retry. Retain useful error/correlation context. Continue independent work and stop only at a real controlling boundary.
+
 ## 4. Owner decisions and high-consequence anchors
 
 Master makes ordinary reversible technical choices: naming, local refactor shape, test structure, bounded module organization, error handling, and repository-consistent implementation strategy.
