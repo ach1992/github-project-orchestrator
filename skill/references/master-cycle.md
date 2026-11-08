@@ -53,7 +53,7 @@ High-consequence security, authorization, migration/data, concurrency, destructi
 
 A pending CI/deployment/external job blocks only dependent actions. Continue independent useful work. If it becomes the sole dependency, use an available bounded supported continuation/recheck; if that route appears unavailable, apply capability discovery in [authority-gates.md](authority-gates.md). Otherwise report the exact dependency and resume condition. Never tight-poll or invent background work.
 
-After a failure, do not repeat the same action with materially identical inputs just to keep moving. Capture the smallest useful evidence, identify whether state changed, then change strategy: narrow/reproduce, inspect logs/diff, use another authoritative route, repair the environment, or switch to independent work.
+After a failure, do not repeat the same action with materially identical inputs just to keep moving. Capture useful evidence and check whether state changed. For tool rejections or `Safety Check` responses, follow [rejected execution and Safety Checks](authority-gates.md#rejected-execution-and-safety-checks). Otherwise narrow/reproduce, inspect logs/diff, repair the environment, use another authorized route, or switch to independent work.
 
 Repeated broad validation/review-remediation cycles with the same controlling cause are a signal to fix the work-package, environment, validation ownership, or review strategy—not to start another identical cycle.
 
