@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.3] - 2026-11-08
+
+### Improved
+
+- Diagnose rejected tool calls, including `Safety Check` responses, before treating them as task-wide blockers; distinguish invocation, capability, prerequisite, permission, policy, and uncertain-write outcomes.
+- Recover through corrected calls or suitable authorized execution paths, including first-admin setup and command-based tests, while continuing independent work.
+- Extend existing capability-selection evaluation scenario without new runtime subsystems or duplicated safety guidance.
+
+### Validation
+
+- The exact release candidate requires GitHub CI and independent review before integration; no measured live-model reduction in interruptions is claimed.
+
 ## [2.2.2] - 2026-11-07
 
 ### Fixed
