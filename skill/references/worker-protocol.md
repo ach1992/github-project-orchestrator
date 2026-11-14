@@ -52,11 +52,11 @@ Do not repeat the full project history or repository-wide rules when their autho
 Worker should:
 
 1. understand expected behavior and the relevant implementation path;
-2. apply [control decisions](engineering-quality.md#control-decisions) before selecting restrictions or recovery mechanisms, then make the smallest correct contract-bounded change using repository conventions;
+2. apply [adaptability by default](engineering-quality.md#adaptability-by-default) to fixed assumptions and [control decisions](engineering-quality.md#control-decisions) to proposed restrictions; then make the smallest correct contract-bounded change using repository conventions;
 3. validate proportionally using the required evidence and useful targeted checks;
 4. inspect the final relevant diff/worktree state;
 5. commit/push only assigned work to the assigned branch/PR;
-6. stop instead of inventing a contract-changing product, architecture, data, authorization, release, or scope decision.
+6. route unresolved material restrictions or compatibility-policy choices to Master for the Owner decision; do not invent contract-changing product, architecture, data, authorization, release, or scope decisions.
 
 Ordinary reversible implementation choices stay with the Worker; do not bounce them to Master.
 

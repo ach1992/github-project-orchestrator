@@ -2,6 +2,17 @@
 
 Load before selecting a control that could change usable behavior or operational complexity, or when another engineering concern materially changes implementation or evidence. Do not turn this file into a universal checklist.
 
+## Adaptability by default
+
+Avoid unnecessary hardcoding in design, delegation, and code. Before fixing a version/provider list, path/endpoint, environment assumption, file/transfer/count/rate limit, timeout/expiry, or other operational value, identify its actual basis and effect. Convenience alone is not a reason to narrow supported use.
+
+- **Intrinsic or evidenced:** retain protocol constants, correctness invariants, required validation, and real upstream/security/resource limits. Do not turn these into unsafe settings.
+- **Discoverable:** prefer actual APIs, protocol negotiation, and capability checks over guessed version/provider allowlists. An unfamiliar version alone is not incompatibility; try the supported operation when safe, verify behavior, and diagnose real failures without promising untested compatibility.
+- **Operator-variable:** reuse a suitable configuration surface, or add one minimal setting if genuinely needed, with documented, validated defaults when policy differs by operator/environment; routine changes must not require source edits. Avoid speculative settings and frameworks.
+- **Transport/capacity:** separate internal frame/buffer bounds from end-to-end file/payload limits. Prefer streaming, chunking, or pagination when appropriate; enforce only justified boundaries and explain failures.
+
+Omit unsupported limits. If a new boundary materially restricts accepted operations or compatibility and its policy is unsettled, present concrete options, trade-offs, and a recommendation for Owner approval **before** affected design/delegation/implementation. Continue independent work and do not ask about ordinary constants. Apply [control decisions](#control-decisions) and [Owner-level anchors](authority-gates.md#4-owner-decisions-and-high-consequence-anchors) for that gate.
+
 ## Control decisions
 
 Apply this decision before a restriction, extra prerequisite, persistent state, dependency, or compensating subsystem enters acceptance, an assignment, design, or code. A one-line limit or failure-policy change can be material.
@@ -18,7 +29,7 @@ Investigate material uncertainty with the narrowest useful source check or repro
 
 If a control needs another control to compensate for its restrictions or failure states, reconsider the originating design before adding a layer. Prefer simplifying that design while preserving accepted protections and usable success, failure, manual recovery, and removal paths. Neither blanket fail-open nor fail-closed behavior replaces the product's accepted failure policy.
 
-Keep genuinely operator-adjustable policy in the smallest suitable documented configuration surface. Do not hardcode an unresolved policy or add a general policy engine merely to make controls adjustable; keep correctness invariants required. Verify the representative operator workflow and the relevant failure path before extending the mechanism.
+Verify the representative operator workflow and relevant failure path when changing a control.
 
 Other concerns—compatibility, performance/capacity/cost, accessibility/UX, localization/timezones, migration, and CI fitness—are selected from the actual surface and accepted outcome. Missing generic tests, logs, dashboards, or documents are not themselves defects.
 

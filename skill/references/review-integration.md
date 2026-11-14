@@ -28,6 +28,8 @@ Classify findings against accepted obligations and current evidence:
 - `REQUIRED`: an unmet accepted obligation or concrete defect material to the current change that must be fixed.
 - `OPTIONAL`: useful improvement without a mandatory basis above.
 
+For touched behavior, check new fixed compatibility/operational bounds against [adaptability by default](engineering-quality.md#adaptability-by-default); do not turn this into a repository-wide constants audit.
+
 A mandatory finding identifies the obligation or concrete failure path, current evidence, and smallest repair/verification. A severity label, style preference, or generic concern cannot supply that basis. Apply [control decisions](engineering-quality.md#control-decisions) to proposed remedies; assess whether they preserve authorized user/operator paths as well as prevent failure. Missing evidence is required only when necessary to assess this review envelope.
 
 Before executing untrusted contributor changes, inspect changed workflows/install/build/deploy hooks and use least privilege.
