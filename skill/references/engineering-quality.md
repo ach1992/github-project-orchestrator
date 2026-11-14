@@ -2,6 +2,17 @@
 
 Load before selecting a control that could change usable behavior or operational complexity, or when another engineering concern materially changes implementation or evidence. Do not turn this file into a universal checklist.
 
+## Adaptability by default
+
+Default to **no unnecessary hardcoding** before designing, assigning, or implementing code. A value being easy to encode is not evidence that the product should restrict itself to it. Check any proposed fixed tool/version/provider allowlist, file/transfer-size or item/rate/count ceiling, timeout/retention policy, path/environment assumption, or similar operational boundary against its actual source and effect:
+
+- **Inherent constants and accepted protections:** keep protocol-defined values, correctness invariants, required input validation, and evidenced resource/security bounds in code as appropriate. Do not turn every constant into a setting or remove a real safety boundary for flexibility.
+- **External versions and capabilities:** prefer actual API/protocol responses, capability detection, or documented compatibility requirements over guessed version ranges or allowlists. An unfamiliar, older, or newer version must not be rejected *solely* because it is absent from a list; attempt the supported operation when safe, and diagnose genuine incompatibility from observed behavior. Do not claim untested versions are verified compatible.
+- **Data transfer and capacity:** do not mistake an internal buffer/message/frame limit for a product-wide maximum file size or payload count. Prefer streaming, chunking, pagination, or an existing supported transport when appropriate. Enforce a fixed bound only when required by an actual provider/protocol limit, accepted product policy, or evidenced safety/resource constraint; provide useful errors at that boundary.
+- **Operator-variable behavior:** when a legitimate limit or policy varies by environment or operator, use the smallest suitable existing configuration surface (settings, environment, CLI, etc.) with a documented default and validation. Routine supported changes must not require source edits. Do not create speculative settings, a policy engine, or an unbounded adjustable value that defeats a required invariant.
+
+If a proposed boundary is not required, omit it. If the necessary choice materially narrows accepted use, supported operations, compatibility, or lifecycle policy and is not already settled, present the concrete alternatives, operational trade-offs, and recommendation to the Owner **before** affected design/delegation/implementation. Keep independent authorized work moving; ordinary reversible technical details do not require approval. Apply [control decisions](#control-decisions) and [Owner-level anchors](authority-gates.md#4-owner-decisions-and-high-consequence-anchors) for the gate, not a universal questionnaire.
+
 ## Control decisions
 
 Apply this decision before a restriction, extra prerequisite, persistent state, dependency, or compensating subsystem enters acceptance, an assignment, design, or code. A one-line limit or failure-policy change can be material.
