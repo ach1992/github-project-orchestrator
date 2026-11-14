@@ -72,6 +72,7 @@ You can also point the Master at a specific Issue, PR, milestone, release, or pr
 
 - The target GitHub repository identity must be exact. It may already exist, or an absent target may be created only when the normal scope/authority/policy/capability gates permit it and material creation settings are resolved.
 - The Skill favors the smallest safe process that still protects correctness, review freshness, authorization, and recovery.
+- Engineering favors actual capabilities and justified, operator-adjustable policy over arbitrary hardcoded limits while preserving real protocol and safety constraints.
 - Ordinary reversible implementation can proceed autonomously when authorized; material approval, production, destructive, or other applicable gates remain explicit.
 - A pending CI/check/deployment does not automatically stop the workflow: useful independent work should continue first, and supported bounded continuation can keep short waits from requiring a user nudge.
 - Self-review is not relabeled independent review. When independent review is required, use a genuinely separate reviewer context/person/tool unless repository policy requires a native GitHub reviewer identity.

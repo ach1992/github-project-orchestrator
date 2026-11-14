@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.4] - 2026-11-15
+
+### Improved
+
+- Make avoiding unnecessary hardcoding the first engineering default before affected design, implementation, or delegation; use actual capabilities and justified, operator-adjustable policies instead of arbitrary version gates or operational ceilings.
+- Preserve real protocol, correctness, resource and security bounds, while escalating only unsettled material restrictions to the Owner. Keep Master, Worker and review responsibilities aligned without duplicate policy logic.
+
+### Validation
+
+- Independent read-only review approved the exact runtime candidate in PR #166 (HEAD `082f190de2cd4b72375424ed5baf89ba647985ba`); [exact-candidate CI](https://github.com/ach1992/github-project-orchestrator/actions/runs/43644383003) passed and merged content matched the reviewed tree.
+- Development-only evaluation scenarios AV/AW cover unfamiliar but compatible tool versions, genuine incompatibility, unjustified file-transfer caps, actual upstream limits and configurable operational policy. No empirical multi-model performance or compliance improvement is claimed.
+- Release preparation changes only `VERSION`, `CHANGELOG.md`, and a brief `README.md` operating expectation; Skill runtime and engineering behavior remain exactly as reviewed.
+
 ## [2.2.3] - 2026-11-08
 
 ### Improved
