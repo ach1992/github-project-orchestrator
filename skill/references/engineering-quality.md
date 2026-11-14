@@ -4,14 +4,14 @@ Load before selecting a control that could change usable behavior or operational
 
 ## Adaptability by default
 
-Default to **no unnecessary hardcoding** before designing, assigning, or implementing code. A value being easy to encode is not evidence that the product should restrict itself to it. Check any proposed fixed tool/version/provider allowlist, file/transfer-size or item/rate/count ceiling, timeout/retention policy, path/environment assumption, or similar operational boundary against its actual source and effect:
+Avoid unnecessary hardcoding in design, delegation, and code. Before fixing a version/provider list, path/endpoint, environment assumption, file/transfer/count/rate limit, timeout/expiry, or other operational value, identify its actual basis and effect. Convenience alone is not a reason to narrow supported use.
 
-- **Inherent constants and accepted protections:** keep protocol-defined values, correctness invariants, required input validation, and evidenced resource/security bounds in code as appropriate. Do not turn every constant into a setting or remove a real safety boundary for flexibility.
-- **External versions and capabilities:** prefer actual API/protocol responses, capability detection, or documented compatibility requirements over guessed version ranges or allowlists. An unfamiliar, older, or newer version must not be rejected *solely* because it is absent from a list; attempt the supported operation when safe, and diagnose genuine incompatibility from observed behavior. Do not claim untested versions are verified compatible.
-- **Data transfer and capacity:** do not mistake an internal buffer/message/frame limit for a product-wide maximum file size or payload count. Prefer streaming, chunking, pagination, or an existing supported transport when appropriate. Enforce a fixed bound only when required by an actual provider/protocol limit, accepted product policy, or evidenced safety/resource constraint; provide useful errors at that boundary.
-- **Operator-variable behavior:** when a legitimate limit or policy varies by environment or operator, use the smallest suitable existing configuration surface (settings, environment, CLI, etc.) with a documented default and validation. Routine supported changes must not require source edits. Do not create speculative settings, a policy engine, or an unbounded adjustable value that defeats a required invariant.
+- **Intrinsic or evidenced:** retain protocol constants, correctness invariants, required validation, and real upstream/security/resource limits. Do not turn these into unsafe settings.
+- **Discoverable:** prefer actual APIs, protocol negotiation, and capability checks over guessed version/provider allowlists. An unfamiliar version alone is not incompatibility; try the supported operation when safe, verify behavior, and diagnose real failures without promising untested compatibility.
+- **Operator-variable:** reuse a suitable configuration surface, or add one minimal setting if genuinely needed, with documented, validated defaults when policy differs by operator/environment; routine changes must not require source edits. Avoid speculative settings and frameworks.
+- **Transport/capacity:** separate internal frame/buffer bounds from end-to-end file/payload limits. Prefer streaming, chunking, or pagination when appropriate; enforce only justified boundaries and explain failures.
 
-If a proposed boundary is not required, omit it. If the necessary choice materially narrows accepted use, supported operations, compatibility, or lifecycle policy and is not already settled, present the concrete alternatives, operational trade-offs, and recommendation to the Owner **before** affected design/delegation/implementation. Keep independent authorized work moving; ordinary reversible technical details do not require approval. Apply [control decisions](#control-decisions) and [Owner-level anchors](authority-gates.md#4-owner-decisions-and-high-consequence-anchors) for the gate, not a universal questionnaire.
+Omit unsupported limits. If a new boundary materially restricts accepted operations or compatibility and its policy is unsettled, present concrete options, trade-offs, and a recommendation for Owner approval **before** affected design/delegation/implementation. Continue independent work and do not ask about ordinary constants. Apply [control decisions](#control-decisions) and [Owner-level anchors](authority-gates.md#4-owner-decisions-and-high-consequence-anchors) for that gate.
 
 ## Control decisions
 
@@ -29,7 +29,7 @@ Investigate material uncertainty with the narrowest useful source check or repro
 
 If a control needs another control to compensate for its restrictions or failure states, reconsider the originating design before adding a layer. Prefer simplifying that design while preserving accepted protections and usable success, failure, manual recovery, and removal paths. Neither blanket fail-open nor fail-closed behavior replaces the product's accepted failure policy.
 
-Keep genuinely operator-adjustable policy in the smallest suitable documented configuration surface. Do not hardcode an unresolved policy or add a general policy engine merely to make controls adjustable; keep correctness invariants required. Verify the representative operator workflow and the relevant failure path before extending the mechanism.
+Verify the representative operator workflow and relevant failure path when changing a control.
 
 Other concerns—compatibility, performance/capacity/cost, accessibility/UX, localization/timezones, migration, and CI fitness—are selected from the actual surface and accepted outcome. Missing generic tests, logs, dashboards, or documents are not themselves defects.
 

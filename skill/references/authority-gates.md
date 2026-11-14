@@ -77,16 +77,14 @@ Master makes ordinary reversible technical choices: naming, local refactor shape
 
 Treat an unresolved choice as owner-level when it changes one of these anchors:
 
-- accepted product behavior or business policy, including a new restrictive default or operational policy;
-- a durable architecture or public/compatibility contract, such as a public API or protocol, or a new version/tool allowlist that would reduce supported use;
+- accepted product behavior or business policy;
+- a durable architecture or public/compatibility contract, such as a public API or protocol;
 - security, privacy, or access posture, including authentication/authorization;
 - destructive/stateful migration, data-loss, or recovery semantics;
 - production/release/infrastructure choices that change deployment target/environment, public exposure, availability commitment, or make rollback/recovery difficult or irreversible;
 - significant cost/vendor commitment, legal/compliance posture, or explicit risk acceptance.
 
-Classify the effect on the accepted workflow, not how easy the code is to revert. Routine enforcement of settled policy stays with the agent; a new limit, prohibition, expiry, or recovery prerequisite can change an anchor even in one line. Apply [control decisions](engineering-quality.md#control-decisions) before affected design or delegation and reuse still-current Owner decisions.
-
-A previously unapproved size/transfer/count/rate cap, timeout/expiry ceiling, environment restriction, or hardcoded compatibility gate can be an Owner decision when it materially limits intended operations. This is not approval for each implementation constant: keep protocol facts and settled correctness/safety constraints, and make ordinary reversible technical choices autonomously. Apply [adaptability by default](engineering-quality.md#adaptability-by-default) before proposing such a restriction.
+Classify the effect on the accepted workflow, not how easy the code is to revert. Routine enforcement of settled policy stays with the agent; a new version/compatibility gate, operational limit, prohibition, expiry, or recovery prerequisite can change an anchor even in one line. Apply [control decisions](engineering-quality.md#control-decisions) before affected design or delegation and reuse still-current Owner decisions.
 
 These anchors are not exhaustive. Integration is high-consequence when the candidate changes an owner-level anchor, creates difficult/irreversible rollback, or expands production exposure beyond accepted scope.
 
