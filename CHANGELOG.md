@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.2.5] - 2026-11-27
+
+### Improved
+
+- Follow pending delivery checks through paced observation to the next authorized action, refresh revision/attempt identity before consuming results, and diagnose concrete external gates. Standalone status requests and explicit stops retain their boundaries.
+- Clarify Master, Worker and Independent Reviewer entry, standalone-query discovery, complete receiving-agent contracts, and immutable generation Start HEAD versus correction Checkpoint HEAD.
+- Retain confirmed findings in incomplete reviews, carry finding classifications when reference access is unavailable, and preserve Owner approval for new user-visible design decisions.
+
+### Fixed
+
+- Validate exact archive membership and every packaged file's bytes through one shared validator; reject stale runtime content and duplicate ZIP members across canonical and portable distributions.
+- Fail an indeterminate release-intent comparison with recovery guidance instead of authorizing publication; retain observed version changes, verified VERSION introduction, initial branch pushes and explicit manual release requests.
+
+### Validation
+
+- [PR #168](https://github.com/ach1992/github-project-orchestrator/pull/168) records exact-candidate CI, independent review, focused regressions and builds of all ten distributions.
+- Targeted fresh-context exercises cover continuation and relay decisions. These observations and structural checks do not establish general model-performance improvements or production automatic-discovery success rates.
+
 ## [2.2.4] - 2026-11-15
 
 ### Improved
