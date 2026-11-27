@@ -16,7 +16,7 @@ Before review/integration, establish the current envelope:
 
 A review applies only while the effective change and material assumptions it reviewed remain current. If the candidate or target changes, inspect the exact delta and refresh only affected analysis/evidence. Prior reasoning may remain useful; prior approval/verdict never automatically transfers to a different candidate.
 
-Use Draft/Ready only when the repository/platform gives it useful semantics. Do not spend independent review or broad acceptance CI repeatedly on a candidate known to be changing unless that feedback is needed now or policy requires it.
+Use Draft/Ready when the platform or repository gives it useful semantics.
 
 ## 2. Review standard
 
@@ -30,21 +30,13 @@ Classify findings against accepted obligations and current evidence:
 
 For touched behavior, check new fixed compatibility/operational bounds against [adaptability by default](engineering-quality.md#adaptability-by-default); do not turn this into a repository-wide constants audit.
 
-A mandatory finding identifies the obligation or concrete failure path, current evidence, and smallest repair/verification. A severity label, style preference, or generic concern cannot supply that basis. Apply [control decisions](engineering-quality.md#control-decisions) to proposed remedies; assess whether they preserve authorized user/operator paths as well as prevent failure. Missing evidence is required only when necessary to assess this review envelope.
+A mandatory finding identifies the obligation or concrete failure path, current evidence, and smallest repair and verification. A label or style preference alone cannot establish that basis. Assess [proposed controls](engineering-quality.md#control-decisions) against the authorized workflow. Record a proven unmet obligation as a finding. If access prevents assessment, record the missing evidence as a limitation.
 
 Before executing untrusted contributor changes, inspect changed workflows/install/build/deploy hooks and use least privilege.
 
 ## 3. Validation and CI
 
-Evidence is valid only for the code/config/environment/requirement it actually proves.
-
-During authoring, follow the validation economics in `SKILL.md`: targeted checks first when informative; broad required gates on a stable candidate. Do not rerun broad validation solely because time passed or an unrelated identity moved.
-
-When later changes occur:
-
-- rerun the narrow check that discriminates the changed behavior;
-- rerun any broader evidence whose assumptions/surface were invalidated;
-- always satisfy repository-required exact-candidate checks at the point policy requires them.
+Tie each result to the code, configuration, environment, and requirement it proves. When a required job is pending during active delivery, [follow it to its outcome](master-cycle.md#pending-jobs). At acceptance, verify that required checks cover the candidate or merge-group identity specified by repository policy.
 
 Classify CI failures before changing product code:
 

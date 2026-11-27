@@ -11,7 +11,7 @@ Avoid unnecessary hardcoding in design, delegation, and code. Before fixing a ve
 - **Operator-variable:** reuse a suitable configuration surface, or add one minimal setting if genuinely needed, with documented, validated defaults when policy differs by operator/environment; routine changes must not require source edits. Avoid speculative settings and frameworks.
 - **Transport/capacity:** separate internal frame/buffer bounds from end-to-end file/payload limits. Prefer streaming, chunking, or pagination when appropriate; enforce only justified boundaries and explain failures.
 
-Omit unsupported limits. If a new boundary materially restricts accepted operations or compatibility and its policy is unsettled, present concrete options, trade-offs, and a recommendation for Owner approval **before** affected design/delegation/implementation. Continue independent work and do not ask about ordinary constants. Apply [control decisions](#control-decisions) and [Owner-level anchors](authority-gates.md#4-owner-decisions-and-high-consequence-anchors) for that gate.
+Omit unsupported limits. Use the [control decision](#control-decisions) below when a proposed boundary would materially change accepted operations or compatibility.
 
 ## Control decisions
 

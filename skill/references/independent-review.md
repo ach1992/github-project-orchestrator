@@ -1,6 +1,6 @@
 # Independent Review
 
-Load only when independent review is required by repository policy, explicit instruction/assurance requirement, or high-consequence risk. Master remains integration owner. User-mediated review dispatch or result is a MachineRelay.
+An assigned Independent Reviewer inspects the review envelope with read-only authority unless expressly granted a specific additional action. Master owns dispatch, reconciliation, and integration. User-mediated dispatch or result is a MachineRelay.
 
 Use the [Review standard](review-integration.md#2-review-standard) to classify findings and proposed remedies.
 
@@ -23,10 +23,10 @@ Reviewer authority: READ_ONLY unless an exact additional action is explicitly au
 
 Review the effective target-to-candidate change for acceptance, correctness, relevant quality/safety concerns, validation sufficiency, and integration readiness.
 Do not modify the repository or invent missing evidence.
-Read and follow the Result contract at <receiver-accessible URL or installed-Skill reference to this Skill revision's independent-review.md#result> for your reply.
+Return the Result contract at <receiver-accessible URL or installed-Skill reference to this revision's independent-review.md#result, or the inline contract supplied here>.
 ```
 
-For security-sensitive read-only review, prefer authoritative source/diff, existing repository tests, current CI/log/artifact evidence, and safe read-only inspection. Do not generate or execute novel adversarial probes solely to demonstrate assurance; missing required evidence becomes a finding or explicit limitation.
+If the receiver cannot resolve the Result contract or its dependencies, include its fields, verdict rules, and copy-block requirements inside the dispatch. For security-sensitive review, prefer authoritative source/diff, existing tests, current CI/log/artifact evidence, and safe read-only inspection. Do not generate or execute novel adversarial probes solely to demonstrate assurance.
 
 For a remediation re-review, include the prior reviewed candidate and current candidate so the reviewer can focus on the exact delta and affected interactions rather than redoing unchanged analysis.
 
@@ -61,7 +61,15 @@ Limitations:
 - <none or exact missing evidence/access>
 ```
 
-`APPROVE` is valid only when the exact current envelope was completely reviewed and no BLOCKER/REQUIRED finding remains. Missing access/evidence necessary to assess that envelope yields `INCOMPLETE / NO_VERDICT`, not an invented defect or approval. Write `None.` when no finding exists; BLOCKER/REQUIRED findings must provide a concrete repair and verification path.
+Choose the result for this exact envelope:
+
+| Review outcome | Completion / Verdict |
+|---|---|
+| Essential evidence or access is missing | `INCOMPLETE / NO_VERDICT` |
+| Review complete with a confirmed BLOCKER or REQUIRED finding | `COMPLETE / CHANGES_REQUIRED` |
+| Review complete with no BLOCKER or REQUIRED finding | `COMPLETE / APPROVE` |
+
+Retain every confirmed finding even in an incomplete review. Identify what remains unverified under Limitations. Give each mandatory finding a concrete repair and verification path. Write `None.` when there are no findings.
 
 ## Master reconciliation
 

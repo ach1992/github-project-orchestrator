@@ -122,7 +122,7 @@ An abstraction replaces prose only when it reduces ambiguity, duplication, execu
 
 ## 6. Runtime loading and decision-friction target
 
-`SKILL.md` should remain a compact control kernel: a few product-specific invariants, the ordinary Master execution path, a shallow event router, and the bounded Worker entry. Do not require a capable model to materialize workflow state labels merely to perform routine engineering.
+`SKILL.md` should remain a compact control kernel with role selection, product-specific invariants, the ordinary Master execution path, and a shallow event router. An assigned Worker takes the bounded assignment path. An assigned Independent Reviewer takes the review path with read-only authority unless expressly granted a specific additional action. Routine engineering needs no workflow state labels.
 
 Detailed domains load only when their event can materially change the current decision, for example:
 - governance/readiness for first ownership, project structure, or demonstrated management-system repair;
