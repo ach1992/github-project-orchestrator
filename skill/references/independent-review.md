@@ -26,7 +26,7 @@ Do not modify the repository or invent missing evidence.
 Return the Result contract at <receiver-accessible URL or installed-Skill reference to this revision's independent-review.md#result, or the inline contract supplied here>.
 ```
 
-If the receiver cannot resolve the Result contract or its dependencies, include its fields, verdict rules, and copy-block requirements inside the dispatch. For security-sensitive review, prefer authoritative source/diff, existing tests, current CI/log/artifact evidence, and safe read-only inspection. Do not generate or execute novel adversarial probes solely to demonstrate assurance.
+If the receiver cannot resolve the Result contract or its dependencies, include its fields, verdict rules, the [Review standard](review-integration.md#2-review-standard)'s finding classifications and evidence standard, and copy-block requirements inside the dispatch. For security-sensitive review, prefer authoritative source/diff, existing tests, current CI/log/artifact evidence, and safe read-only inspection. Do not generate or execute novel adversarial probes solely to demonstrate assurance.
 
 For a remediation re-review, include the prior reviewed candidate and current candidate so the reviewer can focus on the exact delta and affected interactions rather than redoing unchanged analysis.
 
