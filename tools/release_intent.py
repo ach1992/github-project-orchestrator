@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import subprocess
+import sys
 from pathlib import Path
 
 ZERO_SHA = "0" * 40
@@ -19,9 +20,24 @@ def version_at(ref: str, repo_root: Path) -> str | None:
         capture_output=True,
         check=False,
     )
-    if result.returncode != 0:
+    if result.returncode == 0:
+        return result.stdout.strip()
+
+    # A known commit without VERSION is an introduction, not an unreadable
+    # comparison. Do not turn missing history or a corrupt blob into intent.
+    tree = subprocess.run(
+        ["git", "-C", str(repo_root), "ls-tree", "--name-only", ref, "--", "VERSION"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if tree.returncode == 0 and not tree.stdout.strip():
         return None
-    return result.stdout.strip()
+    detail = result.stderr.strip() or tree.stderr.strip() or "comparison unavailable"
+    raise RuntimeError(
+        f"Cannot determine previous VERSION at {ref}: {detail}. "
+        "Recover the comparison commit or use workflow_dispatch for an explicit release attempt."
+    )
 
 
 def should_publish(*, event: str, before: str, repo_root: Path) -> bool:
@@ -29,13 +45,13 @@ def should_publish(*, event: str, before: str, repo_root: Path) -> bool:
         return True
     if event != "push":
         return False
-    if not before or before == ZERO_SHA:
+    if before == ZERO_SHA:
         return True
+    if not before:
+        raise RuntimeError("Push release intent requires the event's before commit; recover that identity.")
 
     previous = version_at(before, repo_root)
     if previous is None:
-        # Fail safe toward publication validation rather than silently skipping
-        # a release when the comparison identity is unavailable.
         return True
     return previous != current_version(repo_root)
 
@@ -47,11 +63,15 @@ def main() -> int:
     parser.add_argument("--repo-root", default=".")
     args = parser.parse_args()
 
-    publish = should_publish(
-        event=args.event,
-        before=args.before,
-        repo_root=Path(args.repo_root).resolve(),
-    )
+    try:
+        publish = should_publish(
+            event=args.event,
+            before=args.before,
+            repo_root=Path(args.repo_root).resolve(),
+        )
+    except (OSError, RuntimeError) as exc:
+        print(f"Release intent could not be determined: {exc}", file=sys.stderr)
+        return 1
     print("true" if publish else "false")
     return 0
 

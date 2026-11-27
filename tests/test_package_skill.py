@@ -8,6 +8,7 @@ import os
 import sys
 import tempfile
 import time
+import warnings
 import zipfile
 from pathlib import Path
 
@@ -75,6 +76,36 @@ with tempfile.TemporaryDirectory() as tmp:
     if checksum.read_text(encoding="utf-8") != expected_checksum:
         raise AssertionError("checksum file format drifted")
     print("PASS package-checksum")
+
+    rules = skill / "references" / "rules.md"
+    original_rules = rules.read_bytes()
+    rules.write_bytes(b"updated rules\n")
+    try:
+        package_skill.validate_archive(skill, zip_a)
+    except ValueError as exc:
+        if "content drifted" not in str(exc) or "references/rules.md" not in str(exc):
+            raise
+    else:
+        raise AssertionError("stale runtime content unexpectedly passed package validation")
+    finally:
+        rules.write_bytes(original_rules)
+    print("PASS package-stale-runtime-rejected")
+
+    duplicate_zip = root / "duplicate-entry.zip"
+    with zipfile.ZipFile(zip_a) as source, zipfile.ZipFile(duplicate_zip, "w") as duplicate:
+        for info in source.infolist():
+            duplicate.writestr(info, source.read(info))
+        # A duplicate member is intentional in this negative fixture.
+        with warnings.catch_warnings(record=True):
+            duplicate.writestr("github-project-orchestrator/SKILL.md", (skill / "SKILL.md").read_bytes())
+    try:
+        package_skill.validate_archive(skill, duplicate_zip)
+    except ValueError as exc:
+        if "contents mismatch" not in str(exc):
+            raise
+    else:
+        raise AssertionError("duplicate archive member unexpectedly passed package validation")
+    print("PASS package-duplicate-member-rejected")
 
     license_path = root / "LICENSE"
     license_path.unlink()

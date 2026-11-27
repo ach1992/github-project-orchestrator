@@ -20,13 +20,12 @@ import package_skill
 
 ARCHIVE_ROOT = package_skill.ARCHIVE_ROOT
 FIXED_ZIP_TIME = package_skill.FIXED_ZIP_TIME
-EXCLUDED_SUFFIXES = package_skill.EXCLUDED_SUFFIXES
 PORTABLE_EXCLUDED_TOP_LEVEL = {"agents", "assets"}
 PLATFORMS = {"manus", "qwen", "claude", "zcode", "grok", "kimi", "gemini", "deepseek", "copilot"}
 ROOT_LAYOUT_PLATFORMS = {"gemini", "copilot"}
 CLAUDE_DESCRIPTION = (
-    "Own multi-step GitHub delivery: recover, implement, review, integrate, release, and resume across chats. "
-    "Use to start/continue/finish projects or Worker assignments; not one-off code/PR/Issue Q&A."
+    "Own GitHub delivery through release. Use for active work, Worker assignments, or independent reviews. "
+    "Do not activate for standalone status lookups, PR/Issue explanations, or one-off code questions."
 )
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<meta>.*?)\n---(?P<body>\n.*)\Z", re.DOTALL)
 DESCRIPTION_RE = re.compile(r"(?m)^description:\s*.*$")
@@ -126,23 +125,7 @@ def build(skill_dir: Path, platform: str, output_zip: Path) -> str:
 
 
 def validate_archive(skill_dir: Path, platform: str, output_zip: Path) -> None:
-    expected = dict(package_entries(skill_dir, platform))
-    with zipfile.ZipFile(output_zip) as archive:
-        names = archive.namelist()
-        if names != sorted(expected):
-            raise ValueError(f"Package contents mismatch for {platform}: {names}")
-        if set(names) != set(expected):
-            missing = sorted(set(expected) - set(names))
-            extra = sorted(set(names) - set(expected))
-            raise ValueError(f"Package contents mismatch for {platform}; missing={missing}, extra={extra}")
-        for name in names:
-            pure = PurePosixPath(name)
-            if pure.is_absolute() or ".." in pure.parts:
-                raise ValueError(f"Unsafe archive path: {name}")
-            if "__pycache__" in pure.parts or pure.suffix in EXCLUDED_SUFFIXES:
-                raise ValueError(f"Generated Python artifact in package: {name}")
-            if archive.read(name) != expected[name]:
-                raise ValueError(f"Packaged content drifted from canonical source: {name}")
+    package_skill.validate_archive_entries(package_entries(skill_dir, platform), output_zip)
 
 
 def main() -> int:

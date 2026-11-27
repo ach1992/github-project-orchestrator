@@ -53,10 +53,40 @@ class ReleaseIntentTests(unittest.TestCase):
             release_intent.should_publish(event="workflow_dispatch", before="", repo_root=self.repo)
         )
 
-    def test_missing_before_identity_fails_safe_toward_release_validation(self) -> None:
-        self.assertTrue(
+    def test_unavailable_before_identity_does_not_authorize_publication(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "Cannot determine previous VERSION"):
             release_intent.should_publish(event="push", before="f" * 40, repo_root=self.repo)
+
+    def test_push_without_before_identity_requires_recovery(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, "before commit"):
+            release_intent.should_publish(event="push", before="", repo_root=self.repo)
+
+    def test_initial_branch_push_requests_publication(self) -> None:
+        self.assertTrue(
+            release_intent.should_publish(event="push", before="0" * 40, repo_root=self.repo)
         )
+
+    def test_known_absent_version_is_an_introduction(self) -> None:
+        (self.repo / "VERSION").unlink()
+        self.commit("remove version")
+        previous = subprocess.check_output(
+            ["git", "-C", str(self.repo), "rev-parse", "HEAD"], text=True
+        ).strip()
+        (self.repo / "VERSION").write_text("1.1.1\n", encoding="utf-8")
+        self.commit("introduce version")
+        self.assertTrue(
+            release_intent.should_publish(event="push", before=previous, repo_root=self.repo)
+        )
+
+    def test_unavailable_comparison_cli_has_no_publish_output(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "release_intent.py"),
+             "--event", "push", "--before", "f" * 40, "--repo-root", str(self.repo)],
+            text=True, capture_output=True, check=False,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("Cannot determine previous VERSION", result.stderr)
 
 
 if __name__ == "__main__":

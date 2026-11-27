@@ -9,7 +9,7 @@ Read the current work item/contract and repository instructions. Verify:
 - exact assigned repository and Worker identity;
 - active Assignment ID + Contract Revision;
 - exact `Base SHA`, assigned branch, and Integration Target;
-- `Start HEAD` for a new assignment, or Master-supplied `Checkpoint HEAD` for correction/resume;
+- `Start HEAD` for the assignment generation and the branch tip expected before editing: the start for a new assignment, the Master-supplied `Checkpoint HEAD` for correction/resume;
 - scope, acceptance, required validation, and any explicit action constraints.
 
 If an assignment assumption changed enough to invalidate the contract, return `STALE_ASSIGNMENT`; do not guess or broaden scope. Repositories mentioned only as dependencies/context remain read-only unless this assignment explicitly targets them.
@@ -18,7 +18,7 @@ Use an isolated worktree when useful, but never persist the worktree path as ass
 
 ## 2. Dispatch
 
-Persist the assignment identity in [task-contract.md](task-contract.md) before dispatch. Send a compact standalone prompt:
+Persist the assignment identity in [task-contract.md](task-contract.md) before dispatch. For dispatch or correction, give the receiver a reachable handoff contract for the Skill revision in use. If the receiver cannot resolve the contract or its dependencies, include the template, status precedence, unavailable-value conventions, and applicable [relay transport](relay-transport.md) requirements inside the copied request.
 
 ```text
 # WORKER DISPATCH
@@ -30,7 +30,7 @@ Assignment ID: <unique generation>
 Contract Revision: <integer>
 Base SHA: <exact assignment/integration basis>
 Assigned Branch: <branch>
-Start HEAD: <sha for new generation>
+Start HEAD: <immutable generation-start sha>
 Checkpoint HEAD: <sha for correction/resume, otherwise none>
 Integration Target: <branch>
 Allowed actions: <bounded implementation/branch/PR actions>
@@ -41,11 +41,10 @@ Special constraints: <only task-specific items>
 Use github-project-orchestrator as WORKER.
 Verify the assignment before editing. Implement only this scope on the assigned branch.
 Do not integrate/release the Integration Target or start another task.
-Return the handoff defined below.
+Return the handoff using <receiver-accessible URL or installed-Skill reference to this revision's worker-protocol.md#5-handoff, or the inline contract supplied here>.
 ```
 
 Do not repeat the full project history or repository-wide rules when their authoritative sources are reachable.
-
 
 ## 3. Execute
 
@@ -64,7 +63,7 @@ Ordinary reversible implementation choices stay with the Worker; do not bounce t
 
 Return `STALE_ASSIGNMENT` when Assignment ID/Worker/revision/repository/Base SHA/assigned branch/Integration Target/checkpoint no longer matches, or when upstream/contract drift invalidates implementation assumptions.
 
-Normal authorized commits on the assigned branch do not make `Start HEAD` stale.
+Authorized commits on the assigned branch preserve the validity of `Start HEAD`.
 
 Use the first applicable controlling status in this order:
 
@@ -81,7 +80,7 @@ Do not solve adjacent work after a blocker without a revised assignment.
 
 ## 5. Handoff
 
-Preserve every field label; use `none`, `unavailable`, or `NOT_RUN` instead of silently omitting unavailable evidence/state.
+When relaying a handoff, apply [relay transport](relay-transport.md). Select the first applicable status from [Staleness and blockers](#4-staleness-and-blockers). Preserve every field label. Use `none`, `unavailable`, or `NOT_RUN` for unavailable evidence or state.
 
 ```text
 # WORKER HANDOFF
@@ -114,6 +113,6 @@ The handoff is a locator and claim, not review proof. Master verifies current Gi
 
 ## 6. Correction/resume
 
-Reuse the same assignment generation only while the same Worker/branch/contract remains valid. Send the exact Worker, Repository, work item, Assignment ID, Contract Revision, Base SHA, Assigned Branch, Integration Target, reviewed current `Checkpoint HEAD`, and only the changed findings/constraints/required validation. Worker verifies that checkpoint before editing.
+Reuse the same assignment generation only while the same Worker/branch/contract remains valid. Send the exact Worker, Repository, work item, Assignment ID, Contract Revision, Base SHA, Assigned Branch, immutable Start HEAD, Integration Target, reviewed current `Checkpoint HEAD`, and only the changed findings/constraints/required validation. Worker verifies that checkpoint before editing.
 
 If responsibility, branch, or generation identity changes, or contract assumptions become invalid, Master issues a fresh Assignment ID.

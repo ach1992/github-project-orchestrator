@@ -87,25 +87,25 @@ def write_checksum(output_zip: Path, checksum_path: Path, digest: str) -> None:
     checksum_path.write_text(f"{digest}  {output_zip.name}\n", encoding="utf-8")
 
 
-def validate_archive(skill_dir: Path, output_zip: Path) -> None:
-    skill_dir = skill_dir.resolve()
-    entries = package_entries(skill_dir)
-    expected = {name for name, _ in entries}
-    license_archive_name = str(PurePosixPath(ARCHIVE_ROOT) / LICENSE_NAME)
+def validate_archive_entries(entries: list[tuple[str, bytes]], output_zip: Path) -> None:
+    expected = [name for name, _ in entries]
     with zipfile.ZipFile(output_zip) as archive:
-        actual = set(archive.namelist())
-        if actual != expected:
-            missing = sorted(expected - actual)
-            extra = sorted(actual - expected)
-            raise ValueError(f"Package contents mismatch; missing={missing}, extra={extra}")
-        for name in actual:
+        actual = archive.namelist()
+        if actual != expected or len(actual) != len(set(actual)):
+            raise ValueError(f"Package contents mismatch; expected={expected}, actual={actual}")
+        for name, content in entries:
             pure = PurePosixPath(name)
             if pure.is_absolute() or ".." in pure.parts:
                 raise ValueError(f"Unsafe archive path: {name}")
             if "__pycache__" in pure.parts or pure.suffix in EXCLUDED_SUFFIXES:
                 raise ValueError(f"Generated Python artifact in package: {name}")
-        if archive.read(license_archive_name) != canonical_license(skill_dir).read_bytes():
-            raise ValueError("Packaged LICENSE does not exactly match canonical repository LICENSE")
+            if archive.read(name) != content:
+                raise ValueError(f"Packaged content drifted from canonical source: {name}")
+
+
+def validate_archive(skill_dir: Path, output_zip: Path) -> None:
+    entries = [(name, path.read_bytes()) for name, path in package_entries(skill_dir)]
+    validate_archive_entries(entries, output_zip)
 
 
 def main() -> int:

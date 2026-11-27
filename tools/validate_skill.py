@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import re
 import sys
+import unicodedata
+from html import unescape
 from pathlib import Path
+from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SKILL = ROOT / "skill"
@@ -33,7 +36,7 @@ REQUIRED_PATHS = (
 )
 
 FRONTMATTER_RE = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
-LINK_RE = re.compile(r"\[[^\]]+\]\((?!https?://|mailto:|#)([^)]+)\)")
+LINK_RE = re.compile(r"\[[^\]\n]*\]\((?![a-z][a-z0-9+.-]*:|//)([^()\s]+)\)", re.I)
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 PROJECT_GOAL_RE = re.compile(r"^\|\s*"+chr(96)+r"(G\d{2})"+chr(96)+r"\s*\|", re.MULTILINE)
 GOAL_ROW_RE = re.compile(
@@ -95,26 +98,68 @@ def validate_paths(skill_dir: Path) -> None:
         fail(f"Runtime references must be registered for routing and ownership: {unexpected}")
 
 
+def markdown_prose(source: str) -> str:
+    """Mask fenced examples, retaining offsets into the source Markdown."""
+    prose = []
+    fence = ""
+    for line in source.split("\n"):
+        marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+        if fence:
+            if marker and marker[1].startswith(fence) and not marker[2].strip():
+                fence = ""
+        elif marker:
+            fence = marker[1]
+        else:
+            prose.append(line)
+            continue
+        prose.append(" " * len(line))
+    return "\n".join(prose)
+
+
+def markdown_anchors(prose: str) -> set[str]:
+    """Section IDs for the runtime's ATX headings and explicit HTML anchors."""
+    anchors = set(re.findall(r"""<a\s+(?:name|id)=["']([^"']+)["']""", prose, re.I))
+    slugs: set[str] = set()
+    for heading in re.findall(r"^ {0,3}#{1,6}[ \t]+(.+)$", prose, re.M):
+        title = re.sub(r"[ \t]+#+[ \t]*$", "", heading).strip()
+        title = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", title)
+        title = unescape(re.sub(r"<[^>]+>", "", title)).lower()
+        base = "".join(
+            char for char in title
+            if char in " -_" or unicodedata.category(char)[0] in "LMN"
+        ).replace(" ", "-")
+        slug = base
+        suffix = 0
+        while slug in slugs:
+            suffix += 1
+            slug = f"{base}-{suffix}"
+        slugs.add(slug)
+    return anchors | slugs
+
+
 def validate_links(skill_dir: Path) -> None:
-    for markdown in skill_dir.rglob("*.md"):
-        for target in LINK_RE.findall(markdown.read_text(encoding="utf-8")):
-            relative = target.split("#", 1)[0]
-            if not relative:
-                continue
-            resolved = (markdown.parent / relative).resolve()
-            try:
-                resolved.relative_to(skill_dir.resolve())
-            except ValueError as exc:
-                raise ValueError(
-                    f"Reference escapes Skill directory: {markdown.relative_to(skill_dir)} -> {target}"
-                ) from exc
+    root = skill_dir.resolve()
+    docs = {
+        path.resolve(): markdown_prose(path.read_text(encoding="utf-8"))
+        for path in root.rglob("*.md")
+    }
+    anchors = {path: markdown_anchors(prose) for path, prose in docs.items()}
+    for markdown, prose in docs.items():
+        for target in LINK_RE.findall(prose):
+            relative, _, fragment = target.partition("#")
+            resolved = (markdown.parent / unquote(relative)).resolve() if relative else markdown
+            origin = f"{markdown.relative_to(root)} -> {target}"
+            if not resolved.is_relative_to(root):
+                fail(f"Reference escapes Skill directory: {origin}")
             if not resolved.exists():
-                fail(f"Broken relative reference: {markdown.relative_to(skill_dir)} -> {target}")
+                fail(f"Broken relative reference: {origin}")
+            if fragment and resolved in anchors and unquote(fragment) not in anchors[resolved]:
+                fail(f"Missing Markdown anchor: {origin}")
 
 
 def validate_router(skill_dir: Path) -> None:
     kernel = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
-    linked = {target.split("#", 1)[0] for target in LINK_RE.findall(kernel)}
+    linked = {target.split("#", 1)[0] for target in LINK_RE.findall(markdown_prose(kernel))}
     required = {f"references/{name}" for name in RUNTIME_REFERENCES}
     missing = sorted(required - linked)
     if missing:

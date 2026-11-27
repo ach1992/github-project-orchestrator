@@ -47,7 +47,7 @@ Define minimum sufficient evidence, not every possible check.
 - Infra/config: use syntax, plan, dry-run, staging, or equivalent evidence proportional to impact.
 - High-consequence data, authorization, or migration work: include the relevant failure, compatibility, recovery, or rollback evidence.
 
-During coding, use targeted checks when their result can influence the next step. Broad repository-required validation belongs on a sufficiently stable exact candidate unless policy or risk requires it earlier. Reuse evidence while the code/config/environment/requirement it proves remains materially unchanged. Never weaken checks to manufacture a pass.
+Specify what evidence the Worker owes at handoff and which gates belong to final acceptance. Identify the candidate for each result and record the reason for any required check still outstanding.
 
 ## Contract revision
 
@@ -64,7 +64,7 @@ Before dispatch, persist enough identity for a replacement Master to reconstruct
 - work item + `Contract Revision`;
 - exact immutable `Base SHA` the assignment was framed against;
 - `Assigned Branch`;
-- immutable `Start HEAD` for a new generation, or exact `Checkpoint HEAD` for correction/resume;
+- immutable `Start HEAD` for the generation, plus the exact `Checkpoint HEAD` for correction/resume;
 - `Integration Target`;
 - any exact action authorization or special release constraint not already clear from the contract.
 

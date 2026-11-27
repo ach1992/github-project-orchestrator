@@ -1,6 +1,6 @@
 # Master Cycle
 
-Load only for PR provenance, planning, dependency/WIP, delegation, recovery, repeated failures, requirement reconciliation, resource lifecycle, or a stop decision. The hot path remains in `SKILL.md`.
+Use this reference for Master decisions that affect sequencing, provenance, pending work, recovery, or completion.
 
 ## 1. Recover only what changed
 
@@ -10,9 +10,11 @@ On first ownership, use [governance.md](governance.md) to locate the project-def
 
 For later work, inspect only evidence that can affect the next decision: current work/acceptance, relevant code and refs, dependencies, blockers, required checks, release state, and material risks. Expand discovery only when evidence exposes a broader dependency or ambiguity.
 
-## 2. Choose work by finished value
+### PR provenance
 
-**PR provenance (Master):** Before adopting a PR, dispatching independent review, or merging it, establish or reuse provenance valid for its current HEAD: creator, source repo/branch, authors/committers of PR-introduced commits, available authenticated push actors, and alignment with authorized work. Git metadata/green CI alone cannot prove origin. Hold unexplained/conflicting provenance and alert Owner; when requesting merge approval, disclose origin, material changes/risks, and exact HEAD.
+Before adopting a PR, dispatching independent review, or merging, establish or reuse provenance for its current HEAD. Check creator, source repository/branch, authors and committers of PR-introduced commits, available authenticated push actors, and fit with authorized work. Git metadata and green CI alone cannot establish origin. If provenance conflicts or remains unexplained, hold the PR and alert Owner. A merge approval request identifies origin, material changes and risks, and exact HEAD.
+
+## 2. Choose work by finished value
 
 Prefer in this order when applicable:
 
@@ -38,20 +40,21 @@ Master always retains priority, acceptance, contract changes, integration, relea
 
 ## 4. Development and validation economics
 
-Follow the default path in `SKILL.md`. During implementation:
-
-- trace enough to understand the root cause/path before large edits;
-- implement a coherent batch while the design is understood instead of forcing a test/review cycle after every edit;
-- run a targeted check when it is likely to expose a mistake early enough to change the next implementation choice, when failure localization would otherwise become expensive, or before crossing a risky/dependent boundary;
-- use broad suites/CI as acceptance evidence near candidate stability rather than as continuous ritual, except when policy or material coupling/risk makes earlier broad feedback valuable;
-- if a check fails, classify the cause, repair within scope, and rerun the relevant check until acceptance is satisfied or a real gate blocks further safe work; use the narrowest discriminating evidence before another broad run;
-- preserve still-valid evidence; do not rerun broad checks solely to make them look newer.
-
-High-consequence security, authorization, migration/data, concurrency, destructive, or production-coupled work may justify earlier and stronger checks because delayed feedback can increase blast radius or make rollback/debugging harder.
+During implementation, trace the affected path and batch related edits. Check earlier when delay would make failures hard to isolate or a dependent, high-consequence change would be costly to undo. If a check fails, classify the cause, repair within scope, and rerun the discriminating check. Follow through on required validation until acceptance is satisfied or a real gate blocks progress.
 
 ## 5. Pending work and failures
 
-A pending CI/deployment/external job blocks only dependent actions. Continue independent useful work. If it becomes the sole dependency, use an available bounded supported continuation/recheck; if that route appears unavailable, apply capability discovery in [authority-gates.md](authority-gates.md). Otherwise report the exact dependency and resume condition. Never tight-poll or invent background work.
+### Pending jobs
+
+Pending checks, deployments, and external jobs block only dependent work. Do useful independent work first. Reuse the run identity while it progresses. On drift, a stall, or before relying on a terminal result, confirm the target's current revision, required checks, and run attempt. Reuse an observation that already proves this binding.
+
+| Observation | Next action |
+|---|---|
+| Pending | Keep the task active with a supported watch, confirmed event-based resume, or spaced authoritative reads. If an interval expires or a read still shows pending, wait and check again while progress is plausible. Pace reads by expected duration, provider hints, and runtime limits. |
+| Superseded or finished | Follow the replacement run when superseded. On current success take the next authorized action. On current failure [diagnose or repair within scope](review-integration.md#3-validation-and-ci). Respect applicable review, integration, and release approvals. |
+| Stalled, missing, or gated | Diagnose the missing trigger, stall, or approval. Hand back only when human action is necessary or [available alternatives](authority-gates.md#capability-selection) leave no reasonable continuation. Give the job identity, last state, blocker, and exact resume condition. Claim background follow-up only after runtime confirmation. |
+
+### After a failure
 
 After a failure, do not repeat the same action with materially identical inputs just to keep moving. Capture useful evidence and check whether state changed. For tool rejections or `Safety Check` responses, follow [rejected execution](authority-gates.md#rejected-execution-and-safety-checks). Otherwise narrow/reproduce, inspect logs/diff, repair the environment, use another authorized route, or switch to independent work.
 
