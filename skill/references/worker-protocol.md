@@ -30,7 +30,7 @@ Assignment ID: <unique generation>
 Contract Revision: <integer>
 Base SHA: <exact assignment/integration basis>
 Assigned Branch: <branch>
-Start HEAD: <sha for new generation>
+Start HEAD: <immutable generation-start sha>
 Checkpoint HEAD: <sha for correction/resume, otherwise none>
 Integration Target: <branch>
 Allowed actions: <bounded implementation/branch/PR actions>

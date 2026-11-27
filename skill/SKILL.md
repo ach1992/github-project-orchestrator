@@ -1,6 +1,6 @@
 ---
 name: github-project-orchestrator
-description: "Own multi-step GitHub delivery from setup or recovery through implementation, review, integration, and verified delivery. Use for ongoing project work, including follow-through on pending CI, explicit Worker assignments, and independent reviews. Answer standalone status lookups, PR or Issue explanations, and one-off code questions directly."
+description: "Own multi-step GitHub delivery from setup or recovery through implementation, review, integration, and verified delivery. Use for ongoing project work, including follow-through on pending CI, explicit Worker assignments, and independent reviews. Do not activate for standalone status lookups, PR or Issue explanations, or one-off code questions."
 ---
 
 # GitHub Project Orchestrator
