@@ -1,6 +1,6 @@
 ---
 name: github-project-orchestrator
-description: "Orchestrate multi-step GitHub software delivery end-to-end as a recoverable engineering lead: establish or reuse project/repository state, frame outcomes, implement or delegate bounded work, review/integrate, maintain only useful GitHub coordination state, recover across chats, and verify release/delivery. Use for starting, developing, improving, managing, continuing, finishing, or recovering a software project, or for an explicit Worker assignment. Do not use for narrow PR/Issue explanation or ordinary one-off code advice."
+description: "Own multi-step GitHub software delivery from project setup or recovery through implementation, review, integration, and verified delivery. Use to start or continue a project, follow an active CI gate into the next delivery step, or carry out an explicit Worker assignment. Standalone status lookups, PR or Issue explanations, and one-off code advice can be answered directly."
 ---
 
 # GitHub Project Orchestrator
@@ -18,7 +18,7 @@ Own the accepted project outcome as engineering lead. Default to `MASTER` unless
 - **Mutation:** discover before creating repository/project objects. Reuse/update suitable objects; create only after established absence, then verify. Recover relevant execution resources before provisioning or retrying uncertain work. Incomplete discovery is not absence. Refresh mutable identity before overwrite-sensitive actions.
 - **Safety:** preserve unrelated work and secrets. Never reset, clean, stash, overwrite, or force through uncertain state for convenience. If dirty-state ownership is unclear, isolate the work or touch only verified-safe paths. Inspect before destructive or untrusted execution.
 - **Proportionality:** add Issues, contracts, Workers, independent review, broad validation, docs, or process only when coordination, risk, recovery, policy, or evidence value earns the cost.
-- **Progress:** prefer safe outcome-linked action over repeated planning. Status is observational: report verified state and exact blocker/decision/resume condition. Keep working while safe authorized useful work exists; commit, PR, Worker handoff, pending CI, or missing READY label is not a stop. Never ask the user to say continue.
+- **Progress:** continue safe, authorized work through commits, PRs, Worker handoffs, and missing READY labels. [Follow pending CI or external jobs](references/master-cycle.md#5-pending-work-and-failures) into the next authorized step. A status update during active work leaves the task active. Report the exact blocker and resume condition at a real boundary.
 - **Ownership:** Master owns priority, contract changes, acceptance, integration, release, and continuation. A Worker owns only its assignment and never broadens scope or integrates/releases the target.
 - **Recovery:** never leave decision-critical state only in chat. If stronger project evidence cannot recover it, persist it immediately in its natural owner; never wait for rotation or create manager snapshots.
 
@@ -56,7 +56,7 @@ Ask the user only for real authorization, an owner-level decision, or unavailabl
 |---|---|
 | substantive execution tool selection/readiness; any mutation where authority/effect is unclear; missing capability; integration/production/destructive/external commitment; ambiguous write outcome | [authority-gates.md](references/authority-gates.md) |
 | first ownership, repository creation/readiness, project structure, spec/README/docs decisions, multi-repository coordination, backlog/Issues/Projects/milestones, or management-system repair | [governance.md](references/governance.md) |
-| Master PR intake, independent-review dispatch, or PR merge; planning/dependency/WIP/delegation choice that can change sequencing, scope, risk, ownership, or delivery; no-executable-work synthesis; repeated failure; requirement change; resource lifecycle/cleanup; explicit stop/continuation boundary | [master-cycle.md](references/master-cycle.md) |
+| Master PR intake, independent-review dispatch, or PR merge; pending CI or external jobs; planning/dependency/WIP/delegation choice that can change sequencing, scope, risk, ownership, or delivery; no-executable-work synthesis; repeated failure; requirement change; resource lifecycle/cleanup; explicit stop/continuation boundary | [master-cycle.md](references/master-cycle.md) |
 | explicit multi-actor/high-coordination contract or Worker assignment | [task-contract.md](references/task-contract.md) |
 | Worker dispatch/execution/handoff/correction | [worker-protocol.md](references/worker-protocol.md) |
 | candidate review, CI failure, conflict, review freshness, or integration | [review-integration.md](references/review-integration.md) |

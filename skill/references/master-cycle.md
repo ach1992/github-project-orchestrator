@@ -51,7 +51,11 @@ High-consequence security, authorization, migration/data, concurrency, destructi
 
 ## 5. Pending work and failures
 
-A pending CI/deployment/external job blocks only dependent actions. Continue independent useful work. If it becomes the sole dependency, use an available bounded supported continuation/recheck; if that route appears unavailable, apply capability discovery in [authority-gates.md](authority-gates.md). Otherwise report the exact dependency and resume condition. Never tight-poll or invent background work.
+Pending checks, deployments and external jobs block only dependent work. Do useful independent work first. When the job is the sole dependency, keep the task active with a supported watch, a confirmed event-based resume, or spaced reads of authoritative status. If a watch interval expires or a read still shows pending, wait and recheck while progress is plausible. Pace reads by expected duration, provider hints and runtime limits.
+
+Before using a result for a mutable target, confirm its current revision and which required checks, run or attempt apply. Follow a superseding run. On success take the next authorized action without a user nudge. On failure [diagnose or repair within scope](review-integration.md#3-validation-and-ci). Review, integration and release still require their own approvals where applicable.
+
+Diagnose missing checks, stalled runs and approval gates. Hand back a pending dependency only when human action is necessary or [available alternatives](authority-gates.md#capability-selection) leave no reasonable way to continue. Give the job identity, last observed state, blocker and exact resume condition. Claim background follow-up only once the runtime confirms it.
 
 After a failure, do not repeat the same action with materially identical inputs just to keep moving. Capture useful evidence and check whether state changed. For tool rejections or `Safety Check` responses, follow [rejected execution](authority-gates.md#rejected-execution-and-safety-checks). Otherwise narrow/reproduce, inspect logs/diff, repair the environment, use another authorized route, or switch to independent work.
 
